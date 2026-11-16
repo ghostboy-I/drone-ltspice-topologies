@@ -9,3 +9,7 @@
 # Python cache
 __pycache__/
 *.pyc
+
+# Agent worktrees (Claude desktop sessions, Parallel Code)
+.claude/worktrees/
+.worktrees/
