@@ -11,6 +11,7 @@
 | `gen_schematic.py` | Script that generated the schematic. Edit and rerun it to change the layout |
 | `plot_results.py` | Builds `ThreePhase_ESC_BLDC_results.png` from the `.raw` file |
 | `make_design_doc.py` | Builds the design PDF: hand calculations plus the LTspice `.meas` results |
+| `check_dcm.py` | Re-runs 16k/48k Sync=0 and 16k Sync=1 with waveforms kept and tests for discontinuous conduction |
 | `sweep_fsw.py` | Parallel PWM-frequency sweep (12 runs, 9 at a time), hand-calc checks, `sweeps/fsw_sync/fsw_sweep.png` |
 
 ## Techniques new in this design
@@ -65,10 +66,21 @@ What it teaches:
 3. **Switching loss is real but small in this model**: high-side FET loss fits 0.26 W + 1.2 µJ × Fsw. That is +0.1 W from 16 to 96 kHz.
    A real ESC also pays gate-drive loss Qg·Vdrv·Fsw per FET and motor iron loss, which grows with Fsw.
    Those are not modeled, so the real optimum is lower than this plot's "faster is always better". Most ESCs run 24–48 kHz.
-4. **Diode freewheel (Sync=0) runs faster at low Fsw** (14,774 RPM at 16 kHz vs 13,706 at 48 kHz). The likely cause (not yet
-   confirmed on a waveform: rerun case_001 with `--keep-raw` and plot I(La)): with large ripple the phase current reaches zero during the off-time (discontinuous conduction). The terminal then floats up to the back-EMF,
-   so the motor sees more average voltage than D·Vbus. Complementary PWM lets the current go negative, which keeps
-   conduction continuous and the speed flat (14,100–14,200 RPM). That is one more reason ESCs use it: speed tracks throttle linearly.
+4. **Diode freewheel (Sync=0) runs faster at low Fsw** (14,774 RPM at 16 kHz vs 13,706 at 48 kHz) because it goes
+   **discontinuous** (confirmed on the waveforms by `check_dcm.py`). With large ripple the phase current reaches zero during the off-time.
+   The body diode then turns off and the terminal floats up toward the back-EMF (ringing with the FET capacitances) instead
+   of sitting at −0.8 V. The motor sees more average voltage than D·Vbus. Complementary PWM lets the current go negative,
+   which keeps conduction continuous and the speed flat. That is one more reason ESCs use it: speed tracks throttle linearly.
+
+   Hand calc for the boundary: the current touches zero when ΔI/2 ≥ I_avg, i.e. Fsw < Vbus·D(1−D)/(4·Lph·I_avg) ≈ 18–21 kHz.
+
+   | Case (phase A chopped) | I = 0 during PWM off-time | I < 0 | mean V(pa) | CCM hand calc D·Vbus − (1−D)·Vdiode |
+   |---|---|---|---|---|
+   | 16 kHz, Sync=0 | **27 %** | 0 % | **7.86 V** | 7.16 V (+0.70 V, i.e. +10 %: matches the +8 % speed) |
+   | 48 kHz, Sync=0 | 2 % | 0 % | 7.13 V | 7.17 V |
+   | 16 kHz, Sync=1 | 2 % | 13 % | 7.56 V | 7.56 V (no diode drop) |
+
+   ![dcm check](sweeps/dcm_check/dcm_check.png)
 
 Make your own sweep of any `.param` (from the `Topologies` folder):
 ```bash
