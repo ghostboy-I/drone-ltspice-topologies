@@ -76,9 +76,18 @@ What it teaches:
 
    | Case (phase A chopped) | I = 0 during PWM off-time | I < 0 | mean V(pa) | CCM hand calc D·Vbus − (1−D)·Vdiode |
    |---|---|---|---|---|
-   | 16 kHz, Sync=0 | **27 %** | 0 % | **7.86 V** | 7.16 V (+0.70 V, i.e. +10 %: matches the +8 % speed) |
+   | 16 kHz, Sync=0 | **27 %** | 0 % | **7.86 V** | 7.16 V (+0.70 V, i.e. +10 %) |
    | 48 kHz, Sync=0 | 2 % | 0 % | 7.13 V | 7.17 V |
    | 16 kHz, Sync=1 | 2 % | 13 % | 7.56 V | 7.56 V (no diode drop) |
+
+   Is +0.7 V enough to explain the speed? Small-signal hand calc around 13,706 RPM:
+   dV/dω = Ke + 2·Rph·(2·Kprop·ω + Bfric)/Ke = 4.97 mV per rad/s, so +0.70 V predicts **+1,345 RPM**. LTspice gives
+   **+1,068 RPM** (14,774 vs 13,706). The direction and size agree, but the hand calc is about 25 % high. It treats the
+   16 kHz case as the 48 kHz one plus a voltage step and ignores everything else that changes at 16 kHz (for example the
+   larger ripple copper loss). That part is not yet explained.
+
+   The plot shows only the time inside one phase-A-high interval (120°, about 193 µs at 16 kHz). Outside it phase A
+   floats or is the low phase, and its ringing there is not DCM.
 
    ![dcm check](sweeps/dcm_check/dcm_check.png)
 

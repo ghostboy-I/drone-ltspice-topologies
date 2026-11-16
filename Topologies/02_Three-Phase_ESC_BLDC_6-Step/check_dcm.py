@@ -65,10 +65,14 @@ def analyse(fsw_s, sync):
              va_high=np.average(va[a_high], weights=w[a_high]),      # mean applied phase voltage while A is high
              vbus=np.average(vbus, weights=w))
     r["v_ccm_hand"] = DUTY * r["vbus"] - (1 - DUTY) * (0.8 if sync == "0" else 0.0)
-    # waveform snippet: 4 PWM periods centred on the middle of an A-high interval near the end
-    k = np.where(a_high & (np.sin(the) > 0.995))[0][-1]
+    # waveform snippet: up to 4 PWM periods centred on the middle of a complete A-high interval near the end,
+    # clipped to that interval (at 16 kHz the interval, 120 electrical degrees, is only ~3 PWM periods long; outside it
+    # phase A is floating or is the low phase, and its ringing there is not DCM)
+    k = np.where(a_high & (np.sin(the) > 0.995) & (t < T1 - 0.5e-3))[0][-1]
+    lo = k - np.argmin(a_high[k::-1])          # first index of this A-high run
+    hi = k + np.argmin(a_high[k:])             # one past its last index
     tc = t[k]
-    s = (t > tc - 2 / fsw) & (t < tc + 2 / fsw)
+    s = (t > max(tc - 2 / fsw, t[lo])) & (t < min(tc + 2 / fsw, t[hi - 1]))
     r["wave"] = dict(t=(t[s] - tc) * 1e6, i=i[s], v=va[s], on=pwm_on[s])
     return r
 

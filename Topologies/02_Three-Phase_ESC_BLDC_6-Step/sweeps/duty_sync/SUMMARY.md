@@ -68,10 +68,12 @@ The saving is the diode drop minus the FET drop over that time:
 
 The saving first grows with current, then collapses at Duty = 0.9 because the off-time shrinks to 10 %. The ratio
 also falls because the *other* low-side loss, the low phase's FET that is on for the whole 120° interval,
-grows as I²·R_on in both modes and does not change with Sync. The hand calc is 18 % high at Duty = 0.3 because the
-ripple there (about 4.4 A p-p at 48 kHz) is larger than the 2.8 A average. The current nearly reaches zero during
-the off-time, so the diode conducts less than the formula assumes (the same discontinuous-conduction effect that
-`check_dcm.py` shows at 16 kHz).
+grows as I²·R_on in both modes and does not change with Sync. The hand calc agrees within 1–7 % for Duty ≥ 0.5 but is
+**18 % high at Duty = 0.3, and the cause is not yet known.** Ripple alone does not explain it: while the current stays
+continuous, the diode's average current over the off-time is still I, whatever the ripple. One candidate: the ripple
+at Duty = 0.3 (Vbus·D(1−D)/(2·Lph·Fsw) ≈ 4.4 A p-p, so ±2.2 A around 2.8 A) brings the current within about 0.6 A of
+zero, so commutation transients could make it touch zero briefly. (Dead time is not a good candidate: 100 ns is only
+0.5 % of a 48 kHz period.) To settle it, rerun Duty = 0.3 with `--keep-raw` and apply the `check_dcm.py` analysis (I = 0 share of the off-time).
 
 All simulated values above are from `results.csv`; deltas, ratios and percentage-point differences are arithmetic
 on those entries. The hand-calc column uses the schematic's ESC_FET model parameters.
