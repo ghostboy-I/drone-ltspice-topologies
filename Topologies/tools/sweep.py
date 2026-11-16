@@ -111,8 +111,13 @@ def _flatten(meas):
     return out
 
 
+def _say(*args):
+    """print() that flushes at once, so a log file shows progress while the sweep runs (stdout to a file is buffered)."""
+    print(*args, flush=True)
+
+
 def run_sweep(asc_path, grid, fixed=None, jobs=None, name="sweep", keep_raw=False, timeout_min=60, dry_run=False,
-              log=print):
+              log=_say):
     """Run every combination of `grid` ({param: [values]}) in parallel. Returns the list of result rows."""
     asc_path = os.path.abspath(asc_path)
     base = os.path.splitext(os.path.basename(asc_path))[0]
