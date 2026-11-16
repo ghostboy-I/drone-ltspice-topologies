@@ -2,7 +2,8 @@
 
 Parallel sweep of `ThreePhase_ESC_BLDC.asc`: `Lph = 3.75u, 7.5u, 15u, 30u` × `Sync = 0, 1`,
 8 LTspice runs, 8 at a time, finished in 412 s. Full precision is in `results.csv`; the tables below
-round those entries. Constants used for the hand calculations: `Vbus = 15.2 V`, `D = 0.5`,
+round those entries. Run by a Parallel Code agent and reviewed against `results.csv`; the
+review corrected hand calcs 2 and 3 and the final paragraph (see notes in those sections). Constants used for the hand calculations: `Vbus = 15.2 V`, `D = 0.5`,
 `Fsw = 48 kHz`, `Rph = 0.05 Ω`, `Ke = 60/(2π·2300) = 4.1519e-3 V·s/rad`, `Pp = 7`.
 
 **Validation:** the `Lph = 7.5u` rows reproduce the topology README table: 13,706.3 RPM / 83.23 % for
@@ -29,6 +30,8 @@ Two phases carry the current, so the peak-to-peak phase-current ripple is
 
 Predicted torque ripple = `Ke·dI + 16e-3` N·m; the 16 mN·m term is the commutation dip.
 
+Error here is (predicted − simulated) / simulated.
+
 | Lph | Sync | dI (A p-p) | Predicted te_ripple (mN·m) | Simulated te_ripple (mN·m) | Error |
 |---:|---:|---:|---:|---:|---:|
 | 3.75u | 0 | 10.556 | 59.8 | 56.3 | +6.2 % |
@@ -52,9 +55,16 @@ A triangular ripple adds `dI²/12` to the mean-square phase current. With two ph
 
 For Sync=1, the hand calc gives 0.928 W at `Lph = 3.75u` and 0.0145 W at `Lph = 30u`, a predicted
 change of **−0.914 W**. The simulated `pcu` changes from 6.059 W to 2.628 W, a change of
-**−3.432 W**. The hand calc accounts for only 26.6 % of the simulated drop; the remaining 73.4 % is a
->20 % disagreement. The hand calc is a ripple-only estimate while `pcu` is the total copper loss, but
-the size of the extra simulated drop is **not explained**.
+**−3.432 W**. The ripple term alone accounts for only 26.6 % of the simulated drop.
+
+**Review note: the rest is explained by the operating point.** The comparison above (set by the task prompt) holds
+the DC current fixed, but it is not fixed: a larger Lph slows the motor (hand calc 3), so the propeller needs less
+torque and the conducting current falls from I = 6.829 A to 4.081 A. The DC part of the copper loss, 2·Rph·I², then
+drops by 0.1·(6.829² − 4.081²) = **3.00 W**. Adding the ripple term:
+
+    ΔPcu ≈ 3.00 W (DC) + 0.91 W (ripple) = 3.91 W   vs   3.43 W simulated   (+14 %)
+
+So most of the copper-loss saving at large Lph comes from the motor running slower, not from smaller ripple.
 
 ## Hand calc 3 — commutation voltage loss
 
@@ -70,9 +80,17 @@ Each commutation costs about `Lph·I` volt-seconds, and there are `6·Pp·(rpm/6
 | 30u | 12,318.8 | 2.041 | 4.081 | 1.056 |
 
 `V_comm` rises monotonically, 0.263 V → 1.056 V (Δ = 0.793 V), while the speed falls monotonically,
-14,675.7 → 12,318.8 RPM (Δ = 2,356.9 RPM). So the direction agrees. For the size, `ΔV_comm / Ke`
-predicts a 1,823 RPM drop; the simulated drop is 2,357 RPM. That is the same rough size, with the hand
-calc about 23 % low (the observed drop is 29 % larger).
+14,675.7 → 12,318.8 RPM (Δ = 2,356.9 RPM). So the direction agrees.
+
+**Review note on the size.** Dividing by Ke alone (`ΔV_comm / Ke` → 1,823 RPM) treats the motor as unloaded.
+With the propeller, a lower speed also needs less current, so each volt moves the speed less. The loaded
+small-signal slope (as in the topology 02 README's DCM section) is
+
+    dV/dω = Ke + 2·Rph·(2·Kprop·ω + Bfric)/Ke ≈ 4.97 mV per rad/s
+
+and 0.793 V / 4.97 mV per rad/s = 160 rad/s = **1,524 RPM**. The simulated drop is **2,357 RPM**, so V_comm explains
+about 65 % of it (the hand calc is 35 % low). The rest is **not explained**. V_comm here uses I = ibat_avg/D and one
+volt-second loss per commutation, which may underestimate the real commutation interval at large Lph.
 
 ## Discontinuous conduction (Sync=0)
 
@@ -91,9 +109,18 @@ below `I = 6.76 A`, its rpm is not unexpectedly high because of discontinuous co
 
 ## Which effect wins
 
-As `Lph` grows, less PWM ripple cuts the ripple copper loss, while more commutation loss adds a growing
-`V_comm` and reduces speed and power. In Sync=1 the efficiency rises from 85.75 % at 3.75u to 88.03 % at
-15u and then essentially plateaus at 88.07 % at 30u: over this range the ripple-loss reduction wins,
-but the gain is exhausted by 15–30u. The best Sync=1 efficiency is **30u at 88.07 %**, barely ahead of
-15u at 88.03 %. In Sync=0 the same trade peaks earlier, at 15u (83.73 %), and 30u is lower (83.51 %),
-so in that mode the added commutation loss has already overtaken the ripple-loss saving at 30u.
+Efficiency, Sync=1: 85.75 % (3.75u) → 87.49 % (7.5u) → 88.03 % (15u) → 88.07 % (30u). It rises with Lph and is flat
+from 15u to 30u, so the best value in this sweep is **30u at 88.07 %**, with 15u within 0.04 points.
+Sync=0 peaks at 15u (83.73 %) and is 0.22 points lower at 30u (83.51 %). That difference is small, and this sweep
+does not show its cause.
+
+Two different things change with Lph, and only one of them is a loss:
+- **Copper loss falls**, mostly because the motor runs slower and draws less current (hand calc 2 review note),
+  and partly because the ripple shrinks.
+- **The commutation volt-seconds (V_comm) are mostly not dissipated.** When a phase turns off, its inductor's stored
+  energy flows back to the supply through the diodes (only their small drop is lost). So V_comm mainly lowers the
+  *speed* at a given duty rather than the efficiency. At 30u the motor gives
+  16 % less speed (12,319 vs 14,676 RPM, Sync=1), so it needs more throttle for the same thrust.
+
+So a larger Lph buys a little efficiency at a fixed duty, mainly by running the motor slower. A fair comparison of
+efficiency would hold the **speed** constant (adjust Duty per Lph), which this sweep does not do.
