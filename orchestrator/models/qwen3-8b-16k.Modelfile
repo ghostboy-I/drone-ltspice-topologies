@@ -1,0 +1,3 @@
+FROM qwen3:8b
+# OpenCode sends a long system prompt plus file contents: 4K (Ollama default) is far too small
+PARAMETER num_ctx 16384

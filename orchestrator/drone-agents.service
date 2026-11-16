@@ -1,0 +1,15 @@
+[Unit]
+Description=Drone LTspice agent coordinator (parallel Claude Code workers, one worktree per task)
+After=network.target ollama.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Claude Access Folder for LTSpice
+ExecStart=/usr/bin/python3 "%h/Claude Access Folder for LTSpice/orchestrator/coordinator.py" run
+Environment=PATH=%h/.opencode/bin:%h/.local/bin:/usr/local/bin:/usr/bin:/bin
+Restart=on-failure
+RestartSec=30
+Nice=10
+
+[Install]
+WantedBy=default.target
