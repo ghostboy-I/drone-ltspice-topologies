@@ -17,4 +17,13 @@
 
 `tools/ltraw.py` reads LTspice binary `.raw` files into Python so results can be plotted.
 
+`tools/sweep.py` runs parameter sweeps in parallel: one LTspice process per case, several at once, results in
+`<topology>/sweeps/<name>/results.csv`. Example (from this folder):
+```bash
+python3 tools/sweep.py 02_Three-Phase_ESC_BLDC_6-Step/ThreePhase_ESC_BLDC.asc --param Duty=0.3,0.5,0.7,0.9 --param Sync=0,1 --name duty
+```
+A single transient run cannot be split across cores (every time step needs the one before it), but separate cases are
+independent, so a sweep scales with core count. Each ESC run keeps about 2 cores busy and uses ~0.17 GB, so the default
+is one job per 2 cores (`--jobs` overrides). Topology 02 has a worked example: `sweep_fsw.py`.
+
 Each topology folder has its schematic, a README, results plot and `NN_<Topology>_Design.pdf` (the math). Rebuild that PDF with `make_design_doc.py`.
