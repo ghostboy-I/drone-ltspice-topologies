@@ -2,9 +2,10 @@
 
 Parallel sweep of `ThreePhase_ESC_BLDC.asc`: `Lph = 3.75u, 7.5u, 15u, 30u` × `Sync = 0, 1`,
 8 LTspice runs, 8 at a time, finished in 412 s. Full precision is in `results.csv`; the tables below
-round those entries. Run by a Parallel Code agent and reviewed against `results.csv`; the
-review corrected hand calcs 2 and 3 and the final paragraph (see notes in those sections). Constants used for the hand calculations: `Vbus = 15.2 V`, `D = 0.5`,
-`Fsw = 48 kHz`, `Rph = 0.05 Ω`, `Ke = 60/(2π·2300) = 4.1519e-3 V·s/rad`, `Pp = 7`.
+round those entries. Run by a Parallel Code agent and reviewed against `results.csv`; the review
+corrected hand calcs 2 and 3 and the final section (see the review notes there).
+
+Constants used for the hand calculations: `Vbus = 15.2 V`, `D = 0.5`, `Fsw = 48 kHz`, `Rph = 0.05 Ω`, `Ke = 60/(2π·2300) = 4.1519e-3 V·s/rad`, `Pp = 7`.
 
 **Validation:** the `Lph = 7.5u` rows reproduce the topology README table: 13,706.3 RPM / 83.23 % for
 Sync=0 and 14,177.9 RPM / 87.49 % for Sync=1.
@@ -57,7 +58,7 @@ For Sync=1, the hand calc gives 0.928 W at `Lph = 3.75u` and 0.0145 W at `Lph = 
 change of **−0.914 W**. The simulated `pcu` changes from 6.059 W to 2.628 W, a change of
 **−3.432 W**. The ripple term alone accounts for only 26.6 % of the simulated drop.
 
-**Review note: the rest is explained by the operating point.** The comparison above (set by the task prompt) holds
+**Review note: most of the rest comes from the operating point.** The comparison above (set by the task prompt) holds
 the DC current fixed, but it is not fixed: a larger Lph slows the motor (hand calc 3), so the propeller needs less
 torque and the conducting current falls from I = 6.829 A to 4.081 A. The DC part of the copper loss, 2·Rph·I², then
 drops by 0.1·(6.829² − 4.081²) = **3.00 W**. Adding the ripple term:
@@ -65,6 +66,11 @@ drops by 0.1·(6.829² − 4.081²) = **3.00 W**. Adding the ripple term:
     ΔPcu ≈ 3.00 W (DC) + 0.91 W (ripple) = 3.91 W   vs   3.43 W simulated   (+14 %)
 
 So most of the copper-loss saving at large Lph comes from the motor running slower, not from smaller ripple.
+
+The simple model gets the *change* right, but not the absolute levels. (`pcu` itself is exactly 3·Rph·iph_rms²:
+6.030 W and 2.642 W from `iph_rms`, matching 6.059 W and 2.628 W.) The two-phase hand calc 2·Rph·I² + 2·Rph·dI²/12
+gives 5.59 W at 3.75u (8 % low) and 1.68 W at 30u (**36 % low**). Something that adds copper loss and grows with
+Lph is missing from it. That part is **not explained**.
 
 ## Hand calc 3 — commutation voltage loss
 
@@ -89,8 +95,10 @@ small-signal slope (as in the topology 02 README's DCM section) is
     dV/dω = Ke + 2·Rph·(2·Kprop·ω + Bfric)/Ke ≈ 4.97 mV per rad/s
 
 and 0.793 V / 4.97 mV per rad/s = 160 rad/s = **1,524 RPM**. The simulated drop is **2,357 RPM**, so V_comm explains
-about 65 % of it (the hand calc is 35 % low). The rest is **not explained**. V_comm here uses I = ibat_avg/D and one
-volt-second loss per commutation, which may underestimate the real commutation interval at large Lph.
+about 65 % of it (the hand calc is 35 % low). The rest is **not explained**. (A full nonlinear solve of
+the same balance gives 1,520 RPM, so the linear slope is not the problem. One possibility, not checked: V_comm uses
+I = ibat_avg/D and one Lph·I volt-second loss per commutation, which may undercount the commutation interval at large
+Lph. The 36 % shortfall in the hand calc 2 copper-loss level at 30u points the same way.)
 
 ## Discontinuous conduction (Sync=0)
 
