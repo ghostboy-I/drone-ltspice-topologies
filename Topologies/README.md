@@ -10,10 +10,10 @@
 | 06 | BEC: synchronous buck 4S → 5 V / 3 A for avionics (voltage mode, Type III, input feed-forward) | `06_BEC_Synchronous_Buck_5V/` | Done, verified by simulation |
 | 07 | Full 3-battery → 3-motor system: three protected channels, three switching FOC ESCs on their own harnesses, plus the BEC (plug-in/arming, flight, punch, pack loss) | `07_Three-Channel_Full_System/` | Done, verified by simulation |
 | 08 | Redundant avionics power: feed the BEC from all three packs (ideal-diode OR-ing) without creating ground loops | `08_Redundant_Avionics_Power/` | Done, verified by simulation |
-| 09 | Full H-bridge (bidirectional / reversing) | — | Optional |
-| 10 | Bootstrap high-side gate drive | — | Optional |
+| 09 | 24S channel of the real tricopter: FOC drive (03) on a U15XL with bootstrap gate drive, ESC 12 V + 3.3 V supply, avionics 12 V (transmitter) → 5 V (06, controller + receiver) → 3.3 V | `09_24S_FOC_Drive_Low-Voltage_Rails/` | Done, verified by simulation |
+| 10 | Full H-bridge (bidirectional / reversing) | — | Optional |
 
-**End goal:** three batteries driving three motors independently. Transmission (04, 05), down-conversion for avionics (06), then the full system (07) and redundant avionics power (08).
+**End goal:** three batteries driving three motors independently. Transmission (04, 05), down-conversion for avionics (06), then the full system (07), redundant avionics power (08), and the move to the real 24S packs with every low-voltage rail (09).
 
 `tools/ltraw.py` reads LTspice binary `.raw` files into Python so results can be plotted.
 
