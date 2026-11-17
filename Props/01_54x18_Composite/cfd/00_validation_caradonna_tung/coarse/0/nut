@@ -10,6 +10,7 @@ dimensions [0 2 -1 0 0 0 0];
 internalField uniform 0;
 boundaryField
 {
+    #includeEtc "caseDicts/setConstraintTypes"
     far_top { type calculated; value uniform 0; }
     far_side { type calculated; value uniform 0; }
     far_bottom { type calculated; value uniform 0; }

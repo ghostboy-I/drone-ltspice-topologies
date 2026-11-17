@@ -1,93 +1,3 @@
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
-[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[29885,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
@@ -97,25 +7,25 @@
 \*---------------------------------------------------------------------------*/
 Build  : 13-18870c24d21c
 Exec   : foamRun -parallel
-Date   : Nov 16 2026
-Time   : 19:31:16
+Date   : Nov 17 2026
+Time   : 14:50:55
 Host   : "elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000"
-PID    : 282846
+PID    : 492314
 I/O    : uncollated
 Case   : /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse
 nProcs : 10
 Slaves : 
 9
 (
-"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282847"
-"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282848"
-"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282849"
-"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282850"
-"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282851"
-"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282852"
-"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282853"
-"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282854"
-"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282855"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.492315"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.492316"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.492317"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.492318"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.492319"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.492320"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.492321"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.492322"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.492323"
 )
 
 Pstream initialised with:
@@ -133,141 +43,54 @@ Create time
 Create mesh for time = 0
 
 Selecting solver incompressibleFluid
-[0] 
-[0] 
-[0] --> FOAM FATAL IO ERROR: 
-[0] Cannot find patchField entry for procBoundary0to1
-[0] 
-[0] file: /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor0/0/p/boundaryField from line 11 to 16.
-[0] 
-[0]     From function void Foam::GeometricBoundaryField<Type, GeoMesh, PrimitiveField>::readField(const Foam::DimensionedField<Type, GeoMesh, PrimitiveField>&, const Foam::dictionary&) [with Type = double; GeoMesh = Foam::volMesh; PrimitiveField = Foam::Field]
-[0]     in file /home/ubuntu/OpenFOAM/OpenFOAM-13/src/OpenFOAM/lnInclude/GeometricBoundaryField.C at line 159.
-[0] 
-FOAM parallel run exiting
-[0] 
-[4] 
-[4] 
-[4] --> FOAM FATAL IO ERROR: 
-[4] Cannot find patchField entry for procBoundary4to3
-[4] 
-[4] file: /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor4/0/p/boundaryField from line 11 to 16.
-[4] 
-[4]     From function void Foam::GeometricBoundaryField<Type, GeoMesh, PrimitiveField>::readField(const Foam::DimensionedField<Type, GeoMesh, PrimitiveField>&, const Foam::dictionary&) [with Type = double; GeoMesh = Foam::volMesh; PrimitiveField = Foam::Field]
-[4]     in file /home/ubuntu/OpenFOAM/OpenFOAM-13/src/OpenFOAM/lnInclude/GeometricBoundaryField.C at line 159.
-[4] 
-FOAM parallel run exiting
-[4] 
-[5] 
-[5] 
-[5] --> FOAM FATAL IO ERROR: 
-[5] Cannot find patchField entry for procBoundary5to0
-[5] 
-[5] file: /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor5/0/p/boundaryField from line 11 to 16.
-[5] 
-[5]     From function void Foam::GeometricBoundaryField<Type, GeoMesh, PrimitiveField>::readField(const Foam::DimensionedField<Type, GeoMesh, PrimitiveField>&, const Foam::dictionary&) [with Type = double; GeoMesh = Foam::volMesh; PrimitiveField = Foam::Field]
-[5]     in file /home/ubuntu/OpenFOAM/OpenFOAM-13/src/OpenFOAM/lnInclude/GeometricBoundaryField.C at line 159.
-[5] 
-FOAM parallel run exiting
-[5] 
-[8] 
-[8] 
-[8] --> FOAM FATAL IO ERROR: 
-[8] Cannot find patchField entry for procBoundary8to0
-[8] 
-[8] file: /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor8/0/p/boundaryField from line 11 to 16.
-[8] 
-[8]     From function void Foam::GeometricBoundaryField<Type, GeoMesh, PrimitiveField>::readField(const Foam::DimensionedField<Type, GeoMesh, PrimitiveField>&, const Foam::dictionary&) [with Type = double; GeoMesh = Foam::volMesh; PrimitiveField = Foam::Field]
-[8]     in file /home/ubuntu/OpenFOAM/OpenFOAM-13/src/OpenFOAM/lnInclude/GeometricBoundaryField.C at line 159.
-[8] 
-FOAM parallel run exiting
-[8] 
-[2] 
-[2] 
-[2] --> FOAM FATAL IO ERROR: 
-[2] Cannot find patchField entry for procBoundary2to1
-[2] 
-[2] file: /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor2/0/p/boundaryField from line 11 to 16.
-[2] 
-[2]     From function void Foam::GeometricBoundaryField<Type, GeoMesh, PrimitiveField>::readField(const Foam::DimensionedField<Type, GeoMesh, PrimitiveField>&, const Foam::dictionary&) [with Type = double; GeoMesh = Foam::volMesh; PrimitiveField = Foam::Field]
-[2]     in file /home/ubuntu/OpenFOAM/OpenFOAM-13/src/OpenFOAM/lnInclude/GeometricBoundaryField.C at line 159.
-[2] 
-FOAM parallel run exiting
-[2] 
-[1] 
-[1] 
-[1] --> FOAM FATAL IO ERROR: 
-[1] Cannot find patchField entry for procBoundary1to0
-[1] 
-[1] file: /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor1/0/p/boundaryField from line 11 to 16.
-[1] 
-[1]     From function void Foam::GeometricBoundaryField<Type, GeoMesh, PrimitiveField>::readField(const Foam::DimensionedField<Type, GeoMesh, PrimitiveField>&, const Foam::dictionary&) [with Type = double; GeoMesh = Foam::volMesh; PrimitiveField = Foam::Field]
-[1]     in file /home/ubuntu/OpenFOAM/OpenFOAM-13/src/OpenFOAM/lnInclude/GeometricBoundaryField.C at line 159.
-[1] 
-FOAM parallel run exiting
-[1] 
-[7] 
-[7] 
-[7] --> FOAM FATAL IO ERROR: 
-[7] Cannot find patchField entry for procBoundary7to2
-[7] 
-[7] file: /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor7/0/p/boundaryField from line 11 to 16.
-[7] 
-[7]     From function void Foam::GeometricBoundaryField<Type, GeoMesh, PrimitiveField>::readField(const Foam::DimensionedField<Type, GeoMesh, PrimitiveField>&, const Foam::dictionary&) [with Type = double; GeoMesh = Foam::volMesh; PrimitiveField = Foam::Field]
-[7]     in file /home/ubuntu/OpenFOAM/OpenFOAM-13/src/OpenFOAM/lnInclude/GeometricBoundaryField.C at line 159.
-[7] 
-FOAM parallel run exiting
-[7] 
-[9] 
-[9] 
-[9] --> FOAM FATAL IO ERROR: 
-[9] Cannot find patchField entry for procBoundary9to1
-[9] 
-[9] file: /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor9/0/p/boundaryField from line 11 to 16.
-[9] 
-[9]     From function void Foam::GeometricBoundaryField<Type, GeoMesh, PrimitiveField>::readField(const Foam::DimensionedField<Type, GeoMesh, PrimitiveField>&, const Foam::dictionary&) [with Type = double; GeoMesh = Foam::volMesh; PrimitiveField = Foam::Field]
-[9]     in file /home/ubuntu/OpenFOAM/OpenFOAM-13/src/OpenFOAM/lnInclude/GeometricBoundaryField.C at line 159.
-[9] 
-FOAM parallel run exiting
-[9] 
-[6] 
-[6] 
-[6] --> FOAM FATAL IO ERROR: 
-[6] Cannot find patchField entry for procBoundary6to5
-[6] 
-[6] file: /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor6/0/p/boundaryField from line 11 to 16.
-[6] 
-[6]     From function void Foam::GeometricBoundaryField<Type, GeoMesh, PrimitiveField>::readField(const Foam::DimensionedField<Type, GeoMesh, PrimitiveField>&, const Foam::dictionary&) [with Type = double; GeoMesh = Foam::volMesh; PrimitiveField = Foam::Field]
-[6]     in file /home/ubuntu/OpenFOAM/OpenFOAM-13/src/OpenFOAM/lnInclude/GeometricBoundaryField.C at line 159.
-[6] 
-FOAM parallel run exiting
-[6] 
-[3] 
-[3] 
-[3] --> FOAM FATAL IO ERROR: 
-[3] Cannot find patchField entry for procBoundary3to2
-[3] 
-[3] file: /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor3/0/p/boundaryField from line 11 to 16.
-[3] 
-[3]     From function void Foam::GeometricBoundaryField<Type, GeoMesh, PrimitiveField>::readField(const Foam::DimensionedField<Type, GeoMesh, PrimitiveField>&, const Foam::dictionary&) [with Type = double; GeoMesh = Foam::volMesh; PrimitiveField = Foam::Field]
-[3]     in file /home/ubuntu/OpenFOAM/OpenFOAM-13/src/OpenFOAM/lnInclude/GeometricBoundaryField.C at line 159.
-[3] 
-FOAM parallel run exiting
-[3] 
---------------------------------------------------------------------------
-MPI_ABORT was invoked on rank 1 in communicator MPI COMM 3 SPLIT FROM 0
-  Proc: [[29885,1],1]
-  Errorcode: 1
+Selecting viscosity model constant
+Selecting turbulence model type RAS
+    Selecting RAS turbulence model kOmegaSST
+Creating MRF zone list from MRFProperties
+    creating MRF zone: rotor
+Selecting patchDistMethod meshWave
 
-NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
-You may or may not see output from other processes, depending on
-exactly when Open MPI kills them.
---------------------------------------------------------------------------
- --------------------------------------------------------------------------
-Sorry!  You were supposed to get help about:
-    prun:proc-ordered-abort
-But I couldn't open the help file:
-    /usr/lib/x86_64-linux-gnu/pmix2/share/pmix/help-prun.txt: No such file or directory
-    /usr/lib/x86_64-linux-gnu/prrte3/share/prte/help-prun.txt: No such file or directory.
-Sorry!
---------------------------------------------------------------------------
- 
+PIMPLE: No convergence criteria found
+
+
+PIMPLE: Operating solver in steady-state mode with 1 outer corrector
+PIMPLE: Operating solver in SIMPLE mode
+
+
+
+Starting time loop
+
+Reading surface description:
+    blades
+
+surfaceFieldValue bottomFlow read:
+    number of faces = 700
+    area = 409.57247
+    operation = sum
+
+Constructing face momentum Uf
+Time = 1s
+
+smoothSolver:  Solving for Ux, Initial residual = 1, Final residual = 0.096608904, No Iterations 5
+smoothSolver:  Solving for Uy, Initial residual = 1, Final residual = 0.096984313, No Iterations 5
+smoothSolver:  Solving for Uz, Initial residual = 1, Final residual = 0.096887117, No Iterations 5
+GAMG:  Solving for p, Initial residual = 1, Final residual = 0.0095081244, No Iterations 7
+time step continuity errors : sum local = 0.00010507037, global = -1.1908776e-05, cumulative = -1.1908776e-05
+smoothSolver:  Solving for omega, Initial residual = 0.00062006794, Final residual = 3.7513646e-05, No Iterations 1
+smoothSolver:  Solving for k, Initial residual = 1, Final residual = 0.0085787305, No Iterations 1
+ExecutionTime = 9.083843 s  ClockTime = 9 s
+
+Time = 2s
+
+smoothSolver:  Solving for Ux, Initial residual = 0.5702201, Final residual = 0.05033045, No Iterations 4
+smoothSolver:  Solving for Uy, Initial residual = 0.53591738, Final residual = 0.032754635, No Iterations 5
+smoothSolver:  Solving for Uz, Initial residual = 0.12672653, Final residual = 0.0097350822, No Iterations 5
+GAMG:  Solving for p, Initial residual = 3.854424e-05, Final residual = 2.3859547e-07, No Iterations 6
+time step continuity errors : sum local = 9.9472407e-05, global = 7.9683639e-06, cumulative = -3.9404121e-06
+smoothSolver:  Solving for omega, Initial residual = 0.00036970372, Final residual = 1.8019632e-05, No Iterations 3
+smoothSolver:  Solving for k, Initial residual = 0.17367529, Final residual = 0.0083223588, No Iterations 1
+ExecutionTime = 16.041191 s  ClockTime = 16 s
+
+End
+
+Finalising parallel run

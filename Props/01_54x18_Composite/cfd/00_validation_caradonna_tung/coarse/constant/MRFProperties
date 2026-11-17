@@ -6,10 +6,18 @@ FoamFile
     object      MRFProperties;
 }
 
-// Whole-domain rotating frame: the helical wake is steady in this frame. The far boundaries are surfaces of revolution.
+// Rotating frame only in a cylinder around the rotor (frozen rotor); the rest of the domain is stationary.
+// A whole-domain frame (run 1) moves at Omega r ~ 1200 m/s at the outer wall and its numerical error there drove the flow.
 rotor
 {
-    cellZone    all;
+    cellZone
+    {
+        type        cylinder;
+        zoneType    cell;
+        point1      (0 0 -0.17145);
+        point2      (0 0 0.17145);
+        radius      1.31445;
+    }
     origin      (0 0 0);
     axis        (0 0 1);
     omega       1250.0 [rpm];

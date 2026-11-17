@@ -2,9 +2,9 @@
 Stages (run as `python3 src/ct_validation.py <stage> [mesh]`):
   bemt      hand calculation: BEMT with XFOIL NACA 0012 polars, and the thrust implied by the report's sectional CL
   geometry  two untwisted NACA 0012 blades as a closed STL
-  case      write the OpenFOAM 13 case (steady, whole-domain rotating frame)
+  case      write the OpenFOAM 13 case (steady, rotating frame in a cylinder around the rotor, stationary elsewhere)
   mesh      blockMesh + surfaceFeatures + snappyHexMesh + checkMesh
-  run       foamRun in parallel
+  run       foamRun in parallel; optional iteration count (`run coarse 600`); stops early if the guard trips
   post      forces, sectional Cp and cl against Table 17
 """
 import csv, json, math, os, shutil, subprocess, sys
@@ -310,6 +310,11 @@ functions
     {{
         type yPlus; libs ("libfieldFunctionObjects.so"); writeControl writeTime;
     }}
+    bottomFlow
+    {{
+        type surfaceFieldValue; libs ("libfieldFunctionObjects.so"); writeControl timeStep; writeInterval 1; log no;
+        patch far_bottom; operation sum; fields (phi); writeFields no;
+    }}
 }}
 """)
     W("system/fvSchemes", HDR("dictionary", "fvSchemes") + """ddtSchemes { default steadyState; }
@@ -337,10 +342,19 @@ SIMPLE {ctl}
 PIMPLE {ctl}
 relaxationFactors {{ equations {{ U 0.8; k 0.6; omega 0.6; }} }}
 """)
-    W("constant/MRFProperties", HDR("dictionary", "MRFProperties", "constant") + f"""// Whole-domain rotating frame: the helical wake is steady in this frame. The far boundaries are surfaces of revolution.
+    mz = v["mrf_zone"]; zr, zh = mz["radius_R"] * R, mz["half_height_R"] * R
+    W("constant/MRFProperties", HDR("dictionary", "MRFProperties", "constant") + f"""// Rotating frame only in a cylinder around the rotor (frozen rotor); the rest of the domain is stationary.
+// A whole-domain frame (run 1) moves at Omega r ~ 1200 m/s at the outer wall and its numerical error there drove the flow.
 rotor
 {{
-    cellZone    all;
+    cellZone
+    {{
+        type        cylinder;
+        zoneType    cell;
+        point1      (0 0 {-zh:.5f});
+        point2      (0 0 {zh:.5f});
+        radius      {zr:.5f};
+    }}
     origin      (0 0 0);
     axis        (0 0 1);
     omega       {s['rpm']} [rpm];
@@ -349,16 +363,19 @@ rotor
     W("constant/momentumTransport", HDR("dictionary", "momentumTransport", "constant") + "simulationType RAS;\nRAS { model kOmegaSST; turbulence on; }\n")
     W("constant/physicalProperties", HDR("dictionary", "physicalProperties", "constant") + f"viscosityModel constant;\nnu [0 2 -1 0 0 0 0] {s['nu']:.6e};\n")
     k0, om0 = 1e-3, 10.0
+    open_side = dom.get("side_boundary", "slip") == "open"
     fld = lambda cls, name, dim, internal, bcs: HDR(cls, name, "0") + f"dimensions {dim};\ninternalField uniform {internal};\nboundaryField\n{{\n    #includeEtc \"caseDicts/setConstraintTypes\"\n" + "".join(f"    {k} {{ {b} }}\n" for k, b in bcs.items()) + "}\n"
     W("0/U", fld("volVectorField", "U", "[0 1 -1 0 0 0 0]", "(0 0 0)", {
-        "far_top": "type pressureInletOutletVelocity; value uniform (0 0 0);", "far_side": "type slip;",
+        "far_top": "type pressureInletOutletVelocity; value uniform (0 0 0);",
+        "far_side": "type pressureInletOutletVelocity; value uniform (0 0 0);" if open_side else "type slip;",
         "far_bottom": "type inletOutlet; inletValue uniform (0 0 0); value uniform (0 0 0);", "blades": "type MRFnoSlip;"}))
     W("0/p", fld("volScalarField", "p", "[0 2 -2 0 0 0 0]", "0", {
-        "far_top": "type totalPressure; p0 uniform 0; value uniform 0;", "far_side": "type zeroGradient;",
+        "far_top": "type totalPressure; p0 uniform 0; value uniform 0;",
+        "far_side": "type totalPressure; p0 uniform 0; value uniform 0;" if open_side else "type zeroGradient;",
         "far_bottom": "type fixedValue; value uniform 0;", "blades": "type zeroGradient;"}))
     io = lambda val: f"type inletOutlet; inletValue uniform {val}; value uniform {val};"
-    W("0/k", fld("volScalarField", "k", "[0 2 -2 0 0 0 0]", k0, {"far_top": io(k0), "far_side": "type zeroGradient;", "far_bottom": io(k0), "blades": f"type kqRWallFunction; value uniform {k0};"}))
-    W("0/omega", fld("volScalarField", "omega", "[0 0 -1 0 0 0 0]", om0, {"far_top": io(om0), "far_side": "type zeroGradient;", "far_bottom": io(om0), "blades": f"type omegaWallFunction; value uniform {om0};"}))
+    W("0/k", fld("volScalarField", "k", "[0 2 -2 0 0 0 0]", k0, {"far_top": io(k0), "far_side": io(k0) if open_side else "type zeroGradient;", "far_bottom": io(k0), "blades": f"type kqRWallFunction; value uniform {k0};"}))
+    W("0/omega", fld("volScalarField", "omega", "[0 0 -1 0 0 0 0]", om0, {"far_top": io(om0), "far_side": io(om0) if open_side else "type zeroGradient;", "far_bottom": io(om0), "blades": f"type omegaWallFunction; value uniform {om0};"}))
     W("0/nut", fld("volScalarField", "nut", "[0 2 -1 0 0 0 0]", "0", {"far_top": "type calculated; value uniform 0;", "far_side": "type calculated; value uniform 0;",
                                                                        "far_bottom": "type calculated; value uniform 0;", "blades": "type nutUSpaldingWallFunction; value uniform 0;"}))
     info = {"case": case, "base_cell": h, "core_cells": n, "nz": nz, "nr": nr, "z0": z0, "z1": z1, "radius": Rc, "background_cells": nz * (n * n + 4 * n * nr),
@@ -373,6 +390,73 @@ def foam(case, cmd, log, timeout=None, parallel=0):
     with open(os.path.join(case, log), "w") as f:
         r = subprocess.run(["bash", "-c", full], cwd=case, stdout=f, stderr=subprocess.STDOUT, timeout=timeout)
     return r.returncode
+
+
+def read_bottom_flow(case):
+    """Volume flow out through far_bottom per iteration [m^3/s] (surfaceFieldValue sum(phi)); empty if not written yet."""
+    base = os.path.join(case, "postProcessing", "bottomFlow")
+    rows = []
+    if os.path.isdir(base):
+        for t in sorted(os.listdir(base), key=float):
+            for fn in os.listdir(os.path.join(base, t)):
+                for line in open(os.path.join(base, t, fn)):
+                    v = line.split()
+                    if v and not line.startswith("#"):
+                        try: rows.append((float(v[0]), float(v[1])))
+                        except ValueError: pass
+    return np.array(rows).reshape(-1, 2)
+
+
+def guard_limits(p):
+    """Bounds for the run guard, from the experiment and momentum theory: T = CT rho A Vtip^2, vi = sqrt(T / (2 rho A)), wake flow 2 vi A."""
+    s, g = setup(p), p["ct_validation"]["guard"]
+    ct0 = experimental_thrust(s)["central"]
+    A = math.pi * s["R"] ** 2
+    vi = math.sqrt(ct0 * s["vtip"] ** 2 / 2)
+    return {"ct_min": g["ct_min"], "ct_max": g["ct_max_factor"] * ct0, "flow_max": g["bottom_flow_max_factor"] * 2 * vi * A,
+            "vi_momentum": vi, "wake_flow_momentum": 2 * vi * A, "start": g["start_iteration"], "window": g["window"]}
+
+
+def check_guard(p, case):
+    """Returns a reason string if the last `window` iterations are all outside the bounds, else None."""
+    s, L = setup(p), guard_limits(p)
+    try:
+        t, F, _, _, _ = read_forces(case)
+    except (FileNotFoundError, IndexError, ValueError):
+        return None
+    q = s["rho"] * math.pi * s["R"] ** 2 * s["vtip"] ** 2
+    m = t >= L["start"]
+    if m.sum() < L["window"]:
+        return None
+    ct = F[m, 2][-L["window"]:] / q
+    if np.all(ct < L["ct_min"]): return f"CT below {L['ct_min']} for {L['window']} iterations (last {ct[-1]:.5f})"
+    if np.all(ct > L["ct_max"]): return f"CT above {L['ct_max']:.5f} for {L['window']} iterations (last {ct[-1]:.5f})"
+    bf = read_bottom_flow(case)
+    bf = bf[bf[:, 0] >= L["start"]][-L["window"]:] if len(bf) else bf
+    if len(bf) >= L["window"] and np.all(np.abs(bf[:, 1]) > L["flow_max"]):
+        return f"outlet flow above {L['flow_max']:.0f} m^3/s for {L['window']} iterations (last {bf[-1, 1]:.0f}; momentum theory {L['wake_flow_momentum']:.0f})"
+    return None
+
+
+def foam_guarded(p, case, cmd, log, parallel, mesh, poll_s=30):
+    """foamRun with the guard: polls forces and outlet flow and stops the whole MPI job if the solution goes non-physical."""
+    import signal, time as _t
+    full = f"source /opt/openfoam13/etc/bashrc && mpirun --mca btl ^tcp -np {parallel} {cmd} -parallel"
+    with open(os.path.join(case, log), "w") as f:
+        pr = subprocess.Popen(["bash", "-c", full], cwd=case, stdout=f, stderr=subprocess.STDOUT, start_new_session=True)
+        reason = None
+        while pr.poll() is None:
+            _t.sleep(poll_s)
+            reason = check_guard(p, case)
+            if reason:
+                os.killpg(pr.pid, signal.SIGTERM)
+                try: pr.wait(timeout=120)
+                except subprocess.TimeoutExpired: os.killpg(pr.pid, signal.SIGKILL); pr.wait()
+                break
+    rec = {"stopped_by_guard": bool(reason), "reason": reason, "returncode": pr.returncode, "limits": guard_limits(p)}
+    save_json(f"ct_guard_{mesh}.json", rec)
+    if reason: print("** GUARD STOPPED THE RUN: " + reason + " **", flush=True)
+    return pr.returncode
 
 
 def stage_mesh(p, mesh="coarse"):
@@ -403,8 +487,18 @@ def collect_logs(p, mesh):
         elif os.path.exists(src): os.makedirs(os.path.dirname(os.path.join(dst, sub)), exist_ok=True); shutil.copy(src, os.path.join(dst, sub))
 
 
-def stage_run(p, mesh="coarse"):
+def set_end_time(case, iterations):
+    """Override endTime (and the write interval, endTime/5) in the case controlDict, e.g. for a short test run."""
+    import re
+    f = os.path.join(case, "system", "controlDict"); txt = open(f).read()
+    txt = re.sub(r"^endTime\s+\S+;", f"endTime         {iterations};", txt, flags=re.M)
+    txt = re.sub(r"^writeInterval\s+\S+;", f"writeInterval   {max(iterations // 5, 1)};", txt, flags=re.M)
+    open(f, "w").write(txt)
+
+
+def stage_run(p, mesh="coarse", iterations=None):
     case, n = case_dir(p, mesh), p["ct_validation"]["n_proc"]
+    set_end_time(case, int(iterations or p["ct_validation"]["meshes"][mesh]["iterations"]))     # a plain `run` always restores the full count
     for i in range(n):                                   # field files may have been regenerated since decomposePar -copyZero
         for f in os.listdir(os.path.join(case, "0")):
             shutil.copy(os.path.join(case, "0", f), os.path.join(case, f"processor{i}", "0", f))
@@ -412,7 +506,7 @@ def stage_run(p, mesh="coarse"):
     for i in range(n):                                   # start from iteration 0: drop any earlier time folders
         for d_ in os.listdir(os.path.join(case, f"processor{i}")):
             if d_ not in ("0", "constant"): shutil.rmtree(os.path.join(case, f"processor{i}", d_))
-    rc = foam(case, "foamRun", "log.foamRun", parallel=n)
+    rc = foam_guarded(p, case, "foamRun", "log.foamRun", n, mesh)
     print("foamRun ->", rc)
     collect_logs(p, mesh)
 
@@ -499,8 +593,8 @@ def stage_post(p, mesh="coarse", time=None):
     fig.tight_layout(); fig.savefig(os.path.join(RESULTS, f"ct_cp_{mesh}.png"), dpi=140); plt.close(fig)
     fig, axs = plt.subplots(1, 2, figsize=(8.5, 3.0))
     axs[0].plot(t, ct, color="#0b0b0b"); axs[0].axhspan(ex["low"], ex["high"], color="#2a78d6", alpha=0.2, label="from report's sectional CL (bracket)"); axs[0].axhline(ex["central"], color="#2a78d6")
-    axs[0].set_ylim(0, 0.012); axs[0].set_xlabel("iteration"); axs[0].set_ylabel("CT"); axs[0].legend(fontsize=7); axs[0].grid(alpha=.3)
-    axs[1].plot(t, cq, color="#0b0b0b"); axs[1].set_ylim(0, 0.0012); axs[1].set_xlabel("iteration"); axs[1].set_ylabel("CQ"); axs[1].grid(alpha=.3)
+    axs[0].set_ylim(min(0, 1.1 * ct.min()), max(0.012, 1.1 * ct.max())); axs[0].set_xlabel("iteration"); axs[0].set_ylabel("CT"); axs[0].legend(fontsize=7); axs[0].grid(alpha=.3)
+    axs[1].plot(t, cq, color="#0b0b0b"); axs[1].set_ylim(min(0, 1.1 * cq.min()), max(0.0012, 1.1 * cq.max())); axs[1].set_xlabel("iteration"); axs[1].set_ylabel("CQ"); axs[1].grid(alpha=.3)
     fig.tight_layout(); fig.savefig(os.path.join(RESULTS, f"ct_convergence_{mesh}.png"), dpi=140); plt.close(fig)
     # logs: mesh statistics, y+, residuals
     def grab(path, pat):
@@ -526,7 +620,8 @@ def stage_post(p, mesh="coarse", time=None):
     bemt = json.load(open(os.path.join(RESULTS, "ct_bemt.json")))
     out = {"mesh": mesh, "solver": p_solver(case), "time": tsel, "T": float(T[last].mean()), "Q": float(Q[last].mean()), "viscous_thrust_fraction": float(Fv[last, 2].mean() / T[last].mean()),
            "viscous_torque_fraction": float(-Mv[last, 2].mean() / Q[last].mean()), "ct": conv["ct_mean_last500"], "cq": conv["cq_mean_last500"],
-           "fom": float(conv["ct_mean_last500"] ** 1.5 / math.sqrt(2) / conv["cq_mean_last500"]), "convergence": conv, "stations": stations, "experimental_ct": ex,
+           "fom": (float(conv["ct_mean_last500"] ** 1.5 / math.sqrt(2) / conv["cq_mean_last500"]) if conv["ct_mean_last500"] > 0 and conv["cq_mean_last500"] > 0 else None),
+           "physical": bool(conv["ct_mean_last500"] > 0 and conv["cq_mean_last500"] > 0), "convergence": conv, "stations": stations, "experimental_ct": ex,
            "ct_vs_exp_central_pct": 100 * (conv["ct_mean_last500"] / ex["central"] - 1), "ct_bemt": bemt["bemt"]["CT_h"], "ct_cfd_vs_bemt_pct": 100 * (conv["ct_mean_last500"] / bemt["bemt"]["CT_h"] - 1),
            "mesh_info": meshinfo, "yplus": yplus, "residuals": res, "wall_seconds": float(tm[-1].group(1)) if tm else None, "n_proc": p["ct_validation"]["n_proc"],
            "history": {"iteration": t[::10].tolist(), "ct": ct[::10].tolist(), "cq": cq[::10].tolist()}}
@@ -547,7 +642,7 @@ def p_solver(case):
 def stage_resume(p, mesh="coarse"):
     """Continue an interrupted run from the last written iteration (written every endTime/5 iterations)."""
     case, n = case_dir(p, mesh), p["ct_validation"]["n_proc"]
-    rc = foam(case, "foamRun", "log.foamRun.resume", parallel=n)
+    rc = foam_guarded(p, case, "foamRun", "log.foamRun.resume", n, mesh)
     print("foamRun (resume) ->", rc)
     collect_logs(p, mesh)
 
@@ -565,7 +660,12 @@ def stage_status(p, mesh="coarse"):
     t, F, M, _, _ = read_forces(case)
     q = s["rho"] * math.pi * s["R"] ** 2 * s["vtip"] ** 2
     fatal = "FOAM FATAL" in txt
-    print(f"iteration {its[-1]} of {end}, {per:.1f} s per iteration, about {(end - its[-1]) * per / 3600:.1f} h left, CT = {F[-1, 2] / q:.5f}, CQ = {-M[-1, 2] / q / s['R']:.6f}" + ("  ** solver reported a FATAL error, see the log **" if fatal else "") + ("  (finished)" if its[-1] >= end else ""))
+    end = int(next((l.split()[1].rstrip(";") for l in open(os.path.join(case, "system", "controlDict")) if l.startswith("endTime")), end))
+    bf = read_bottom_flow(case); L = guard_limits(p)
+    flow = f", outlet flow {bf[-1, 1]:.0f} m^3/s (momentum theory {L['wake_flow_momentum']:.0f})" if len(bf) else ""
+    gf = os.path.join(RESULTS, f"ct_guard_{mesh}.json")
+    guard = json.load(open(gf)) if os.path.exists(gf) and os.path.getmtime(gf) >= os.path.getmtime(logs[0]) else {}
+    print(f"iteration {its[-1]} of {end}, {per:.1f} s per iteration, about {(end - its[-1]) * per / 3600:.1f} h left, CT = {F[-1, 2] / q:.5f}, CQ = {-M[-1, 2] / q / s['R']:.6f}{flow}" + (f"  ** stopped by guard: {guard['reason']} **" if guard.get("stopped_by_guard") else "") + ("  ** solver reported a FATAL error, see the log **" if fatal else "") + ("  (finished)" if its[-1] >= end else ""))
 
 
 if __name__ == "__main__":

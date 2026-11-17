@@ -171,6 +171,16 @@ ct_validation:            # Phase 4.0: Caradonna-Tung hover rotor (data/caradonn
     above_D: 5.0
     below_D: 10.0
     core_half_width_m: 2.8    # central Cartesian block of the O-grid; all refinement happens inside it
+    side_boundary: open       # entrainment boundary (totalPressure). Run 1 used a slip wall, which let a domain-wide loop form
+  mrf_zone:                   # rotating frame only around the rotor. Run 1 rotated the whole domain: at the 5D wall the frame moved
+    radius_R: 1.15            # at ~1200 m/s (8x tip speed) and numerical error there drove a 100 m/s loop through the box
+    half_height_R: 0.15       # the blades span |z| < 0.03 m; the disk refinement region (-0.5R..0.3R, r < 1.25R) contains the interface
+  guard:                      # stop a run that has gone non-physical instead of finishing it (checked every ~30 s while foamRun runs)
+    start_iteration: 150      # ignore the start-up transient
+    window: 50                # iterations the condition must hold
+    ct_min: 0.0               # CT below this is non-physical for a hovering rotor at positive pitch
+    ct_max_factor: 3.0        # x the central experimental CT
+    bottom_flow_max_factor: 10.0   # x momentum-theory wake flow 2 vi A through the outlet
   n_proc: 10
   meshes:
     coarse:
