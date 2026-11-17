@@ -1,0 +1,42 @@
+{
+ "mesh": {
+  "triangles": 96952,
+  "vertices": 48480,
+  "edges_not_shared_by_two": 0,
+  "edges_with_inconsistent_orientation": 0,
+  "volume": 0.005647929653651389,
+  "centroid": [
+   -1.1392602093924409e-15,
+   1.7839404124116687e-16,
+   -0.004451637869775917
+  ],
+  "izz_unit_density": 0.002954424720598588,
+  "surface_area": 0.7520049979118077,
+  "min_triangle_area": 1.5483229853589037e-10,
+  "degenerate_triangles": 0,
+  "bbox_min": [
+   -1.143,
+   -0.14148455032145188,
+   -0.019896068557386484
+  ],
+  "bbox_max": [
+   1.143,
+   0.14148455032145188,
+   0.012856679357444143
+  ]
+ },
+ "slice_0p8R": {
+  "r": 0.9144000000000001,
+  "chord": 0.1905,
+  "twist_deg": 8.0,
+  "thickness": 0.022861980569767314,
+  "le_y_sign": 1,
+  "nose_up": true,
+  "camber_toward_plus_z": false,
+  "n_points": 960
+ },
+ "chord_target": 0.1905,
+ "twist_target_deg": 8.0,
+ "volume_strip_estimate": 0.005682726537750002,
+ "volume_diff_pct": -0.6123272669810609
+}

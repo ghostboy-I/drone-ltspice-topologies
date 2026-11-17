@@ -1,0 +1,23 @@
+# Caradonna & Tung (1981), NASA TM-81232. Everything here is read from the report; page numbers are report pages.
+source: https://ntrs.nasa.gov/api/citations/19820004169/downloads/19820004169.pdf
+accessed: 2026-11-16
+rotor:                       # p. 2 text and Figure 1 (p. 42)
+  n_blades: 2
+  airfoil: NACA 0012
+  twist_deg: 0.0             # "untwisted and untapered"
+  aspect_ratio: 6.0          # blade radius / chord
+  diameter_m: 2.286          # Figure 1: 7.5 ft (2.286 m)
+  radius_m: 1.143            # Figure 1: 45 in. (1.143 m)
+  precone_deg: 0.5
+case:                        # Table 17 (p. 26)
+  collective_deg: 8.0
+  rpm: 1250.0
+  tip_mach: 0.439
+  sectional_cl:              # bottom row of Table 17, "C_L" per station, referenced to local dynamic pressure
+    {0.50: 0.2345, 0.68: 0.2815, 0.80: 0.2886, 0.89: 0.3143, 0.96: 0.2683}
+not_in_report:               # needed for CFD but not stated; these are my assumptions
+  chord_m: "radius / aspect ratio = 0.1905 (the report gives only the aspect ratio)"
+  root_cutout: "blade starts one chord from the axis; hub and drive column not modelled"
+  ambient_pressure_pa: 101325
+  speed_of_sound: "tip speed / tip Mach, which implies the test temperature"
+  precone: "ignored (0.5 deg)"

@@ -1,0 +1,71 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  13
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 13-18870c24d21c
+Exec   : surfaceFeatures
+Date   : Nov 16 2026
+Time   : 19:27:06
+Host   : "elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000"
+PID    : 280544
+I/O    : uncollated
+Case   : /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Reading "surfaceFeaturesDict"
+
+Surface            : "blades.stl"
+
+
+Feature line extraction is only valid on closed manifold surfaces.
+Statistics:
+Triangles    : 96952
+Vertices     : 48480
+Bounding Box : (-1.143 -0.14148454 -0.019896068) (1.143 0.14148454 0.012856679)
+
+
+Constructing feature set from included angle 2.6179939
+Selecting edges purely based on geometric tests: no
+
+Initial feature set:
+    feature points : 4
+    feature edges  : 1160
+    of which
+        region edges   : 0
+        external edges : 1160
+        internal edges : 0
+
+
+Final feature set:
+points      : 1158
+edges       : 1160
+boundingBox : (-1.143 -0.14148454 -0.019896068) (1.143 0.14148454 0.012856679)
+point classification :
+    convex feature points          :        4
+    concave feature points         :        0
+    mixed feature points           :        0
+    other (non-feature) points     :     1154
+edge classification :
+    external (convex angle) edges  :     1160
+    internal (concave angle) edges :        0
+    flat region edges              :        0
+    open edges                     :        0
+    multiply connected edges       :        0
+
+Writing extendedFeatureEdgeMesh to "constant/extendedFeatureEdgeMesh/blades.extendedFeatureEdgeMesh"
+
+Writing featureEdgeMesh to "constant/geometry/blades.eMesh"
+
+ExecutionTime = 0.200183 s  ClockTime = 0 s
+
+End
+

@@ -1,0 +1,179 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  13
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 13-18870c24d21c
+Exec   : decomposePar -copyZero
+Date   : Nov 16 2026
+Time   : 19:27:07
+Host   : "elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000"
+PID    : 280842
+I/O    : uncollated
+Case   : /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Calculating distribution of cells
+
+Selecting decomposer scotch
+
+Finished decomposition in 0.170176 s
+
+Calculating original mesh data
+
+Distributing cells to processors
+
+Distributing faces to processors
+
+Distributing points to processors
+
+Constructing processor meshes
+
+Processor 0
+    Number of cells = 6066
+    Number of faces shared with processor 1 = 576
+    Number of faces shared with processor 2 = 259
+    Number of faces shared with processor 3 = 54
+    Number of faces shared with processor 4 = 60
+    Number of processor patches = 4
+    Number of processor faces = 949
+    Number of boundary faces = 843
+
+Processor 1
+    Number of cells = 5961
+    Number of faces shared with processor 0 = 576
+    Number of faces shared with processor 3 = 215
+    Number of faces shared with processor 4 = 219
+    Number of processor patches = 3
+    Number of processor faces = 1010
+    Number of boundary faces = 816
+
+Processor 2
+    Number of cells = 5988
+    Number of faces shared with processor 0 = 259
+    Number of faces shared with processor 3 = 497
+    Number of faces shared with processor 4 = 434
+    Number of faces shared with processor 8 = 99
+    Number of faces shared with processor 9 = 127
+    Number of processor patches = 5
+    Number of processor faces = 1416
+    Number of boundary faces = 498
+
+Processor 3
+    Number of cells = 5960
+    Number of faces shared with processor 0 = 54
+    Number of faces shared with processor 1 = 215
+    Number of faces shared with processor 2 = 497
+    Number of faces shared with processor 4 = 479
+    Number of faces shared with processor 7 = 116
+    Number of faces shared with processor 8 = 156
+    Number of faces shared with processor 9 = 6
+    Number of processor patches = 7
+    Number of processor faces = 1523
+    Number of boundary faces = 467
+
+Processor 4
+    Number of cells = 6078
+    Number of faces shared with processor 0 = 60
+    Number of faces shared with processor 1 = 219
+    Number of faces shared with processor 2 = 434
+    Number of faces shared with processor 3 = 479
+    Number of faces shared with processor 7 = 151
+    Number of faces shared with processor 9 = 138
+    Number of processor patches = 6
+    Number of processor faces = 1481
+    Number of boundary faces = 483
+
+Processor 5
+    Number of cells = 6032
+    Number of faces shared with processor 6 = 563
+    Number of faces shared with processor 8 = 191
+    Number of faces shared with processor 9 = 184
+    Number of processor patches = 3
+    Number of processor faces = 938
+    Number of boundary faces = 856
+
+Processor 6
+    Number of cells = 6075
+    Number of faces shared with processor 5 = 563
+    Number of faces shared with processor 7 = 254
+    Number of faces shared with processor 8 = 76
+    Number of faces shared with processor 9 = 55
+    Number of processor patches = 4
+    Number of processor faces = 948
+    Number of boundary faces = 812
+
+Processor 7
+    Number of cells = 6047
+    Number of faces shared with processor 3 = 116
+    Number of faces shared with processor 4 = 151
+    Number of faces shared with processor 6 = 254
+    Number of faces shared with processor 8 = 384
+    Number of faces shared with processor 9 = 374
+    Number of processor patches = 5
+    Number of processor faces = 1279
+    Number of boundary faces = 523
+
+Processor 8
+    Number of cells = 6004
+    Number of faces shared with processor 2 = 99
+    Number of faces shared with processor 3 = 156
+    Number of faces shared with processor 5 = 191
+    Number of faces shared with processor 6 = 76
+    Number of faces shared with processor 7 = 384
+    Number of faces shared with processor 9 = 505
+    Number of processor patches = 6
+    Number of processor faces = 1411
+    Number of boundary faces = 461
+
+Processor 9
+    Number of cells = 5989
+    Number of faces shared with processor 2 = 127
+    Number of faces shared with processor 3 = 6
+    Number of faces shared with processor 4 = 138
+    Number of faces shared with processor 5 = 184
+    Number of faces shared with processor 6 = 55
+    Number of faces shared with processor 7 = 374
+    Number of faces shared with processor 8 = 505
+    Number of processor patches = 7
+    Number of processor faces = 1389
+    Number of boundary faces = 457
+
+Number of processor faces = 6172
+Max number of cells = 6078 (0.96345515% above average 6020)
+Max number of processor patches = 7 (40% above average 5)
+Max number of faces between processors = 1523 (23.37978% above average 1234.4)
+
+Time = 0s
+
+Processor 0: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor0"
+Processor 1: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor1"
+Processor 2: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor2"
+Processor 3: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor3"
+Processor 4: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor4"
+Processor 5: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor5"
+Processor 6: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor6"
+Processor 7: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor7"
+Processor 8: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor8"
+Processor 9: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse/processor9"
+
+End
+

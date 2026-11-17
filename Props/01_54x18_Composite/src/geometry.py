@@ -18,10 +18,13 @@ from common import ROOT, RESULTS, load_params, save_json
 GEOM = os.path.join(ROOT, "geometry")
 
 
-def naca4(tc, m, pc, n):
-    """Unit-chord NACA 4-digit section, open (blunt) trailing edge. Returns upper and lower (x, y), leading to trailing edge."""
+def naca4(tc, m, pc, n, closed_te=False):
+    """Unit-chord NACA 4-digit section. Returns upper and lower (x, y), leading to trailing edge. The standard formula
+    leaves a small blunt trailing edge; closed_te uses the modified last coefficient (-0.1036) that closes it."""
     x = 0.5 * (1 - np.cos(np.linspace(0, math.pi, n)))
-    yt = 5 * tc * (0.2969 * np.sqrt(x) - 0.1260 * x - 0.3516 * x ** 2 + 0.2843 * x ** 3 - 0.1015 * x ** 4)
+    yt = 5 * tc * (0.2969 * np.sqrt(x) - 0.1260 * x - 0.3516 * x ** 2 + 0.2843 * x ** 3 - (0.1036 if closed_te else 0.1015) * x ** 4)
+    if m == 0:
+        return (x, yt), (x, -yt)
     yc = np.where(x < pc, m / pc ** 2 * (2 * pc * x - x ** 2), m / (1 - pc) ** 2 * ((1 - 2 * pc) + 2 * pc * x - x ** 2))
     dyc = np.where(x < pc, 2 * m / pc ** 2 * (pc - x), 2 * m / (1 - pc) ** 2 * (pc - x))
     th = np.arctan(dyc)

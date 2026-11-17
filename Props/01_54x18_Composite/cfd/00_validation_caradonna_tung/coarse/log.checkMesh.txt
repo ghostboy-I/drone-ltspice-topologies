@@ -1,0 +1,205 @@
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],3][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] [elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] [elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],0][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],5][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],2][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],7][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],4][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],1][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],6][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],9][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+[elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000][[23835,1],8][../../../../../../opal/mca/btl/tcp/btl_tcp_proc.c:266:mca_btl_tcp_proc_create_interface_graph] Unable to find reachable pairing between local and remote interfaces
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  13
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 13-18870c24d21c
+Exec   : checkMesh -parallel
+Date   : Nov 16 2026
+Time   : 19:30:58
+Host   : "elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000"
+PID    : 282423
+I/O    : uncollated
+Case   : /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse
+nProcs : 10
+Slaves : 
+9
+(
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282424"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282425"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282426"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282427"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282428"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282429"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282430"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282431"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.282432"
+)
+
+Pstream initialised with:
+    floatTransfer      : false
+    nProcsSimpleSum    : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+Time = 0s
+
+Mesh stats
+    points:           1705150
+    faces:            4708248
+    internal faces:   4550722
+    cells:            1503816
+    faces per cell:   6.1569833
+    boundary patches: 7
+    point zones:      0
+    face zones:       0
+    cell zones:       0
+
+Overall number of cells of each type:
+    hexahedra:     1390496
+    prisms:        12285
+    wedges:        0
+    pyramids:      0
+    tet wedges:    28
+    tetrahedra:    0
+    polyhedra:     101007
+    Breakdown of polyhedra by number of faces:
+        faces   number of cells
+            4   299
+            5   123
+            6   24694
+            7   15195
+            8   1711
+            9   42643
+           10   76
+           11   32
+           12   14796
+           13   8
+           14   8
+           15   1278
+           18   144
+
+Checking topology...
+    Boundary definition OK.
+    Cell to face addressing OK.
+    Point usage OK.
+    Upper triangular ordering OK.
+    Face vertices OK.
+    Number of regions: 1 (OK).
+
+Checking basic patch addressing...
+                   Patch    Faces   Points
+                far_side     4816     4930
+              far_bottom      700      729
+                 far_top      700      729
+                  blades    87058    89045
+
+Checking geometry...
+    Overall domain bounding box (-11.43 -11.43 -22.8) (11.43 11.43 11.6)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Max cell openness = 6.4312303e-16 OK.
+    Max aspect ratio = 15.505144 OK.
+    Minimum face area = 6.7636256e-08. Maximum face area = 2.0683328.  Face area magnitudes OK.
+    Min volume = 3.5223536e-11. Max volume = 0.82750725.  Total volume = 14089.287.  Cell volumes OK.
+    Mesh non-orthogonality Max: 64.715275 average: 7.5567475
+    Non-orthogonality check OK.
+    Face pyramids OK.
+    Max skewness = 2.7385996 OK.
+    Coupled point location match (average 0) OK.
+
+Mesh OK.
+
+End
+
+Finalising parallel run

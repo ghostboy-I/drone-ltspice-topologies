@@ -1,0 +1,17 @@
+FoamFile
+{
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      p;
+}
+
+dimensions [0 2 -2 0 0 0 0];
+internalField uniform 0;
+boundaryField
+{
+    far_top { type totalPressure; p0 uniform 0; value uniform 0; }
+    far_side { type zeroGradient; }
+    far_bottom { type fixedValue; value uniform 0; }
+    blades { type zeroGradient; }
+}

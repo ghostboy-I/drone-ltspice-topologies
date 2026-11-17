@@ -1,0 +1,16 @@
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      MRFProperties;
+}
+
+// Whole-domain rotating frame: the helical wake is steady in this frame. The far boundaries are surfaces of revolution.
+rotor
+{
+    cellZone    all;
+    origin      (0 0 0);
+    axis        (0 0 1);
+    omega       1250.0 [rpm];
+}
