@@ -1,0 +1,12 @@
+  sweep 1300: hover 1578 rpm FoM 0.780 T/W(U15XL,84V) 1.73 pack 7800 Wh [3s]
+  sweep 1450: hover 1635 rpm FoM 0.799 T/W(U15XL,84V) 1.76 pack 7703 Wh [6s]
+  sweep 1600: hover 1717 rpm FoM 0.816 T/W(U15XL,84V) 1.79 pack 7645 Wh [9s]
+  sweep 1750: hover 1824 rpm FoM 0.827 T/W(U15XL,84V) 1.81 pack 7623 Wh [12s]
+  sweep 1900: hover 1948 rpm FoM 0.834 T/W(U15XL,84V) 1.76 pack 7628 Wh [15s]
+  sweep 2112: hover 2140 rpm FoM 0.838 T/W(U15XL,84V) 1.45 pack 7673 Wh [19s]
+  two-point: {'x_twist_offset_deg': -1.875627552304429, 'x_twist_slope_deg': -6.475271405901244, 'x_chord_taper': 3.1314712790428236e-06, 'pack_wh_start': 7622.531826906738, 'pack_wh_end': 7474.810468709443, 'evaluations': 165, 'objective_end': 7474.810468709443, 'converged': True, 'gain_pct': 1.9379565943674293} [240s]
+  final design: hover 1932 rpm FoM 0.836 margin 8.5 pack 7475 Wh [244s]
+  54x18: hover 2103 rpm FoM 0.840 margin 8.8 pack 7449 Wh [247s]
+  54x12: hover 2473 rpm FoM 0.809 margin 9.3 pack 7660 Wh [251s]
+  60x13: hover 2030 rpm FoM 0.808 margin 9.9 pack 6623 Wh [255s]
+wrote results/phase2.json in 255 s

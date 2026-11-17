@@ -1,0 +1,120 @@
+Info    : Running 'gmsh prop_ccw.geo -' [Gmsh 4.14.0-git, 1 node, max. 1 thread]
+Info    : Started on Mon Nov 16 19:07:00 2026
+Info    : Reading 'prop_ccw.geo'...
+Info    : [  0%] Union                                                                                  
+Info    : [ 10%] Union                                                                                  
+Info    : [ 20%] Union                                                                                  
+Info    : [ 30%] Union                                                                                  
+Info    : [ 40%] Union                                                                                  
+Info    : [ 50%] Union                                                                                  
+Info    : [ 60%] Union                                                                                  
+Info    : [ 70%] Union                                                                                  
+Info    : [ 80%] Union                                                                                  
+Info    : [ 90%] Union - Classify solids                                                                                
+Info    : Writing 'prop_ccw.step'...
+[32;1m
+*******************************************************************
+******        Statistics on Transfer (Write)                 ******[0m
+[32;1m
+*******************************************************************
+******        Transfer Mode = 0  I.E.  As Is       ******[0m
+[32;1m******        Transferring Shape, ShapeType = 0                      ******[0m
+[32;1m** WorkSession : Sending all data[0m
+[32;1m Step File Name : prop_ccw.step(172335 ents)  Write  Done[0m
+Info    : Done writing 'prop_ccw.step'
+Info    : Meshing 1D...
+Info    : [  0%] Meshing curve 1 (BSpline)
+Info    : [ 10%] Meshing curve 2 (Line)
+Info    : [ 10%] Meshing curve 3 (BSpline)
+Info    : [ 10%] Meshing curve 4 (Line)
+Info    : [ 10%] Meshing curve 5 (BSpline)
+Info    : [ 10%] Meshing curve 6 (Line)
+Info    : [ 10%] Meshing curve 7 (BSpline)
+Info    : [ 10%] Meshing curve 8 (Line)
+Info    : [ 20%] Meshing curve 9 (BSpline)
+Info    : [ 20%] Meshing curve 10 (Line)
+Info    : [ 20%] Meshing curve 11 (BSpline)
+Info    : [ 20%] Meshing curve 12 (Line)
+Info    : [ 20%] Meshing curve 13 (BSpline)
+Info    : [ 20%] Meshing curve 14 (Line)
+Info    : [ 20%] Meshing curve 15 (BSpline)
+Info    : [ 20%] Meshing curve 16 (Line)
+Info    : [ 30%] Meshing curve 17 (BSpline)
+Info    : [ 30%] Meshing curve 18 (Line)
+Info    : [ 30%] Meshing curve 19 (BSpline)
+Info    : [ 30%] Meshing curve 20 (Line)
+Info    : [ 30%] Meshing curve 21 (BSpline)
+Info    : [ 30%] Meshing curve 22 (Line)
+Info    : [ 30%] Meshing curve 23 (BSpline)
+Info    : [ 30%] Meshing curve 24 (Line)
+Info    : [ 40%] Meshing curve 25 (BSpline)
+Info    : [ 40%] Meshing curve 26 (Line)
+Info    : [ 40%] Meshing curve 27 (BSpline)
+Info    : [ 40%] Meshing curve 28 (Line)
+Info    : [ 40%] Meshing curve 29 (BSpline)
+Info    : [ 40%] Meshing curve 30 (Line)
+Info    : [ 40%] Meshing curve 31 (BSpline)
+Info    : [ 40%] Meshing curve 32 (Line)
+Info    : [ 50%] Meshing curve 33 (BSpline)
+Info    : [ 50%] Meshing curve 34 (Line)
+Info    : [ 50%] Meshing curve 35 (BSpline)
+Info    : [ 50%] Meshing curve 36 (Line)
+Info    : [ 50%] Meshing curve 37 (BSpline)
+Info    : [ 50%] Meshing curve 38 (Line)
+Info    : [ 50%] Meshing curve 39 (BSpline)
+Info    : [ 60%] Meshing curve 40 (Line)
+Info    : [ 60%] Meshing curve 41 (BSpline)
+Info    : [ 60%] Meshing curve 42 (Line)
+Info    : [ 60%] Meshing curve 43 (BSpline)
+Info    : [ 60%] Meshing curve 44 (Line)
+Info    : [ 60%] Meshing curve 45 (BSpline)
+Info    : [ 60%] Meshing curve 46 (Line)
+Info    : [ 60%] Meshing curve 47 (BSpline)
+Info    : [ 70%] Meshing curve 48 (Line)
+Info    : [ 70%] Meshing curve 49 (BSpline)
+Info    : [ 70%] Meshing curve 50 (Line)
+Info    : [ 70%] Meshing curve 51 (BSpline)
+Info    : [ 70%] Meshing curve 52 (Line)
+Info    : [ 70%] Meshing curve 53 (BSpline)
+Info    : [ 70%] Meshing curve 54 (Line)
+Info    : [ 70%] Meshing curve 55 (BSpline)
+Info    : [ 80%] Meshing curve 56 (Line)
+Info    : [ 80%] Meshing curve 57 (BSpline)
+Info    : [ 80%] Meshing curve 58 (Line)
+Info    : [ 80%] Meshing curve 59 (BSpline)
+Info    : [ 80%] Meshing curve 60 (Line)
+Info    : [ 80%] Meshing curve 61 (Line)
+Info    : [ 80%] Meshing curve 62 (BSpline)
+Info    : [ 80%] Meshing curve 63 (BSpline)
+Info    : [ 90%] Meshing curve 64 (BSpline)
+Info    : [ 90%] Meshing curve 65 (Line)
+Info    : [ 90%] Meshing curve 66 (Circle)
+Info    : [ 90%] Meshing curve 67 (BSpline)
+Info    : [ 90%] Meshing curve 68 (Circle)
+Info    : [ 90%] Meshing curve 69 (BSpline)
+Info    : [ 90%] Meshing curve 70 (BSpline)
+Info    : [ 90%] Meshing curve 71 (BSpline)
+Info    : [100%] Meshing curve 72 (BSpline)
+Info    : [100%] Meshing curve 73 (BSpline)
+Info    : [100%] Meshing curve 74 (BSpline)
+Info    : [100%] Meshing curve 75 (BSpline)
+Info    : [100%] Meshing curve 76 (BSpline)
+Info    : [100%] Meshing curve 77 (BSpline)
+Info    : [100%] Meshing curve 78 (BSpline)
+Info    : Done meshing 1D (Wall 1.00512s, CPU 1.00496s)
+Info    : Meshing 2D...
+Info    : [  0%] Meshing surface 1 (Cylinder, Frontal-Delaunay)
+Info    : [ 20%] Meshing surface 2 (BSpline surface, Frontal-Delaunay)
+Info    : [ 30%] Meshing surface 3 (BSpline surface, Frontal-Delaunay)
+Info    : [ 40%] Meshing surface 4 (Plane, Frontal-Delaunay)
+Info    : [ 50%] Meshing surface 5 (Plane, Frontal-Delaunay)
+Info    : [ 60%] Meshing surface 6 (BSpline surface, Frontal-Delaunay)
+Info    : [ 70%] Meshing surface 7 (BSpline surface, Frontal-Delaunay)
+Info    : [ 80%] Meshing surface 8 (Plane, Frontal-Delaunay)
+Info    : [ 90%] Meshing surface 9 (Plane, Frontal-Delaunay)
+Info    : Done meshing 2D (Wall 5.44617s, CPU 5.44524s)
+Info    : 89021 nodes 175154 elements
+Info    : Writing 'prop_ccw_mm.stl'...
+Info    : Done writing 'prop_ccw_mm.stl'
+Info    : Done reading 'prop_ccw.geo'
+Info    : Stopped on Mon Nov 16 19:07:12 2026 (From start: Wall 11.9868s, CPU 11.5883s)

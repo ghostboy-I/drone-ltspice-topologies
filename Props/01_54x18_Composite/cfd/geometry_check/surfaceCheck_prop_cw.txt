@@ -1,0 +1,76 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  13
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 13-18870c24d21c
+Exec   : surfaceCheck constant/geometry/prop_cw.stl
+Date   : Nov 16 2026
+Time   : 19:07:37
+Host   : "elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000"
+PID    : 271388
+I/O    : uncollated
+Case   : /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/geometry_check
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Reading surface from "constant/geometry/prop_cw.stl" ...
+
+Statistics:
+Triangles    : 169842
+Vertices     : 84923
+Bounding Box : (-0.6858 -0.109525 -0.0414847) (0.6858 0.109525 0.0231485)
+
+Region	Size
+------	----
+prop_cw	169842
+
+
+Surface has no illegal triangles.
+
+Triangle quality (equilateral=1, collapsed=0):
+    0 .. 0.05  : 0.0017428
+    0.05 .. 0.1  : 0.000577007
+    0.1 .. 0.15  : 0.000612334
+    0.15 .. 0.2  : 0.000359157
+    0.2 .. 0.25  : 0.000153083
+    0.25 .. 0.3  : 0.00018841
+    0.3 .. 0.35  : 0.000335606
+    0.35 .. 0.4  : 0.000429811
+    0.4 .. 0.45  : 0.000624109
+    0.45 .. 0.5  : 0.00111869
+    0.5 .. 0.55  : 0.00173102
+    0.55 .. 0.6  : 0.00271429
+    0.6 .. 0.65  : 0.00433933
+    0.65 .. 0.7  : 0.00739511
+    0.7 .. 0.75  : 0.0131122
+    0.75 .. 0.8  : 0.0221147
+    0.8 .. 0.85  : 0.0369932
+    0.85 .. 0.9  : 0.066238
+    0.9 .. 0.95  : 0.121201
+    0.95 .. 1  : 0.71802
+
+    min 6.62798e-05 for triangle 84687
+    max 1 for triangle 84095
+
+Edges:
+    min 9.44983e-06 for edge 127229 points (0.6858 0.00745108 -0.000855267)(0.6858 0.00744877 -0.00086443)
+    max 0.00815105 for edge 3702 points (0.642665 0.04408 -0.00566055)(0.63509 0.0415623 -0.00400897)
+
+Checking for points less than 1e-6 of bounding box ((1.3716 0.21905 0.0646331) metre) apart.
+Found 0 nearby points.
+
+Surface is closed. All edges connected to two faces.
+
+Number of unconnected parts : 1
+
+Number of zones (connected area with consistent normal) : 1
+
+
+End
+

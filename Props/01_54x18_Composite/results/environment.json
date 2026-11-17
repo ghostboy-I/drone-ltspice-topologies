@@ -1,0 +1,27 @@
+{
+ "missing": [
+  "pytest",
+  "neuralfoil",
+  "cadquery"
+ ],
+ "tools": {
+  "OpenFOAM": "OpenFOAM 13 (Gcc, SYSTEMOPENMPI, DP); package 20260624",
+  "snappyHexMesh / blockMesh / surfaceCheck": "present",
+  "cfMesh (cartesianMesh)": "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/platforms/linux64GccDPInt32Opt/bin/cartesianMesh",
+  "OpenMPI": "5.0.10-1",
+  "ParaView / pvpython": "paraview version 6.0.1",
+  "CalculiX ccx": "2.21-1build1",
+  "gmsh": "4.14.0-git",
+  "XFOIL": "tools/xfoil_pkg/usr/bin/xfoil (6.99, Ubuntu package unpacked locally by tools/get_xfoil.sh, run with the no-FPE-trap shim)",
+  "pdftoppm": "/usr/bin/pdftoppm",
+  "gcc": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0",
+  "Python": "3.14.4",
+  "Python: numpy": "2.3.5",
+  "Python: matplotlib": "3.10.7+dfsg1",
+  "Python: yaml": "6.0.3",
+  "Python: scipy": "1.16.3",
+  "Python: pytest": "MISSING",
+  "Python: neuralfoil": "MISSING",
+  "Python: cadquery": "MISSING"
+ }
+}

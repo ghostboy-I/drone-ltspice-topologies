@@ -1,0 +1,154 @@
+# Single source of truth for the 54x18 heavy-lift prop program.
+# kind: requirement = fixed by the brief; assumption = default, logged in REGISTERS.md with a sensitivity.
+constants:
+  g0: 9.80665            # m/s^2
+  lb_to_kg: 0.45359237
+  inch_to_m: 0.0254
+  nmi_to_m: 1852.0
+
+decisions:                # user decisions taken at phase checkpoints
+  weight_conflict: keep_mtow_cut_payload   # 2026-11-16, after Phase 1: MTOW stays 280 lb; drone weight and payload are outputs
+
+vehicle:
+  mtow_lb: 280.0          # requirement
+  drone_max_lb: 55.0      # ORIGINAL requirement, shown infeasible in Phase 1; kept for reference only (see decisions)
+  n_rotors: 3             # requirement (tricopter, one prop per motor)
+  tw_required: 1.5        # requirement, hot day, 100 % throttle
+  tw_target: 2.0          # target
+  tw_min_hot_high: 1.3    # assumption (A2)
+  arm_clearance_factor: 1.10   # assumption: adjacent hub spacing = factor * D (10 % tip gap)
+  cda_m2: 0.60            # assumption: drag area of airframe + 102 kg payload
+  cda_sens: [0.30, 1.00]
+
+rotor:
+  diameter_in: 54.0       # requirement (baseline)
+  pitch_in: 18.0          # requirement (baseline)
+  n_blades: 2             # assumption (3 blades is a Phase 2 trade)
+  hub_radius_m: 0.050     # assumption
+  tip_mach_max: 0.60      # requirement, max RPM, hot day
+  sizing_tw_at_mach_limit: 2.0  # design choice: T/W target is reached exactly at the tip-Mach limit, hot day
+  fom_assumed: 0.70       # assumption from the brief (A5 target)
+  fom_sens: [0.60, 0.80]
+  kappa: 1.15             # assumption: induced power factor (Leishman, typical 1.10-1.20)
+  cd0: 0.011              # assumption: mean profile drag coefficient
+  mean_cl_hover: 0.60     # assumption: mean lift coefficient at hover, i.e. blade loading CT/sigma = 0.10
+  lift_slope_per_rad: 5.73  # assumption: 2*pi*0.912 (finite thickness / Re)
+candidates:               # section 3.1 trade set (diameter x pitch, inches)
+  - {name: "54x18", d_in: 54.0, p_in: 18.0}
+  - {name: "54x12", d_in: 54.0, p_in: 12.0}
+  - {name: "60x13", d_in: 60.0, p_in: 13.0}
+
+atmospheres:              # requirement; pressure altitude assumed for "1000 m", dry air
+  isa_sl:       {label: "ISA sea level 15 C",  temp_c: 15.0,  alt_m: 0.0}
+  hot_sl:       {label: "Hot day 45 C SL",     temp_c: 45.0,  alt_m: 0.0}
+  hot_high:     {label: "Hot-and-high 45 C 1000 m", temp_c: 45.0, alt_m: 1000.0}
+  cold_sl:      {label: "Cold -20 C SL",       temp_c: -20.0, alt_m: 0.0}
+design_atmosphere: hot_sl
+humidity_sens_rh: 0.50    # sensitivity: 50 % RH on the hot day
+
+mission:
+  range_nmi: 10.0         # requirement, one-way at MTOW
+  cruise_speed_ms: 15.0   # requirement (design point)
+  cruise_speeds_ms: [12.0, 15.0, 18.0]
+  atmosphere: hot_sl      # A14 says hot day
+  reserve_fraction: 0.20  # assumption: 20 % of pack energy left at landing
+  delivery_hover_s: 120.0 # assumption
+  takeoff_hover_s: 15.0   # assumption
+  landing_hover_s: 15.0   # assumption
+  cruise_alt_m: 60.0      # assumption
+  climb_rate_ms: 2.5      # assumption
+  descent_rate_ms: 2.0    # assumption, flown at hover power (conservative)
+  avionics_w: 150.0       # assumption
+
+electrical:
+  cells_options: [14, 18, 24]
+  cells_baseline: 24
+  v_cell_nominal: 3.70
+  v_cell_full: 4.20
+  v_cell_sag: 3.50        # assumption: loaded cell voltage where 100 % throttle T/W must still be met
+  v_cell_empty: 3.00
+  eta_motor_esc: 0.905    # from vendor bench data (data/tmotor_u15xl_52x20.csv), see catalog cross-check
+  eta_battery_wiring: 0.97  # assumption
+  k_load: 0.80            # loaded/no-load speed ratio at 100 % throttle, from the same vendor data
+  esc_margin: 1.25        # assumption: ESC continuous rating / max bus current
+
+mass:
+  frame_fraction_of_mtow: 0.10   # assumption (airframe, arms, landing gear, payload mount)
+  frame_fraction_sens: [0.06, 0.15]
+  avionics_wiring_kg: 2.0        # assumption
+  hub_hardware_kg_per_rotor: 0.30  # assumption
+  pack_wh_per_kg_cited: 303.3    # vendor claim, semi-solid 24S 55Ah pack (data/catalog.yaml)
+  pack_wh_per_kg_conservative: 200.0  # assumption: conventional LiPo at pack level
+
+structure_prelim:
+  flex_load_n: 50.0       # requirement (bench test)
+  flex_limit_mm: 1.2      # requirement
+  e_ud_carbon_gpa: 130.0  # PLACEHOLDER assumption until a cited T700/epoxy datasheet is used in Phase 5
+  e_glass_gpa: 40.0       # PLACEHOLDER assumption (UD E-glass/epoxy)
+  e_aluminum_gpa: 69.0    # 6061-T6, textbook value
+
+balance_prelim:
+  brief_rpm: 10000.0      # the brief's balance RPM (claim under test)
+  brief_imbalance_g: 0.10
+  brief_match_g: 0.03
+  iso_grades_mm_s: [2.5, 6.3]
+  hub_offset_mm: [0.1, 0.3]
+
+airfoils:                 # Phase 2. XFOIL 6.99, free transition
+  family: "44"            # NACA 44xx: 4 % camber at 40 % chord; thickness varies along the span
+  thicknesses_pct: [9, 12, 15, 18]
+  re_grid: [1.5e5, 3.0e5, 6.0e5, 1.2e6, 2.4e6]
+  mach_grid: [0.10, 0.30, 0.45, 0.60]
+  ncrit: 9.0              # assumption: clean wind-tunnel-like turbulence level
+  viterna_aspect_ratio: 5.8   # blade R / mean chord from Phase 1
+  compare_sections: ["0012", "2412", "4412", "6412", "4409", "6409"]   # camber/thickness comparison at one condition
+  compare_re: 8.0e5
+  compare_mach: 0.30
+
+design:                   # Phase 2 blade design rules (assumptions unless marked)
+  tc_r_over_R: [0.0, 0.25, 0.60, 1.00]   # thickness schedule: thick root for stiffness, thin tip for Mach
+  tc:          [0.18, 0.18, 0.12, 0.09]
+  cl_design: 1.0          # section lift coefficient at the hover design point (near best L/D for NACA 44xx)
+  cl_design_sweep: [0.8, 1.0, 1.15]
+  hover_rpm_sweep: [1300, 1450, 1600, 1750, 1900, 2112]   # design hover RPM, hot day (2112 = Phase 1 value)
+  chord_max_over_R: 0.22  # manufacturing / mass cap on chord
+  chord_tip_min_m: 0.020
+  root_blend_r_over_R: 0.25   # inboard of this the chord tapers to the shank and twist is capped
+  root_chord_fraction: 0.60   # shank chord / chord at the blend station
+  twist_max_deg: 30.0
+  min_stall_margin_deg: 4.0   # hover, between 30 % and 95 % R
+  retwist_outer_r_over_R: 0.97
+  n_stations: 40
+  laminate_density_kg_m3: 1550.0   # PLACEHOLDER (carbon/epoxy), for a solid-section upper-bound mass only
+  pitch_reference: chord_line      # assumption: nominal pitch P means tan(theta) = P / (2 pi r) on the chord line
+  optimise_weights: mission        # hover and cruise weighted by their mission times
+
+diameter_study:           # requested after Phase 2: is a larger prop worth leaving the 54 in brief?
+  diameters_in: [54, 57, 60, 62]
+  tip_speed_scaling: true   # design-RPM sweep is the 54 in sweep scaled by 54/D (same tip speeds)
+  motors: [tmotor_u15xl_kv38, tmotor_u15xxl_kv29]
+  frame_scales_with_diameter: true   # assumption: frame mass grows in proportion to arm length (arm = 1.10 D / sqrt 3)
+
+geometry:                 # Phase 3 (assumptions unless marked)
+  control_r_over_R: [0.0736, 0.12, 0.18, 0.25, 0.33, 0.42, 0.52, 0.62, 0.72, 0.80, 0.87, 0.93, 0.97, 1.00]   # stations kept from the BEMT table; a monotone cubic passes through them
+  n_sections: 30          # lofted sections
+  n_airfoil_points: 41    # per surface, cosine spaced
+  camber: 0.04            # NACA 44xx
+  camber_position: 0.40
+  stacking_x_over_c: 0.25 # sections stacked on their quarter-chord points (lift acts there, so little twisting moment)
+  root_tc: 0.30           # section thickens from 18 % at the blend station to this at the hub, for the root joint
+  root_start_fraction_of_hub: 0.60   # loft starts inside the hub so the union overlaps
+  root_transition_r_over_R: 0.18     # inboard of this the shank narrows and its stacking point moves toward mid-chord
+  root_chord_over_hub_radius: 1.30   # shank chord where it enters the hub, so the root section sits inside the hub disc
+  root_stacking_x_over_c: 0.45
+  tip_round_start_r_over_R: 0.985    # chord is rounded off elliptically outboard of this
+  tip_chord_fraction: 0.50           # chord at the very tip relative to the unrounded value
+  hub_margin_m: 0.003     # hub disc extends this far above and below the root section
+  mesh_size_min_mm: 0.15
+  mesh_size_max_mm: 6.0
+  mesh_curvature_elements: 48   # elements per full turn of curvature
+
+cfd:
+  # OpenFOAM aborts on any path containing spaces, and this project path has them. Cases are therefore generated and run
+  # under OpenFOAM's user run directory; logs and post-processed results are copied back into cfd/ in the project.
+  run_root: "~/OpenFOAM/elijah-callahan-13/run/prop54x18"

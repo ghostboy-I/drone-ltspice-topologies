@@ -1,0 +1,44 @@
+# Vendor catalog data used in Phase 1. Accessed 2026-11-16. Vendor claims, not independently tested.
+motors:
+  tmotor_u15xl_kv38:
+    source: https://ligpower.com/product/u15xl-manned-aircraft-combo.html
+    kv: 38
+    mass_kg: 4.408          # incl. cable
+    r_mohm: 17
+    idle_a_at_10v: 3.5
+    rated_voltage: 24S
+    peak_current_a: 180     # 120 s
+    rated_power_w: 3550
+    max_thrust_kgf: 81.206  # 100 % throttle, 52x20 prop, 96 V, 32 C ambient (test table)
+  tmotor_u15xxl_kv29:
+    source: https://www.ligpower.com/product/u15xxl-manned-aircraft-uav-motor.html
+    kv: 29
+    mass_kg: 5.130          # incl. cable
+    r_mohm: 20
+    idle_a_at_10v: 3.3
+    rated_voltage: 24S
+    peak_current_a: 210     # 80 s
+    rated_power_w: 3300
+    max_thrust_kgf: 100     # page title only; no test table on the page
+escs:
+  tmotor_thunder_300a_24s:
+    source: https://store.tmotor.com/goods.php?id=890
+    mass_kg: 0.870          # incl. cables
+    cells: "14-24S"
+    continuous_a: 240       # T-Motor store (search summary). CONFLICT: the U15XL combo page says 150 A continuous
+    continuous_a_alt: 150
+    peak_a: 300             # 10 s
+props:                      # mass per blade, carbon/epoxy, 2-blade
+  source: https://ligpower.com/product/u15xl-manned-aircraft-combo.html
+  blade_mass_g: {52: 430, 57: 530}   # +/- 20 g
+  blade_mass_62in_conflict_g: {tmotor_sheet: 920, reseller: 495}   # 62x24 blade; sources disagree (https://uav-en.tmotor.com/2019/Manned_Aircraft_0618/272.html vs https://www.robotshop.com/products/tmotor-uav-brushless-motor-u15xxl-kv29). Not used in calculations
+batteries:
+  mad_24s_55ah_semi_solid:
+    source: https://rcdrone.top/products/src-mad-1335-mad-24s-55ah-drone-solid-state-lithium-ion-battery
+    energy_wh: 4884
+    mass_kg: 16.112
+    wh_per_kg: 303.3
+other:
+  hobbywing_h13_coaxial:
+    source: https://www.hobbywing.com/en/products/h13-1
+    note: "coaxial pair, 8.01 kg with cable and prop, 57x20 prop, rated 45 kg/axis, max 113 kg/axis; not a single-rotor fit, listed for scale only"

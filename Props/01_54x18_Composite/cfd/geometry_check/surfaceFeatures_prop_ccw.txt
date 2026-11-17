@@ -1,0 +1,73 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  13
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 13-18870c24d21c
+Exec   : surfaceFeatures
+Date   : Nov 16 2026
+Time   : 19:07:18
+Host   : "elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000"
+PID    : 271040
+I/O    : uncollated
+Case   : /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/geometry_check
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Reading "surfaceFeaturesDict"
+
+Surface            : "prop_ccw.stl"
+
+
+Feature line extraction is only valid on closed manifold surfaces.
+Statistics:
+Triangles    : 170094
+Vertices     : 85049
+Bounding Box : (-0.6858 -0.109525 -0.0414847) (0.6858 0.109525 0.0231485)
+
+
+Constructing feature set from included angle 2.61799
+Selecting edges purely based on geometric tests: no
+
+Initial feature set:
+    feature points : 31
+    feature edges  : 1085
+    of which
+        region edges   : 0
+        external edges : 980
+        internal edges : 105
+
+
+Final feature set:
+points      : 1088
+edges       : 1085
+boundingBox : (-0.6858 -0.109525 -0.0414847) (0.6858 0.109525 0.0231485)
+point classification :
+    convex feature points          :       27
+    concave feature points         :        0
+    mixed feature points           :        4
+    other (non-feature) points     :     1057
+edge classification :
+    external (convex angle) edges  :      980
+    internal (concave angle) edges :      105
+    flat region edges              :        0
+    open edges                     :        0
+    multiply connected edges       :        0
+
+Writing extendedFeatureEdgeMesh to "constant/extendedFeatureEdgeMesh/prop_ccw.extendedFeatureEdgeMesh"
+
+Writing extendedEdgeMesh components to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/geometry_check/constant/extendedFeatureEdgeMesh/prop_ccw"
+
+Writing featureEdgeMesh to "constant/geometry/prop_ccw.eMesh"
+
+ExecutionTime = 0.787975 s  ClockTime = 1 s
+
+End
+
