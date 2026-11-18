@@ -57,8 +57,10 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 43. ~~Section by spanwise Reynolds number~~ (entry 36: banding the -64 to 0.45–0.93R changes nothing, −0.03 kg; the -65 band still loses. The -64's gain comes from lower drag at T/W 2, where Re is higher, through a lighter torque-sized motor, and not from mission energy)
 45. A section designed for the T/W-2 point: entry 36 shows the motor-sizing condition, at about 1.4 × hover rpm and Re ≈ 1.1 × 10⁶, is where section drag pays on the hex. A true 6-series (63-2xx/64-2xx, Theodorsen mapping) or an XFOIL inverse design centred on C_l ≈ 0.35 at Re 1.1 × 10⁶ could push this further; worth it only if the motor model's torque exponent (≈ 1) holds
 46. ~~Motors between 18 and 50 N·m~~ (entry 38: real 24S motors fill the gap at 0.057–0.064 kg/N·m, against the fit's 0.090. The hex on the T-Motor MN1123 (1.425 kg, 22.2 N·m) gets +6.37 kg; the tri on the Hobbywing V13828 (2.465 kg, 43.1 N·m) gets +6.87 kg, but only by lifting its cap to 0.70. At 15 m/s the layouts are tied (hex +0.06 kg), and at equal noise the hex wins by 7.4 dBA. Both optima use 100 % of the motor's test-point torque.)
-47. **Torque margin on catalogue motors** (entry 38): both re-optimised layouts end at exactly the rated test-point torque (MN1123 at 108.65 A against a 108 A peak; V13828 at 245 A against a 245 A maximum). Re-run with a 10–15 % torque reserve and check the continuous/thermal ratings (hover is at ≈ 50 % torque, which is fine). Also re-run the free-speed and 200 Wh/kg scenarios with the catalogue motors.
+47. ~~Torque margin on catalogue motors~~ (entry 39: with a 12 % reserve the hex on the MN1123 drops to +5.06 kg at 50.8 dBA; the tri on the V13828 needs tip Mach 0.84 at T/W 2 for +4.37 kg at 61.4 dBA. The hex leads by ≈ 1.2 kg and is 10.5 dBA quieter. The free-speed and 200 Wh/kg scenarios are still open, now item 50.)
 48. **Equal-noise comparison with the V13828 tri:** the tri's catalogue gain needs tip Mach 0.70 and costs it 3.8 dBA (52.1 → 55.9). Compare the tri at the hex's 48.5 dBA (serrations from entry 33, or a lower cap with the U15XL) against the hex on the MN1123.
+49. **Tri on the U15XL with the same 12 % reserve** (44.4 N·m): it needs a tip Mach ≈ 0.69 at T/W 2, against 0.84 on the V13828, at 1.94 kg more motor per arm. Check whether the heavier but quieter motor beats the V13828 for the tri at any reasonable noise limit.
+50. **Free-speed and 200 Wh/kg scenarios with the catalogue motors and the 12 % reserve.** Entries 37–39 updated only the 15 m/s, 303 Wh/kg row exactly; the other rows were shifted by Δhex − Δtri.
 44. Absolute-level caveat from the toroid session's CFD (2026-11-18): on its rotor, BEMT predicted 620 N against 436 N in CFD (30 % high), in line with the earlier Caradonna–Tung check. The tri–hex comparisons here are relative, but absolute payloads and the motor sizing at T/W 2 should be re-based when its 2-blade reference solve (same mesh) reports
 
 ## Entries
@@ -2435,3 +2437,79 @@ Step 2, re-optimising with each motor's mass fixed and the hard torque penalty:
 - Item 48: equal-noise comparison with the V13828 tri.
 - The user's open questions (cruise speed, battery chemistry, noise limit) now decide between a payload tie and a 7 dBA noise advantage.
 - After that: items 45, 42, 38.
+
+## 39 — A 12 % torque reserve on the catalogue motors: the hex keeps a lead, and the tri is pushed past tip Mach 0.8 (2026-11-18)
+
+**Question.** In entry 38 both re-optimised layouts ended at exactly 100 % of their motor's 100 %-throttle test torque:
+- the MN1123 at 108.65 A against its 108 A peak;
+- the V13828 at 245 A against its 245 A maximum.
+
+A real design needs headroom for gusts, battery sag at the end of the flight, motor heating and model error. How much payload does a reserve cost each layout?
+
+**Method.**
+- The script is src/explore/e39_torque_reserve.py. It reuses e37's optimiser with the catalogue torques scaled by 0.88, a 12 % reserve.
+- Torque is proportional to current (Q ≈ K_t I), so this also caps the current at 88 % of the test current:
+  - MN1123: 0.88 × 22.19 = **19.53 N·m** (95.6 A);
+  - V13828: 0.88 × 43.10 = **37.93 N·m** (215.5 A).
+- The caps were chosen by hand:
+  - The hex needed 20.5 N·m at cap 0.60 on the continuous fit, so it must spin a little faster. I ran caps 0.60 and 0.65.
+  - The tri needs Ω ≈ 15 900 / 37.9 ≈ 419 rad/s, a tip Mach of about 0.80. I ran caps 0.75 and 0.80.
+- The hex on the MN1320 already has a 17 % reserve (26.8 of 32.4 N·m in entry 38), so it carries over unchanged: +2.95 kg, 46.3 dBA.
+- The run used 2 cores at nice 19, because the toroid session's foamRun was running.
+
+| Layout, motor, cap | Q_max / limit [N·m] | Fits | Payload [kg] | rpm hover / max | P_max [W] | Pack [Wh] | σ | Tip Mach at T/W 2 | Total [dBA] |
+|---|---|---|---|---|---|---|---|---|---|
+| *hex, MN1123, 0.60, no reserve (entry 38)* | 22.19 / 22.19 | yes | *+6.37* | 1768 / 2489 | 5783 | 4989 | 0.141 | 0.50 | *48.5* |
+| hex, MN1123, 0.60, reserve | 19.53 / 19.53 | yes | +4.96 | 2146 / 2989 | 6112 | 5312 | 0.121 | 0.60 | 50.9 |
+| **hex, MN1123, 0.65, reserve** | 19.53 / 19.53 | yes | **+5.06** | 2139 / 2982 | 6099 | 5274 | 0.130 | 0.60 | **50.8** |
+| hex, MN1320, 0.60 (17 % reserve already) | 26.83 / 32.4 | yes | +2.95 | 1427 / 2020 | 5674 | 4886 | 0.143 | 0.41 | 46.3 |
+| *tri, V13828, 0.70, no reserve (entry 38)* | 43.10 / 43.1 | yes | *+6.87* | 2535 / 3530 | 15932 | 7654 | 0.115 | 0.71 | *55.9* |
+| tri, V13828, 0.75, reserve | 38.65 / 37.93 | no (+1.9 %) | (+4.29) | 2918 / 4053 | 16407 | 7951 | 0.101 | 0.81 | 60.4 |
+| **tri, V13828, 0.80, reserve** | 38.07 / 37.93 | yes (within 1 %) | **+4.37** | 2993 / 4159 | 16582 | 8024 | 0.102 | **0.835** | **61.4** |
+
+(Payload frames are as before: compare each layout's change against its own continuous-fit optimum, hex +3.31 and tri +2.14.)
+
+**Findings.**
+- **The reserve costs the hex 1.3–1.4 kg** (+6.37 → +5.06 kg, still +1.75 over its continuous fit).
+  - With 12 % less torque, the hex must turn 13.6 % faster at the same power. Hover rises from 1768 to 2140 rpm, the pack from 4989 to 5274 Wh (+0.94 kg) and the blades get heavier.
+  - At cap 0.60 the T/W-2 point sits exactly on the cap (tip Mach 0.600). Cap 0.65 is only 0.1 kg better: the motor, not the cap, is now the limit.
+  - Noise rises from 48.5 to 50.8 dBA.
+- **The reserve costs the tri 2.5 kg and 5.5 dBA** (+6.87 → +4.37 kg; 55.9 → 61.4 dBA).
+  - Its T/W-2 point now needs a tip Mach of 0.835. The tri's cap only binds near hover thrust (T/W at cap 1.83).
+  - A tip Mach of 0.835 is beyond where this BEMT's compressibility model can be trusted: the polars stop at M 0.6 for profile drag and above that are extrapolated. So the true tri result is probably worse.
+- **The margin at 15 m/s and 303 Wh/kg** (continuous fit: hex +1.73 kg):
+
+  | Comparison | Δhex | Δtri | Margin |
+  |---|---|---|---|
+  | entry 38, no reserve | +3.06 | +4.73 | hex +0.06 (tie) |
+  | **12 % reserve, both** | **+1.75** | **+2.23** | **hex +1.25** |
+  | 12 % reserve, tri limited to its U15XL design at 52.1 dBA (entry 37, no reserve, so an upper bound) | +1.75 | +0.33 | hex +3.15 |
+
+  The hex leads by ≈ 1.2 kg *and* is 10.6 dBA quieter. With a realistic reserve, the tri's catalogue gain from entry 38 came almost entirely from running its motor to the limit at very high tip speed.
+- **External check on the absolute level (toroid session's CFD, 2026-11-18).** The reference solve is not finished but has stopped changing.
+  - The 2-blade 54x18 (Phase 3 prop_ccw) makes **437 N and 35.9 N·m** at 2280 rpm in hot-day air. BEMT gives 585 N at the same point, so CFD is **25 % lower**.
+  - Scaled at constant C_T to 2554 rpm on the U15XL, that is ≈ 549 N, T/W ≈ 1.32, at 45.0 N·m, right at the U15XL's 180 A × K_t ≈ 45.2 N·m.
+  - This agrees with the 25–31 % BEMT over-prediction against Caradonna–Tung (item 44).
+  - Caveat: the mesh's leading-edge cells (0.63 mm) are coarse, and coarse noses inflate torque in our CT run, so the CFD torque may be pessimistic.
+  - **Consequence:** every absolute payload in entries 10–39 is optimistic, perhaps by several kg. A 25 % thrust shortfall at fixed rpm means the T/W-2 point needs ≈ (1/0.75)^(1/2) = 1.15 × the rpm, or more solidity. The 12 % torque reserve chosen here is *smaller* than that model error. Both layouts are hit, so the hex–tri comparison holds better than the absolute numbers. The torque-sized motors, though, would grow for both.
+
+**Hand checks.**
+- **Q = P/Ω:**
+  - hex at cap 0.65 with reserve: 6099 W / (2982 × 0.10472 = 312.3 rad/s) = **19.53 N·m** ✓, tip Mach 312.3 × 0.6858/357.6 = **0.599** ✓;
+  - tri at cap 0.80 with reserve: 16582 / (4159 × 0.10472 = 435.5) = **38.07 N·m** ✓, tip Mach 435.5 × 0.6858/357.6 = **0.835** ✓.
+- **How much faster the reserve forces the rotor:**
+  - Ω = P/Q. At the same power, a 0.88 torque limit means 1/0.88 = 1.136 × Ω.
+  - Hex: rpm_max 2489 → 2982 = 1.198 ×, and P_max 5783 → 6099 = 1.055 ×. Then 1.136 × 1.055 = **1.199** ✓. The extra power is the profile power of the faster rotor (∝ Ω³ σ, with σ falling 0.141 → 0.130).
+  - Tri: 3530 → 4159 = 1.178 ×; 43.10/38.07 × 16582/15932 = 1.132 × 1.041 = **1.178** ✓.
+- **Current with the reserve:**
+  - MN1123: 108.65 × 19.53/22.19 = **95.6 A**, against its 108 A peak (88 %).
+  - V13828: 244.9 × 38.07/43.09 = **216 A**, against 245 A (88 %).
+- **The hex's payload loss:** pack +285 Wh at 303 Wh/kg = 0.94 kg, plus blade mass 6 × 2 × (0.473 − 0.450) = 0.28 kg. That gives 1.22 kg against the optimiser's **1.31** ✓. The rest is ESC mass (∝ P^0.7, +5.5 % power).
+
+**Lesson.** A margin is not free, and who pays more depends on how far the design already sits from its motor's limit. Without a reserve, entry 38's tri looked as good as the hex only because it ran its motor to the edge at tip Mach 0.71. With a 12 % reserve it needs 0.84, which is aerodynamically and acoustically unreasonable. The hex absorbs the same reserve with a 20 % rpm increase at tip Mach 0.60. Put the reserve into a design study *before* comparing options; otherwise the option nearest its limit looks best.
+
+**Next.**
+- Item 49: the tri on the U15XL with the same reserve.
+- Item 50: the free-speed and 200 Wh/kg scenarios with the catalogue motors and the reserve.
+- Item 44: fold the CFD's 25 % thrust shortfall into the sizing, for example by calibrating BEMT's lift slope or tip loss on the toroid session's 2-blade result when it finishes, then re-size the motors for both layouts.
+- The user's open questions (cruise speed, battery chemistry, noise limit) remain.
