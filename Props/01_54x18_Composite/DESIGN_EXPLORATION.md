@@ -26,12 +26,13 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 12. Mast structure at h/D 0.4–0.5: bending under motor-out and gust loads, first bending mode against 1P/2P, gyroscopic moments
 13. Re-state the coaxial case (CONFIG_STUDY headline, entries 01–06 payloads) with the vortex-wake cruise term: at h/D 0.2 the coax is −12 % energy and −2.4 kg payload, not −22 % and +0.1 kg
 14. ~~Stagger: offset the lower rotor forward along the flight path (tilted mast)~~ (entry 08: modest gain; large stagger turns into the planar layout, item 7)
-15. Faired (aerofoil) arms and masts: entry 09's arm cross-flow drag is 0.15–0.7 kW at Cd 1.2
+15. ~~Faired (aerofoil) arms and masts~~ (entry 14: worth only +0.07 kg on the hex and +0.16 kg on the y6 once fairing mass and hover download count; −4.6 % energy on the hex)
 16. ~~Motor and fitting mass: find real catalogue numbers~~ (entry 10: motors sized by torque; hex ties the tri, y6 −3.3 kg)
 17. ~~Re-optimise the blade with motor mass ∝ peak torque in the objective~~ (entry 11: hex blade 1780 rpm, payload +2.3 kg vs tri)
 18. ~~U15XL torque margin~~ (entry 13: the tri blade re-optimised with the motor gains +1.9 kg and fits the U15XL at T/W 1.99; the hex's lead falls to +0.4 kg)
 19. ~~Y6 blade with the motor in the objective~~ (entry 12: y6 −0.4 kg vs tri; the hex leads by 2.7 kg and 19 % energy)
 20. Tip-Mach sensitivity of the tri: its optimum sits on the 0.60 cap, so d(payload)/d(M_cap) prices the noise limit (pairs with item 10)
+22. Lighter fairing construction (skin < 0.39 kg/m² is the break-even) and thicker sections (t/c 0.5 won at the edge of the sweep)
 21. Re-run entry 09's layout ranking with all three re-optimised blades and real motors (uncertainty band from the ±0.9 kg motor fit)
 
 ## Entries
@@ -784,4 +785,82 @@ So once the speed is capped, the only remaining way to reduce torque is a better
 **Next.**
 - **Queue item 15, faired arms.** The hex's six bare arms cost 700 W of cruise drag against the tri's 147 W. Fairing them at Cd ≈ 0.2 is worth about 0.9 kg (entry 09). With the payload ranking now within the uncertainty, that is the term that can decide it.
 - Then item 20 (the tri's tip-Mach sensitivity), and item 21 (re-rank all layouts with consistent blades and an uncertainty band).
+
+## 14 — Faired arms and masts, with hover download (2026-11-18)
+
+**Question.** Entry 09 charged the hex's six bare arm tubes 700 W of cruise drag, against 147 W for the tri, and estimated a fairing would win back about 0.9 kg. With the payload ranking now inside the uncertainty (entry 13), is that the term that decides it? Entry 09 left out two things:
+- **the fairing's own mass**;
+- **hover download.** Each arm sits in its own rotor's downwash, and a fairing whose chord lies in the flight plane is broadside to that downwash.
+
+**Method** (`src/explore/e14_faired_arms.py`). No BEMT re-run is needed. The script takes each layout's best blade so far (entry 13 tri, entry 11 hex, entry 12 y6), replaces entry 09's arm and mast terms, re-prices the pack with the mission model, and adds the fairing mass. Four options for each arm:
+- **bare**: tube, Cd 1.2 on the diameter d.
+- **full**: fixed fairing over the whole arm, chord in the flight plane.
+- **outboard**: fixed fairing only on the part of the arm outside the rotor disk. This gains in cruise with no extra download.
+- **swivel**: a trailing fairing free to weathervane about the tube, like a towed-cable fairing. It lines up with the downwash in hover and with the free stream in cruise.
+
+Each fairing option is run at t/c 0.25, 0.33 and 0.5. Y6 masts are vertical, so the downwash runs along them, and a fixed mast fairing costs nothing in hover.
+
+**The physics, step by step.**
+1. **Cruise drag of a yawed cylinder (cross-flow principle).** Only the velocity component normal to the axis, V·sin φ, makes a section force. That force is q·Cd·d·sin²φ per metre, and its component along the flight path carries one more sin φ:
+   D' = q·Cd·d·sin³φ.
+   Entry 09 used sin²φ, which overstates the oblique arms. For the hex (arms at 0°, ±60°, ±120°, 180°): Σsin³ = 4 × 0.866³ = **2.60** against Σsin² = **3.00**, so the bare arms cost **606 W, not 700 W**.
+2. **Fairing section drag** (Hoerner's formula for a streamlined 2-D section in attached flow, with turbulent skin friction because the arm sits in rotor wash):
+   Cd_c = 2·C_f·[1 + 2(t/c) + 60(t/c)⁴],  C_f = 0.074·Re_c^(−0.2),  Cd_t = Cd_c·c/t.
+   - The three terms are friction on the wetted area, the extra friction from supervelocity over thickness, and pressure drag from the thickness.
+   - For the hex arm at t/c 0.33: c = 0.200 m, Re = 15 × 0.200 / 1.75×10⁻⁵ = 1.71×10⁵, C_f = 0.00665, Cd_c = 0.0133 × 2.372 = 0.0316, so **Cd_t = 0.096**: a 12.6× cut from the bare tube's 1.2.
+3. **Hover download.**
+   - **Wake speed.** The hex rotor at W/6 has v_i = √(T/(2ρA)) = √(207.6 / (2 × 1.109 × 1.478)) = **7.96 m/s**. At the arm, Z = 0.12 m below the disk, the vortex-cylinder formula gives w = v_i(1 + Z/√(R² + Z²)) = 1.17·v_i = **9.33 m/s**, so q_w = 48.3 Pa.
+   - **Area in the wake.** The downwash acts on the arm length under the disk, from the hub out to 0.2 R: 0.55 m.
+   - **Bare tube.** Download per arm = 48.3 × 1.2 × 0.066 × 0.549 = **2.10 N**. Six arms give 12.6 N, **1.0 % of the weight**.
+   - **Power cost.** The rotors must lift W + D, and P ∝ T^1.5, so hover power rises by (1 + D/W)^1.5: **+1.5 %**.
+   - **Fixed fairing.** A broadside fairing (Cd 1.5 on the chord) multiplies the download by 1.5c / (1.2d) = 1.25/(t/c): **×3.8** at t/c 0.33.
+4. **Fuselage download.** The tri and y6 disks reach a 0.25 m fuselage radius (0.039 m² of overlap in total, about 3.8 N). The hex disks start 0.82 m out and do not. This is reported for completeness but is small.
+5. **Mass.** Skin of 0.35 kg/m² × 1.15 (ribs and bonding) over the wetted perimeter aft of the tube, 2c − 0.57d. The swivel adds 0.05 kg of collars per arm.
+
+**Results** (payload against entry 13's re-optimised tri with bare arms; best t/c for each option):
+
+| Layout | Option | Arm + mast cruise drag [W] | Download [% W] | Pack [Wh] | Fairing [kg] | Payload [kg] |
+|---|---|---|---|---|---|---|
+| tri | **bare** | 127 | 0.86 (+0.3 fuselage) | 7436 | 0 | **−0.05** |
+| tri | full, t/c 0.5 | 18 | 2.14 | 7410 | 0.14 | −0.10 |
+| tri | swivel, t/c 0.5 | 18 | 0.12 | 7368 | 0.29 | −0.12 |
+| hex | bare | 606 | 1.01 | 5083 | 0 | +0.49 |
+| hex | **full, t/c 0.5** | 84 | 2.53 | **4852** | 0.69 | **+0.56** |
+| hex | outboard, t/c 0.5 | 368 | 1.01 | 4967 | 0.31 | +0.56 |
+| hex | swivel, t/c 0.5 | 84 | 0.14 | 4815 | 0.99 | +0.38 |
+| y6 | bare | 127 + 185 | 0.84 | 6320 | 0 | −2.36 |
+| y6 | **masts only, t/c 0.5** | 127 + 26 | 0.84 | 6243 | 0.09 | **−2.20** |
+
+**Finding.**
+- **Fairings are nearly payload-neutral.** On the hex the best fairing buys back only **+0.07 kg**, not the 0.9 kg entry 09 estimated. Two things eat the gain:
+  - the fairing's own mass: 0.69 kg against 0.76 kg of battery saved;
+  - entry 09's 700 W was 15 % high (sin² against sin³).
+- **Fairings save energy.** At equal payload the faired hex needs **4.6 % less energy** (4852 against 5083 Wh). If the mission is range rather than payload, faired arms pay.
+- **Hover download, newly modelled, costs about 1 % of the thrust for bare arms.** That is small in payload because hover is a short part of the mission. A fixed fairing can triple it, which is why the thickest section (t/c 0.5, short chord) wins.
+- **On the tri, fairings never pay.** Its arms (0.62 m) lie entirely under its disks, and the bare arms are cheap in cruise anyway.
+- **On the y6, faired masts pay** (+0.16 kg for 0.09 kg of fairing), because a vertical mast has no download.
+- **The swivelling fairing is the best aerodynamic option but the heaviest**, and it carries a flutter risk. It does not pay at this skin weight.
+- **Updated ranking**, each layout with its best option:
+
+| Layout | Payload vs tri [kg] | Pack [Wh] | Energy vs tri |
+|---|---|---|---|
+| tri (bare) | 0 | 7436 | — |
+| **hex (full t/c 0.5)** | **+0.61** | **4852** | **−35 %** |
+| y6 (masts faired) | −2.15 | 6243 | −16 % |
+
+  The hex's payload lead is still inside the ±0.9 kg motor-fit band. Its energy lead (1.53× range) has grown.
+
+**Hand check: the energy bookkeeping.** By finite differences of the mission model, each watt of hover power costs **0.082 Wh** of pack (≈ 4.9 min of hover) and each watt of cruise costs **0.488 Wh** (≈ 29 min). For the hex full fairing at t/c 0.5:
+- cruise saving (606 − 84) × 0.488 = **255 Wh**;
+- hover penalty (13042 − 12754) × 0.082 = **24 Wh**;
+- net **−231 Wh**, so 5083 − 231 = **4852 Wh** ✓ (the model gives 4852);
+- payload: 231 / 303.3 = 0.76 kg of battery, minus the 0.69 kg fairing, gives **+0.07 kg** ✓ (+0.49 → +0.56).
+
+The asymmetry (0.49 against 0.08 Wh/W) is why a fairing that triples the hover download can still pay: cruise is six times longer than hover.
+
+**Sensitivities.**
+- **Broadside Cd.** At t/c 0.33 the hex full fairing gains +0.18 kg with Cd 1.2 and +0.07 kg with Cd 2.0.
+- **Skin weight.** The payload gain scales as 0.76 − 0.69 × (skin / 0.35), so the break-even is **0.39 kg/m²**. At 0.2 kg/m² (one ply of 100 g/m² fabric with film adhesive) the faired hex gains +0.37 kg (queue item 22).
+
+**Next.** Queue item 20: the tri's tip-Mach sensitivity. Its optimum sits on the 0.60 cap (entry 13), so d(payload)/d(M_cap) says what the noise limit costs. That is the tri's remaining lever in a payload race now within a kilogram.
 
