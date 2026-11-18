@@ -29,8 +29,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 15. Faired (aerofoil) arms and masts: entry 09's arm cross-flow drag is 0.15–0.7 kW at Cd 1.2
 16. ~~Motor and fitting mass: find real catalogue numbers~~ (entry 10: motors sized by torque; hex ties the tri, y6 −3.3 kg)
 17. ~~Re-optimise the blade with motor mass ∝ peak torque in the objective~~ (entry 11: hex blade 1780 rpm, payload +2.3 kg vs tri)
-19. Y6 blade with the motor in the objective (entry 11's method on the coaxial arm), so the y6–hex comparison is like for like
 18. U15XL torque margin: the tri needs 55.8 N·m at T/W 2 on a hot day, against 50.4 N·m in the vendor's 96 V test (T/W ≈ 1.8 on that motor)
+19. ~~Y6 blade with the motor in the objective~~ (entry 12: y6 −0.4 kg vs tri; the hex leads by 2.7 kg and 19 % energy)
 
 ## Entries
 
@@ -675,3 +675,49 @@ Sensitivity of the hex payload to the motor fit: −0.9 kg (exponent 0.90) to +0
 - At about 2500 rpm at T/W 2, the faster blade's tip Mach is about 0.52. That is inside the 0.60 cap, but louder than entry 03's blade (queue item 10).
 
 **Next.** Queue item 19: the same optimisation for the y6 arm, so the y6–hex comparison is like for like. The y6's coaxial interference makes its torque higher, so it should benefit at least as much.
+
+## 12 — Y6 blade re-optimised with torque-sized motors (2026-11-18)
+
+**Question.** Entry 11 gave the hex +2.7 kg by letting the blade speed up once motor mass (∝ peak torque) was in the objective. Does the y6 arm gain as much, so that the y6–hex ranking is like for like?
+
+**Method** (`src/explore/e12_y6_blade_with_motor.py`). Entry 11's optimiser (spar mass model, 1.2 mm flex test, catalogue motor fit m = 0.0909·τ^0.996, ESC ∝ P_max^0.7), applied to the y6 arm at h/D 0.4:
+- **Coaxial surrogate.** A full coaxial trim per evaluation is too slow (≈ 3 s), so each run calibrates three ratios on its start blade with the full vortex-cylinder model (entry 05's `coax_split`, equal-torque trim):
+  - k_P = P_pair / (2·P_iso) at hover (the coaxial power penalty),
+  - k_Q = Q_coax,max / Q_iso,max at T/W 2 (the torque penalty that sizes the motor),
+  - k_P,max = max(P_upper, P_lower) / P_iso at T/W 2 (sizes the ESC).
+  The optimiser then works on isolated-rotor BEMT × these ratios, and the end blade is re-scored with the full coaxial model.
+- **Lower-rotor tip Mach.** At T/W 2 the lower rotor, sitting in the upper's wake, spins about 15 % faster than the upper and 26 % faster than an isolated rotor. The first run ignored that and finished at **M 0.65** on the lower tip, above the 0.60 cap. The rerun applies the cap to rpm_lower,max = r_lower·rpm_iso,max (r_lower from the start blade's coaxial trim).
+- Two starts: entry 03's blade (σ 0.141, 1269 rpm), and entry 11's hex optimum.
+
+**Results** (full-model re-score; payload against the tricopter, same bookkeeping as entries 10–11):
+
+| Start | Mach cap on lower | Hover rpm (iso) | σ | Q_max [N·m] | Motor [kg] | Pack [Wh] | Lower tip M at T/W 2 | Payload vs tri [kg] | Surrogate saw [kg] |
+|---|---|---|---|---|---|---|---|---|---|
+| e03 blade | (start) | 1269 | 0.141 | 34.9 | 3.13 | 6040 | 0.44 | −3.33 | |
+| e03 blade | no | 1794 | 0.120 | 26.5 | 2.38 | 6489 | 0.65 ✗ | −0.52 | −0.19 |
+| e03 blade | yes | 1726 | 0.121 | 27.1 | 2.43 | 6404 | 0.61 | −0.50 | −0.23 |
+| e11 hex opt. | (start) | 1783 | 0.128 | 26.4 | 2.37 | 6420 | 0.63 ✗ | −0.38 | |
+| e11 hex opt. | no | 1800 | 0.128 | 26.2 | 2.35 | 6431 | — | −0.38 | −0.38 |
+| e11 hex opt. | **yes** | **1690** | 0.130 | 27.2 | 2.44 | **6306** | **0.595** | **−0.43** | −0.47 |
+
+**Finding.**
+- **The y6 gains as much as the hex did** (−3.3 → −0.4 kg, a 2.9 kg swing, against the hex's 2.7 kg), and for the same reason: motors at 11 N·m/kg make a slow, wide blade expensive. It lands on nearly the same blade as the hex (σ 0.13, ≈ 1700–1800 rpm).
+- **But the ranking does not change.** Like for like, **hex +2.3 kg, y6 −0.4 kg** against the tricopter: the hex leads by **2.7 kg** of payload and uses **19 % less energy** (5113 vs 6306 Wh). The y6's 2.2 kW cruise interference and its 1.37× hover power penalty are paid in battery, and the motor trade cannot buy that back.
+- **The y6 is the first layout to hit the tip-Mach cap.** Its lower rotor is the fastest rotor on the vehicle. The cap costs only 0.05 kg here (the payload is flat near the optimum), but it binds: entry 11's hex blade, bolted onto a y6 arm, would run its lower tip at M 0.63.
+- **Both starts converge within 0.07 kg of payload**, and the e03 run stops just above the cap (0.612: the penalty is soft). The surrogate's payload error is 0.3 kg from a far start and < 0.05 kg from a near one, because k_P drifts as the blade changes (1.340 → 1.374). That is small against the 2.7 kg gap, so the verdict doesn't depend on it.
+
+**Hand check 1: torque penalty → power penalty.** In an equal-torque trim both motors deliver the same Q, so the pair's power is Q·(Ω_u + Ω_l), against 2·Q_iso·Ω_iso for two isolated rotors at the same total thrust. Hence
+
+  k_P = P_pair / (2·P_iso) = (Q/Q_iso)·(Ω_u + Ω_l)/(2·Ω_iso) = k_Q·(Ω_u + Ω_l)/(2·Ω_iso).
+
+At T/W 2 on the start blade: 1.157 × (1941 + 2206)/(2 × 1786) = **1.343**, against the coaxial model's 1.343 ✓. On the constrained end blade: 1.165 × (2641 + 3045)/(2 × 2419) = **1.369** vs 1.369 ✓. The identity is exact. It is a good check that the model's power, torque and speed agree. It also shows why the torque penalty (1.16) is smaller than the power penalty (1.37): the lower rotor pays most of its penalty in speed, not torque.
+
+**Hand check 2: lower tip Mach.** For a fixed-pitch rotor, tip Mach scales with rpm, so M_lower = 0.60 × rpm_lower,max / rpm(M 0.60) = 0.60 × 2964 / 2987 = **0.595** ✓. That also checks the hot-day speed of sound: rpm(M 0.60) = 2987 means V_tip = 2987 × 2π/60 × 0.686 m = 214.5 m/s, so a = 357.5 m/s, T = a²/(γR) = 357.5²/401.9 = 318 K, the 45 °C hot day in params.yaml ✓.
+
+**Takeaways.**
+- Like for like, the planar hex beats the y6 on both payload (+2.7 kg) and energy (−19 %). **The y6 is now ranked third**, behind the hex and the tri (it keeps its compact footprint, 3.11 m against 4.39 m span).
+- With the motor in the objective, every layout's blade converges to σ ≈ 0.12–0.13 at ≈ 1700–1800 rpm hover. **That blade, not entry 03's, is the new baseline** for the remaining queue items.
+- Coaxial designs must check the **lower** rotor's tip Mach at T/W 2, not the isolated one.
+
+**Next.** Queue item 18 (U15XL torque margin): the tri's hot-day T/W 2 needs 55.8 N·m against 50.4 N·m tested. The tri is the reference for every payload number, so its motor must be sized consistently with the hex's (by torque, from the same fit) before item 8 (cruise speed per configuration).
+
