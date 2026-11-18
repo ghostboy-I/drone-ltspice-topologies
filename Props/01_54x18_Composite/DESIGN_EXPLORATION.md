@@ -34,7 +34,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 20. ~~Tip-Mach sensitivity of the tri~~ (entry 15: 0.71 kg per 0.05 of cap below 0.60; the hex is insensitive down to 0.50, so a stricter cap favours the hex)
 22. Lighter fairing construction (skin < 0.39 kg/m² is the break-even) and thicker sections (t/c 0.5 won at the edge of the sweep)
 23. ~~Re-optimise each layout's blade at its own best-range speed~~ (entry 17: −0.14 kg tri, −0.07 kg hex; the blades are set by hover sizing; tri leads by 3.2 kg at free speed). Still open: re-state the 15 m/s requirement as a minimum
-24. Fuselage drag against pitch attitude: at 24 m/s the shaft tilts 13°; CdA 0.60 m² is held fixed here
+24. ~~Fuselage drag against pitch attitude~~ (entry 18: a bluff body costs the tri 2.5 kg and the hex 1.5 kg at free speed; a body built nose-down at the cruise attitude recovers it; the tri still leads by 2.2–3.4 kg)
 21. Re-run entry 09's layout ranking with all three re-optimised blades and real motors (uncertainty band from the ±0.9 kg motor fit)
 
 ## Entries
@@ -1036,4 +1036,61 @@ The advancing-tip Mach stays ≤ 0.53 and the largest section angle ≤ 8.4°, s
 - **Why it's small:** a 4 % cut in cruise profile power is worth only about 0.06 kg. The blade's big terms (motor torque, battery for hover) were already balanced in entry 13, and the cruise point doesn't touch them.
 
 **Next.** Queue item 24: fuselage drag against pitch attitude. At 24.7 m/s the tri flies with 13° of shaft tilt. A real fuselage's CdA rises with incidence (crossflow on the fuselage underside), which will pull the tri's best speed down and shrink its lead. That is the last physical term in the payload-at-free-speed comparison.
+
+## 18 — Fuselage drag against pitch attitude (2026-11-18)
+
+**Question.** Entries 16–17 held the body drag area at CdA₀ = 0.60 m² at every speed. A multirotor's fuselage pitches nose-down with its rotor shafts, though: about 13° for the tri at 24.7 m/s and 10° for the hex at 21 m/s. How much does the body's drag grow at that attitude? And does it undo the tri's payload lead at free cruise speed (entry 16)?
+
+**Method** (`src/explore/e18_body_incidence.py`). There is no airframe geometry yet, so the study brackets the body with two models, written in terms of the body incidence α_b (shaft tilt minus any built-in nose-down pre-tilt):
+- **Streamlined** (cross-flow theory, Allen–Perkins/Hoerner): only the velocity component normal to the body axis makes extra force. Normal force ∝ sin²α_b, and its drag component carries one more sin:
+  f = f₀ + Cd_c·A_plan·|sin α_b|³, with A_plan = 1.2 m² and Cd_c = 1.0.
+- **Bluff box:** the drag follows the projected frontal area:
+  f = f₀·(cos α_b + r·sin α_b), with r = A_plan/A_front = 2.0 (A_front = 0.6 m² at Cd 1.0).
+- **Bluff, pre-tilted:** the same box built 13° nose-down on the frame, so it is level at the tri's cruise attitude.
+
+The trim is iterated with f(α), since more drag means more tilt and more tilt means more drag. Blades, hover, motors, arms and fairings are all as in entry 17. Speeds 14–30 m/s.
+
+**Results** (hardware + battery: lower is more payload):
+
+| Body model | Tri best V [m/s] | Tri tilt | Tri f [m²] | Tri pack [Wh] | Tri hw + batt [kg] | Hex best V | Hex f | Hex pack | Hex hw + batt | **Hex − tri payload, free speed** | Hex − tri at 15 m/s |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| constant (entries 16–17) | 24.8 | 13.5° | 0.600 | 5581 | 41.50 | 21.1 | 0.600 | 4225 | 44.69 | **−3.19** | +0.86 |
+| streamlined | 24.3 | 13.2° | 0.614 | 5628 | 41.65 | 20.9 | 0.606 | 4240 | 44.74 | **−3.09** | +0.86 |
+| bluff box | 21.2 | 13.2° | 0.857 | 6345 | 44.01 | 18.6 | 0.798 | 4679 | 46.17 | **−2.16** | +0.83 |
+| bluff, pre-tilted 13° | 24.1 | 12.9° | 0.607 | 5609 | 41.57 | 22.3 | 0.630 | 4326 | 45.02 | **−3.45** | +0.81 |
+
+**Finding.**
+- **A streamlined body barely notices its pitch attitude:** +0.014 m² at 13°, 0.15 kg on the tri. The sin³ makes small incidences nearly free.
+- **A bluff body costs a lot.**
+  - **Tri:** +43 % drag area at 13°, best-range speed down 3.6 m/s, **2.5 kg** of payload lost.
+  - **Hex:** it flies slower and at a shallower tilt, so it loses **1.5 kg**.
+  - **The lead:** the tri's free-speed lead shrinks from 3.2 to **2.2 kg**, but **the ranking holds**.
+- **Building the body nose-down at the cruise attitude recovers almost all of it.** That is a cheap, real design rule: the tri gets back to 41.57 kg, within 0.07 kg of the constant-drag case.
+  - The 13° pre-tilt suits the tri but over-tilts the hex, whose cruise tilt is about 10°. Each layout would pick its own angle, and at 10° the hex would land near its constant-drag 44.7 kg.
+  - The cost is hover and ground attitude: the body sits 13° nose-up in hover. That matters for landing gear, payload release, and download on the body's sloped underside.
+- **At the 15 m/s design point the body model hardly matters.** The tilt there is only about 6° (hex ahead by 0.8–0.9 kg in all four cases).
+- **Summary of where the layout choice stands:**
+
+| Requirement | Winner | Margin |
+|---|---|---|
+| Fly at the 15 m/s design point | hex | +0.8 kg (≈ the ±0.9 kg uncertainty), −35 % energy |
+| Cruise speed free (≥ 15 m/s), payload | **tri** | +2.2 kg (bluff body) to +3.4 kg (pre-tilted) |
+| Cruise speed free, range at equal payload | **hex** | −23 to −26 % energy |
+| Stricter noise cap (≤ 0.55) | **hex** | +1.1 kg or more at 15 m/s (entry 15) |
+
+**Hand check 1: drag-area growth.**
+- **Bluff model** at the tri's best-speed tilt of 13.2°: f/f₀ = cos 13.2° + 2·sin 13.2° = 0.974 + 0.457 = **1.430**, so f = 0.600 × 1.430 = **0.858 m²** ✓ (the model gives 0.857).
+- **Streamlined model** at 13°: Cd_c·A_plan·sin³13° = 1.0 × 1.2 × 0.01138 = **0.0137 m²** ✓.
+
+**Hand check 2: why the best speed falls more than the −1/4 law predicts.**
+- **The simple estimate.** In the induced/parasite limit (entry 16), V*⁴ = 2a/(ρf). A 43 % larger f should lower V* by 1.430^(−1/4) = 0.915, from 24.8 to **22.7 m/s**. The model gives **21.2 m/s**.
+- **The missing feedback:** here f is not a constant. It grows with speed, because the tilt grows as tan α = D/W.
+- **Why that lowers V\*:** minimising P/V = a/V² + ½ρf(V)V² gives
+
+    d/dV(P/V) = −2a/V³ + ρfV + ½ρV²·df/dV = 0.
+
+  The extra term ½ρV²·df/dV is positive, so the optimum comes at a lower speed than with f held fixed.
+- **Lesson:** in a trimmed vehicle, drag and attitude are coupled, and a fixed-CdA analysis overstates the best cruise speed of any bluff multirotor.
+
+**Next.** Queue item 21: the consolidated layout ranking, with the uncertainty bands collected from entries 10–18 (motor fit ±0.9 kg, body model, tip-Mach cap, speed requirement) in one table and plot. Then items 9 (camber) and 6 (3-blade), the two blade ideas still untried.
 
