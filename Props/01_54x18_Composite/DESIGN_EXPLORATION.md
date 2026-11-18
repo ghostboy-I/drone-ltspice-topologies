@@ -16,12 +16,14 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 2b. ~~**Blade structure and mass model.**~~ (entry 03) Entry 02's payload gain comes from blade mass ∝ volume. Add a fixed part (spar, root fitting, erosion strip) and the 50 N / 1.2 mm flex requirement as a constraint, then re-run entries 01–02.
 3. ~~Different upper and lower blades: the lower rotor works in the upper wake inboard, so it wants more pitch there~~ (entry 04: no gain, keep one blade)
 4. ~~Upper/lower diameter split: a smaller lower rotor that sits inside the upper's contracted wake, or a larger one that reaches past it~~ (entry 05: keep 54/54 in)
-5. Coaxial spacing in cruise: the wake-overlap fraction against h/D, against the hover mast and its mass
+5. ~~Coaxial spacing in cruise: the wake-overlap fraction against h/D, against the hover mast and its mass~~ (entry 06: h/D 0.4 if the overlap model holds)
 6. 3-blade coaxial: vibration (3P against 2P hub loads) and solidity per blade
 7. Planar hexacopter against Y6: six isolated disks need a bigger frame, but they have no interference
 8. Cruise speed per configuration: the coaxial pair's lower induced power moves the minimum-energy speed
 9. Camber (64xx) for the coaxial blade: the blade trade study found camber pays mostly in cruise
 10. Tip-speed limit: is 0.60 Mach still the right cap for the slower coaxial rotors (noise)?
+11. **(next, high priority)** Check the cruise wake-overlap model with a prescribed-wake (Biot–Savart) calculation: entry 06's 16 % rests on it
+12. Mast structure at h/D 0.4: bending under motor-out and gust loads, first bending mode against 1P/2P, gyroscopic moments
 
 ## Entries
 
@@ -256,3 +258,81 @@ At 54/54 the momentum estimate is 5252 W per arm against 5050 W from BEMT, 4 % a
 - **Caveat:** the cruise overlap term uses the smaller disk's area, which flatters the small-lower-rotor cases slightly. The 54/51.3 case's −0.2 % is cruise only, and is within that uncertainty.
 
 **Next.** Queue item 5: coaxial spacing in cruise. The wake-overlap fraction against h/D, weighed against the hover interference (κ_int falls with spacing) and the mast's mass and drag.
+
+### 06 · 2026-11-18 · Coaxial spacing: hover, cruise and the mast (`src/explore/e06_coax_spacing.py`, `e06_hand_check.py`)
+
+**Question.** Every entry so far used h/D = 0.2 (a 27 cm mast). Spacing affects three things:
+- **Hover interference:** the upper wake contracts and speeds up before it reaches the lower rotor.
+- **Cruise wake overlap:** the upper wake is swept back, and with enough height it misses the lower disk.
+- **The mast:** its mass and drag grow with height.
+
+Where is the best spacing?
+
+**Method.**
+- **Rotors:** entry 03's blade on both, 54 in. Sweep h/D = 0.10–0.75.
+- **Hover:** the full coaxial model (e05 `coax_split`).
+- **Cruise:** each rotor at T/6, plus the overlap penalty 3·f·(P_ind,one disk − 2·P_ind). The overlap fraction f is the lens area of two circles of radius R whose centres sit d = h·tan χ apart, where χ = atan(μ/λ) is the wake skew angle.
+- **Mast assumptions:**
+  - 40 mm × 2 mm carbon tube plus 30 % for fittings: 0.51 kg/m per arm, counted relative to h/D 0.2.
+  - Cylinder drag: Cd 1.2 (Re ≈ 4·10⁴).
+  - That drag is paid through the rotors at a propulsive efficiency of 0.8.
+- **Regression check:** at h/D 0.2, cruise without the mast is 8865 W and hover 16812 W, both identical to entries 03–05. The pack reads 5823 Wh instead of 5778 because the mast drag (92 W) is now counted.
+
+| h/D | Mast [cm] | Hover [W] | κ_int (BEMT) | Overlap f | Overlap penalty [W] | Mast drag [W] | Cruise [W] | Pack [Wh] | vs 0.2 | Payload [kg] |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 0.10 | 14 | 17003 | 1.413 | 0.685 | 3298 | 46 | 10325 | 6507 | +11.7 % | −1.94 |
+| 0.15 | 21 | 16930 | 1.406 | 0.534 | 2571 | 69 | 9622 | 6157 | +5.7 % | −0.89 |
+| **0.20** | 27 | 16812 | 1.394 | 0.391 | 1883 | 92 | 8957 | **5823** | 0 | +0.11 |
+| 0.25 | 34 | 16635 | 1.379 | 0.260 | 1251 | 116 | 8348 | 5511 | −5.4 % | +1.03 |
+| 0.30 | 41 | 16397 | 1.358 | 0.145 | 696 | 139 | 7816 | 5232 | −10.2 % | +1.85 |
+| **0.40** | 55 | 16121 | 1.332 | 0.000 | 0 | 185 | 7166 | **4892** | **−16.0 %** | **+2.76** |
+| 0.50 | 69 | 16156 | 1.331 | 0 | 0 | 231 | 7212 | 4917 | −15.6 % | +2.46 |
+| 0.75 | 103 | 15774 | 1.294 | 0 | 0 | 347 | 7328 | 4943 | −15.1 % | +1.86 |
+
+**Hand check 1: the cruise overlap.** At 15 m/s the rotor's advance ratio is μ = 0.193 and its inflow ratio λ = 0.077, so
+
+  tan χ = μ/λ = 2.50 and χ = 68.2°.
+
+At h = 0.2 D = 0.4 R, the wake centre is displaced d = 0.4 R × 2.50 = **1.00 R** at the lower disk. Two unit circles one radius apart overlap by (2π/3 − √3/2)/π = **0.391**, exactly the f in the table. The overlap disappears when d = 2R, at h/D = 2R/(2R·tan χ) = 1/2.5 = **0.40**. That matches the sweep: f = 0 from 0.40 on. The cruise penalty is the biggest term in this study (1.9 kW of vehicle power at h/D 0.2), and it is linear in f.
+
+**Hand check 2: hover interference from a two-region momentum model** (`e06_hand_check.py`).
+
+The first attempt reused e05's `hand()`. It gave κ ≈ 1.59 at every spacing, and its h → 0 limit came out at 1.62 instead of √2. That revealed a bug in e05's hand check: it computed the upper rotor's own induced velocity from still-air momentum (T_u = 2ρA·v_u²). But the lower rotor also pulls flow through the upper disk, so the upper rotor's mass flow is larger. The corrected equations, with k = h/√(R² + h²):
+
+- **Upper:** T_u = 2ρA·v_u·(v_u + (1−k)·v̄_l) and P_u = T_u·(v_u + (1−k)·v̄_l).
+- **Upper wake at the lower disk:** speed w = (1+k)·v_u over the core area A_w = A/(1+k). Continuity: A_w·w = A·v_u.
+- **Lower:** core (own velocity v_c) plus clean annulus (own v_a):
+  - T_l = 2ρ[A_w(w+v_c)·v_c + (A−A_w)·v_a²]
+  - P_l = 2ρ[A_w(w+v_c)²·v_c + (A−A_w)·v_a³]
+  - v̄_l = (A_w·v_c + (A−A_w)·v_a)/A.
+- **Two closures for the lower rotor:**
+  - **uniform:** v_c = v_a, a blade that ignores the wake;
+  - **optimal:** the same marginal cost dP/dT in both regions, so no thrust can be moved between them to save power:
+    (w+v_c)(w+3v_c)/(w+2v_c) = 1.5·v_a.
+
+| | h → 0 | h/D 0.2 | h/D 0.4 | h/D 0.75 | far wake |
+|---|---|---|---|---|---|
+| Uniform lower loading | **1.414 = √2** ✓ | 1.443 | 1.493 | 1.552 | 1.618 |
+| Optimal lower loading | **1.414 = √2** ✓ | 1.344 | 1.291 | 1.238 | 1.206 |
+| BEMT (real fixed-pitch blade) | | 1.394 | 1.332 | 1.294 | |
+
+- **Uniform limit.** At h → 0 both rotors are one disk with the total thrust, so κ = 2^1.5/2 = √2 exactly. Both closures reproduce it.
+- **Far-wake limit with uniform loading:** the equations reduce to v_l² + v_u·v_l − v_u² = 0, so v_l = 0.618·v_u and κ = 1.618 (the golden ratio, an amusing coincidence).
+- **Optimal loading lets the lower rotor do better with height.** It moves its thrust into the clean annulus: v_c/v_a falls from 0.44 at h/D 0.1 to 0.08 at 0.75. The core, which already moves fast, gets almost no extra push.
+- **BEMT sits between the two closures, 3–5 % above the optimum, at every spacing.** A fixed-twist blade cannot reach the optimal loading, but its load does peak outboard of r_w (entries 04 and 05). That bracketing is the hand check of the BEMT κ trend.
+- **The textbook far-wake value of 1.281 (Leishman) assumes a fully mixed lower wake;** it falls inside the same bracket.
+- **This also corrects entry 05's hand check.** Its "momentum" column used the uncorrected upper momentum. Its trend conclusions stand, but its 4 % absolute agreement at 54/54 in was partly luck.
+
+**Finding.**
+- **Spacing is the biggest lever found yet, and nearly all of it is cruise.** Going from h/D 0.2 to 0.4:
+  - cruise wake overlap: −1.9 kW of vehicle power;
+  - hover: −4 % (κ 1.394 → 1.332);
+  - mast drag: +93 W;
+  - mast mass: +0.42 kg in total.
+  Pack −16 % (4892 Wh), payload +2.8 kg against the tricopter: the first clearly positive payload in this series.
+- **Beyond 0.4 there is no overlap left to remove,** so mast drag and mass win, and the pack rises slowly.
+- **The result rests on a crude cruise model.** It is a straight, rigid wake from the disk centre, with a penalty linear in the lens area. Real skewed wakes roll up into two tip vortices and deflect downward more aft. The configuration study bracketed the coaxial cruise between "one disk" and "no interference", and this result sits at the optimistic end. **Do not change the design on this yet:** queue item 11 checks the overlap with a prescribed-wake Biot–Savart calculation.
+- **A 55 cm mast is a real structural item.** It carries a 25 kg-thrust rotor, motor-out loads and gyroscopic moments, and its bending mode must stay clear of 1P/2P. That is queue item 12.
+- **Cruise speed matters:** at 12 m/s χ is smaller, so the same spacing leaves more overlap. Queue item 8 (cruise speed per configuration) should use the spacing from item 11.
+
+**Next.** Queue item 11: a prescribed-wake model of the upper rotor in cruise. Free-stream plus a skewed helical vortex wake, Biot–Savart on the lower disk. It gives the lower rotor's actual inflow map, which replaces the lens-area estimate.

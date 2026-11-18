@@ -1,0 +1,95 @@
+{
+ "limits": {
+  "h -> 0": {
+   "uniform": 1.414213562373095,
+   "optimal": 1.414213562373095
+  },
+  "far wake": {
+   "uniform": 1.618033988749895,
+   "optimal": 1.205892073663909
+  }
+ },
+ "rows": [
+  {
+   "h_over_D": 0.1,
+   "k": 0.19611613513818407,
+   "split_upper": 0.5161638766678606,
+   "kappa_uniform": 1.4224994967984819,
+   "kappa_optimal": 1.3773261030959099,
+   "kappa_bemt": 1.4130858525578023,
+   "v_core_over_v_annulus_optimal": 0.4434962013833373
+  },
+  {
+   "h_over_D": 0.15,
+   "k": 0.28734788556634544,
+   "split_upper": 0.5246558763429161,
+   "kappa_uniform": 1.4319316765135415,
+   "kappa_optimal": 1.3600875185391788,
+   "kappa_bemt": 1.4056823798160565,
+   "v_core_over_v_annulus_optimal": 0.38563704469574167
+  },
+  {
+   "h_over_D": 0.2,
+   "k": 0.3713906763541038,
+   "split_upper": 0.5299897479561189,
+   "kappa_uniform": 1.443392072046244,
+   "kappa_optimal": 1.3438579888747757,
+   "kappa_bemt": 1.3944335556597516,
+   "v_core_over_v_annulus_optimal": 0.3345635572614747
+  },
+  {
+   "h_over_D": 0.25,
+   "k": 0.4472135954999579,
+   "split_upper": 0.5324213703104892,
+   "kappa_uniform": 1.4558848114272827,
+   "kappa_optimal": 1.3288406466257223,
+   "kappa_bemt": 1.3785047778927615,
+   "v_core_over_v_annulus_optimal": 0.29093996358194163
+  },
+  {
+   "h_over_D": 0.3,
+   "k": 0.5144957554275265,
+   "split_upper": 0.5323747765936637,
+   "kappa_uniform": 1.4686576831346667,
+   "kappa_optimal": 1.3152342476238756,
+   "kappa_bemt": 1.3578724144807972,
+   "v_core_over_v_annulus_optimal": 0.2546284263218876
+  },
+  {
+   "h_over_D": 0.4,
+   "k": 0.6246950475544243,
+   "split_upper": 0.5349389162731196,
+   "kappa_uniform": 1.493382295324308,
+   "kappa_optimal": 1.2911920944420399,
+   "kappa_bemt": 1.332247629594614,
+   "v_core_over_v_annulus_optimal": 0.19264213526833734
+  },
+  {
+   "h_over_D": 0.5,
+   "k": 0.7071067811865476,
+   "split_upper": 0.5414304219363905,
+   "kappa_uniform": 1.5147015443426641,
+   "kappa_optimal": 1.2704589940731703,
+   "kappa_bemt": 1.3307612785985898,
+   "v_core_over_v_annulus_optimal": 0.1418949747514932
+  },
+  {
+   "h_over_D": 0.75,
+   "k": 0.8320502943378437,
+   "split_upper": 0.5413345816253373,
+   "kappa_uniform": 1.5516118711545117,
+   "kappa_optimal": 1.2375569390720802,
+   "kappa_bemt": 1.293531575839721,
+   "v_core_over_v_annulus_optimal": 0.07598689491342399
+  }
+ ],
+ "cruise_overlap_ref": {
+  "mu": 0.19321521761058078,
+  "lambda": 0.07732538919604931,
+  "chi_deg": 68.18854414343417,
+  "d_over_R": 0.9994917303071392,
+  "f": 0.39128246645695824,
+  "f_at_d_eq_R_exact": 0.3910022189557706,
+  "h_over_D_for_zero_overlap": 0.40020341126492553
+ }
+}
