@@ -52,7 +52,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 39. ~~Tip chord bound with flat or rounded tip~~ (entry 32: a bounded tip chord does not help. Loading per unit span is fixed by thrust, so a narrower outboard blade runs at a higher α* and its trailing-edge noise rises more than its tip noise falls. The rounded tip itself is the lever)
 40. ~~Trailing-edge serrations~~ (entry 33: at a hex-level noise limit, serrations cut the tri's noise cost from 2.15 kg to 0.16–0.95 kg, so the tri regains a 1.2–2.0 kg free-speed lead at 303 Wh/kg; under tighter limits both layouts need them and the hex quiets more cheaply)
 42. Serration effectiveness for this rotor: the bracket D = 2–6 dB spans the payload answer. A BPM-compatible serration model calibrated on published rotor data (Lyu–Azarpeyvand theory or a measured propeller test) would narrow it
-41. Planform for low α*: since α* drives SPL_α, would a blade *wider* outboard (lower C_l), traded against its profile drag, be quieter per kg? This is the reverse of entry 32's bound, as a minimum-noise objective in the optimiser
+41. ~~Wider blade for low α*~~ (entry 34: at the same tip speed, a 15–50 % wider chord cuts the tri's total by only 0.3–0.7 dBA at 0.6–2.7 kg/dB, and the hex's by at most 0.3 dBA. The angle term falls, but the thicker boundary layer raises the suction- and pressure-side terms. Not worth it next to serrations at about 0.1 kg/dB)
 33. A laminar-flow section from coordinates (NACA 63-2xx / 64-2xx, or an XFOIL-designed section): needs coordinate generation, since XFOIL's NACA command only builds 4- and 5-digit sections
 
 ## Entries
@@ -1983,4 +1983,72 @@ With C_d × 1.06 the costs are −0.23 and −0.35 kg. The hex pays more, becaus
 - Item 41: low-α* planform.
 - Item 38: ingested turbulence.
 - Item 33: laminar section.
+- Still waiting on the user: speed requirement, battery chemistry, noise metric and limit.
+
+
+## 34 — A wider blade at the same tip speed, to lower α* (2026-11-18)
+
+**Question.** BPM's angle-of-attack term SPL_α carries about two-thirds of the tri's trailing-edge noise (entry 33). At each radius thrust fixes c × C_l (entry 32), so a **wider** blade at the **same rpm** must run at a lower C_l and α*. Does that make the rotor quieter, and at what payload cost?
+- **Method:** scale the whole chord distribution of the entry 28 optima by s = 0.85 to 1.5. For each s, re-solve the collective pitch (a uniform twist offset, by Brent's method) so the hover rpm is unchanged. Tip speed is then fixed, so the Gutin tones barely move.
+- **Scoring:**
+  - payload by the entry 13 (tri) or entry 11 (hex) mission evaluation: blade mass, profile power and torque-sized motor all included;
+  - noise as the total hover dBA at 50 m, 30° below the disk: BPM trailing edge + rounded-tip vortex + tones.
+- **Files:** `src/explore/e34_solidity_alpha.py`, `results/explore/e34_solidity_alpha.json` / `.png`.
+
+**Results** (Δ relative to each optimum at s = 1):
+
+| Case | s | Solidity | Collective | α* at 0.75R | TE [dBA] | Total [dBA] | Δ total | Δ payload [kg] | kg per dB |
+|---|---|---|---|---|---|---|---|---|---|
+| tri, cap 0.60 | 0.85 | 0.128 | +0.72° | 4.90° | 51.6 | 52.8 | +0.80 | −0.30 | — |
+| | **1.00** | 0.151 | 0 | 4.20° | 50.5 | **52.0** | 0 | 0 | — |
+| | 1.15 | 0.174 | −0.52° | 3.68° | 50.1 | 51.7 | −0.31 | −0.19 | 0.61 |
+| | 1.30 | 0.196 | −0.94° | 3.27° | 49.9 | 51.6 | −0.47 | −0.65 | 1.40 |
+| | 1.50 | 0.226 | −1.43° | 2.80° | 49.7 | 51.5 | −0.55 | −1.48 | 2.72 |
+| tri, cap 0.50 | 0.85 | 0.148 | +0.90° | 5.61° | 49.8 | 50.4 | +0.85 | −0.26 | — |
+| | **1.00** | 0.174 | 0 | 4.77° | 48.7 | **49.6** | 0 | 0 | — |
+| | 1.15 | 0.200 | −0.61° | 4.17° | 48.2 | 49.2 | −0.38 | −0.23 | 0.61 |
+| | 1.30 | 0.226 | −1.08° | 3.69° | 47.9 | 49.0 | −0.56 | −0.66 | 1.18 |
+| | 1.50 | 0.260 | −1.61° | 3.19° | 47.8 | 48.9 | −0.67 | −1.42 | 2.13 |
+| hex, cap 0.60 | 0.85 | 0.111 | +0.46° | 3.43° | 50.0 | 50.4 | +0.56 | −0.75 | — |
+| | **1.00** | 0.131 | 0 | 2.95° | 49.4 | **49.8** | 0 | 0 | — |
+| | 1.15 | 0.151 | −0.37° | 2.57° | 49.1 | 49.5 | −0.27 | −0.38 | 1.38 |
+| | 1.30 | 0.170 | −0.69° | 2.26° | 49.1 | 49.6 | −0.22 | −1.16 | 5.3 |
+| | 1.50 | 0.197 | −1.02° | 1.93° | 49.4 | 49.9 | +0.04 | −2.58 | — |
+
+Stall margin rises with s (tri 8.3 → 9.7°) and T/W at the cap is held (1.99–2.02, hex 2.34–2.38), so no constraint binds.
+
+**Findings.**
+- **Widening the blade lowers α* as expected, but the noise hardly moves.** The tri gains 0.3–0.7 dBA and the hex at most 0.3 dBA; the hex gets *louder* again at s = 1.5.
+- **Why:** BPM's trailing-edge source has three parts, and α* trades them against each other. At the tri's 0.76R strip (s = 1 → 1.5):
+
+  | Term | Peak [dB], s = 1 | s = 1.5 | Change | What drives it |
+  |---|---|---|---|---|
+  | SPL_α (angle) | 24.40 | 20.57 | **−3.83** | K₂ falls with α* (−4.19 dB), δ*_s +0.35 dB |
+  | SPL_s (suction side) | 20.65 | 21.06 | **+0.41** | δ*_s grows with chord faster than it shrinks with α* |
+  | SPL_p (pressure side) | 14.43 | 17.55 | **+3.12** | δ*_p grows with chord *and* with lower α* (0.376 → 0.568 mm) |
+  | strip OASPL | 32.89 | 32.03 | **−0.86** | |
+
+  Once the angle term falls to the level of the suction-side term, the suction-side boundary layer sets a floor. That floor grows with chord (δ* ∝ c^0.72 at R_c ≈ 10⁶). The hex starts with the angle term already weaker (α* 2.95°), so it reaches that floor at once.
+- **The payload cost is the usual solidity cost.** Blade mass (0.47 → 0.69 kg per blade), profile power and a heavier motor (more chord at lower pitch means more torque at T/W 2) all grow. Narrowing the blade also loses payload, so s = 1 is the payload optimum in both directions. That confirms entries 13 and 11 had converged in chord scale.
+- **As a quieting lever** it costs 0.6–2.7 kg/dB for the tri, the same as or worse than slowing down (0.5–1 kg/dB, entry 28), and far worse than serrations (about 0.04–0.16 kg/dB, entry 33). **Ranking unchanged.** The noise levers in order of cost are serrations, rounded tips (free), lower tip speed, then planform.
+
+**Hand checks.**
+- **α* change:** c × C_l is fixed, so C_l(1.5) = C_l(1)/1.5. At the tri's 0.75R strip, C_l = 0.495 → 0.330, ΔC_l = −0.165. With a lift slope of about 0.11/deg, Δα* ≈ −1.5°, so 4.20 → 2.70°. BEMT gives **2.80°** ✓. The small difference is the change in induced inflow from the larger solidity.
+- **K₂ (eq. 49–50) at M = 0.325:**
+  - γ = 27.094M + 3.31 = 12.11, γ₀ = 23.43M + 4.651 = 12.27, β = 72.65M + 10.74 = 34.35, β₀ = −34.19M − 13.82 = −24.93;
+  - K₂ − K₁ = √(β² − (β/γ)²(α* − γ₀)²) + β₀;
+  - at α* = 4.20°: √(1180 − 8.05 × 65.1) − 24.93 = **+0.70 dB**; at 2.80°: √(1180 − 8.05 × 89.7) − 24.93 = **−3.49 dB**;
+  - change **−4.19 dB**, plus 10 log₁₀(δ*_s ratio 1.141/1.052) = +0.35 dB, giving **−3.84 dB**. The code gives −3.83 dB ✓.
+- **δ*_s scaling with chord:** eq. 6 gives δ*₀/c = 10^(3.0187 − 1.5397 L + 0.1059 L²) with L = log₁₀ R_c. Its slope at L = 5.95 is d log(δ*₀/c)/dL = −1.5397 + 2 × 0.1059 × 5.95 = −0.279, so δ*₀ ∝ c^0.72. Then:
+  - ×1.5 chord gives 1.5^0.72 = 1.339 (+1.27 dB);
+  - α* 4.20 → 2.80° gives 10^(0.0679 × (−1.40)) = 0.803 (−0.95 dB);
+  - net δ*_s ×1.075 (+0.32 dB). The code gives 1.141/1.052 = 1.085 ✓.
+
+**Lesson.** Lowering α* attacks only one of the three trailing-edge terms. Before reducing a noise source by changing the design, check what grows in its place. Here the suction-side boundary layer, which scales with chord, takes over as soon as the angle term drops, and the noise barely moves. Serrations work on all three parts at once, which is why they are cheaper.
+
+**Next.**
+- Item 42: calibrate serration effectiveness.
+- Item 38: ingested turbulence.
+- Item 33: laminar section.
+- Items 13 and 22 (coaxial restatement, lighter fairing).
 - Still waiting on the user: speed requirement, battery chemistry, noise metric and limit.
