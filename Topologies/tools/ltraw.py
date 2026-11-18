@@ -41,8 +41,9 @@ def read_meas(log_path):
     import re
     txt = open(log_path, 'rb').read().replace(b'\x00', b'').decode('utf-8', 'ignore').replace('\r', '')
     out = {}
-    for m in re.finditer(r'^(\w+): .*?=(-?[\d.eE+-]+)', txt, re.M):           # un-stepped form
-        out.setdefault(m.group(1).lower(), []).append(float(m.group(2)))
+    for m in re.finditer(r'^(\w+): .*?=(-?[\d.eE+-]+)(?: AT (-?[\d.eE+-]+))?', txt, re.M):   # un-stepped form
+        # a WHEN measurement prints "V(x)=10.8 AT 0.00254": the result is the time after AT, not the threshold
+        out.setdefault(m.group(1).lower(), []).append(float(m.group(3) if m.group(3) else m.group(2)))
     for m in re.finditer(r'^Measurement: (\w+)\n[^\n]*\n((?:[ \t]+\d+[ \t]+\S+[^\n]*\n)+)', txt, re.M):   # stepped table
         val = lambda s: float('nan') if s.lower().startswith('fail') else float(s)   # 'failed' = condition never met
         out[m.group(1).lower()] = [val(l.split()[1]) for l in m.group(2).strip().splitlines()]
