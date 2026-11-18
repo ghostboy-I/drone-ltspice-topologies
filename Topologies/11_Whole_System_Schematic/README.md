@@ -45,7 +45,7 @@ same parts tables as the topology 10 BOM, so the drawing and the BOM cannot disa
 ```bash
 wine "$HOME/.wine/drive_c/Program Files/ADI/LTspice/LTspice.exe" -b Power_System.asc
 ```
-About 19 minutes under Wine (`.tran 0 6m 0 uic`, all 72 inverter FETs as separate devices). Then `python3 make_design_doc.py`.
+About 20–45 minutes under Wine (`.tran 0 6m 0 uic`, all 72 inverter FETs as separate devices). Then `python3 make_design_doc.py`.
 - **Probing inside a block:** `V(ESC1:+12V)`, `V(ESC1:U9:iq)`, `I(MOTOR1:La)`. Only what is on the `.save` line is kept, so add
   a node there before you run. Without `.save` the raw file would be several GB.
 - The packs need `uic`. Without it, LTspice tries to find a DC operating point for four boards with every source at 0 V, and never converges.
@@ -54,10 +54,10 @@ About 19 minutes under Wine (`.tran 0 6m 0 uic`, all 72 inverter FETs as separat
 ## Results (hand → LTspice)
 | Quantity | Hand | LTspice |
 |---|---|---|
-| Inrush per pack during the 1 ms pre-charge ramp (2.413 mF ESC bus) | 214 A | 214 A |
+| Inrush per pack during the 1 ms pre-charge ramp (3.613 mF ESC bus) | 321 A | 321 A |
 | Avionics 12 V / 5 V / 3.3 V | 12.0 / 5.05 / 3.32 V | 12.00 / 5.05 / 3.20 V, still rising at 6 ms |
 | 3.3 V soft-start time constant, R_SET·C_SET | 1.56 ms | fit from the run → settles at 3.32 V |
-| Rotor speed 2 ms after the punch (13 N·m into J = 0.15 kg·m²) | ≈1.7 rpm | 1.59 rpm |
+| Rotor speed 2 ms after the punch (13 N·m into J = 0.15 kg·m²) | ≈1.7 rpm | 1.61 rpm |
 | Phase currents at standstill, θe ≈ 0 | ia ≈ 0, ib = −ic = 0.866·iq | 1.2 / 52.2 / −53.4 A |
 | Each pack's current (ESC + 1/3 of the avionics board) | — | 1.065 A, equal to within 0.03 % on all three |
 | MCU iq vs true iq from the motor currents | equal | 58.3 vs 61.0 A (see below) |
