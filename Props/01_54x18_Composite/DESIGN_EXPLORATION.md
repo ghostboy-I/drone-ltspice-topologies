@@ -22,8 +22,10 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 8. Cruise speed per configuration: the coaxial pair's lower induced power moves the minimum-energy speed
 9. Camber (64xx) for the coaxial blade: the blade trade study found camber pays mostly in cruise
 10. Tip-speed limit: is 0.60 Mach still the right cap for the slower coaxial rotors (noise)?
-11. **(next, high priority)** Check the cruise wake-overlap model with a prescribed-wake (Biot–Savart) calculation: entry 06's 16 % rests on it
-12. Mast structure at h/D 0.4: bending under motor-out and gust loads, first bending mode against 1P/2P, gyroscopic moments
+11. ~~Check the cruise wake-overlap model with a prescribed-wake (Biot–Savart) calculation~~ (entry 07: the lens model was optimistic; use the vortex-wake / biplane σ from now on)
+12. Mast structure at h/D 0.4–0.5: bending under motor-out and gust loads, first bending mode against 1P/2P, gyroscopic moments
+13. Re-state the coaxial case (CONFIG_STUDY headline, entries 01–06 payloads) with the vortex-wake cruise term: at h/D 0.2 the coax is −12 % energy and −2.4 kg payload, not −22 % and +0.1 kg
+14. Stagger: offset the lower rotor forward along the flight path (tilted mast) so the swept-back upper wake misses it; Prandtl's stagger correction says this helps a biplane
 
 ## Entries
 
@@ -336,3 +338,74 @@ The first attempt reused e05's `hand()`. It gave κ ≈ 1.59 at every spacing, a
 - **Cruise speed matters:** at 12 m/s χ is smaller, so the same spacing leaves more overlap. Queue item 8 (cruise speed per configuration) should use the spacing from item 11.
 
 **Next.** Queue item 11: a prescribed-wake model of the upper rotor in cruise. Free-stream plus a skewed helical vortex wake, Biot–Savart on the lower disk. It gives the lower rotor's actual inflow map, which replaces the lens-area estimate.
+
+### 07 · 2026-11-18 · Cruise wake interference from a prescribed vortex wake (`src/explore/e07_cruise_wake.py`, `e07_hand_check.py`)
+
+**Question.** Entry 06's 16 % gain at h/D 0.4 came from a lens model of the cruise wake. That model treats the upper wake as a rigid tube: the lower rotor feels it only where the tube crosses the lower disk, and feels the fully developed 2·v_i there. Is that right?
+
+**Method: the skewed vortex cylinder.** This is the standard model of a uniformly loaded rotor in forward flight (Coleman, Castles–de Leeuw):
+- **Geometry:** each rotor's wake is a stack of horizontal vortex rings of radius R, whose centres run down the skew axis e = (sin χ, 0, −cos χ), with tan χ = μ/λ = 2.50 (χ = 68.2°).
+- **Strength:** set so the rotor's own normal induced velocity at its hub equals the BEMT cruise value v_i0.
+- **Velocity field:** straight-segment Biot–Savart with a smooth core of 0.05 R, a wake length of 30 R and rings 0.05 R apart. The velocities are evaluated over the other rotor's disk on a 10 × 36 polar grid.
+- **Interference power:** with uniform loading (dT = T·dA/A), each rotor's extra induced power is T × (area-mean normal velocity from the other rotor's wake):
+
+  ΔP_arm = T_l·w̄_l + T_u·w̄_u
+
+  This replaces the lens term. Both directions count. The lens model ignored the lower rotor's effect on the upper.
+
+**Checks on the Biot–Savart code (hand formulas).**
+
+1. **Hover (χ = 0), on the axis a distance z below the disk.** The semi-infinite cylinder gives w(z)/w(0) = 1 + z/√(R² + z²):
+
+   | z/R | 0.1 | 0.2 | 0.4 | 1.0 | 2.0 |
+   |---|---|---|---|---|---|
+   | Biot–Savart | 1.0996 | 1.1964 | 1.3719 | 1.7077 | 1.8950 |
+   | Hand | 1.0995 | 1.1961 | 1.3714 | 1.7071 | 1.8944 |
+
+2. **Cruise, the rotor's own wake over its own disk.**
+   - Coleman's linear inflow v = v₀(1 + K_x·(r/R)·cos ψ) has a hub slope K_x = tan(χ/2) = **0.677**. The fitted slope near the hub is **0.693** (2 % off).
+   - The Pitt–Peters whole-disk value is (15π/32)·tan(χ/2) = 0.997. A whole-disk fit gives 1.092. The exact field steepens toward the trailing edge, which is why a hub slope and a whole-disk fit differ.
+
+3. **Prandtl's biplane factor.** In cruise a rotor is a lifting surface of span b = 2R. Glauert's induced power is P_i = T²/(2ρA·V′), the same as an elliptic wing's (L²/(πqb²))·V. Two wings a gap G apart have
+
+   P = (T_u² + 2σ·T_u·T_l + T_l²)/(2ρA·V′),  σ = (1 − 0.66·G/b)/(1.055 + 3.7·G/b)
+
+   so the interference per arm is 2σ·P_i. The vortex wake's equivalent is σ = (w̄_l + w̄_u)/(2·v_i0). Here G/b = h/D:
+
+   | G/b | 0.10 | 0.20 | 0.30 | **0.40** | **0.50** | **0.75** |
+   |---|---|---|---|---|---|---|
+   | σ, Prandtl | 0.655 | 0.484 | 0.370 | **0.290** | **0.231** | **0.132** |
+   | σ, vortex wake | 0.791 | 0.594 | 0.419 | **0.292** | **0.232** | **0.142** |
+   | lens-model equivalent (f) | 0.685 | 0.391 | 0.145 | 0 | 0 | 0 |
+
+   From G/b 0.4 upward the vortex wake reproduces Prandtl's 1924 biplane result within 1–7 %. Below that the vortex wake is higher, as it should be: Prandtl's formula assumes flat wakes, while here the lower disk is still partly inside the upper rotor's wake column.
+
+**Why the lens model was wrong.** A horizontal ring stacked along a skewed axis has a vorticity component along that axis at its two lateral edges (ψ = ±90°). So the skewed wake carries two counter-rotating trailing vortices, the start of the wing-like roll-up. A vortex pair induces downwash everywhere on its symmetry plane, above and below it, not only inside the wake tube. The lower disk keeps feeling it long after the tube has passed aft of it. At large gaps the field is that of a pair, which is symmetric in z, so the upper rotor sees the same mean downwash from the lower wake as the lower sees from the upper (0.292 and 0.291 at h/D 0.4). The polar map in the plot shows it: the aft half of the lower disk is inside the wake at h/D 0.2, but the forward half still sees about 0.2–0.5·v_i0.
+
+**Corrected results** (hover and mast from entry 06; only the cruise interference term changes):
+
+| h/D | Penalty, lens [W] | Penalty, vortex wake [W] | Cruise [W] | Pack [Wh] | vs tricopter (7475 Wh) | Payload vs tricopter [kg] |
+|---|---|---|---|---|---|---|
+| 0.10 | 3298 | 4556 | 11584 | 7121 | −4.7 % | −3.96 |
+| 0.20 | 1883 | 3422 | 10496 | **6575** | **−12.0 %** | **−2.37** |
+| 0.30 | 696 | 2415 | 9535 | 6071 | −18.8 % | −0.92 |
+| 0.40 | 0 | 1685 | 8851 | **5715** | **−23.6 %** | **+0.05** |
+| 0.50 | 0 | 1338 | 8551 | 5571 | −25.5 % | +0.31 |
+| 0.75 | 0 | 817 | 8145 | 5342 | −28.5 % | +0.54 |
+
+**Finding.**
+- **The lens model was optimistic at every spacing above 0.15 D.** At the old design point (h/D 0.2) the coaxial arm's cruise interference is 3.4 kW, not 1.9. The coaxial vehicle needs 12 % less pack energy than the tricopter, not 22 %, and loses 2.4 kg of payload.
+  - The configuration study's "payload-neutral" coax claim, and the payload numbers in entries 01–06 (all at h/D 0.2), carry this error. Queue item 13 re-states them.
+  - Entries 01–05 compared blades at a fixed spacing, so their *rankings* stand. Only the absolute coax-versus-tricopter numbers move.
+- **Spacing still matters, and more smoothly than entry 06 said.** No spacing makes the interference vanish; it decays like a biplane's, σ ≈ 1/(1 + 5.6·G/b).
+  - h/D 0.4 (55 cm mast): −23.6 % energy against the tricopter, payload neutral (+0.05 kg).
+  - h/D 0.5: one more step (−25.5 %, +0.3 kg).
+  - Beyond that, the mast becomes a structural problem before the energy pays off. The mast has to come next (queue item 12).
+- **What to keep from this:** a check that changes a headline by a factor of two is worth more than the next design idea. Prandtl's 1924 biplane factor, two lines of algebra, would have caught entry 06's error. Every later entry uses the vortex-wake / biplane term for cruise interference.
+- **Remaining assumptions:**
+  - The wake is rigid and straight: no roll-up, no further downward deflection by its own induction. Roll-up mostly moves vorticity to the edges, where the biplane far-field already puts it, so this mainly affects the small-gap end.
+  - The loading is uniform. A real rotor's lift is biased to the advancing side, which skews the trailing vortices laterally; that is not modelled.
+
+**Next.**
+- **Queue item 14, stagger.** Mount the lower rotor forward of the upper along the flight path, on a mast tilted forward. Then the swept-back upper wake and its trailing pair pass farther behind the lower rotor. For biplanes, positive stagger lowers σ. The same vortex code can test it in one evening's run, so it goes before item 12.
+- **Then item 12 (mast structure) and item 13 (re-state the coaxial case).**

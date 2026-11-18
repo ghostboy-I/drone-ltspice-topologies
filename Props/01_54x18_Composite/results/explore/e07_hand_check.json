@@ -1,0 +1,57 @@
+{
+ "chi_deg": 68.18854414343417,
+ "Kx_hub_slope_bs": 0.6929916327979171,
+ "Kx_coleman": 0.6769051117670312,
+ "Kx_full_disk_fit_bs": 1.0916773953422105,
+ "Kx_pitt_peters": 0.99682505920532,
+ "biplane": [
+  {
+   "G_over_b": 0.1,
+   "sigma_prandtl": 0.655438596491228,
+   "sigma_vortex_wake": 0.7909951141309587,
+   "sigma_lens_equiv": 0.6851942949765558
+  },
+  {
+   "G_over_b": 0.15,
+   "sigma_prandtl": 0.5596273291925467,
+   "sigma_vortex_wake": 0.6908007487522583,
+   "sigma_lens_equiv": 0.5341995219606632
+  },
+  {
+   "G_over_b": 0.2,
+   "sigma_prandtl": 0.4835654596100279,
+   "sigma_vortex_wake": 0.5941217891256685,
+   "sigma_lens_equiv": 0.39128246645695824
+  },
+  {
+   "G_over_b": 0.25,
+   "sigma_prandtl": 0.4217171717171717,
+   "sigma_vortex_wake": 0.5026605188185111,
+   "sigma_lens_equiv": 0.25991298739294094
+  },
+  {
+   "G_over_b": 0.3,
+   "sigma_prandtl": 0.37043879907621247,
+   "sigma_vortex_wake": 0.4192374162523299,
+   "sigma_lens_equiv": 0.14461475432833243
+  },
+  {
+   "G_over_b": 0.4,
+   "sigma_prandtl": 0.2903353057199211,
+   "sigma_vortex_wake": 0.29243559439432126,
+   "sigma_lens_equiv": 1.3754413149164495e-05
+  },
+  {
+   "G_over_b": 0.5,
+   "sigma_prandtl": 0.23063683304647156,
+   "sigma_vortex_wake": 0.2323455122513555,
+   "sigma_lens_equiv": 0.0
+  },
+  {
+   "G_over_b": 0.75,
+   "sigma_prandtl": 0.13185378590078328,
+   "sigma_vortex_wake": 0.1418987072068324,
+   "sigma_lens_equiv": 0.0
+  }
+ ]
+}
