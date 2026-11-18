@@ -12,14 +12,16 @@ g = lambda v: f"{v:.4g}"
 FET = "IPB065N15N3"
 
 
-def build():
+def build(block=False):
+    """block=True: the sheet used inside Power_System.asc (no test pack/harness, VBUS is a port, no directives)."""
     B = Board("ESC", "ESC BOARD")
     hv = h09.hover(); mp = hv["mp"]; iq0 = mp["iq"]; vb0 = hv["vbus"]
     # ================================================================== 1 power input, DC link, sensing of bus and temperature
     b = B.block("1  POWER INPUT + DC LINK: AS150 anti-spark connector, 16 x 150 µF polymer + 10 x 2.2 µF ceramic, bus and NTC sense",
                 0, 0, 3000, 900)
-    B.add(b, Part("V_PACK", "voltage", g(h.V_NOM), {"+": "VP", "-": "0"}, sim=True, spice=f"Rser={g(h09.Rpk)}"))
-    B.add(b, Part("L_HARN", "ind", g(h09.Lh), {"1": "VP", "2": "VBUS"}, sim=True, spice=f"Rser={g(h09.Rh)}"))
+    if not block:
+        B.add(b, Part("V_PACK", "voltage", g(h.V_NOM), {"+": "VP", "-": "0"}, sim=True, spice=f"Rser={g(h09.Rpk)}"))
+        B.add(b, Part("L_HARN", "ind", g(h09.Lh), {"1": "VP", "2": "VBUS"}, sim=True, spice=f"Rser={g(h09.Rh)}"))
     B.add(b, Part("J1", None, "", {"+": "VBUS", "-": "0"}, desc="Battery input, anti-spark", pn="AMASS AS150 (male, PCB) or pads for AS150 leads",
                   fp="custom: AS150 (no stock KiCad footprint) or two large solder pads for AS150 pigtail leads", rating="150 A, 24S", note="anti-spark contact limits plug-in current"))
     B.add(b, Part("C1", "cap", "150µ", {"1": "VBUS", "2": "0"}, spice="Rser=20m", mult=16, desc="DC-link bulk, hybrid polymer",
@@ -110,7 +112,7 @@ def build():
         B.add(b, C(f"C{take('C')}", "1µ", f"BST_{ph}", f"PH_{ph}", fp=C0805, rating="25 V", desc="Bootstrap capacitor (Qg/C = 0.3 V)"))
         B.add(b, C(f"C{take('C')}", "1µ", "+12V", "0", fp=C0805, rating="25 V", desc="Driver Vcc / BGVcc decoupling"))
         B.add(b, R(f"R{take('R')}", "{Rdt}", f"DT_{ph}", "0", desc="Dead-time resistor (≈140 ns at the FET threshold)", bomval="150k"))
-        for side, pin, gate, d, s in (("high", "TG", f"G{ph}H", "VBUS", f"PH_{ph}"), ("low", "BG", f"G{ph}L", f"PH_{ph}", "0")):
+        for side, pin, gate, d, s in (("high", "TG", f"G{ph}H*", "VBUS", f"PH_{ph}"), ("low", "BG", f"G{ph}L*", f"PH_{ph}", "0")):
             B.add(b, Part(f"R{take('R', 4)}", "res", g(h.RG_EACH / h.N_PAR), {"1": f"{pin}_{ph}", "2": gate}, mult=h.N_PAR, simm=False,
                           bomval=g(h.RG_EACH), desc=f"Gate resistor, one per FET ({side} side)", pn="1 %", fp=R0603))
             B.add(b, Part(f"R{take('R', 4)}", "res", g(10e3 / h.N_PAR), {"1": gate, "2": s}, mult=h.N_PAR, simm=False, bomval="10k",
@@ -211,6 +213,9 @@ def build():
         B.add(b, Part(f"B_D{ph}", "bv", f"V=limit(0.5+(V(v{p})-V(voff))/V(vbusf),0.01,0.99)", {"+": f"du{p}", "-": "0"}, sim=True))
         B.add(b, Part(f"B_PWM{ph}", "bv", f"V=3.3*(1+tanh(500*(V(du{p})-V(tri))))/2", {"+": f"PWM_{ph}", "-": "0"}, sim=True))
 
+    if block:
+        B.directives = ["; ESC board as a block of Power_System.asc. Port: VBUS (and the global ground). Parameters are set on the top sheet."]
+        return B
     # ================================================================== directives
     W, WP = "FROM {Tw1} TO {Tw2}", "FROM {Tp1} TO {Tp2}"
     sw_loss = " + ".join(f"V(VBUS,PH_{ph})*Id(Q{q})+V(PH_{ph})*Id(Q{q + 4})" for ph, q in zip("ABC", (4, 12, 20)))
