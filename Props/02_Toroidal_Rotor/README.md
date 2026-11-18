@@ -71,6 +71,25 @@ nohup python3 src/toroid.py run reference > results/run_reference.txt 2>&1 &
 python3 src/toroid.py post reference
 ```
 
+## Optimisation (started 2026-11-18)
+
+Goal: T/W 1.5 inside the U15XL envelope (2554 rpm on a sagged pack, 45.2 N·m = 180 A), at the lowest blade-set mass.
+Inside that envelope the shaft power is at most ~12.1 kW, so T/W 1.5 needs a figure of merit of at least 0.71 at C_T 0.0113.
+
+1. **Where the thrust goes** (`loads`): CFD pressure forces split by loop segment and radius. Both legs run ~35 % under the
+   blade-element loading inboard; outboard, where the legs stack, the trailing leg carries only ~79 % of the leading one.
+   ```bash
+   pvpython src/extract_surface.py <case> toroid.foam 1500 <case>/surface_1500.npz && python3 src/toroid.py loads toroid 1500
+   ```
+2. **CFD-anchored model** (`src/optimize.py calibrate`): the blade-element model with an effective pitch loss
+   (a0 + a1 (r/R - 0.6)) and an extra section drag dcd, fitted to the CFD thrust per span and total torque.
+3. **Sweep** (`optimize.py sweep`): leg chord x collective pitch x twist slope against the motor envelope. Best predicted
+   T/W 1.42 (legs 0.25 x chord, +8 deg), so no point reaches 1.5 on this motor; thinner legs win on mass and T/W because
+   they absorb the torque limit right at the speed limit. Results: `results/opt_sweep.json`, `fig_opt_sweep.png`.
+4. **Candidates** live under `variants:` in `params.yaml` and run through the same stages with their own name
+   (`geometry`, `case`, `mesh`, `run`, `post` with `toroid_opt1` etc.). `optimize.py predict <variant>` records the model's
+   forecast before the CFD, so the CFD tests the model.
+
 ## Rebuild everything before the CFD
 
 ```bash

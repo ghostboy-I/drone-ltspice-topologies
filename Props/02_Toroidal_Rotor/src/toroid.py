@@ -28,7 +28,7 @@ middle. The NACA camber follows the same rule (+m on A, -m on B relative to e_n,
 always faces +z on the legs. The circulation is then antisymmetric on the turns, the box-wing tip loading of Prandtl.
 The second loop is the first turned by 360/n_loops degrees about z.
 """
-import json, math, os, re, shutil, signal, subprocess, sys, time
+import copy, json, math, os, re, shutil, signal, subprocess, sys, time
 import numpy as np
 import yaml
 
@@ -49,6 +49,21 @@ def load_params():
     p = yaml.safe_load(open(os.path.join(ROOT, "params.yaml")))
     p01 = yaml.safe_load(open(os.path.join(PROP01, "params.yaml")))
     return p, p01
+
+
+def rotor_params(p, rotor):
+    """The base parameters, or the base with a design variant's overrides (params.yaml `variants: <name>: rotor: {...}`)."""
+    v = (p.get("variants") or {}).get(rotor)
+    if not v:
+        return p
+    q = copy.deepcopy(p)
+    for k, val in (v.get("rotor") or {}).items():
+        q["rotor"][k] = val
+    return q
+
+
+def case_rpm(rotor):
+    return load_json(f"case_{rotor}.json")["rpm"]
 
 
 def save_json(name, obj):
@@ -109,7 +124,7 @@ def leg_props(p, r):
     rr, cc, tw, _ = reference_table()
     c = np.maximum(g["chord_fraction"] * np.interp(r, rr, cc), g["chord_min_m"])
     tc = np.interp(r / R, g["tc_r_over_R"], g["tc"])
-    th = np.radians(np.interp(r, rr, tw) + g["collective_offset_deg"])
+    th = np.radians(np.interp(r, rr, tw) + g["collective_offset_deg"] + g.get("twist_slope_deg", 0.0) * (r / R - 0.6))
     return c, tc, th
 
 
@@ -329,14 +344,15 @@ def stage_sizing(p, p01):
 
 
 # ---- stage: geometry ---------------------------------------------------------------------------------------------
-def stage_geometry(p, p01):
+def stage_geometry(p, p01, rotor="toroid"):
+    p = rotor_params(p, rotor); tag = "" if rotor == "toroid" else f"_{rotor}"
     g = p["rotor"]
     tris, rings, path, (C, t, e_c, e_n, proj) = rotor_triangles(p)
     st = mesh_stats(tris)
     if st["volume_m3"] < 0:
         raise SystemExit("inward normals: ring orientation is wrong")
     os.makedirs(GEOM, exist_ok=True)
-    write_stl(os.path.join(GEOM, "toroid.stl"), tris, "toroid")
+    write_stl(os.path.join(GEOM, f"{rotor}.stl"), tris, "toroid")
     R = path["R"]
     # independent checks: (1) volume from the sections (section area x path length) vs. the STL volume
     seg_len = np.linalg.norm(np.roll(C, -1, axis=0) - C, axis=1)
@@ -381,8 +397,8 @@ def stage_geometry(p, p01):
            "leading_edge_length_m": g["n_loops"] * float(np.sum(seg_len)),
            "nose_radius_mm_at_tip_turn": 1000 * 1.1019 * float(path["tc"][leg == 1][0]) ** 2 * float(path["chord"][leg == 1][0]),
            "nose_radius_mm_at_075R": 1000 * 1.1019 * float(np.interp(0.75 * R, path["r"][iA], path["tc"][iA])) ** 2 * float(np.interp(0.75 * R, path["r"][iA], path["chord"][iA]))}
-    save_json("geometry.json", out)
-    plot_geometry(p, tris, rings, path, C, os.path.join(RESULTS, "fig_geometry.png"))
+    save_json(f"geometry{tag}.json", out)
+    plot_geometry(p, tris, rings, path, C, os.path.join(RESULTS, f"fig_geometry{tag}.png"))
     if fold["n_negative"]:
         raise SystemExit(f"sections fold at station {fold['station']} (segment {fold['segment']}): {fold}")
     print(json.dumps({k: out[k] for k in ("stl", "fold_check", "volume_diff_pct", "area_diff_pct", "area_by_segment_m2", "min_flow_projection", "mass", "z_extent_m", "r_extent_m",
@@ -453,14 +469,14 @@ def case_dir(p, rotor):
 
 
 def rotor_stl(rotor):
-    return os.path.join(GEOM, "toroid.stl") if rotor == "toroid" else os.path.join(PROP01, "geometry", "prop_ccw.stl")
+    return os.path.join(GEOM, f"{rotor}.stl") if rotor.startswith("toroid") else os.path.join(PROP01, "geometry", "prop_ccw.stl")
 
 
-def guard_limits(p, p01):
+def guard_limits(p, p01, rotor="toroid"):
     s = load_json("sizing.json")
     T = s["inputs"]["T_required"]; A = s["inputs"]["A"]; rho = s["inputs"]["air"]["rho"]
     vi = math.sqrt(T / (2 * rho * A)); g = p["cfd"]["guard"]
-    om = s["cfd_rpm"] * math.pi / 30; R = s["inputs"]["R"]
+    om = case_rpm(rotor) * math.pi / 30; R = s["inputs"]["R"]
     ct = T / (rho * A * (om * R) ** 2)
     return {"ct_min": 0.0, "ct_max": g["ct_max_factor"] * ct, "flow_max": g["bottom_flow_max_factor"] * 2 * vi * A, "wake_flow_momentum": 2 * vi * A,
             "start": g["start_iteration"], "window": g["window"], "qref": rho * A * (om * R) ** 2}
@@ -468,13 +484,13 @@ def guard_limits(p, p01):
 
 def stage_case(p, p01, rotor="toroid"):
     s = load_json("sizing.json")
-    air = s["inputs"]["air"]; rpm = s["cfd_rpm"]
+    air = s["inputs"]["air"]; rpm = ((p.get("variants") or {}).get(rotor) or {}).get("cfd_rpm") or s["cfd_rpm"]
     mm, dom, v = p["cfd"]["meshes"][MESH], p["cfd"]["domain"], p["cfd"]
     case = case_dir(p, rotor)
     for d_ in ("0", "constant/geometry", "system"):
         os.makedirs(os.path.join(case, d_), exist_ok=True)
     src = rotor_stl(rotor)
-    if rotor == "toroid":
+    if rotor.startswith("toroid"):
         shutil.copy(src, os.path.join(case, "constant", "geometry", "rotor.stl"))
     else:                                                     # the prop program's ASCII STL (metres) is named prop_ccw; rename the solid "rotor"
         with open(src) as fi, open(os.path.join(case, "constant", "geometry", "rotor.stl"), "w") as fo:
@@ -595,7 +611,7 @@ writeFlags ( scalarLevels layerSets layerFields );
 mergeTolerance 1e-6;
 """)
     W("system/decomposeParDict", HDR("dictionary", "decomposeParDict") + f"numberOfSubdomains {v['n_proc']};\ndecomposer scotch;\ndistributor ptscotch;\n")
-    n_it = mm["iterations"]
+    n_it = ((p.get("variants") or {}).get(rotor) or {}).get("iterations") or mm["iterations"]
     W("system/controlDict", HDR("dictionary", "controlDict") + f"""// {rotor} rotor, frozen-rotor MRF at {rpm} rpm, hot day (rho {air['rho']:.4f} kg/m^3, nu {air['nu']:.4e} m^2/s)
 solver          incompressibleFluid;
 startFrom       latestTime;
@@ -843,8 +859,8 @@ def read_bottom_flow(case):
     return trim_restarts(rows).reshape(-1, 2)
 
 
-def check_guard(p, p01, case):
-    L = guard_limits(p, p01)
+def check_guard(p, p01, case, rotor="toroid"):
+    L = guard_limits(p, p01, rotor)
     try: t, F, _, _, _ = read_forces(case)
     except (FileNotFoundError, IndexError, ValueError): return None
     m = t >= L["start"]
@@ -867,13 +883,13 @@ def foam_guarded(p, p01, case, log, rotor, poll_s=30):
         reason = None
         while pr.poll() is None:
             time.sleep(poll_s)
-            reason = check_guard(p, p01, case)
+            reason = check_guard(p, p01, case, rotor)
             if reason:
                 os.killpg(pr.pid, signal.SIGTERM)
                 try: pr.wait(timeout=120)
                 except subprocess.TimeoutExpired: os.killpg(pr.pid, signal.SIGKILL); pr.wait()
                 break
-    save_json(f"guard_{rotor}.json", {"stopped_by_guard": bool(reason), "reason": reason, "returncode": pr.returncode, "limits": guard_limits(p, p01)})
+    save_json(f"guard_{rotor}.json", {"stopped_by_guard": bool(reason), "reason": reason, "returncode": pr.returncode, "limits": guard_limits(p, p01, rotor)})
     if reason: print("** GUARD STOPPED THE RUN: " + reason + " **", flush=True)
     return pr.returncode
 
@@ -942,7 +958,7 @@ def stage_status(p, p01, rotor="toroid"):
     s = load_json("sizing.json"); T_req = s["inputs"]["T_required"]
     t, F, M, _, _ = read_forces(case); T, Q = F[:, 2], -M[:, 2]; k2 = min(100, len(Q) - 1)
     dr = lambda y: 100 * (y[-1] - y[-1 - k2]) / abs(y[-1]) * 100 / k2
-    bf = read_bottom_flow(case); L = guard_limits(p, p01)
+    bf = read_bottom_flow(case); L = guard_limits(p, p01, rotor)
     dT_ = f", {dr(T):+.2f} %/100 it" if k2 >= 50 else ", drift shown after 50 iterations"
     dQ_ = f" ({dr(Q):+.2f} %/100 it; converged below 0.5)" if k2 >= 50 else ""
     print(f"iteration {its[-1]} of {end}, {per:.1f} s/iteration, about {(end - its[-1]) * per / 3600:.1f} h left | thrust {T[-1]:.1f} N "
@@ -956,7 +972,7 @@ def stage_post(p, p01, rotor="toroid"):
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     case = case_dir(p, rotor); s = load_json("sizing.json"); I = s["inputs"]
-    rho, A, R = I["air"]["rho"], I["A"], I["R"]; rpm = s["cfd_rpm"]; om = rpm * math.pi / 30
+    rho, A, R = I["air"]["rho"], I["A"], I["R"]; rpm = case_rpm(rotor); om = rpm * math.pi / 30
     t, F, M, Fv, Mv = read_forces(case); T, Q = F[:, 2], -M[:, 2]
     n = len(t); w = max(100, n // 5); last = slice(max(0, n - w), n)
     drift = lambda y: float(100 * (y[-1] - y[-w]) / abs(y[last].mean()) * 100 / w)
@@ -972,7 +988,12 @@ def stage_post(p, p01, rotor="toroid"):
            "motor_current_at_tw_required_a": Qm * scale / I["kt"], "motor_rpm_available": I["rpm_available_sag"],
            "tw_at_motor_rpm": Tm * (I["rpm_available_sag"] / rpm) ** 2 / I["T_hover"],
            "mesh": mesh_info(case)}
-    hand = s["cfd_point_bemt"]
+    if rpm == s["cfd_rpm"] and rotor in ("toroid", "reference"):
+        hand = s["cfd_point_bemt"]
+    else:                                                           # a variant, or another speed: plain BEMT at this case's speed
+        db = build_polars(p01); pv = rotor_params(p, rotor)
+        hand = {"legs_tip_loss": bemt_point(leg_blade(pv), db, I["air"], rpm), "legs_no_tip_loss": bemt_point(leg_blade(pv), db, I["air"], rpm, False),
+                "reference": bemt_point(reference_blade(p01), db, I["air"], rpm)}
     out["vs_hand"] = [{"quantity": q_, "cfd": out[k_], **{h_: hand[h_][hk] for h_ in hand}} for q_, k_, hk in
                       (("Thrust [N]", "T", "T"), ("Torque [N m]", "Q", "Q"), ("Shaft power [W]", "P", "P"), ("Figure of merit", "FoM", "FoM"))]
     yp = os.path.join(case, "postProcessing", "yPlus", "0", "yPlus.dat")
@@ -1006,11 +1027,12 @@ def export_cfd_results(p, rotor, out, t, F, M, Fv, Mv):
     hist = np.column_stack([t, F[:, 2], -M[:, 2], Fv[:, 2], -Mv[:, 2]])
     np.savetxt(os.path.join(dst, "force_history.csv"), hist, delimiter=",", fmt=["%d", "%.4f", "%.5f", "%.4f", "%.5f"],
                header="iteration,thrust_N,torque_Nm,viscous_thrust_N,viscous_torque_Nm", comments="")
-    for fig in (f"fig_convergence_{rotor}.png", "fig_geometry.png"):
-        if os.path.exists(os.path.join(RESULTS, fig)) and (rotor == "toroid" or "geometry" not in fig):
+    for fig in (f"fig_convergence_{rotor}.png", "fig_geometry.png" if rotor == "toroid" else f"fig_geometry_{rotor}.png", f"fig_loads_{rotor}.png"):
+        if os.path.exists(os.path.join(RESULTS, fig)):
             shutil.copy(os.path.join(RESULTS, fig), os.path.join(dst, fig))
     what = {"toroid": "2-loop (4-leg) toroidal rotor, 54 in, Props/02_Toroidal_Rotor geometry",
-            "reference": "2-blade 54 in reference blade (Props/01_54x18_Composite Phase 3 prop_ccw.stl), same mesh recipe and speed as the toroid"}[rotor]
+            "reference": "2-blade 54 in reference blade (Props/01_54x18_Composite Phase 3 prop_ccw.stl), same mesh recipe and speed as the toroid"}.get(
+        rotor, f"toroidal rotor design variant {rotor}: {json.dumps(((p.get('variants') or {}).get(rotor) or {}).get('rotor', {}))}")
     rows = "\n".join(f"| {r['quantity']} | {r['cfd']:.3f} | {r['legs_tip_loss']:.3f} | {r['legs_no_tip_loss']:.3f} | {r['reference']:.3f} |" for r in out["vs_hand"])
     txt = f"""# {rotor}_{MESH}: {what}
 
@@ -1019,7 +1041,7 @@ Generated by `Props/02_Toroidal_Rotor/src/toroid.py post {rotor}`. Do not edit b
 ## Case
 
 - OpenFOAM 13, foamRun incompressibleFluid, steady SIMPLE, k-omega SST with Spalding wall functions; frozen-rotor MRF at
-  {s['cfd_rpm']} rpm in a cylinder r = {case['mrf_radius']:.3f} m, |z| < {case['mrf_half_height']:.3f} m.
+  {case['rpm']} rpm in a cylinder r = {case['mrf_radius']:.3f} m, |z| < {case['mrf_half_height']:.3f} m.
 - Hot day: rho = {I['air']['rho']:.4f} kg/m^3, nu = {I['air']['nu']:.3e} m^2/s.
 - Domain: cylinder r = {case['radius']:.2f} m (5 D), {-case['z0']:.2f} m below, {case['z1']:.2f} m above. Total-pressure top and side, fixed-pressure outlet.
 - Mesh: {case['base_cell']} m core, {case['surface_cell_mm']:.2f} mm on the blade, curvature-refined to {case['curvature_cell_mm']:.2f} mm,
@@ -1034,7 +1056,7 @@ Generated by `Props/02_Toroidal_Rotor/src/toroid.py post {rotor}`. Do not edit b
 |---|---|---|---|---|
 {rows}
 
-The BEMT columns are the hand calculations at the same {s['cfd_rpm']} rpm (for both CFD cases). T/W at {s['cfd_rpm']} rpm:
+The BEMT columns are the hand calculations at the same {case['rpm']} rpm. T/W at {case['rpm']} rpm:
 {out['tw_at_cfd_rpm']:.3f}. Scaled at constant C_T to the T/W 1.5 thrust ({I['T_required']:.1f} N per rotor): {out['rpm_for_tw_required']:.0f} rpm,
 {out['Q_at_tw_required']:.2f} N m, {out['P_at_tw_required']:.0f} W, {out['motor_current_at_tw_required_a']:.0f} A on the U15XL
 (180 A peak, {out['motor_rpm_available']:.0f} rpm available). Viscous share: thrust {100 * out['viscous_thrust_fraction']:.1f} %, torque {100 * out['viscous_torque_fraction']:.1f} %.
@@ -1052,6 +1074,70 @@ stays under `{p['cfd']['run_root']}`.
 """
     open(os.path.join(dst, "README.md"), "w").write(txt)
     print("exported to", os.path.relpath(dst, os.path.join(ROOT, "..", "..")))
+
+
+# ---- stage: loads (where along the loop thrust and torque come from) -------------------------------------------
+def stage_loads(p, p01, rotor="toroid", time_="1500"):
+    """Splits the CFD pressure force by loop segment and radius. Needs <case>/surface_<time>.npz from
+    `pvpython src/extract_surface.py <case> <rotor>.foam <time> <case>/surface_<time>.npz`. Pressure only (the viscous part is
+    13 % of the torque and ~0 of the thrust in the totals). Each face is assigned to the nearest ring point of the loop
+    definition, so it inherits that station's segment and radius."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from scipy.spatial import cKDTree
+    case = case_dir(p, rotor); s = load_json("sizing.json"); I = s["inputs"]; rho = I["air"]["rho"]; rpm = case_rpm(rotor); om = rpm * math.pi / 30
+    p = rotor_params(p, rotor)
+    d = np.load(os.path.join(case, f"surface_{time_}.npz"))
+    cen, S, pk = d["cen"], d["S"], d["p"]
+    F = rho * pk[:, None] * S                                       # force on the body (patch normal points into the body)
+    Mz = cen[:, 0] * F[:, 1] - cen[:, 1] * F[:, 0]
+    out = {"rotor": rotor, "time": float(d["time"]), "faces": int(len(pk)), "Fz_pressure": float(F[:, 2].sum()), "Q_pressure": float(-Mz.sum())}
+    rings, path, frames = loop_rings(p)
+    nl = p["rotor"]["n_loops"]
+    ang = np.arctan2(cen[:, 1], cen[:, 0]); k_loop = np.round(ang / (2 * math.pi / nl)).astype(int) % nl
+    a = -2 * math.pi * k_loop / nl                                   # rotate every face back into loop 0
+    loc = np.column_stack([cen[:, 0] * np.cos(a) - cen[:, 1] * np.sin(a), cen[:, 0] * np.sin(a) + cen[:, 1] * np.cos(a), cen[:, 2]])
+    m = rings.shape[1]
+    dist, idx = cKDTree(rings.reshape(-1, 3)).query(loc)
+    st = idx // m
+    seg = path["seg"][st].astype(int)
+    out["assign_max_distance_mm"] = float(1000 * dist.max())
+    names = ["leading leg", "tip turn", "trailing leg", "root turn"]
+    out["segments"] = {names[k]: {"Fz": float(F[seg == k, 2].sum()), "Q": float(-Mz[seg == k].sum()),
+                                  "area_m2": float(np.linalg.norm(S[seg == k], axis=1).sum())} for k in range(4)}
+    # spanwise thrust and torque per unit radius on each leg (both loops added, then per leg)
+    R = path["R"]; edges = np.linspace(path["r0"], path["rt"], 25); rm = 0.5 * (edges[1:] + edges[:-1]); dr = np.diff(edges)
+    rs = path["r"][st]
+    span = {}
+    for k in (0, 2):
+        sel = seg == k
+        Tz = np.array([F[sel & (rs >= a_) & (rs < b_), 2].sum() for a_, b_ in zip(edges[:-1], edges[1:])]) / nl / dr
+        Qz = np.array([-Mz[sel & (rs >= a_) & (rs < b_)].sum() for a_, b_ in zip(edges[:-1], edges[1:])]) / nl / dr
+        c_, _, _ = leg_props(p, rm)
+        span[names[k]] = {"dT_dr": Tz.tolist(), "dQ_dr": Qz.tolist(), "cn": (Tz / (0.5 * rho * (om * rm) ** 2 * c_)).tolist()}
+    db = build_polars(p01)
+    b = bemt.axial(leg_blade(p), db, I["air"], rpm, 0.0, n=60)
+    per_leg = np.interp(rm, b["r"], b["dT_dr"]) / leg_blade(p).N
+    per_leg_q = np.interp(rm, b["r"], b["dQ_dr"]) / leg_blade(p).N
+    out["span"] = {"r": rm.tolist(), "r_over_R": (rm / R).tolist(), "bemt_dT_dr_per_leg": per_leg.tolist(), "bemt_dQ_dr_per_leg": per_leg_q.tolist(),
+                   "bemt_cl_per_leg": np.interp(rm, b["r"], b["cl"]).tolist(), "bemt_alpha_deg": np.degrees(np.interp(rm, b["r"], b["alpha"])).tolist(), **span}
+    out["leg_thrust_ratio_trailing_to_leading"] = out["segments"]["trailing leg"]["Fz"] / out["segments"]["leading leg"]["Fz"]
+    out["bemt_leg_thrust_each"] = float(np.sum(per_leg * dr)) * nl
+    save_json(f"loads_{rotor}.json", out)
+    fig, axs = plt.subplots(1, 3, figsize=(13, 3.6))
+    for k, col in (("leading leg", "#0b0b0b"), ("trailing leg", "#2a78d6")):
+        axs[0].plot(rm / R, span[k]["dT_dr"], color=col, label=f"CFD {k}")
+        axs[1].plot(rm / R, span[k]["dQ_dr"], color=col, label=f"CFD {k}")
+        axs[2].plot(rm / R, span[k]["cn"], color=col, label=f"CFD {k}")
+    axs[0].plot(rm / R, per_leg, color="#c0392b", ls="--", label="BEMT, per leg"); axs[1].plot(rm / R, per_leg_q, color="#c0392b", ls="--", label="BEMT, per leg")
+    axs[2].plot(rm / R, out["span"]["bemt_cl_per_leg"], color="#c0392b", ls="--", label="BEMT cl")
+    for ax_, yl in zip(axs, ("thrust per leg per metre [N/m]", "torque per leg per metre [N m/m]", "section force coefficient")):
+        ax_.set_xlabel("r / R"); ax_.set_ylabel(yl); ax_.grid(alpha=.3); ax_.legend(fontsize=7)
+    fig.suptitle(f"{rotor}, {rpm} rpm: where the loop makes its thrust (pressure forces, iteration {time_})", fontsize=9); fig.tight_layout()
+    fig.savefig(os.path.join(RESULTS, f"fig_loads_{rotor}.png"), dpi=140); plt.close(fig)
+    print(json.dumps({k: v for k, v in out.items() if k != "span"}, indent=1))
+    return out
 
 
 if __name__ == "__main__":

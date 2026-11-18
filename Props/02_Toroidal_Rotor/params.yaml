@@ -78,3 +78,16 @@ cfd:
       expansion: 1.25
       max_global_cells: 6000000
       iterations: 1500
+
+variants:                   # optimisation candidates: overrides of `rotor:` (and the CFD speed / iteration count)
+  toroid_opt1:              # 2026-11-18: lightest-area region of the CFD-calibrated sweep (src/optimize.py, results/opt_sweep.json):
+                            # legs at 0.30 x the reference chord (40 % less wetted area), +5 deg collective, 3 deg more pitch
+                            # inboard per unit r/R. Model: torque-bound at ~2530 rpm, T/W 1.40, FoM 0.65 (0.25 x chord does
+                            # 1.42 but at 27 mm chord / Re 2e5, where XFOIL and the mesh are least trustworthy)
+    rotor:
+      chord_fraction: 0.30
+      chord_min_m: 0.024
+      collective_offset_deg: 5.0
+      twist_slope_deg: -3.0
+    cfd_rpm: 2550           # the motor's speed limit on a sagged pack (2554): T and Q there test the requirement directly
+    iterations: 1000        # thrust and torque settled by ~500 on the first toroid run
