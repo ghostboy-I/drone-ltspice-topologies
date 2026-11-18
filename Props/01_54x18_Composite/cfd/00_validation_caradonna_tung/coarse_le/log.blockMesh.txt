@@ -1,0 +1,89 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  13
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 13-18870c24d21c
+Exec   : blockMesh
+Date   : Nov 17 2026
+Time   : 16:32:45
+Host   : "elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000"
+PID    : 516386
+I/O    : uncollated
+Case   : /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse_le
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Reading "blockMeshDict"
+
+Creating block mesh from
+    "system/blockMeshDict"
+Creating block edges
+No non-planar block faces defined
+Creating topology blocks
+Creating topology patches
+
+Creating block mesh topology
+
+Basic statistics
+    Number of internal faces : 8
+    Number of boundary faces : 14
+    Number of defined boundary faces : 14
+    Number of undefined boundary faces : 0
+
+Checking topology
+Creating block offsets
+Creating merge list .
+
+Creating polyMesh from blockMesh
+Creating patches
+Creating cells
+Creating points with scale 1
+    Block 0 cell size :
+        i : 0.4
+        j : 0.4
+        k : 0.4 .. 0.4
+    Block 1 cell size :
+        i : 1.2817705 .. 1.2817705 1.0849671 .. 1.0849671 1.2817705 .. 1.2817705 1.0849671 .. 1.0849671 
+        j : 1.5049029 .. 0.37622572 1.5603825 .. 0.39009562 1.5049029 .. 0.37622572 1.5603825 .. 0.39009562 
+        k : 0.4 .. 0.4
+    Block 2 cell size :
+        i : 1.2817705 .. 1.2817705 1.0849671 .. 1.0849671 1.2817705 .. 1.2817705 1.0849671 .. 1.0849671 
+        j : 1.5049029 .. 0.37622572 1.5603825 .. 0.39009562 1.5049029 .. 0.37622572 1.5603825 .. 0.39009562 
+        k : 0.4 .. 0.4
+    Block 3 cell size :
+        i : 1.2817705 .. 1.2817705 1.0849671 .. 1.0849671 1.2817705 .. 1.2817705 1.0849671 .. 1.0849671 
+        j : 1.5049029 .. 0.37622572 1.5603825 .. 0.39009562 1.5049029 .. 0.37622572 1.5603825 .. 0.39009562 
+        k : 0.4 .. 0.4
+    Block 4 cell size :
+        i : 1.2817705 .. 1.2817705 1.0849671 .. 1.0849671 1.2817705 .. 1.2817705 1.0849671 .. 1.0849671 
+        j : 1.5049029 .. 0.37622572 1.5603825 .. 0.39009562 1.5049029 .. 0.37622572 1.5603825 .. 0.39009562 
+        k : 0.4 .. 0.4
+
+No patch pairs to merge
+
+Writing polyMesh
+----------------
+Mesh Information
+----------------
+  boundingBox: (-11.43 -11.43 -22.8) (11.43 11.43 11.6)
+  nPoints: 63423
+  nCells: 60200
+  nFaces: 183708
+  nInternalFaces: 177492
+----------------
+Patches
+----------------
+  patch 0 (start: 177492 size: 4816) name: far_side
+  patch 1 (start: 182308 size: 700) name: far_bottom
+  patch 2 (start: 183008 size: 700) name: far_top
+
+End
+

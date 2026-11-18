@@ -200,6 +200,13 @@ boundary
     W("system/surfaceFeaturesDict", HDR("dictionary", "surfaceFeaturesDict") + 'surfaces ("blades.stl");\nincludedAngle 150;\nsubsetFeatures { nonManifoldEdges yes; openEdges yes; }\n')
     W("system/meshQualityDict", HDR("dictionary", "meshQualityDict") + '#includeEtc "caseDicts/mesh/generation/meshQualityDict"\n')
     cyl = lambda name, zlo, zhi, rad: f"    {name} {{ type cylinder; point1 (0 0 {zlo:.4f}); point2 (0 0 {zhi:.4f}); radius {rad:.4f}; }}\n"
+    # optional refinement tubes along the two leading-edge lines (the smooth leading edge is not an eMesh feature edge)
+    le_geom, le_reg = "", ""
+    if mm.get("le_level"):
+        aLE = 0.25 * s["chord"]; yl, zl = aLE * math.cos(s["theta"]), aLE * math.sin(s["theta"]); r0, r1 = s["r_root"] - 0.01, s["R"] + 0.01
+        for k, sg in ((1, 1), (2, -1)):
+            le_geom += f"    le{k} {{ type cylinder; point1 ({sg * r0:.5f} {sg * yl:.5f} {zl:.5f}); point2 ({sg * r1:.5f} {sg * yl:.5f} {zl:.5f}); radius {mm['le_radius_m']:.5f}; }}\n"
+            le_reg += f"        le{k}      {{ mode inside; level {mm['le_level']}; }}\n"
     W("system/snappyHexMeshDict", HDR("dictionary", "snappyHexMeshDict") + f"""castellatedMesh true;
 snap            true;
 addLayers       true;
@@ -207,7 +214,7 @@ addLayers       true;
 geometry
 {{
     blades {{ type triSurface; file "blades.stl"; }}
-{cyl("disk", -0.5 * R, 0.3 * R, 1.25 * R)}{cyl("wake", -2.0 * R, 0.5 * R, 1.4 * R)}{cyl("farWake", -6.0 * R, 1.0 * R, 2.0 * R)}{cyl("farWake2", -12.0 * R, 1.5 * R, 2.3 * R)}}};
+{cyl("disk", -0.5 * R, 0.3 * R, 1.25 * R)}{cyl("wake", -2.0 * R, 0.5 * R, 1.4 * R)}{cyl("farWake", -6.0 * R, 1.0 * R, 2.0 * R)}{cyl("farWake2", -12.0 * R, 1.5 * R, 2.3 * R)}{le_geom}}};
 
 castellatedMeshControls
 {{
@@ -228,7 +235,7 @@ castellatedMeshControls
         wake     {{ mode inside; level {mm['wake_level']}; }}
         farWake  {{ mode inside; level {mm['far_wake_level']}; }}
         farWake2 {{ mode inside; level 1; }}
-    }}
+{le_reg}    }}
     insidePoint (0.0123 0.0217 0.5113);
     allowFreeStandingZoneFaces true;
 }}
@@ -392,19 +399,32 @@ def foam(case, cmd, log, timeout=None, parallel=0):
     return r.returncode
 
 
+def restart_files(base, name):
+    """postProcessing/<fo>/<start time>/<name> for each (re)start, oldest first."""
+    return [(float(t), os.path.join(base, t, name)) for t in sorted(os.listdir(base), key=float) if os.path.exists(os.path.join(base, t, name))]
+
+
+def trim_restarts(rows):
+    """After a crash and resume, the old file still holds the iterations past the restart point, which the resumed run
+    writes again. Keep the newest copy: walk backwards and drop any row not earlier than the rows already kept."""
+    out, tmin = [], float("inf")
+    for r in reversed(rows):
+        if r[0] < tmin: out.append(r); tmin = r[0]
+    return np.array(out[::-1])
+
+
 def read_bottom_flow(case):
     """Volume flow out through far_bottom per iteration [m^3/s] (surfaceFieldValue sum(phi)); empty if not written yet."""
     base = os.path.join(case, "postProcessing", "bottomFlow")
     rows = []
     if os.path.isdir(base):
-        for t in sorted(os.listdir(base), key=float):
-            for fn in os.listdir(os.path.join(base, t)):
-                for line in open(os.path.join(base, t, fn)):
-                    v = line.split()
-                    if v and not line.startswith("#"):
-                        try: rows.append((float(v[0]), float(v[1])))
-                        except ValueError: pass
-    return np.array(rows).reshape(-1, 2)
+        for t, f in restart_files(base, "surfaceFieldValue.dat"):
+            for line in open(f, errors="replace"):
+                v = line.split()
+                if v and not line.startswith("#"):
+                    try: rows.append((float(v[0]), float(v[1])))
+                    except (ValueError, IndexError): pass
+    return trim_restarts(rows).reshape(-1, 2)
 
 
 def guard_limits(p):
@@ -517,12 +537,13 @@ def read_forces(case):
     import re
     base = os.path.join(case, "postProcessing", "forces")
     rows = []
-    for t in sorted(os.listdir(base), key=float):
-        for line in open(os.path.join(base, t, "forces.dat")):
+    for t, f in restart_files(base, "forces.dat"):
+        for line in open(f, errors="replace"):
             if line.startswith("#"): continue
-            v = [float(x) for x in re.sub(r"[()]", " ", line).split()]
+            try: v = [float(x) for x in re.sub(r"[()]", " ", line).split()]
+            except ValueError: continue                              # crash debris (null bytes, half-written line)
             if len(v) >= 13: rows.append(v[:13])
-    a = np.array(rows)
+    a = trim_restarts(rows)
     return a[:, 0], a[:, 1:4] + a[:, 4:7], a[:, 7:10] + a[:, 10:13], a[:, 4:7], a[:, 10:13]
 
 
@@ -557,10 +578,12 @@ def stage_post(p, mesh="coarse", time=None):
     T, Q = F[:, 2], -M[:, 2]
     qref = s["rho"] * math.pi * s["R"] ** 2 * s["vtip"] ** 2
     ct, cq = T / qref, Q / (qref * s["R"])
-    n = len(t); last = slice(max(0, n - 500), n)
-    conv = {"iterations": int(t[-1]), "ct_mean_last500": float(ct[last].mean()), "ct_change_last500_pct": 100 * float((ct[last].max() - ct[last].min()) / abs(ct[last].mean())),
-            "cq_mean_last500": float(cq[last].mean()), "cq_change_last500_pct": 100 * float((cq[last].max() - cq[last].min()) / abs(cq[last].mean())),
-            "ct_drift_last500_pct": 100 * float((ct[-1] - ct[last][0]) / abs(ct[last].mean()))}
+    n = len(t); w = max(100, n // 5); last = slice(max(0, n - w), n)
+    drift = lambda y: float(100 * (y[-1] - y[-w]) / abs(y[last].mean()) * 100 / w)      # change over the window, % per 100 iterations
+    conv = {"iterations": int(t[-1]), "window": int(w), "ct_mean": float(ct[last].mean()), "cq_mean": float(cq[last].mean()),
+            "ct_band_pct": 100 * float((ct[last].max() - ct[last].min()) / abs(ct[last].mean())), "cq_band_pct": 100 * float((cq[last].max() - cq[last].min()) / abs(cq[last].mean())),
+            "ct_drift_pct_per100": drift(ct), "cq_drift_pct_per100": drift(cq), "cq_final": float(cq[-1])}
+    conv["torque_converged"] = abs(conv["cq_drift_pct_per100"]) < 0.5
     surf = os.path.join(case, "postProcessing", "bladeSurface")
     times = sorted((d for d in os.listdir(surf) if float(d) > 0), key=float)
     tsel = time or times[-1]
@@ -619,10 +642,10 @@ def stage_post(p, mesh="coarse", time=None):
     tm = grab(lg, r"^ExecutionTime = ([\d.]+)")
     bemt = json.load(open(os.path.join(RESULTS, "ct_bemt.json")))
     out = {"mesh": mesh, "solver": p_solver(case), "time": tsel, "T": float(T[last].mean()), "Q": float(Q[last].mean()), "viscous_thrust_fraction": float(Fv[last, 2].mean() / T[last].mean()),
-           "viscous_torque_fraction": float(-Mv[last, 2].mean() / Q[last].mean()), "ct": conv["ct_mean_last500"], "cq": conv["cq_mean_last500"],
-           "fom": (float(conv["ct_mean_last500"] ** 1.5 / math.sqrt(2) / conv["cq_mean_last500"]) if conv["ct_mean_last500"] > 0 and conv["cq_mean_last500"] > 0 else None),
-           "physical": bool(conv["ct_mean_last500"] > 0 and conv["cq_mean_last500"] > 0), "convergence": conv, "stations": stations, "experimental_ct": ex,
-           "ct_vs_exp_central_pct": 100 * (conv["ct_mean_last500"] / ex["central"] - 1), "ct_bemt": bemt["bemt"]["CT_h"], "ct_cfd_vs_bemt_pct": 100 * (conv["ct_mean_last500"] / bemt["bemt"]["CT_h"] - 1),
+           "viscous_torque_fraction": float(-Mv[last, 2].mean() / Q[last].mean()), "ct": conv["ct_mean"], "cq": conv["cq_mean"],
+           "fom": (float(conv["ct_mean"] ** 1.5 / math.sqrt(2) / conv["cq_mean"]) if conv["ct_mean"] > 0 and conv["cq_mean"] > 0 else None),
+           "physical": bool(conv["ct_mean"] > 0 and conv["cq_mean"] > 0), "convergence": conv, "stations": stations, "experimental_ct": ex,
+           "ct_vs_exp_central_pct": 100 * (conv["ct_mean"] / ex["central"] - 1), "ct_bemt": bemt["bemt"]["CT_h"], "ct_cfd_vs_bemt_pct": 100 * (conv["ct_mean"] / bemt["bemt"]["CT_h"] - 1),
            "mesh_info": meshinfo, "yplus": yplus, "residuals": res, "wall_seconds": float(tm[-1].group(1)) if tm else None, "n_proc": p["ct_validation"]["n_proc"],
            "history": {"iteration": t[::10].tolist(), "ct": ct[::10].tolist(), "cq": cq[::10].tolist()}}
     out["core_hours"] = (out["wall_seconds"] or 0) * out["n_proc"] / 3600
@@ -661,11 +684,13 @@ def stage_status(p, mesh="coarse"):
     q = s["rho"] * math.pi * s["R"] ** 2 * s["vtip"] ** 2
     fatal = "FOAM FATAL" in txt
     end = int(next((l.split()[1].rstrip(";") for l in open(os.path.join(case, "system", "controlDict")) if l.startswith("endTime")), end))
+    Qh = -M[:, 2]; k2 = min(100, len(Qh) - 1)
+    qtrend = f", torque {Qh[-1]:.1f} N m ({100 * (Qh[-1] - Qh[-1 - k2]) / abs(Qh[-1]) * 100 / k2:+.2f} % per 100 it; converged below 0.5)" if k2 > 10 else ""
     bf = read_bottom_flow(case); L = guard_limits(p)
     flow = f", outlet flow {bf[-1, 1]:.0f} m^3/s (momentum theory {L['wake_flow_momentum']:.0f})" if len(bf) else ""
     gf = os.path.join(RESULTS, f"ct_guard_{mesh}.json")
     guard = json.load(open(gf)) if os.path.exists(gf) and os.path.getmtime(gf) >= os.path.getmtime(logs[0]) else {}
-    print(f"iteration {its[-1]} of {end}, {per:.1f} s per iteration, about {(end - its[-1]) * per / 3600:.1f} h left, CT = {F[-1, 2] / q:.5f}, CQ = {-M[-1, 2] / q / s['R']:.6f}{flow}" + (f"  ** stopped by guard: {guard['reason']} **" if guard.get("stopped_by_guard") else "") + ("  ** solver reported a FATAL error, see the log **" if fatal else "") + ("  (finished)" if its[-1] >= end else ""))
+    print(f"iteration {its[-1]} of {end}, {per:.1f} s per iteration, about {(end - its[-1]) * per / 3600:.1f} h left, CT = {F[-1, 2] / q:.5f}, CQ = {-M[-1, 2] / q / s['R']:.6f}{qtrend}{flow}" + (f"  ** stopped by guard: {guard['reason']} **" if guard.get("stopped_by_guard") else "") + ("  ** solver reported a FATAL error, see the log **" if fatal else "") + ("  (finished)" if its[-1] >= end else ""))
 
 
 if __name__ == "__main__":

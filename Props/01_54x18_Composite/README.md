@@ -20,6 +20,26 @@ study, and the Phase 3 geometry build (needs `gmsh`, OpenFOAM 13 and optionally 
 
 OpenFOAM cannot run in a path with spaces, so its cases live under the `cfd.run_root` folder named in `params.yaml`.
 
+### Phase 4.0 CFD (Caradonna–Tung validation), where it stands
+
+The `coarse` run (600 iterations) over-predicts torque: about 83.5 N·m against roughly 62 N·m expected from the hand calculation. The
+diagnosis is lost leading-edge suction: its 3.1 mm leading-edge cells span a 3.0 mm nose radius. The `coarse_le` mesh adds a level-9
+tube (0.78 mm cells) along each leading edge. Its run was paused at iteration 466 of 1500: CT 0.00451, torque 74.5 N·m and still
+rising about 3 % per 100 iterations (converged means below 0.5 %). The case and its saved iteration live under `cfd.run_root`, and
+copies of the setup and logs are in `cfd/00_validation_caradonna_tung/coarse_le/`.
+
+```bash
+python3 src/ct_validation.py resume coarse_le    # continue from the last saved iteration (10 cores, about 12 s per iteration)
+python3 src/ct_validation.py status coarse_le    # progress, CT, CQ, torque drift, outlet flow
+python3 src/ct_validation.py post coarse_le      # after it converges: CT/CQ vs. data, Cp sections, convergence plot
+```
+
+Then split the torque into its pressure and viscous parts and their chordwise and normal components: touch `coarse.foam` in the case
+folder, then run `pvpython src/ct_torque_split.py <case> <time> 1.221248 results/ct_torque_split_coarse_le.json`. Compare it with
+`results/ct_torque_split_coarse.json`. To pause a run cleanly, set `stopAt writeNow;` in the case's `system/controlDict`; the solver
+saves the current iteration and exits. Set it back to `endTime` before resuming. `run` (instead of `resume`) starts again from
+iteration 0.
+
 ## Layout
 
 | Path | What it is |

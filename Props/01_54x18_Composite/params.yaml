@@ -186,7 +186,7 @@ ct_validation:            # Phase 4.0: Caradonna-Tung hover rotor (data/caradonn
     coarse:
       base_cell_m: 0.40
       surface_level: [7, 7]   # 3.1 mm on the blade
-      edge_level: 8           # 1.6 mm along leading and trailing edges and the tip
+      edge_level: 8           # 1.6 mm along the sharp edges only: trailing edge, tip and root caps (not the leading edge)
       disk_level: 4           # 25 mm in the rotor disk region
       wake_level: 3           # 50 mm to 2 R below
       far_wake_level: 2       # 100 mm to 6 R below
@@ -194,3 +194,18 @@ ct_validation:            # Phase 4.0: Caradonna-Tung hover rotor (data/caradonn
       first_layer_m: 0.00025
       expansion: 1.3
       iterations: 2500
+    coarse_le:                # coarse + a level-9 tube along each leading edge (torque diagnosis, 2026-11-17)
+      base_cell_m: 0.40
+      surface_level: [7, 7]
+      edge_level: 8           # only sharp edges get this (trailing edge, tip and root caps): the smooth leading edge is
+                              # below surfaceFeatures' includedAngle 150 and stayed at surface level 7 (3.1 mm cells
+                              # over a 3.0 mm nose radius), which lost the leading-edge suction and added ~20 N m of torque
+      le_level: 9             # 0.78 mm cells, ~4 per nose radius
+      le_radius_m: 0.008      # tube around the leading-edge line: covers the nose to x/c ~ 0.04, past the suction peak
+      disk_level: 4
+      wake_level: 3
+      far_wake_level: 2
+      n_layers: 5
+      first_layer_m: 0.00025
+      expansion: 1.3
+      iterations: 1500        # torque converges much slower than thrust (still +0.4 N m / 100 it at 600 on coarse)
