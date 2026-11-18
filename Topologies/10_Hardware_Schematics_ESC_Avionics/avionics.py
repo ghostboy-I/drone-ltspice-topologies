@@ -65,8 +65,8 @@ def build(loop_test=False, block=False):
         "ITH": "ITH12", "MODE": "INTVCC12", "CPUMP_EN": "INTVCC12", "PLLIN": "0", "PGOOD": "PG12", "FREQ": "FREQ12",
         "DRVSET": "DRVSET12", "DRVUV": "0", "TG": "TG12", "SW": "SW12", "BOOST": "BST12", "BG": "BG12", "DRVCC": "DRVCC12",
         "NDRV": "NDRV12", "EXTVCC": "+12V", "INTVCC": "INTVCC12", "GND": "0"},
-        desc="150 V synchronous buck controller", pn="LTC7801EFE (TSSOP-24 with exposed pad)", fp="Package_SO:HTSSOP-24-1EP_4.4x7.8mm_P0.65mm_EP3.2x5mm (check EP size vs ADI FE24 drawing)",
-        rating="150 V", note="no KiCad library symbol: use ADI/SnapEDA"), dx=260)
+        desc="150 V synchronous buck controller", pn="LTC7801EFE (TSSOP-24 with exposed pad)", fp="Drone_Power:Linear_HTSSOP-24-1EP_4.4x7.8mm_P0.65mm_EP2.74x3.25mm",
+        rating="150 V"), dx=260)
     B.add(b, Part("Q1", "nmos", "BSC520N15NS3", {"D": vin12, "G": "TG12", "S": "SW12"}, desc="N-MOSFET 150 V 52 mΩ (top)",
                   pn="Infineon BSC520N15NS3", fp="Package_TO_SOT_SMD:TDSON-8-1", rating="150 V 21 A"))
     B.add(b, Part("Q2", "nmos", "BSC360N15NS3", {"D": "SW12", "G": "BG12", "S": "0"}, desc="N-MOSFET 150 V 36 mΩ (bottom)",
@@ -122,8 +122,8 @@ def build(loop_test=False, block=False):
     B.add(b, Part("U2", "LT8641", "LT8641", {"Vin1": "+12V", "Vin2": "+12V", "EN/UV": "PG12", "Bias": "+5V", "INTVcc": "INTVCC5",
                                             "BST": "BST5", "SW": "SW5", "GND1": "0", "GND2": "0", "GND": "0", "Rt": "RT5",
                                             "TR/SS": "SS5", "Sync/Mode": "0", "PG": "PG5", "FB": "FB5"},
-                  desc="65 V 3.5 A synchronous buck", pn="LT8641EV (LQFN-18 3x4)", fp="custom: LQFN-18 3x4 mm (ADI package drawing; no stock KiCad footprint)",
-                  rating="65 V", note="no KiCad library symbol: use ADI/SnapEDA"), dx=240)
+                  desc="65 V 3.5 A synchronous buck", pn="LT8641EUDC#PBF (UDC 20(18)-lead 3x4 mm QFN)", fp="Drone_Power:Linear_UDC-18-2EP_3x4mm_P0.5mm",
+                  rating="65 V"), dx=240)
     B.add(b, Part("L2", "ind", "3.3µ", {"1": "SW5", "2": "+5V"}, spice=f"Rser={g(L8641['dcr'])}", desc="Power inductor 3.3 µH",
                   pn="shielded, Isat ≥ 6 A, DCR ≤ 10 mΩ", fp="Inductor_SMD:L_Coilcraft_XAL4020-XXX", rating="Isat 6 A"))
     for r in ("C15", "C16"):

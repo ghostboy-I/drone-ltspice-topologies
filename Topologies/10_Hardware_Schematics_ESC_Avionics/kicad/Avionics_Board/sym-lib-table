@@ -1,0 +1,9 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "Avionics_Board_custom")(type "KiCad")(uri "${KIPRJMOD}/Avionics_Board_custom.kicad_sym")(options "")(descr "generated from datasheets"))
+  (lib (name "Connector_Generic")(type "KiCad")(uri "${KICAD9_SYMBOL_DIR}/Connector_Generic.kicad_sym")(options "")(descr "KiCad stock library"))
+  (lib (name "Device")(type "KiCad")(uri "${KICAD9_SYMBOL_DIR}/Device.kicad_sym")(options "")(descr "KiCad stock library"))
+  (lib (name "Regulator_Linear")(type "KiCad")(uri "${KICAD9_SYMBOL_DIR}/Regulator_Linear.kicad_sym")(options "")(descr "KiCad stock library"))
+  (lib (name "Transistor_FET")(type "KiCad")(uri "${KICAD9_SYMBOL_DIR}/Transistor_FET.kicad_sym")(options "")(descr "KiCad stock library"))
+  (lib (name "power")(type "KiCad")(uri "${KICAD9_SYMBOL_DIR}/power.kicad_sym")(options "")(descr "KiCad stock library"))
+)
