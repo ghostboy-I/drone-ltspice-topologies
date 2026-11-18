@@ -75,7 +75,7 @@ fig.tight_layout(); fig.savefig(P("11_switching.png"), dpi=130); plt.close(fig)
 
 # ------------------------------------------------------------------ document
 doc = Doc("11  Whole Power System, Drawn Part by Part",
-          "3 × 24S pack → 3 ESC boards → 3 U15XL motors + avionics board  |  every board part wired in LTspice, checked against the BOM")
+          "3 × 24S pack → 3 ESC boards → 3 U15XL motors + avionics board, every part wired")
 doc.h("1. What is drawn")
 doc.p("Topology 10 described each board as a parts table and wrote its LTspice sheet with a net label on every pin: correct, but a "
       "list of parts, not a circuit anyone can read. Here the same tables are drawn as real schematics: every part placed and connected "
@@ -83,11 +83,11 @@ doc.p("Topology 10 described each board as a parts table and wrote its LTspice s
       "signals. Power_System.asc ties it together: each pack feeds its own ESC and motor, and every pack feeds the avionics board.")
 doc.img(P("power_system_top.png"), width=5.6)
 doc.table(["Sheet", "Contents"], [
-    ["ESC_Block (×3)", "181 parts: DC link (26 caps), LTC7801 12 V aux, 2 × LT1763, 3 legs of LTC7063 + 8 FETs with own gate R and pull-down"],
-    ["Avionics_Block", "65 parts: 3 × (fuse + ES1D diode-OR), TVS, LTC7801 12 V / 5 A, LT8641 5 V / 3 A, LT3045 3.3 V"],
-    ["ACS770 (U7, U8)", "no maker model: 100 µΩ primary + ratiometric Hall output, 120 kHz, inside a chip symbol"],
-    ["STM32G431_FOC (U9)", "real pin names; inside, the FOC firmware as a signal-flow model (ADC → dq → PI → SVPWM)"],
-    ["U15XL_Motor (×3)", "3 windings (Lph, Rph, back-EMF) in star; rotor as analog: ω = voltage, J = capacitor, torque = current"],
+    ["ESC_Block (×3)", "181 parts: DC link, LTC7801, 2 × LT1763, 3 × (LTC7063 + 8 FETs)"],
+    ["Avionics_Block", "65 parts: fuses + diode-OR, TVS, LTC7801, LT8641, LT3045"],
+    ["ACS770 (U7, U8)", "equivalent circuit: 100 µΩ primary, ratiometric output"],
+    ["STM32G431_FOC (U9)", "real pins; FOC firmware as signal flow (ADC → PI → SVPWM)"],
+    ["U15XL_Motor (×3)", "3 windings in star + back-EMF; rotor as RC analog"],
 ], widths=[0.24, 0.76])
 
 doc.h("2. How the drawing is checked")
@@ -120,10 +120,10 @@ doc.p("At Tpunch = 4 ms each ESC is commanded to 50 rad/s; the speed loop satura
       "θe ≈ 0, the inverse Park/Clarke transform (amplitude-invariant, id = 0) puts all of iq into phases B and C:")
 doc.eq(r"i_a = -i_q\sin\theta_e \approx 0, \quad i_b = -i_q\sin(\theta_e - 120^\circ) = 0.866\,i_q, \quad i_c = -0.866\,i_q")
 doc.p("The torque and the speed reached 2 ms later (the prop's drag is negligible this slow):")
-doc.eq(r"T = \tfrac{3}{2}K_{ph}\,i_q = 1.5 \cdot %.4f \cdot %.1f = %.1f\ \mathrm{N\,m}, \quad \omega = \frac{T}{J}\,t = \frac{%.1f}{%.2f}\cdot 2\ \mathrm{ms} = %.3f\ \mathrm{rad/s}" % (Kph, iq_true, T_em, T_em, h09.Jrot, w_hand), size=11)
+doc.eq(r"T = \frac{3}{2}K_{ph}\,i_q = 1.5 \cdot %.4f \cdot %.1f = %.1f\ \mathrm{N\,m}, \quad \omega = \frac{T}{J}\,t = \frac{%.1f}{%.2f}\cdot 2\ \mathrm{ms} = %.3f\ \mathrm{rad/s}" % (Kph, iq_true, T_em, T_em, h09.Jrot, w_hand), size=11)
 doc.p("So the punch barely shows on the bus: the 54 × 18 prop's inertia means 2 ms of full current moves the rotor 0.2 milliradians. "
       "The ESC's input power is almost all I²R in the windings and FETs:")
-doc.eq(r"P = \tfrac{3}{2}i_q^2 (R_{ph} + R_{DS}/4) = 1.5\cdot %.1f^2\,(8.5 + 1.6)\ \mathrm{m\Omega} = %.0f\ \mathrm{W} \;\Rightarrow\; I_{bus} \approx %.2f\ \mathrm{A} + 0.12\ \mathrm{A\ idle}" % (iq_true, P_cu + P_cond, (P_cu + P_cond) / h.V_NOM), size=11)
+doc.eq(r"P = \frac{3}{2}i_q^2 (R_{ph} + R_{DS}/4) = 1.5\cdot %.1f^2\,(8.5 + 1.6)\ \mathrm{m\Omega} = %.0f\ \mathrm{W} \;\Rightarrow\; I_{bus} \approx %.2f\ \mathrm{A} + 0.12\ \mathrm{A\ idle}" % (iq_true, P_cu + P_cond, (P_cu + P_cond) / h.V_NOM), size=11)
 doc.img(P("11_motor.png"), width=6.2)
 doc.img(P("11_switching.png"), width=6.0)
 
@@ -144,13 +144,13 @@ doc.p(f"The hand model explains {iq_true - iq_read_hand:.1f} of the {iq_true - M
 
 doc.h("6. Hand calculation vs. LTspice")
 doc.table(["Quantity", "Hand", "LTspice", "Diff."], [
-    ["Inrush per pack during the 1 ms ramp", f"{I_inrush:.0f} A", "214 A", "0 %"],
+    ["Inrush per pack (1 ms ramp)", f"{I_inrush:.0f} A", "214 A", "0 %"],
     ["Avionics 12 V / 5 V (5.5–6 ms)", "12.0 / 5.05 V", f"{M['vav12']:.2f} / {M['vav5']:.2f} V", "0 %"],
     ["3.3 V: τ and final value", f"{tau33*1e3:.2f} ms, {V33:.2f} V", f"{tau_fit*1e3:.2f} ms, {v_inf:.2f} V (fit)", f"{(tau_fit/tau33-1)*100:+.1f} %"],
     ["12 V / 5 V reach 90 %", "—", f"{M['t_av12']*1e3:.2f} / {M['t_av5']*1e3:.2f} ms", ""],
     ["Phase currents ia / ib / ic", f"0 / {0.866*iq_true:.1f} / {-0.866*iq_true:.1f} A", f"{ia_t:.1f} / {ib_t:.1f} / {ic_t:.1f} A", ""],
     ["Rotor speed 2 ms after the punch", f"{rpm_hand:.2f} rpm", f"{M['rpm1']:.2f} rpm", f"{(M['rpm1']/rpm_hand-1)*100:+.0f} %"],
-    ["ESC1 bus current (no switching loss in hand)", f"{I_bus_hand:.2f} A", f"{M['iesc1']:.3f} A", "switching"],
+    ["ESC1 bus current", f"{I_bus_hand:.2f} A", f"{M['iesc1']:.3f} A", "switching"],
     ["Pack currents 1 / 2 / 3", "equal", f"{M['ipack1']:.3f} / {M['ipack2']:.3f} / {M['ipack3']:.3f} A", "0.03 %"],
     ["ESC1 12 V aux", "12.0 V", f"{M['v12_esc1']:.2f} V", "0 %"],
 ], widths=[0.36, 0.22, 0.28, 0.14])
