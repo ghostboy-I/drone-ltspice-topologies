@@ -62,7 +62,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 49. ~~Tri on the U15XL with the 12 % reserve~~ (entry 40: +1.68 kg at 55.5 dBA, cap 0.70; it trades 2.7 kg for 5.9 dB against the V13828 tri. The hex on the MN1123, +5.06 kg at 50.8 dBA, beats every tri variant on payload *and* noise.)
 51. **Hex payload against noise between the MN1123 and the MN1320** (entry 40): MN1123 with the reserve, +5.06 kg at 50.8 dBA; MN1320, +2.95 kg at 46.3 dBA (0.47 kg/dB). Try the MN1123 at a lower cap and the V13823 (34.4 N·m, 2.16 kg).
 50. ~~Free-speed and 200 Wh/kg scenarios with the catalogue motors~~ (entry 41: at 15 m/s the hex wins every case, +0.7 to +8.1 kg. At free speed with 303 Wh/kg the V13828 tri wins by 2.8–4.1 kg, but at 61.4 dBA; held to a ≈ 55 dBA limit (U15XL tri) it is a tie, −0.7 to +0.6 kg. Break-even batteries: 15 m/s 328 Wh/kg (V13828) or none (U15XL); free speed 174 / 277 Wh/kg.)
-52. **Noise limit as a continuous variable for the tri at free speed:** between the U15XL tri (55.5 dBA) and the V13828 tri (61.4 dBA) the free-speed payload changes by 3.4 kg. Interpolating a tri family (V13828 at caps 0.70–0.80, or a 3-blade tri) would give the break-even noise limit at which the hex wins at free speed with the 303 Wh/kg pack.
+52. ~~Free-speed break-even noise limit~~ (entry 42: with a 12 % reserve the tri's noise is set by its motor, not its cap. The U15XL designs at caps 0.65–0.80 all land at 55.2–55.6 dBA (torque-limited at tip Mach 0.70), and the V13828 at 61.4. At free speed with 303 Wh/kg the hex wins below ≈ 55.5 dBA, it is a tie at 55.2–55.6 (−0.42 to +0.14 kg), and only the V13828's 61.4 dBA gives the tri a clear win.)
+53. **Reserve as the tri's noise knob:** between 0 % reserve (V13828 at 55.9 dBA, +6.87 kg, entry 38) and 12 % (61.4 dBA, +4.37 kg) the reserve moves the tri's noise by 5.5 dB. Sweep the reserve (0–15 %) for both layouts on the free-speed/303 case, and decide on a reserve from a gust/sag requirement rather than a round number.
 44. Absolute-level caveat from the toroid session's CFD (2026-11-18): on its rotor, BEMT predicted 620 N against 436 N in CFD (30 % high), in line with the earlier Caradonna–Tung check. The tri–hex comparisons here are relative, but absolute payloads and the motor sizing at T/W 2 should be re-based when its 2-blade reference solve (same mesh) reports
 
 ## Entries
@@ -2648,3 +2649,68 @@ The other quantities behind the ranking:
 - Item 44: BEMT calibration on the toroid session's 2-blade CFD (437 N against 585 N).
 - Item 51: the hex's payload–noise curve (MN1123 to MN1320).
 - The three user questions now map directly onto the decision table above.
+
+## 42 — The tri's noise is quantised by its motor: the free-speed case is a tie up to ≈ 55.5 dBA (2026-11-18)
+
+**Question.** Entry 41 found that at free speed with the 303 Wh/kg pack and a constant body, the tri wins only by being loud:
+- the V13828 tri at 61.4 dBA beats the hex MN1123 (50.8 dBA) by 3.77 kg;
+- the U15XL tri at 55.5 dBA beats it by only 0.42 kg.
+
+Item 52 asks for the noise limit at which the two tie. The plan was a tri family that spans the range between those two designs.
+
+**Method.** src/explore/e42_tri_noise_family.py:
+- re-optimises the U15XL tri with the 12 % reserve at caps 0.75 and 0.80, joining caps 0.65 and 0.70 from entry 40 and the V13828 at cap 0.80 from entry 39;
+- runs each design through entry 41's chain (constant body, 14–30 m/s) and entry 19's best-speed pick at 303.3 and 200 Wh/kg;
+- reuses the hex MN1123 points from entry 41.
+
+It ran on 2 cores at nice 19, beside the toroid CFD.
+
+| Tri design (12 % reserve) | Q_max [N·m] | rpm hover / max | Tip Mach at T/W 2 | σ | TE / tonal / total [dBA] | V_best [m/s] | hex − tri, free, 303 | free, 200 | 15 m/s, 303 |
+|---|---|---|---|---|---|---|---|---|---|
+| U15XL, cap 0.65 | 44.35 | 2443 / 3405 | 0.68 | 0.110 | 53.2 / 51.8 / 55.6 | 25.1 | **+0.14** | +2.32 | +4.53 |
+| U15XL, cap 0.70 | 44.35 | 2509 / 3486 | 0.70 | 0.125 | 51.8 / 53.1 / 55.5 | 24.5 | −0.42 | +1.88 | +3.66 |
+| U15XL, cap 0.75 | 44.35 | 2513 / 3493 | 0.70 | 0.124 | 51.7 / 53.0 / 55.4 | 24.5 | −0.40 | +1.93 | +3.69 |
+| U15XL, cap 0.80 | 44.35 | 2499 / 3476 | 0.70 | 0.135 | 51.6 / 52.7 / 55.2 | 24.5 | −0.34 | +1.95 | +3.71 |
+| V13828, cap 0.80 | 38.07 | 2993 / 4159 | 0.835 | 0.102 | 53.0 / 60.7 / 61.4 | 24.7 | **−3.77** | −1.15 | +0.73 |
+
+(The table gives the tri's figures. Positive hex − tri means the hex carries more payload. The hex MN1123 is 50.8 dBA throughout.)
+
+**Findings.**
+- **The family does not span the range: it collapses onto the motor.**
+  - Above cap 0.70 the U15XL's cap no longer binds. The torque limit sets the T/W-2 rotor speed: Ω = P/Q = 16 200/44.35 = 365 rad/s, a tip Mach of 0.70, whatever the cap.
+  - So caps 0.70, 0.75 and 0.80 return the same design to within 0.1 kg and 0.3 dB.
+  - With a fixed reserve, **the tri's noise is quantised by the motor catalogue:** ≈ 55.4 dBA on the U15XL, 61.4 dBA on the V13828, and nothing in between.
+  - The "break-even noise" of 55.5 dBA from the linear fit (slope −0.59 kg/dB) is just the U15XL cluster's own level.
+- **At free speed with 303 Wh/kg, the result by noise limit:**
+  - below ≈ 55 dBA: the hex wins, since no catalogue tri gets there;
+  - 55.2–55.6 dBA: a **tie**, −0.42 to +0.14 kg, well inside the motor-fit and BEMT bands;
+  - at 61.4 dBA: the tri wins by 3.8 kg.
+  - At 200 Wh/kg the hex wins against every U15XL design (+1.9 to +2.3 kg).
+- **Why the V13828 tri is so loud:** its tonal term (60.7 dBA) dominates. Gutin's steady-loading tones grow very steeply with tip Mach, roughly 40 log₁₀ M at these numbers, and the V13828 needs M ≈ 0.835 at T/W 2. Its hover tip Mach, 2993/4159 × 0.835 = 0.60, is still above the U15XL's 0.50 (2499/3476 × 0.70). The BPM trailing-edge term barely changes (53.0 against 51.6), because loading per unit span is fixed by thrust.
+- **Cap 0.65 on the U15XL is a slightly different design:** it binds below T/W 2 (T/W at cap 1.80), so it is lighter (σ 0.110) and faster-cruising (25.1 m/s). It is the only tri that loses to the hex at free speed, by 0.14 kg.
+- **The reserve is now the tri's real noise knob.** Entry 38's V13828 tri with *no* reserve was 55.9 dBA at +6.87 kg (entry-13 frame), about as quiet as today's U15XL design but 5 kg better. The 12 % reserve is what drove it to tip Mach 0.84. So the size of the reserve, which should come from a gust and battery-sag requirement rather than a round number, now matters as much as the motor choice (item 53).
+- **External: the toroid session's final reference CFD**, converged at 1500 iterations (Props/02_Toroidal_Rotor, read-only for this log).
+  - The 2-blade 54x18 makes 437.4 N and 35.88 N·m at 2280 rpm, figure of merit 0.590.
+  - On the U15XL it reaches only T/W 1.32 (2554 rpm at 45.0 N·m).
+  - The toroid session fitted a pitch-loss / extra-drag correction to its CFD: a₀ = 3.97°, Δc_d = 0.0327 for the 2-blade, and 4.64° / 0.0358 for the toroid. So most of the BEMT gap is the method, not the geometry.
+  - Its calibrated chord × collective sweep of the 2-blade gives at best T/W 1.44 on the U15XL (0.6 × chord, +6°), torque-bound at the edge of the sweep.
+  - For this log: a calibrated BEMT will raise every torque requirement by roughly 20–30 %. That pushes the tri past the U15XL (no larger 24S motor in the survey) and the hex from the MN1123 toward the MN1320 (32.4 N·m), which entry 38 showed still works (+2.95 kg at 46.3 dBA). Item 44 is now the most important next step.
+
+**Hand checks.**
+- **Why caps above 0.70 make no difference:** the T/W-2 rotor speed comes from torque. Ω = P_max/Q_max = 16143/44.35 = **364.0 rad/s**, so tip Mach = 364.0 × 0.6858/357.6 = **0.698** (log: 0.698 at cap 0.80, 0.702 at 0.75). Any cap above 0.70 is inactive ✓.
+- **Free-speed payload difference for U15XL cap 0.80:**
+  - From entry 41, the hex's free-speed hardware is 22.69 + 4.89 = 27.58 kg and its pack 4363 Wh.
+  - Δhw = 27.58 − 22.80 = 4.78 kg; Δpack = 4363 − 5712 = −1349 Wh.
+  - hex − tri = −(4.78 − 1349/303.3) = −(4.78 − 4.45) = **−0.33 kg** ✓ (printed −0.34).
+- **The tonal gap:** at fixed thrust and B·Ω scaling, Gutin's far-field level rises ≈ 40 log₁₀(M₁/M₂) dB in this tip-Mach range (entry 27's fit).
+  - At the *hover* tip Mach: V13828 2993 rpm → M_h = 2993 × 0.10472 × 0.6858/357.6 = 0.601; U15XL 2499 rpm → 0.502.
+  - 40 log₁₀(0.601/0.502) = 40 × 0.078 = **3.1 dB** from tip speed. The printed tonal gap is 60.7 − 52.7 = 8.0 dB; the other 4.9 dB comes from the V13828 tri's lower solidity, σ 0.102 against 0.135, which raises the blade loading coefficient and the harmonic amplitude.
+  - The hover tip Mach alone explains less than half the tonal gap. The rest is blade loading, an effect entry 27's derivation lists, though I have not verified its size separately.
+- **The linear break-even:** fitting all five points gives −0.59 kg/dB, crossing zero at 55.49 dBA. That is in the middle of the U15XL cluster, as expected for a two-cluster data set.
+
+**Lesson.** A continuous sweep of a design knob (here the tip-Mach cap) can collapse when another limit binds first (here motor torque). The family then reports one point several times. Before reading a trade curve, check which constraint is active at each point. Here only the motor and its reserve move the tri's noise; the cap does not.
+
+**Next.**
+- Item 44, now the priority: apply the toroid session's calibration (a₀ ≈ 4°, Δc_d ≈ 0.033) to this BEMT. Re-check against the 437 N / 35.9 N·m point, then re-size both layouts' motors. The tri may have no catalogue motor left.
+- Item 53: sweep the reserve.
+- Item 51: the hex's payload–noise curve.
