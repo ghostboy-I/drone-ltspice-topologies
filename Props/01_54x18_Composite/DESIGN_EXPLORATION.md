@@ -28,7 +28,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 14. ~~Stagger: offset the lower rotor forward along the flight path (tilted mast)~~ (entry 08: modest gain; large stagger turns into the planar layout, item 7)
 15. Faired (aerofoil) arms and masts: entry 09's arm cross-flow drag is 0.15–0.7 kW at Cd 1.2
 16. ~~Motor and fitting mass: find real catalogue numbers~~ (entry 10: motors sized by torque; hex ties the tri, y6 −3.3 kg)
-17. **(next)** Re-optimise the blade with motor mass ∝ peak torque in the objective: entry 03's slow, wide blade saved energy but needs a heavy motor
+17. ~~Re-optimise the blade with motor mass ∝ peak torque in the objective~~ (entry 11: hex blade 1780 rpm, payload +2.3 kg vs tri)
+19. Y6 blade with the motor in the objective (entry 11's method on the coaxial arm), so the y6–hex comparison is like for like
 18. U15XL torque margin: the tri needs 55.8 N·m at T/W 2 on a hot day, against 50.4 N·m in the vendor's 96 V test (T/W ≈ 1.8 on that motor)
 
 ## Entries
@@ -616,3 +617,61 @@ Sensitivity of the hex payload to the motor fit: −0.9 kg (exponent 0.90) to +0
 - **Data quality:** vendor test tables, accessed today, are vendor claims. The ESC exponent and the motor-mount masses are assumptions. All of them are logged in `results/explore/e10_motor_mass.json`.
 
 **Next.** Queue item 17: the blade re-optimisation with the motor in the objective, for the hex (now the leading layout) and for the y6.
+
+### 11 · 2026-11-18 · Hexacopter blade re-optimised with torque-sized motors (`src/explore/e11_blade_with_motor.py`)
+
+**Question.** Entry 10 showed motor mass follows peak torque (about 11 N·m/kg), and Q = P/Ω, so a slow blade needs a heavy motor. Entries 02–03 optimised the blade with the motor mass frozen. What blade does the planar hex want once the motor follows the blade?
+
+**Method.**
+- **Objective:** payload against the tricopter, with everything the blade changes:
+  - pack energy: six isolated rotors in hover, edgewise cruise, entry 09's interference (−41 W) and arm drag (700 W);
+  - blade mass from the spar model (50 N / 1.2 mm);
+  - motor mass from the peak torque at T/W 2 (entry 10 fit);
+  - ESC mass from the peak power.
+- **Variables and penalties:** the same four variables and penalties as entries 02–03: stall margin, T/W ≥ 2 below the tip-Mach RPM, flex.
+- **Runs:** two starts (entry 03's blade, entry 01's MIL 1750 rpm blade) × two objectives:
+  - **motor:** the motor and ESC follow the blade;
+  - **fixed:** they are frozen at the start blade's values.
+
+  Every end point is re-scored with the motor following the blade ("true" payload).
+- **Regression check:** entry 03's blade scores −0.44 kg and 4789 Wh, identical to entry 10.
+
+| Start | Objective | Hover rpm | Solidity | Q_max [N·m] | Motor [kg] | Blade [kg] | Pack [Wh] | Payload vs tri, true [kg] | Payload the optimiser saw [kg] |
+|---|---|---|---|---|---|---|---|---|---|
+| e03 blade | (start) | 1269 | 0.141 | 30.2 | 2.70 | 0.438 | 4789 | −0.44 | |
+| e03 blade | fixed | 1264 | 0.141 | 30.3 | 2.72 | 0.438 | 4788 | −0.52 | −0.44 |
+| MIL 1750 | (start) | 1758 | 0.069 | | 1.96 | 0.575 | 5346 | +0.56 | |
+| MIL 1750 | fixed | 1263 | 0.139 | 30.4 | 2.73 | 0.439 | 4799 | **−0.64** | **+4.00** |
+| e03 blade | **motor** | **1775** | 0.121 | 22.9 | 2.06 | 0.434 | 5153 | **+2.17** | +2.17 |
+| MIL 1750 | **motor** | **1783** | 0.128 | 22.6 | 2.03 | 0.451 | 5113 | **+2.28** | +2.28 |
+
+**Finding.**
+- **Each objective has one answer, whichever start it is given.**
+  - **Frozen motor:** both starts go to entry 03's blade (1265 rpm, σ 0.14). That independently reproduces entry 03's convergence.
+  - **Motor in the objective:** both starts go to a **faster, narrower blade at about 1780 rpm hover, σ ≈ 0.12–0.13**, with peak torque down from 30 to 22.7 N·m.
+- **The trade:**
+  - battery: +6.8 % pack energy (5113 against 4789 Wh), which costs 1.1 kg;
+  - motors: lighter by 6 × 0.67 = **4.0 kg**.
+
+  Net payload: **+2.3 kg against the tricopter**, a 2.7 kg swing on entry 10's verdict. The hex now beats the tricopter on payload **and** on energy (−32 %, 1.47× range).
+- **Same lesson as entry 03, again:** what an objective holds fixed, the optimiser treats as free. With the motor frozen at the MIL blade's small 1.96 kg, the optimiser "found" +4.0 kg by slowing the rotor down. Re-scored honestly it is −0.64 kg. Every mass that depends on the design must be inside the objective.
+
+**Hand check: the marginal balance at the optimum.** At an interior optimum, a small change in hover speed Ω (a ±3 % chord scale at fixed thrust) changes payload by zero, so the mass terms must cancel. Finite differences at the best blade:
+
+| Term (6 rotors) | d(mass)/dΩ [kg per rad/s] |
+|---|---|
+| motors, finite difference | −0.072 |
+| motors, hand: d/dΩ [6·c·2P_h/Ω] = −12·c·P_h/Ω², c = 0.089 kg/N·m, P_h = 2.0 kW, Ω = 186 rad/s | −0.064 |
+| battery (pack/303 Wh/kg) | +0.036 |
+| blades: a narrower chord means a thinner section and a heavier spar | +0.040 |
+| **payload** = −(sum) | **−0.003 ≈ 0** ✓ |
+
+- **Torque at the optimum:** Q_max = 2·P_h/Ω (entry 10) gives 22.4 N·m by hand against 22.6 from BEMT.
+- **Why the hand motor slope is 11 % low:** it holds P_h fixed. Spinning faster also adds profile power, which nudges torque, and the chord scale changes the blade's C_Q.
+- **What the balance shows:** each rad/s of extra speed saves 0.072 kg of motor and costs 0.076 kg of battery and blade, so the blade sits where those two meet. The spar model and the motor fit are both in the answer: drop either one and the optimum moves.
+
+**Caveats.**
+- The payload advantage (+2.3 kg, about 4 % of the payload) is about 2.5× the motor-fit uncertainty from entry 10 (±0.9 kg), so the hex's lead is real, but not by a wide margin.
+- At about 2500 rpm at T/W 2, the faster blade's tip Mach is about 0.52. That is inside the 0.60 cap, but louder than entry 03's blade (queue item 10).
+
+**Next.** Queue item 19: the same optimisation for the y6 arm, so the y6–hex comparison is like for like. The y6's coaxial interference makes its torque higher, so it should benefit at least as much.
