@@ -1,0 +1,23 @@
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      MRFProperties;
+}
+
+// Rotating frame only in a cylinder around the rotor (frozen rotor); the rest of the domain is stationary.
+rotor
+{
+    cellZone
+    {
+        type        cylinder;
+        zoneType    cell;
+        point1      (0 0 -0.13716);
+        point2      (0 0 0.13716);
+        radius      0.78867;
+    }
+    origin      (0 0 0);
+    axis        (0 0 1);
+    omega       2280 [rpm];
+}

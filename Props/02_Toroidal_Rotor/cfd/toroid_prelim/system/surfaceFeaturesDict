@@ -1,0 +1,10 @@
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      surfaceFeaturesDict;
+}
+
+surfaces ("rotor.stl");
+includedAngle 150;
+subsetFeatures { nonManifoldEdges yes; openEdges yes; }

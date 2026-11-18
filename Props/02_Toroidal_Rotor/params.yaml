@@ -64,8 +64,11 @@ cfd:
   meshes:
     prelim:
       base_cell_m: 0.32
-      surface_level: [8, 10]  # 1.25 mm on the blades, curvature-refined (resolveFeatureAngle) to 0.31 mm round the nose
-      resolve_feature_angle: 25
+      surface_level: [8, 9]   # 1.25 mm on the blades, curvature-refined (resolveFeatureAngle) to 0.63 mm round the nose
+                              # (first try was [8, 10] at 25 deg: 4.25 M cells before layers, 1.8 M of them at level 10, and
+                              # snappy's layer stage ran out of memory; the CT validation mesh that ran here is 2.45 M cells)
+      resolve_feature_angle: 30
+      n_cells_between_levels: 2
       edge_level: 9           # sharp trailing edge: 0.63 mm
       disk_level: 4           # 20 mm in the rotor disk region
       wake_level: 3           # 40 mm to 2 R below

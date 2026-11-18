@@ -1,0 +1,19 @@
+{
+ "case": "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/reference_prelim",
+ "rotor": "reference",
+ "rpm": 2280,
+ "base_cell": 0.32,
+ "core_cells": 11,
+ "nz": 64,
+ "nr": 6,
+ "z0": -13.76,
+ "z1": 6.72,
+ "radius": 6.858,
+ "background_cells": 24640,
+ "surface_cell_mm": 1.25,
+ "curvature_cell_mm": 0.625,
+ "edge_cell_mm": 0.625,
+ "disk_cell_mm": 20.0,
+ "mrf_radius": 0.7886699999999999,
+ "mrf_half_height": 0.13716
+}

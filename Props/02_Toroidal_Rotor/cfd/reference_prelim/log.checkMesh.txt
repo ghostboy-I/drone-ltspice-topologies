@@ -1,0 +1,117 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  13
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 13-18870c24d21c
+Exec   : checkMesh -parallel
+Date   : Nov 18 2026
+Time   : 05:37:31
+Host   : "elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000"
+PID    : 126518
+I/O    : uncollated
+Case   : /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/reference_prelim
+nProcs : 10
+Slaves : 
+9
+(
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.126519"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.126520"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.126521"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.126522"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.126523"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.126524"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.126525"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.126526"
+"elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000.126527"
+)
+
+Pstream initialised with:
+    floatTransfer      : false
+    nProcsSimpleSum    : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+Time = 0s
+
+Mesh stats
+    points:           2601051
+    faces:            6877837
+    internal faces:   6537328
+    cells:            2149251
+    faces per cell:   6.2417861
+    boundary patches: 11
+    point zones:      0
+    face zones:       0
+    cell zones:       0
+
+Overall number of cells of each type:
+    hexahedra:     1791556
+    prisms:        61136
+    wedges:        0
+    pyramids:      0
+    tet wedges:    567
+    tetrahedra:    1
+    polyhedra:     295991
+    Breakdown of polyhedra by number of faces:
+        faces   number of cells
+            4   13492
+            5   13134
+            6   54882
+            7   76045
+            8   10923
+            9   87383
+           10   842
+           11   215
+           12   31747
+           13   99
+           14   112
+           15   6622
+           16   13
+           17   17
+           18   465
+
+Checking topology...
+    Boundary definition OK.
+    Cell to face addressing OK.
+    Point usage OK.
+    Upper triangular ordering OK.
+    Face vertices OK.
+    Number of regions: 1 (OK).
+
+Checking basic patch addressing...
+                   Patch    Faces   Points
+                far_side     2816     2860
+              far_bottom      385      408
+                 far_top      385      408
+                   rotor   278139   297486
+
+Checking geometry...
+    Overall domain bounding box (-6.840527 -6.8405271 -13.76) (6.8405271 6.8405271 6.72)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+    Max cell openness = 3.2183121e-16 OK.
+    Max aspect ratio = 20.789838 OK.
+    Minimum face area = 5.6002359e-09. Maximum face area = 1.3358363.  Face area magnitudes OK.
+    Min volume = 1.6510817e-12. Max volume = 0.42753456.  Total volume = 3015.7645.  Cell volumes OK.
+    Mesh non-orthogonality Max: 64.416615 average: 9.7741663
+    Non-orthogonality check OK.
+    Face pyramids OK.
+ ***Max skewness = 4.8599523, 2 highly skew faces detected which may impair the quality of the results
+    Coupled point location match (average 0) OK.
+
+Failed 1 mesh checks.
+
+End
+
+Finalising parallel run

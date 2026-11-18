@@ -237,6 +237,11 @@ def write_stl(path, tris, name):
         f.write(f"endsolid {name}\n")
 
 
+def read_stl_ascii(path):
+    v = np.array([l.split()[1:4] for l in open(path) if l.lstrip().startswith("vertex")], float)
+    return v.reshape(-1, 3, 3)
+
+
 def read_stl_binary(path):
     raw = open(path, "rb").read()
     n = int(np.frombuffer(raw[80:84], "<u4")[0])
@@ -471,8 +476,10 @@ def stage_case(p, p01, rotor="toroid"):
     src = rotor_stl(rotor)
     if rotor == "toroid":
         shutil.copy(src, os.path.join(case, "constant", "geometry", "rotor.stl"))
-    else:                                                     # the prop program's binary STL carries its own solid name; rewrite as "rotor"
-        write_stl(os.path.join(case, "constant", "geometry", "rotor.stl"), read_stl_binary(src), "rotor")
+    else:                                                     # the prop program's ASCII STL (metres) is named prop_ccw; rename the solid "rotor"
+        with open(src) as fi, open(os.path.join(case, "constant", "geometry", "rotor.stl"), "w") as fo:
+            for line in fi:
+                fo.write(re.sub(r"^(end)?solid\s+\S+", lambda m_: (m_.group(1) or "") + "solid rotor", line))
     W = lambda rel, txt: open(os.path.join(case, rel), "w").write(txt)
     R = s["inputs"]["R"]; D = 2 * R; h = mm["base_cell_m"]
     a = dom["core_half_width_R"] * R; n = round(2 * a / h); a = n * h / 2
@@ -528,7 +535,7 @@ castellatedMeshControls
     maxGlobalCells {mm['max_global_cells']};
     minRefinementCells 10;
     maxLoadUnbalance 0.10;
-    nCellsBetweenLevels 3;
+    nCellsBetweenLevels {mm.get('n_cells_between_levels', 3)};
     features ( {{ file "rotor.eMesh"; level {mm['edge_level']}; }} );
     refinementSurfaces
     {{
@@ -697,9 +704,13 @@ rotor
     return info
 
 
+MEM_MIN_GB = float("inf")
+
+
 def foam(case, cmd, log, parallel=0, mem_floor_gb=None, nice=False):
     """Run an OpenFOAM command in the case, log in the case. With mem_floor_gb, a watchdog kills the job if the free
     memory (MemAvailable) drops below it, so meshing beside another solver run can never push that run into swap."""
+    global MEM_MIN_GB
     full = "source /opt/openfoam13/etc/bashrc && " + ("nice -n 19 " if nice else "") + (f"mpirun --mca btl ^tcp -np {parallel} {cmd} -parallel" if parallel else cmd)
     with open(os.path.join(case, log), "w") as f:
         pr = subprocess.Popen(["bash", "-c", full], cwd=case, stdout=f, stderr=subprocess.STDOUT, start_new_session=True)
@@ -710,6 +721,8 @@ def foam(case, cmd, log, parallel=0, mem_floor_gb=None, nice=False):
                 avail = int(next(l.split()[1] for l in open("/proc/meminfo") if l.startswith("MemAvailable"))) / 1048576
                 if avail < mem_floor_gb:
                     low = avail; os.killpg(pr.pid, signal.SIGTERM); pr.wait(); break
+            if mem_floor_gb:
+                MEM_MIN_GB = min(MEM_MIN_GB, avail)
     if low is not None:
         print(f"** {cmd}: stopped by the memory watchdog, {low:.2f} GB free < {mem_floor_gb} GB **", flush=True)
         return 99
@@ -876,6 +889,37 @@ def stage_run(p, p01, rotor="toroid"):
     print("foamRun ->", foam_guarded(p, p01, case, "log.foamRun", rotor)); collect_logs(p, rotor)
 
 
+def stage_smoke(p, p01, rotor="toroid", n_it="10"):
+    """Start-up check: run n_it solver iterations, record seconds per iteration, the lowest free memory and the forces, then
+    restore the case exactly (endTime, no time folders, no postProcessing) so `run` starts clean."""
+    case, n = case_dir(p, rotor), p["cfd"]["n_proc"]; n_it = int(n_it)
+    cd = os.path.join(case, "system", "controlDict"); txt = open(cd).read()
+    open(cd, "w").write(re.sub(r"^endTime\s+\S+;", f"endTime         {n_it};", txt, flags=re.M))
+    free0 = int(next(l.split()[1] for l in open("/proc/meminfo") if l.startswith("MemAvailable"))) / 1048576
+    try:
+        for i in range(n):
+            for f in os.listdir(os.path.join(case, "0")):
+                shutil.copy(os.path.join(case, "0", f), os.path.join(case, f"processor{i}", "0", f))
+        rc = foam(case, "foamRun", "log.foamRun.smoke", parallel=n, mem_floor_gb=1.5)
+        lg = open(os.path.join(case, "log.foamRun.smoke"), errors="replace").read()
+        ex = [float(x) for x in re.findall(r"^ExecutionTime = ([\d.]+)", lg, re.M)]
+        t, F, M, _, _ = read_forces(case)
+        out = {"rotor": rotor, "returncode": rc, "iterations": len(ex), "s_per_iteration": (ex[-1] - ex[0]) / max(len(ex) - 1, 1) if len(ex) > 1 else None,
+               "startup_s": ex[0] if ex else None, "fatal": "FOAM FATAL" in lg, "free_gb_before": free0, "free_gb_min": MEM_MIN_GB,
+               "solver_memory_gb": free0 - MEM_MIN_GB, "thrust_last_N": float(F[-1, 2]), "torque_last_Nm": float(-M[-1, 2]),
+               "all_finite": bool(np.all(np.isfinite(F)) and np.all(np.isfinite(M))), "mrf_zone_created": "creating MRF zone: rotor" in lg}
+        n_est = p["cfd"]["meshes"][MESH]["iterations"]
+        if out["s_per_iteration"]: out["estimated_run_h"] = n_est * out["s_per_iteration"] / 3600
+    finally:
+        open(cd, "w").write(txt)
+        for i in range(n):
+            for d_ in os.listdir(os.path.join(case, f"processor{i}")):
+                if d_ not in ("0", "constant"): shutil.rmtree(os.path.join(case, f"processor{i}", d_))
+        shutil.rmtree(os.path.join(case, "postProcessing"), ignore_errors=True)
+    save_json(f"smoke_{rotor}.json", out); collect_logs(p, rotor)
+    print(json.dumps(out, indent=1, default=float))
+
+
 def stage_resume(p, p01, rotor="toroid"):
     case = case_dir(p, rotor)
     k = 1 + sum(1 for f in os.listdir(case) if f.startswith("log.foamRun.resume"))
@@ -941,8 +985,71 @@ def stage_post(p, p01, rotor="toroid"):
     fig.suptitle(f"{rotor} rotor, {rpm} rpm, hot day: convergence", fontsize=9); fig.tight_layout()
     fig.savefig(os.path.join(RESULTS, f"fig_convergence_{rotor}.png"), dpi=140); plt.close(fig)
     collect_logs(p, rotor)
+    export_cfd_results(p, rotor, out, t, F, M, Fv, Mv)
     print(json.dumps({k: v for k, v in out.items() if k != "mesh"}, indent=1, default=float))
     return out
+
+
+CFD_RESULTS = os.path.join(ROOT, "..", "..", "CFD_Results", "02_Toroidal_Rotor")
+
+
+def export_cfd_results(p, rotor, out, t, F, M, Fv, Mv):
+    """Shared results folder (agreed with the 54x18 session): CFD_Results/<project>/<case>/ holds a README, the summary
+    JSON, the plots and the force history. No time or processor folders (hundreds of MB, regenerable from the case)."""
+    dst = os.path.join(CFD_RESULTS, f"{rotor}_{MESH}")
+    os.makedirs(dst, exist_ok=True)
+    s = load_json("sizing.json"); I = s["inputs"]; case = load_json(f"case_{rotor}.json")
+    mesh = out.get("mesh", {}); mm = p["cfd"]["meshes"][MESH]
+    json.dump(out, open(os.path.join(dst, "summary.json"), "w"), indent=1, default=float)
+    hist = np.column_stack([t, F[:, 2], -M[:, 2], Fv[:, 2], -Mv[:, 2]])
+    np.savetxt(os.path.join(dst, "force_history.csv"), hist, delimiter=",", fmt=["%d", "%.4f", "%.5f", "%.4f", "%.5f"],
+               header="iteration,thrust_N,torque_Nm,viscous_thrust_N,viscous_torque_Nm", comments="")
+    for fig in (f"fig_convergence_{rotor}.png", "fig_geometry.png"):
+        if os.path.exists(os.path.join(RESULTS, fig)) and (rotor == "toroid" or "geometry" not in fig):
+            shutil.copy(os.path.join(RESULTS, fig), os.path.join(dst, fig))
+    what = {"toroid": "2-loop (4-leg) toroidal rotor, 54 in, Props/02_Toroidal_Rotor geometry",
+            "reference": "2-blade 54 in reference blade (Props/01_54x18_Composite Phase 3 prop_ccw.stl), same mesh recipe and speed as the toroid"}[rotor]
+    rows = "\n".join(f"| {r['quantity']} | {r['cfd']:.3f} | {r['legs_tip_loss']:.3f} | {r['legs_no_tip_loss']:.3f} | {r['reference']:.3f} |" for r in out["vs_hand"])
+    txt = f"""# {rotor}_{MESH}: {what}
+
+Generated by `Props/02_Toroidal_Rotor/src/toroid.py post {rotor}`. Do not edit by hand.
+
+## Case
+
+- OpenFOAM 13, foamRun incompressibleFluid, steady SIMPLE, k-omega SST with Spalding wall functions; frozen-rotor MRF at
+  {s['cfd_rpm']} rpm in a cylinder r = {case['mrf_radius']:.3f} m, |z| < {case['mrf_half_height']:.3f} m.
+- Hot day: rho = {I['air']['rho']:.4f} kg/m^3, nu = {I['air']['nu']:.3e} m^2/s.
+- Domain: cylinder r = {case['radius']:.2f} m (5 D), {-case['z0']:.2f} m below, {case['z1']:.2f} m above. Total-pressure top and side, fixed-pressure outlet.
+- Mesh: {case['base_cell']} m core, {case['surface_cell_mm']:.2f} mm on the blade, curvature-refined to {case['curvature_cell_mm']:.2f} mm,
+  {mm['n_layers']} relative prism layers. Cells {mesh.get('cells')}, checkMesh OK: {mesh.get('mesh_ok')},
+  max non-orthogonality {mesh.get('max_non_orthogonality')}, layer coverage {mesh.get('layer_coverage_pct')} %.
+- {out['iterations']} iterations; drift over the last {out['window']}: thrust {out['T_drift_pct_per100']:+.2f} %, torque {out['Q_drift_pct_per100']:+.2f} %
+  per 100 iterations ({'converged' if out['converged'] else 'NOT converged'}, limit 0.5 %).
+
+## Result
+
+| Quantity | CFD | BEMT, 4 legs with tip loss | BEMT, 4 legs closed tip | BEMT, 2-blade reference |
+|---|---|---|---|---|
+{rows}
+
+The BEMT columns are the hand calculations at the same {s['cfd_rpm']} rpm (for both CFD cases). T/W at {s['cfd_rpm']} rpm:
+{out['tw_at_cfd_rpm']:.3f}. Scaled at constant C_T to the T/W 1.5 thrust ({I['T_required']:.1f} N per rotor): {out['rpm_for_tw_required']:.0f} rpm,
+{out['Q_at_tw_required']:.2f} N m, {out['P_at_tw_required']:.0f} W, {out['motor_current_at_tw_required_a']:.0f} A on the U15XL
+(180 A peak, {out['motor_rpm_available']:.0f} rpm available). Viscous share: thrust {100 * out['viscous_thrust_fraction']:.1f} %, torque {100 * out['viscous_torque_fraction']:.1f} %.
+
+## Files
+
+| File | What |
+|---|---|
+| `summary.json` | All numbers above, mesh statistics, y+ |
+| `force_history.csv` | Thrust and torque (total and viscous) per iteration |
+| `fig_convergence_{rotor}.png` | Thrust and torque against iteration |
+
+Full case setup and solver logs: `Props/02_Toroidal_Rotor/cfd/{rotor}_{MESH}/`. The case itself (time and processor folders)
+stays under `{p['cfd']['run_root']}`.
+"""
+    open(os.path.join(dst, "README.md"), "w").write(txt)
+    print("exported to", os.path.relpath(dst, os.path.join(ROOT, "..", "..")))
 
 
 if __name__ == "__main__":

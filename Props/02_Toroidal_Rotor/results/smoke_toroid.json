@@ -1,0 +1,16 @@
+{
+ "rotor": "toroid",
+ "returncode": 0,
+ "iterations": 10,
+ "s_per_iteration": 13.316306555555554,
+ "startup_s": 19.630911,
+ "fatal": false,
+ "free_gb_before": 9.177848815917969,
+ "free_gb_min": 4.5849761962890625,
+ "solver_memory_gb": 4.592872619628906,
+ "thrust_last_N": 517.0064577887,
+ "torque_last_Nm": 37.35996468,
+ "all_finite": true,
+ "estimated_run_h": 5.5484610648148145,
+ "mrf_zone_created": true
+}

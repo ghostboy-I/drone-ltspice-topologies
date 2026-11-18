@@ -1,0 +1,86 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  13
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 13-18870c24d21c
+Exec   : surfaceCheck -checkSelfIntersection constant/geometry/rotor.stl
+Date   : Nov 18 2026
+Time   : 05:09:55
+Host   : "elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000"
+PID    : 120003
+I/O    : uncollated
+Case   : /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_prelim
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Reading surface from "constant/geometry/rotor.stl" ...
+
+Statistics:
+Triangles    : 182400
+Vertices     : 91200
+Bounding Box : (-0.68843 -0.114475 -0.0555402) (0.68843 0.114475 0.0450212)
+
+Region	Size
+------	----
+toroid	182400
+
+
+Surface has no illegal triangles.
+
+Triangle quality (equilateral=1, collapsed=0):
+    0 .. 0.05  : 0.0264364
+    0.05 .. 0.1  : 0.0327522
+    0.1 .. 0.15  : 0.0609759
+    0.15 .. 0.2  : 0.068114
+    0.2 .. 0.25  : 0.07
+    0.25 .. 0.3  : 0.0723026
+    0.3 .. 0.35  : 0.0786075
+    0.35 .. 0.4  : 0.0937829
+    0.4 .. 0.45  : 0.136963
+    0.45 .. 0.5  : 0.120811
+    0.5 .. 0.55  : 0.101436
+    0.55 .. 0.6  : 0.0730263
+    0.6 .. 0.65  : 0.035614
+    0.65 .. 0.7  : 0.0180592
+    0.7 .. 0.75  : 0.00873904
+    0.75 .. 0.8  : 0.00236842
+    0.8 .. 0.85  : 1.09649e-05
+    0.85 .. 0.9  : 0
+    0.9 .. 0.95  : 0
+    0.95 .. 1  : 0
+
+    min 0.0115667 for triangle 44760
+    max 0.800261 for triangle 86377
+
+Edges:
+    min 2.34317e-05 for edge 129239 points (0.0448126 -0.0250204 -0.00219958)(0.0448173 -0.0250431 -0.00220297)
+    max 0.00604353 for edge 93913 points (0.378033 -0.104243 0.0266831)(0.38367 -0.102239 0.0275423)
+
+Checking for points less than 1e-6 of bounding box ((1.37686 0.228951 0.100561) metre) apart.
+Found 0 nearby points.
+
+Surface is closed. All edges connected to two faces.
+
+Number of unconnected parts : 2
+Splitting surface into parts ...
+
+Writing zoning to "zone_rotor.vtk"...
+
+writing part 0 size 91200 to "rotor_0.obj"
+writing part 1 size 91200 to "rotor_1.obj"
+
+Number of zones (connected area with consistent normal) : 2
+More than one normal orientation.
+
+Checking self-intersection.
+Surface is not self-intersecting
+
+
+End
+

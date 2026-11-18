@@ -14,9 +14,18 @@ cache, the atmosphere model and the U15XL motor data.
 
 ## Status
 
-Sizing, geometry and the OpenFOAM case are done. **The CFD run has not been made yet.** Blade-element numbers at T/W 1.5:
-2285 rpm, 42.7 N·m, 10.2 kW, 170 A on the U15XL (2-blade reference: 2350 rpm, 41.6 N·m, 166 A). The case runs at
-2280 rpm.
+Sizing, geometry and both OpenFOAM cases are done, meshed and smoke-tested (10 solver iterations each, then reset).
+**The CFD runs have not been made yet.** Blade-element numbers at T/W 1.5: 2285 rpm, 42.7 N·m, 10.2 kW, 170 A on the
+U15XL (2-blade reference: 2350 rpm, 41.6 N·m, 166 A). Both cases run at 2280 rpm.
+
+| Case | Cells | Layer coverage | checkMesh | Solver memory | Time for 1500 iterations (10 cores) |
+|---|---|---|---|---|---|
+| `toroid_prelim` | 2.76 M | 95 % | 20 skewed faces (max 7.0) | 4.6 GB | about 5.5 h |
+| `reference_prelim` | 2.15 M | 94 % | 2 skewed faces (max 4.9) | 3.6 GB | about 4.3 h |
+
+Max non-orthogonality is under 65° on both. The few highly skewed faces are the only checkMesh flags; the bounded,
+limited schemes are the same ones that ran the Caradonna-Tung case, and the guard stops a run that goes non-physical.
+Run the two one after the other, not side by side.
 
 ## Run the CFD
 
@@ -39,15 +48,25 @@ python3 src/toroid.py status toroid
 python3 src/toroid.py post toroid && python3 make_design_doc.py
 ```
 
+`post` also exports the case summary, force history and plots to the shared results folder
+`CFD_Results/02_Toroidal_Rotor/<rotor>_prelim/` at the repository root (one folder per case, no time or processor
+folders; layout agreed with the 54x18 prop session).
+
 `run` starts from iteration 0 (1500 iterations, 10 cores). If it is interrupted, continue with
 `python3 src/toroid.py resume toroid`; it restarts from the last write (every 100 iterations). To pause cleanly, set
 `stopAt writeNow;` in the case's `system/controlDict`, and set it back to `endTime` before resuming. The guard stops the
 run by itself if the thrust or the outlet flow goes non-physical (`results/guard_toroid.json` says why).
 
-Optional, for a fair comparison: the 2-blade reference on the same mesh recipe.
+For a fair comparison, the 2-blade reference runs on the same mesh recipe at the same 2280 rpm (case
+`~/OpenFOAM/elijah-callahan-13/run/toroid/reference_prelim`, built by `case reference` and `mesh reference`). Run it after
+the toroid, not beside it: one 10-core solve at a time.
 
 ```bash
-python3 src/toroid.py case reference && python3 src/toroid.py mesh reference && nohup python3 src/toroid.py run reference > results/run_reference.txt 2>&1 &
+nohup python3 src/toroid.py run reference > results/run_reference.txt 2>&1 &
+```
+
+```bash
+python3 src/toroid.py post reference
 ```
 
 ## Rebuild everything before the CFD

@@ -1,0 +1,85 @@
+FoamFile
+{
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+
+// Surface cells 1.25 mm, refined by curvature (resolveFeatureAngle) to 0.62 mm round the leading edges.
+castellatedMesh true;
+snap            true;
+addLayers       true;
+
+geometry
+{
+    rotor { type triSurface; file "rotor.stl"; }
+    disk { type cylinder; point1 (0 0 -0.3429); point2 (0 0 0.2057); radius 0.8572; }
+    wake { type cylinder; point1 (0 0 -1.3716); point2 (0 0 0.3429); radius 0.9601; }
+    farWake { type cylinder; point1 (0 0 -4.1148); point2 (0 0 0.6858); radius 1.3716; }
+    farWake2 { type cylinder; point1 (0 0 -8.2296); point2 (0 0 1.0287); radius 1.5773; }
+};
+
+castellatedMeshControls
+{
+    maxLocalCells 2000000;
+    maxGlobalCells 6000000;
+    minRefinementCells 10;
+    maxLoadUnbalance 0.10;
+    nCellsBetweenLevels 2;
+    features ( { file "rotor.eMesh"; level 9; } );
+    refinementSurfaces
+    {
+        rotor { level (8 9); patchInfo { type wall; } }
+    }
+    resolveFeatureAngle 30;
+    refinementRegions
+    {
+        disk     { mode inside; level 4; }
+        wake     { mode inside; level 3; }
+        farWake  { mode inside; level 2; }
+        farWake2 { mode inside; level 1; }
+    }
+    insidePoint (0.0123 0.0217 0.4113);
+    allowFreeStandingZoneFaces true;
+}
+
+snapControls
+{
+    nSmoothPatch 3;
+    tolerance 2.0;
+    nSolveIter 50;
+    nRelaxIter 5;
+    nFeatureSnapIter 10;
+    implicitFeatureSnap false;
+    explicitFeatureSnap true;
+    multiRegionFeatureSnap false;
+}
+
+addLayersControls
+{
+    relativeSizes true;
+    layers { rotor { nSurfaceLayers 3; } }
+    expansionRatio 1.25;
+    finalLayerThickness 0.4;
+    minThickness 0.08;
+    nGrow 0;
+    featureAngle 130;
+    slipFeatureAngle 30;
+    nRelaxIter 5;
+    nSmoothSurfaceNormals 1;
+    nSmoothNormals 3;
+    nSmoothThickness 10;
+    maxFaceThicknessRatio 0.5;
+    maxThicknessToMedialRatio 0.3;
+    minMedianAxisAngle 90;
+    nBufferCellsNoExtrude 0;
+    nLayerIter 50;
+}
+
+meshQualityControls
+{
+    #include "meshQualityDict"
+}
+
+writeFlags ( scalarLevels layerSets layerFields );
+mergeTolerance 1e-6;

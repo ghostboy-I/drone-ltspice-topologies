@@ -9,7 +9,7 @@ import yaml
 R_ = os.path.join(here, "results")
 J = lambda n: json.load(open(os.path.join(R_, n))) if os.path.exists(os.path.join(R_, n)) else None
 S, G, C, M, CFD = J("sizing.json"), J("geometry.json"), J("case_toroid.json"), J("mesh_toroid.json"), J("cfd_toroid.json")
-CFDREF = J("cfd_reference.json")
+CFDREF, MREF = J("cfd_reference.json"), J("mesh_reference.json")
 P = yaml.safe_load(open(os.path.join(here, "params.yaml")))
 PH1 = json.load(open(os.path.join(here, "..", "01_54x18_Composite", "results", "phase1.json")))
 I = S["inputs"]; B = S["bemt"]; air = I["air"]; g = P["rotor"]
@@ -177,18 +177,31 @@ doc.bullets([
     f"peak and over-predicted torque by about 20 N m. Here the nose radius is {G['nose_radius_mm_at_075R']:.2f} mm at 0.75 R and "
     f"{G['nose_radius_mm_at_tip_turn']:.2f} mm in the tip turn, so {C['curvature_cell_mm']:.2f} mm cells give "
     f"{G['nose_radius_mm_at_075R'] / C['curvature_cell_mm']:.1f} and {G['nose_radius_mm_at_tip_turn'] / C['curvature_cell_mm']:.1f} cells per nose radius.",
+    "The same leading-edge cell size is coarser relative to the toroid's thinner legs than to the reference's wide blade (its nose radius "
+    "is several millimetres inboard). If the validation case's lesson carries over, an under-resolved nose reads high on torque, so the "
+    "toroid-vs-reference torque comparison leans against the toroid, not for it.",
+    "Mesh budget: a first mesh with 0.31 mm curvature cells (resolveFeatureAngle 25, 3 cells between levels) reached 4.25 M cells before "
+    "layers, 1.8 M of them at the finest level, and snappy's layer stage ran out of memory on this 14 GB machine. The validation mesh "
+    "that solved here is 2.45 M cells, so the curvature refinement was capped one level coarser, at 30 deg with 2 cells between levels.",
     "A guard stops the run if the thrust coefficient leaves (0, 3 x the T/W 1.5 value) or the outlet flow exceeds 10 x 2 v_i A for 50 "
     "iterations after the first 150: the runaway the validation case once had.",
 ])
-if M:
-    rows = [["Cells", f"{M['cells']:,.0f}" if M.get("cells") else "-"], ["Mesh OK (checkMesh)", str(M.get("mesh_ok"))],
-            ["Max non-orthogonality / skewness / aspect ratio", f"{M.get('max_non_orthogonality')} / {M.get('max_skewness')} / {M.get('max_aspect_ratio')}"]]
-    if M.get("layer_coverage_pct") is not None:
-        rows.append(["Prism-layer coverage / mean layers", f"{M['layer_coverage_pct']:.0f} % / {M['layers_mean']:.2f}"])
-    rows.append(["Meshing wall time", f"{M['wall_s'] / 60:.0f} min on {M['n_mesh']} processes"])
-    doc.table(["Mesh", "Value"], rows, widths=[0.5, 0.5])
-    if M.get("failed_checks"):
-        doc.p("checkMesh flags: " + "; ".join(M["failed_checks"]))
+SM = {"Toroid": J("smoke_toroid.json"), "2-blade reference": J("smoke_reference.json")}
+mrows = []
+for nm, m_ in (("Toroid", M), ("2-blade reference", MREF)):
+    if m_:
+        sk = sum(int(x) for x in __import__("re").findall(r"(\d+) highly skew faces", " ".join(m_.get("failed_checks", [])))) if m_.get("failed_checks") else 0
+        sm = SM[nm] or {}
+        mrows.append([nm, f"{m_['cells'] / 1e6:.2f} M", f"{m_['max_non_orthogonality']:.1f} / {m_['max_skewness']:.1f}", f"{sk}",
+                      f"{m_['layer_coverage_pct']:.0f} % / {m_['layers_mean']:.1f}" if m_.get("layer_coverage_pct") is not None else "-",
+                      f"{sm['s_per_iteration']:.1f} s, {sm['solver_memory_gb']:.1f} GB" if sm.get("s_per_iteration") else "-",
+                      f"{sm['estimated_run_h']:.1f} h" if sm.get("estimated_run_h") else "-"])
+if mrows:
+    doc.table(["Mesh", "Cells", "Max ortho / skew", "Skewed", "Layers", "Per iteration", "1500 it."], mrows,
+              widths=[0.19, 0.1, 0.16, 0.11, 0.14, 0.18, 0.12])
+    doc.p("Both meshes keep non-orthogonality under 65 deg (the limited schemes are built for that). checkMesh's only flag is a handful of "
+          "faces with skewness above 4, out of millions; the validation mesh had none. 'Per iteration' is from a 10-iteration smoke test "
+          "on 10 cores (case restored afterwards); '1500 it.' is the run time it implies.")
 
 # ------------------------------------------------------------------------------------------------------------------
 doc.h("9. Hand calculation vs. CFD")
@@ -218,6 +231,15 @@ else:
           "for it stays below the motor's speed and its torque below the 180 A rating.")
 if os.path.exists(os.path.join(R_, "fig_convergence_toroid.png")):
     doc.img(os.path.join(R_, "fig_convergence_toroid.png"), width=6.2)
+if CFD and CFDREF:
+    doc.h("9b. Toroid vs. 2-blade reference, both by CFD on the same mesh recipe")
+    rows = [[q_, fmt(CFD[k_]), fmt(CFDREF[k_]), pct(CFDREF[k_], CFD[k_])] for q_, k_, fmt in (
+        (f"Thrust at {S['cfd_rpm']} rpm [N]", "T", f1), (f"Torque at {S['cfd_rpm']} rpm [N m]", "Q", f2), ("Figure of merit", "FoM", f3),
+        ("rpm for T/W 1.5", "rpm_for_tw_required", f0), ("Power at T/W 1.5 [W]", "P_at_tw_required", f0),
+        ("Motor current at T/W 1.5 [A]", "motor_current_at_tw_required_a", f0), ("T/W at full motor speed", "tw_at_motor_rpm", f2))]
+    doc.table(["Quantity", "Toroid", "Reference", "Toroid vs. ref."], rows, widths=[0.4, 0.2, 0.2, 0.2])
+    doc.p(f"Both converged: toroid {CFD['converged']}, reference {CFDREF['converged']}. Same speed, air, domain and mesh settings, so the "
+          "mesh error is largely common to both and the difference is the rotor.")
 
 # ------------------------------------------------------------------------------------------------------------------
 doc.h("10. Takeaways so far")

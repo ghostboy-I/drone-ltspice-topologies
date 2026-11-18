@@ -11,7 +11,7 @@
  "radius": 6.858,
  "background_cells": 24640,
  "surface_cell_mm": 1.25,
- "curvature_cell_mm": 0.3125,
+ "curvature_cell_mm": 0.625,
  "edge_cell_mm": 0.625,
  "disk_cell_mm": 20.0,
  "mrf_radius": 0.7886699999999999,

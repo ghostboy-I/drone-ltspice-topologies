@@ -1,0 +1,26 @@
+blockMesh -> 0 (2 s)
+surfaceFeatures -> 0 (4 s)
+surfaceCheck -checkSelfIntersection constant/geometry/rotor.stl -> 0 (4 s)
+decomposePar -copyZero -> 0 (2 s)
+snappyHexMesh -overwrite -> 0 (1038 s)
+checkMesh -> 0 (16 s)
+{
+ "cells": 2762282.0,
+ "max_non_orthogonality": 64.646075,
+ "avg_non_orthogonality": 10.665305,
+ "max_skewness": 7.0002503,
+ "max_aspect_ratio": 10.211609,
+ "mesh_ok": false,
+ "failed_checks": [
+  "***Max skewness = 7.0002503, 20 highly skew faces detected which may impair the quality of the results"
+ ],
+ "layer_faces": 356097,
+ "layers_mean": 2.89,
+ "layer_thickness_m": 0.000829,
+ "layer_coverage_pct": 94.9,
+ "surface_closed": true,
+ "surface_self_intersections": 0,
+ "surface_self_intersecting": false,
+ "self_intersection_checked": true,
+ "surface_illegal_triangles": 0
+}

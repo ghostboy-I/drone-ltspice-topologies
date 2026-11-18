@@ -1,0 +1,16 @@
+{
+ "rotor": "reference",
+ "returncode": 0,
+ "iterations": 10,
+ "s_per_iteration": 10.335026000000001,
+ "startup_s": 15.235586,
+ "fatal": false,
+ "free_gb_before": 9.073680877685547,
+ "free_gb_min": 5.451061248779297,
+ "solver_memory_gb": 3.62261962890625,
+ "thrust_last_N": 518.3004972848,
+ "torque_last_Nm": 34.89786065,
+ "all_finite": true,
+ "mrf_zone_created": true,
+ "estimated_run_h": 4.306260833333334
+}
