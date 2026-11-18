@@ -27,15 +27,16 @@ MODELS = [   # ES1D, BSC520N15NS3, BSC360N15NS3 and BSP89 are vendor models in L
 ]
 
 
-def build(loop_test=False):
+def build(loop_test=False, block=False):
+    """block=True: the sheet used inside Power_System.asc (packs come in on ports PACK1+..PACK3+)."""
     B = Board("Avionics", "AVIONICS POWER BOARD")
     # ------------------------------------------------------------------ inputs
     if not loop_test:
         b = B.block("1  PACK INPUTS: fuse, diode-OR (any pack can feed the avionics), TVS, input filter", 0, 0, 2000, 900)
         for k in (1, 2, 3):
-            B.add(b, Part(f"V_PACK{k}", "voltage", f"PWL(0 {h.V_NOM} {{Tpull}} {h.V_NOM} {{Tpull+20u}} 0)" if k == 1 else f"{h.V_NOM}",
+            if not block: B.add(b, Part(f"V_PACK{k}", "voltage", f"PWL(0 {h.V_NOM} {{Tpull}} {h.V_NOM} {{Tpull+20u}} 0)" if k == 1 else f"{h.V_NOM}",
                           {"+": f"VP{k}", "-": "0"}, sim=True, spice="Rser=30m"))
-            B.add(b, Part(f"R_LEAD{k}", "res", "50m", {"1": f"VP{k}", "2": f"PACK{k}+"}, sim=True))
+            if not block: B.add(b, Part(f"R_LEAD{k}", "res", "50m", {"1": f"VP{k}", "2": f"PACK{k}+"}, sim=True))
             B.add(b, Part(f"J{k}", None, "", {"1": f"PACK{k}+", "2": "0"}, desc=f"Pack {k} input (from that pack's PDB tap)",
                           pn="Molex Micro-Fit 3.0, 2 pin (600 V, 5 A)", fp="Connector_Molex:Molex_Micro-Fit_3.0_43650-0215_1x02_P3.00mm_Vertical",
                           rating="≥150 V"))
@@ -159,6 +160,9 @@ def build(loop_test=False):
                   fp="Connector_JST:JST_GH_BM02B-GHS-TBT_1x02-1MP_P1.25mm_Vertical"))
     B.add(b, Part("B_SENS", "bi", f"I={h.I_33}*limit(V(+3V3)/3,0,1)", {"+": "+3V3", "-": "0"}, sim=True))
 
+    if block:
+        B.directives = ["; Avionics board as a block of Power_System.asc. Ports: PACK1+, PACK2+, PACK3+, +12V, +5V, +3V3. Parameters on the top sheet."]
+        return B
     W = "FROM {Tw1} TO {Tw2}"
     B.directives = [
         "; === 10  AVIONICS POWER BOARD: three 24S packs -> diode-OR -> 12 V (LTC7801) -> 5 V (LT8641) -> 3.3 V (LT3045) ===",

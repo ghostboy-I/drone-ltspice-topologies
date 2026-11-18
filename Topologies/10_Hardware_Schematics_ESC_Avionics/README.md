@@ -33,11 +33,16 @@ wine "$HOME/.wine/drive_c/Program Files/ADI/LTspice/LTspice.exe" -b ESC_Board.as
 
 Parts named `V_…`, `B_…`, `L_HARN`, `R_CS…`, `R_BW…`, `C_BW…`, `La/Lb/Lc`, `C_J`, `C_TH`, `R_LK…`, `R_VBF`, `C_VBF`, `C_VTX` are simulation stimulus or models: the packs, the loads, the motor, and the STM32's FOC firmware as a behavioural block. Everything else is a board part with its real reference designator.
 
+## Whole power system
+The whole system, with both boards drawn part by part and wired to three packs and three motors, is now topology
+[11](../11_Whole_System_Schematic/README.md) (`Power_System.asc`, the drawn board sheets and the KiCad entry guide).
+The block diagram of everything, with part numbers, is in [System_Flowchart](../System_Flowchart/README.md).
+
 ## KiCad project (ESC board)
 `kicad/ESC_Board/` is a generated KiCad 9 project (`python3 kicad_export.py esc`): 189 parts with stock KiCad symbols and footprints
 wherever they exist. The LTC7801 (FE TSSOP-24), LTC7063 (MSE-12) and LT1763 (S8) symbols are generated from ADI's
 pin-configuration drawings and live in `ESC_Board_custom.kicad_sym`. Wiring uses the same net labels as the LTspice schematic.
-Checked: ERC 0 violations, and KiCad's exported net list matches the parts table pin for pin (`expected_nets.json`).
+Checked: ERC 0 violations, and KiCad's exported net list matches the parts table pin for pin (`expected_nets.json`, 92 nets including the per-FET gate nets).
 J1 (AS150) has no stock footprint. Open `ESC_Board.kicad_pro`, then **Tools → Update PCB from Schematic** to start layout.
 The avionics board can be generated the same way (`python3 kicad_export.py avionics`; not yet checked).
 

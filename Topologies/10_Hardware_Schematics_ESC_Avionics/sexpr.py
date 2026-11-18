@@ -32,7 +32,10 @@ def dump(x, ind=0):
         for e in rest: s += "\n" + "  " * (ind + 1) + dump(e, ind + 1)
         return s + "\n" + "  " * ind + ")"
     if isinstance(x, Sym): return str(x)
-    if isinstance(x, (int, float)): return f"{x:g}" if isinstance(x, float) else str(x)
+    if isinstance(x, float):
+        t = f"{x:.4f}".rstrip("0").rstrip(".")
+        return "0" if t in ("-0", "") else t
+    if isinstance(x, int): return str(x)
     return '"' + str(x).replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 

@@ -22,14 +22,17 @@ CUSTOM = {
                           "CPUMP_EN": ["7"], "PLLIN": ["8"], "PGOOD": ["9"], "FREQ": ["10"], "DRVSET": ["11"], "DRVUV": ["12"],
                           "TG": ["13"], "SW": ["14"], "BOOST": ["15"], "BG": ["16"], "DRVCC": ["17"], "NDRV": ["18"], "VIN": ["19"],
                           "EXTVCC": ["20"], "RUN": ["21"], "INTVCC": ["22"], "OVLO": ["23"], "SENSE+": ["24"]},
-                    desc="150 V synchronous buck controller, FE TSSOP-24 (pin 25 = exposed pad, GND)"),
+                    desc="150 V synchronous buck controller, FE TSSOP-24 (pin 25 = exposed pad, GND)",
+                    left=["19", "21", "23", "20", "10", "8", "5", "7", "11", "12", "2", "4", "3"],
+                    right=["17", "18", "15", "13", "14", "16", "24", "1", "22", "9", "6", "25"]),
     "LTC7063": dict(pins={"PWM": ["1"], "EN": ["2"], "_FLT": ["3"], "DT": ["4"], "Vcc": ["5"], "BGVcc": ["6"], "BGRTN": ["7"],
                           "BG": ["8"], "NC": ["9"], "SW": ["10"], "TG": ["11"], "BST": ["12"], "SGND": ["13"]},
-                    desc="150 V half-bridge driver, MSE-12 (pin 13 = exposed pad, SGND)"),
+                    desc="150 V half-bridge driver, MSE-12 (pin 13 = exposed pad, SGND)",
+                    left=["5", "6", "1", "2", "3", "4", "13"], right=["12", "11", "10", "9", "8", "7"]),
     "LT1763-5": dict(pins={"OUT": ["1"], "Sense": ["2"], "GND": ["3", "6", "7"], "BYP": ["4"], "_SHDN": ["5"], "IN": ["8"]},
-                     desc="500 mA LDO 5 V, S8"),
+                     desc="500 mA LDO 5 V, S8", left=["8", "5", "3", "6", "7"], right=["1", "2", "4"]),
     "LT1763-3.3": dict(pins={"OUT": ["1"], "Sense": ["2"], "GND": ["3", "6", "7"], "BYP": ["4"], "_SHDN": ["5"], "IN": ["8"]},
-                       desc="500 mA LDO 3.3 V, S8"),
+                       desc="500 mA LDO 3.3 V, S8", left=["8", "5", "3", "6", "7"], right=["1", "2", "4"]),
 }
 PIN_LABEL = {"_FLT": "~{FLT}", "_SHDN": "~{SHDN}"}           # KiCad overbar syntax
 
@@ -58,7 +61,12 @@ def custom_symbol(name, spec):
         for i, n in enumerate(nums):
             pins.append((PIN_LABEL.get(our, our), n))
     pins.sort(key=lambda p: int(p[1]))
-    half = (len(pins) + 1) // 2
+    if "left" in spec:                                   # functional placement: given pin numbers, top to bottom
+        byn = {n: (nm, n) for nm, n in pins}
+        pins = [byn[n] for n in spec["left"]] + [byn[n] for n in reversed(spec["right"])]
+        half = len(spec["left"])
+    else:
+        half = (len(pins) + 1) // 2
     h = max(half, len(pins) - half) * 2.54 + 2.54
     w = 25.4 if name == "LTC7801" else 20.32
     body = [Sym("rectangle"), [Sym("start"), -w / 2, h / 2], [Sym("end"), w / 2, -h / 2],
@@ -171,7 +179,7 @@ def export(B, name, outdir):
             if our not in pmap or not pmap[our] or any(x not in nums for x in pmap[our]):
                 raise KeyError(f"{p.ref}: pin '{our}' -> {pmap.get(our)} not on {key}")
         for r in p.refs():
-            entries.append((r, p, key, sym, pmap, pins))
+            entries.append((r, p, key, sym, pmap, pins))      # per-copy nets via p.nets_for(r) below
     # ---- layout: one region per block, in the order the blocks were defined ----
     blocks = {}
     for e in entries: blocks.setdefault(e[1].blk, []).append(e)
@@ -229,7 +237,7 @@ def export(B, name, outdir):
         used = {}
         for our, nums in pmap.items():
             if our in p.nets:
-                for n in nums: used[n] = net(p.nets[our])
+                for n in nums: used[n] = net(p.nets_for(r)[our])
         for pname, num, px, py, ang in pins:
             ax, ay = round(X + px, 2), round(Y - py, 2)
             if num in used:
@@ -277,7 +285,7 @@ def export(B, name, outdir):
     for r, p, key, sym, pmap, pins, X, Y in placed:
         for our, nums in pmap.items():
             if our in p.nets:
-                for n in nums: expected.setdefault(net(p.nets[our]), set()).add((r, n))
+                for n in nums: expected.setdefault(net(p.nets_for(r)[our]), set()).add((r, n))
     return dict(parts=len(placed), symbols=len(R.cache), **report, expected=expected)
 
 

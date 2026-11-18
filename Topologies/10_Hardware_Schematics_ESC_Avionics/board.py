@@ -41,7 +41,7 @@ def eng(v):
     if x == 0: return "0"
     for exp, suf in ((6, "Meg"), (3, "k"), (0, ""), (-3, "m"), (-6, "µ"), (-9, "n"), (-12, "p")):
         if abs(x) >= 10 ** exp * 0.9999:
-            m = x / 10 ** exp; t = f"{m:.3g}"
+            m = x / 10 ** exp; t = f"{m:.4g}"
             return t + suf
     return v
 
@@ -53,6 +53,12 @@ class Part:
         The BOM and net list expand it to consecutive references (Q4 -> Q4 Q5 Q6 Q7). simm=True passes m=mult to LTspice;
         simm=False means the simulated value is already the parallel equivalent (bomval is then the value of each part)."""
         self.__dict__.update(locals()); del self.__dict__["self"]
+
+    def nets_for(self, ref):
+        """Connections of one expanded copy: a net ending in '*' is per copy (GAH* -> GAH1..GAH4, e.g. each FET's own gate
+        node behind its own gate resistor). LTspice simulates the parallel equivalent and just drops the '*'."""
+        i = self.refs().index(ref) + 1
+        return {k: (v[:-1] + str(i) if v.endswith("*") else v) for k, v in self.nets.items()}
 
     def refs(self):
         if self.mult == 1: return [self.ref]
@@ -104,7 +110,9 @@ class Board:
         return len(seen)
 
     # ------------------------------------------------------------------ LTspice
-    def write_asc(self, path):
+    def write_asc(self, path, ports=()):
+        """ports: net names that become hierarchical ports (IOPIN) when this sheet is used as a block."""
+        self._ported = set()
         L = ["Version 4", "SHEET 1 7000 5000"]
         for b in self.blocks:
             L.append(f"RECTANGLE Normal {b['x']} {b['y']} {b['x'] + b['w']} {b['y'] + b['h']} 2")
@@ -121,7 +129,9 @@ class Board:
             for name, px, py in p.pins:
                 net = p.nets.get(name)
                 if net is None: continue                       # unconnected pin (left open on purpose)
-                L.append(f"FLAG {x + px} {y + py} {net}")
+                L.append(f"FLAG {x + px} {y + py} {net.rstrip('*')}")
+                if net in ports and net not in self._ported:
+                    L.append(f"IOPIN {x + px} {y + py} BiDir"); self._ported.add(net)
         y0 = max(b["y"] + b["h"] for b in self.blocks) + 120
         for i, d in enumerate(self.directives):
             L.append(f"TEXT 32 {y0 + 34 * i} Left 2 {d.replace('µ', 'u')}")
@@ -153,7 +163,7 @@ class Board:
         for p in self.parts:
             if p.sim: continue
             for r in p.refs():
-                for pin, net in p.nets.items():
+                for pin, net in p.nets_for(r).items():
                     nets.setdefault(net, []).append(f"{r}.{pin}")
         with open(path, "w", newline="") as f:
             w = csv.writer(f); w.writerow(["Net", "Connections (reference.pin)"])
