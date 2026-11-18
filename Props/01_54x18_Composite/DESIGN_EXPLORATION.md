@@ -61,7 +61,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 48. **Equal-noise comparison with the V13828 tri:** the tri's catalogue gain needs tip Mach 0.70 and costs it 3.8 dBA (52.1 → 55.9). Compare the tri at the hex's 48.5 dBA (serrations from entry 33, or a lower cap with the U15XL) against the hex on the MN1123.
 49. ~~Tri on the U15XL with the 12 % reserve~~ (entry 40: +1.68 kg at 55.5 dBA, cap 0.70; it trades 2.7 kg for 5.9 dB against the V13828 tri. The hex on the MN1123, +5.06 kg at 50.8 dBA, beats every tri variant on payload *and* noise.)
 51. **Hex payload against noise between the MN1123 and the MN1320** (entry 40): MN1123 with the reserve, +5.06 kg at 50.8 dBA; MN1320, +2.95 kg at 46.3 dBA (0.47 kg/dB). Try the MN1123 at a lower cap and the V13823 (34.4 N·m, 2.16 kg).
-50. **Free-speed and 200 Wh/kg scenarios with the catalogue motors and the 12 % reserve.** Entries 37–39 updated only the 15 m/s, 303 Wh/kg row exactly; the other rows were shifted by Δhex − Δtri.
+50. ~~Free-speed and 200 Wh/kg scenarios with the catalogue motors~~ (entry 41: at 15 m/s the hex wins every case, +0.7 to +8.1 kg. At free speed with 303 Wh/kg the V13828 tri wins by 2.8–4.1 kg, but at 61.4 dBA; held to a ≈ 55 dBA limit (U15XL tri) it is a tie, −0.7 to +0.6 kg. Break-even batteries: 15 m/s 328 Wh/kg (V13828) or none (U15XL); free speed 174 / 277 Wh/kg.)
+52. **Noise limit as a continuous variable for the tri at free speed:** between the U15XL tri (55.5 dBA) and the V13828 tri (61.4 dBA) the free-speed payload changes by 3.4 kg. Interpolating a tri family (V13828 at caps 0.70–0.80, or a 3-blade tri) would give the break-even noise limit at which the hex wins at free speed with the 303 Wh/kg pack.
 44. Absolute-level caveat from the toroid session's CFD (2026-11-18): on its rotor, BEMT predicted 620 N against 436 N in CFD (30 % high), in line with the earlier Caradonna–Tung check. The tri–hex comparisons here are relative, but absolute payloads and the motor sizing at T/W 2 should be re-based when its 2-blade reference solve (same mesh) reports
 
 ## Entries
@@ -2561,3 +2562,89 @@ A real design needs headroom for gusts, battery sag at the end of the flight, mo
 - Item 50: re-run the free-speed and 200 Wh/kg scenarios with the catalogue motors and the reserve. Before entry 37 the tri led at free speed and 303 Wh/kg by 2.19 kg, so that row is where the tri could still win.
 - Item 44: calibrate BEMT on the toroid session's 2-blade CFD (437 N against 585 N), then re-size the motors.
 - Also: the hex on the MN1320 with the reserve already built in, +2.95 kg at 46.3 dBA, is the quiet option. Map the hex's payload–noise curve between the MN1123 and the MN1320 (item 51).
+
+## 41 — All scenarios with catalogue motors and a 12 % reserve: the speed question decides again, and noise now sets the size of the tri's win (2026-11-18)
+
+**Question.** Entries 37–40 compared the catalogue-motor designs exactly only at 15 m/s with the 303 Wh/kg pack. The other scenarios were estimated by shifting each layout's change against its own optimum. Item 50 asks how the full set of scenarios ranks: free cruise speed, the four body models and the 200 Wh/kg LiPo.
+
+**Method.** src/explore/e41_scenarios_catalogue.py runs entry 24's full chain, the entry 17/18 vehicle model:
+- arms, fairings, hover download and torque-sized ESCs;
+- cruise trim at 14–30 m/s for each body model (constant, streamlined, bluff, bluff pre-tilted);
+- mission energy.
+
+Then entry 19's ranking picks each layout's best speed for each battery. The fitted motor mass is swapped for the catalogue mass, mass_sum −= n (m_fit − m_cat). The variants are:
+- **base:** entry 24's blades with the continuous motor fit, as a regression check;
+- **hex:** the MN1123 cap-0.65 blade from entry 39;
+- **tri-V:** the V13828 cap-0.80 blade from entry 39;
+- **tri-XL:** the U15XL cap-0.70 blade from entry 40.
+
+That is 340 points on 2 cores at nice 19, beside the toroid CFD.
+
+**Regression check.** The base variant reproduces entry 24's ranking to the printed hundredth in all ten scenarios. For example, at 15 m/s with 303 Wh/kg it gives +1.73 kg, and at free speed with a constant body it gives −2.19 kg, against entry 24's +1.73 and −2.19 ✓. The catalogue swap is the only change.
+
+**Results** (hex payload minus tri payload in kg; positive means the hex wins):
+
+| Speed, body | Battery [Wh/kg] | Continuous fit (entry 24) | **Hex MN1123 vs tri V13828** (50.8 vs 61.4 dBA) | **Hex MN1123 vs tri U15XL** (50.8 vs 55.5 dBA) |
+|---|---|---|---|---|
+| 15 m/s, constant body | 303 | +1.73 | **+0.73** | **+3.66** |
+| 15 m/s, constant body | 200 | +6.07 | +5.68 | +8.08 |
+| free, constant body | 303 | −2.19 | **−3.77** | **−0.42** |
+| free, constant body | 200 | +0.11 | −1.15 | +1.88 |
+| free, streamlined body | 303 | −2.08 | −3.69 | −0.34 |
+| free, streamlined body | 200 | +0.29 | −1.03 | +2.02 |
+| free, bluff body | 303 | −1.11 | −2.75 | +0.57 |
+| free, bluff body | 200 | +1.76 | +0.40 | +3.39 |
+| free, bluff pre-tilted | 303 | −2.40 | −4.08 | −0.72 |
+| free, bluff pre-tilted | 200 | −0.20 | −1.62 | +1.44 |
+| break-even battery, 15 m/s | | 382 | **328** | none (hex at any e_b) |
+| break-even battery, free | | 203 | **174** | **277** |
+
+The other quantities behind the ranking:
+- Best speeds (tri / hex), free, constant body: 24.7 / 20.9 m/s (tri-V) and 24.5 / 20.9 m/s (tri-XL).
+- Packs (tri / hex), constant body:
+
+  | Pairing | 15 m/s | Free speed |
+  |---|---|---|
+  | tri-V / hex | 7963 / 5056 Wh | 5906 / 4363 Wh |
+  | tri-XL / hex | 7650 / 5056 Wh | 5719 / 4363 Wh |
+
+- Hardware difference, hex − tri: +8.85 kg (tri-V), +4.89 kg (tri-XL), +6.65 kg (fit).
+
+**Findings.**
+- **At a fixed 15 m/s the hex wins every catalogue case.** Its lead is +0.7 to +5.7 kg against the light V13828 tri and +3.7 to +8.1 kg against the U15XL tri, and it is 4.7–10.6 dBA quieter. Against the U15XL tri there is no break-even battery: the hex has both less hardware penalty and much less energy.
+- **At free speed with the 303 Wh/kg pack, the catalogue makes the tri's win larger, if noise is free.**
+  - The V13828 tri sheds 3 × (4.53 − 2.465) = 6.2 kg of motor, the hex only 6 × (1.84 − 1.425) = 2.5 kg. The hex's hardware penalty grows from 6.65 to 8.85 kg.
+  - At free speed both layouts fly where the pack is small (tri 24.7 m/s, hex 20.9 m/s), so the hardware difference dominates.
+  - The tri wins by **2.8–4.1 kg**, against 1.1–2.4 kg on the continuous fit.
+- **Noise sets the size of the free-speed win.** The light tri is 61.4 dBA. Held to the U15XL design (55.5 dBA, 4.7 dB above the hex), the free-speed case becomes a **tie**, −0.7 to +0.6 kg depending on the body. At 200 Wh/kg the hex then wins every scenario, by +1.4 to +3.4 kg. So the tri's free-speed advantage is worth about (4.08 − 0.72)/(61.4 − 55.5) ≈ **0.57 kg per dB** of noise allowance (constant body: 3.35 kg / 5.9 dB). Entry 40's like-for-like hover estimate was 0.46.
+- **The entry-39 shortcut was close but not exact.** It gave the hex − tri-V margin at 15 m/s with 303 Wh/kg as +1.25 kg; the full chain gives +0.73. For the tri-XL the shortcut gave +3.67, the chain +3.66.
+  - The 0.5 kg difference for the tri-V is a frame effect. Entries 11 and 13 optimised the blades with their own hover and arm bookkeeping, and the chain adds the entry-14 fairings and hover download, which cost the fast-spinning V13828 tri more.
+- **The decision table (with a 12 % torque reserve):**
+
+  | Requirement | 303 Wh/kg | 200 Wh/kg |
+  |---|---|---|
+  | 15 m/s fixed, any noise limit | **hex** (+0.7 to +3.7 kg) | **hex** (+5.7 to +8.1 kg) |
+  | free speed, no noise limit | **tri** (V13828, +2.8 to +4.1 kg) | **tri** (V13828, +1.0 to +1.6 kg), except bluff body: hex +0.4 |
+  | free speed, ≈ 55 dBA limit | tie (−0.7 to +0.6 kg) | **hex** (+1.4 to +3.4 kg) |
+  | free speed, limit ≤ 51 dBA | **hex**: no catalogue tri reaches it | **hex** |
+
+**Hand checks.**
+- **Payload difference from hardware and pack:** hex − tri = −(Δhw + Δpack/e_b), with Δ = hex − tri.
+  - V13828, free speed, constant body, 303 Wh/kg: Δpack = 4363 − 5906 = −1543 Wh, so −(8.85 − 1543/303.3) = −(8.85 − 5.09) = **−3.76 kg** ✓ (printed −3.77).
+  - The same at 15 m/s: Δpack = 5056 − 7963 = −2907 Wh, so −(8.85 − 9.58) = **+0.73 kg** ✓.
+- **Break-even battery:** e_b* = −Δpack/Δhw, the specific energy at which the pack saving exactly pays for the extra hardware.
+  - V13828, free: 1543 / 8.85 = **174 Wh/kg** ✓.
+  - U15XL, free: (5719 − 4363)/4.89 = 1356/4.89 = **277 Wh/kg** ✓.
+  - U15XL at 15 m/s: (7650 − 5056)/4.89 = 530 Wh/kg ✓ (printed 531). That is outside the 150–450 sweep, so the curve finds no crossing and the hex wins at every plausible battery.
+- **Hardware swap:**
+  - Δhw = 6.65 + [3 (4.53 − 2.465) − 6 (1.84 − 1.425)] = 6.65 + 6.20 − 2.49 = 10.36 kg, against the chain's **8.85**.
+  - The 1.5 kg remainder is the re-optimised blades and ESCs. The V13828 tri runs at 1.18 × rpm and 1.04 × power, with heavier hover-flex blades; the hex runs at a higher rpm with blades 0.02 kg heavier each. Both change with the new designs, so the motor swap alone overstates the gap.
+  - For the U15XL tri: 6.65 + 3 (4.53 − 4.408) − 2.49 = 4.53, against **4.89** ✓, within the blade and ESC changes.
+
+**Lesson.** The same hardware change shows up very differently across scenarios. A lighter motor helps whichever layout is hardware-limited (the tri at free speed). A quieter, lower-energy design helps the energy-limited one (the hex at 15 m/s, or with a LiPo). With real catalogue motors and a reserve, three questions decide the layout: the speed requirement, the battery and the noise limit. **At 15 m/s or with a LiPo, the hex wins. At free speed with the semi-solid pack, the tri wins only if 55–61 dBA in hover is acceptable.**
+
+**Next.**
+- Item 52: the free-speed break-even noise limit, from a tri family between 55.5 and 61.4 dBA.
+- Item 44: BEMT calibration on the toroid session's 2-blade CFD (437 N against 585 N).
+- Item 51: the hex's payload–noise curve (MN1123 to MN1320).
+- The three user questions now map directly onto the decision table above.
