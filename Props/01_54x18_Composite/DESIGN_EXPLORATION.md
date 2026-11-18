@@ -325,6 +325,8 @@ The first attempt reused e05's `hand()`. It gave κ ≈ 1.59 at every spacing, a
 - **The textbook far-wake value of 1.281 (Leishman) assumes a fully mixed lower wake;** it falls inside the same bracket.
 - **This also corrects entry 05's hand check.** Its "momentum" column used the uncorrected upper momentum. Its trend conclusions stand, but its 4 % absolute agreement at 54/54 in was partly luck.
 
+> **Superseded by entry 07:** the lens cruise model used here is optimistic. With a vortex wake the h/D 0.4 pack is 5715 Wh (not 4892) and the payload is +0.05 kg (not +2.8). The hover numbers and the hand checks in this entry stand.
+
 **Finding.**
 - **Spacing is the biggest lever found yet, and nearly all of it is cruise.** Going from h/D 0.2 to 0.4:
   - cruise wake overlap: −1.9 kW of vehicle power;
