@@ -29,7 +29,7 @@ wine "$HOME/.wine/drive_c/Program Files/ADI/LTspice/LTspice.exe" -b ESC_Board.as
 |---|---|---|
 | `Avionics_Board.asc` (8 ms) | Cold start and sequencing, transmitter switch-on, controller load step, pack 1 pulled | ~10 min |
 | `Avionics_LoopTest.asc` | 12 V loop gain at 3 / 6 / 12 / 24 kHz by injection, on the switching circuit | ~5 min |
-| `ESC_Board.asc` (13 ms) | Cold start of the ESC electronics with the rotor at hover, flying start, throttle punch | ESC_RUNTIME |
+| `ESC_Board.asc` (13 ms) | Cold start of the ESC electronics with the rotor at hover, flying start, throttle punch | ~7 min |
 
 Parts named `V_…`, `B_…`, `L_HARN`, `R_CS…`, `R_BW…`, `C_BW…`, `La/Lb/Lc`, `C_J`, `C_TH`, `R_LK…`, `R_VBF`, `C_VBF`, `C_VTX` are simulation stimulus or models: the packs, the loads, the motor, and the STM32's FOC firmware as a behavioural block. Everything else is a board part with its real reference designator.
 
@@ -50,10 +50,43 @@ Parts named `V_…`, `B_…`, `L_HARN`, `R_CS…`, `R_BW…`, `C_BW…`, `La/Lb/
 - **Thermal.** About 70 W of FET loss at hover, so the 24 D2PAKs need a heatsink. The NTC (R6) goes on it.
 
 ## Results (hand → LTspice)
-RESULTS
+**Avionics board**
+| | Hand | LTspice |
+|---|---|---|
+| +12V / +5V / +3V3 (V) | 12.000 / 4.988 / 3.320 | 11.995 / 5.046 / 3.286 |
+| 12 V loop: crossover / phase margin | 11.57 kHz / 49.8° | 10.59 kHz / 53.0° (transient injection) |
+| Current per pack, all three connected (A) | 0.112 | 0.113 |
+| Packs 2 and 3 after pack 1 is pulled (A) | 0.167 | 0.169 (12 V moves 17 mV) |
+| Transmitter switch-on: 12 V dip (mV) | 198 | 219 |
+| 12 V stage / whole board efficiency | 97.9 % / 93.8 % | 95.6 % / 91.8 % |
+
+**ESC board** (hand evaluated at the operating point LTspice reached: iq = 160.4 A, ω = 190.7 rad/s)
+| | Hand | LTspice |
+|---|---|---|
+| Cold start: 12 V up / drivers enabled | 0.72 ms + delay / 1.5 ms (MCU) | 1.00 ms / FAULT_N high at ~1.6 ms |
+| +12V minimum at driver enable (V) | 11.0 (charge sharing) | 9.86 |
+| iq read by the MCU vs. true (A) | 160.4 | 159.6 (-0.5 %) |
+| ESC input = electromagnetic + copper + inverter (W) | 6660 + 328 + 97 | 7102 = 6660 + 329 + 105 |
+| Dead time at Vgs = 3 V (DT = 150 kΩ) | — | 142 / 141 ns |
+| Bootstrap current, 3 legs (mA) | 25.3 | 24.4 |
+| Bootstrap voltage (V) | 12 − Vf − Qg/C | 11.04–12.12 |
+| Punch: iq / ESC current (A) | 210 | 210.5 / 112.3 |
+
+![avionics](Avionics_results.png)
+![esc](ESC_results.png)
 
 ## What went wrong first
-WRONG
+1. **Units.** The `.asc` files were first written as UTF-8 with `µ`. LTspice read it as two Latin-1 characters and dropped the unit: 47µ became 47 H and nothing started. `board.py` now writes `u` in Latin-1.
+2. **Library models looked missing** from a bare `.cir` test. LTspice loads its standard libraries only for `.asc` files. Confirm a model by measuring it (Ron with 1 V / 1 mΩ), not by the absence of an error.
+3. **`aux.asc` cannot be opened under Wine**: AUX is a reserved DOS device name.
+4. **Net-name collision**: the aux supply's gate nets were `TG_A` / `BG_A`, the same as leg A's. Two gate drivers drove each other's FETs and +12V reached 45 V. In a net-label schematic the names are the wiring, so the aux nets are now `_AUX`.
+5. **Constant-current loads** dragged rails negative at start-up and broke the LDO models. Every load now scales with limit(V/Vnom, 0, 1).
+6. **`.ic` on an encrypted controller** (soft-start pin, output rail) gave impossible operating points (29 A in L1 at t = 0). The electronics now start cold, and only the rotor speed is preset.
+7. **Missing parts the simulation found**: gate-source pull-downs (high-side FETs drifted on through Cgd while the drivers were unpowered), the LT1763 bypass capacitors (they slow start-up by several ms; now do-not-fit), and 12 V bulk (driver enable dipped +12V to 7.4 V; a 47 µF fixes it).
+8. **Burst Mode** on the avionics 12 V gave a 90 mV, 25 kHz sawtooth at light load, so MODE is tied to INTVCC (forced continuous).
+9. **The sensor model lied**: a 1 kΩ bandwidth resistor in the ACS770 model lost 3 % into the ADC divider (now 10 Ω + 133 nF).
+10. **"Efficiency" of 76.6 %** was the rotor still accelerating after the coast (649–867 W into ½Jω²). The energy balance closes once that is counted.
+11. **`ltraw.read_meas`** returned the threshold of WHEN measurements instead of the time. Fixed for every topology.
 
 ## Assumptions to replace with measurements
 Inherited from 09: motor Lph 25 µH, 21 pole pairs, rotor inertia 0.15 kg·m², pack resistance 30 mΩ, and the avionics currents. New here: the LTC7801's ITH gain (assumed 1/12, measured ≈ 1/13), the supply currents of the STM32 / ACS770 / AS5047, and the derated capacitances of the ceramics at their bias voltage.

@@ -22,10 +22,10 @@ doc = Doc("10  Hardware Schematics: ESC + Avionics Boards",
 doc.h("1. From a simulation to two boards")
 doc.p("Topology 09 proved the power tree with behavioural controllers. A PCB needs real parts, reference designators, footprints "
       "and a net list. This topology splits the aircraft's electronics into the two boards it would actually have:")
-doc.table(["Board", "Qty", "Parts / BOM lines", "Main ICs"], [
-    ["ESC board", "3", f"{nparts('ESC_BOM.csv')} / {nlines('ESC_BOM.csv')}", "LTC7801 aux, 2 × LT1763, 3 × LTC7063, 24 × IPB065N15N3, 2 × ACS770, STM32G431"],
-    ["Avionics power board", "1", f"{nparts('Avionics_BOM.csv')} / {nlines('Avionics_BOM.csv')}", "3 × fuse + ES1D diode-OR, LTC7801 12 V, LT8641 5 V, LT3045 3.3 V"],
-], widths=[0.2, 0.06, 0.18, 0.56])
+doc.table(["Board", "Qty", "Parts", "Main parts"], [
+    ["ESC board", "3", f"{nparts('ESC_BOM.csv')}", "LTC7801, 2×LT1763, 3×LTC7063, 24×IPB065N15N3, 2×ACS770, STM32G431"],
+    ["Avionics board", "1", f"{nparts('Avionics_BOM.csv')}", "diode-OR (3×ES1D), LTC7801 12 V, LT8641 5 V, LT3045 3.3 V"],
+], widths=[0.17, 0.06, 0.08, 0.69])
 doc.p("Each board is described once, as a Python parts table (board.py). Every part carries its simulation value and its PCB data "
       "(part number, footprint, rating). The same table writes the LTspice schematic, the BOM and the net list, so the three cannot "
       "disagree. The controller ICs are ADI's own LTspice models. The FETs and diodes are the vendors' models from LTspice's library. "
@@ -64,7 +64,7 @@ lp = ex["loop"]
 rows = [[f"{p[0]/1e3:.0f} kHz", f"{abs(U1.loop(p[0], 5.0)):.3f} / {np.degrees(np.angle(U1.loop(p[0], 5.0))):.0f}°", f"{p[1]:.3f} / {p[2]:.0f}°"] for p in lp["points"]]
 rows.append(["Crossover / phase margin", f"{lp['fc_hand']/1e3:.2f} kHz / {lp['pm_hand']:.1f}°", f"{lp['fc']/1e3:.2f} kHz / {lp['pm']:.1f}°"])
 doc.table(["Frequency", "Hand |T| / phase", "LTspice |T| / phase"], rows, widths=[0.3, 0.35, 0.35])
-doc.p("The first hand model had the right magnitude (within 10 %, so A_ITH ≈ 1/13) but 78° of phase margin against 53° measured. The "
+doc.p("The first hand model had the right magnitude (within 10 %%, so A_ITH ≈ 1/13) but 78° of phase margin against 53° measured. The "
       "missing phase grew in proportion to frequency, 27° at 12 kHz and 56° at 24 kHz, which is the signature of a pure time delay: "
       "Δφ = 360°·f·τ gives τ ≈ 6.4 µs, almost one switching period (6.8 µs). A current-mode modulator acts once per period, so it adds "
       "about one period of delay. With e^(−sTsw) in the model the hand margin is %.1f°, against %.1f° measured." % (lp["pm_hand"], lp["pm"]))
@@ -75,7 +75,7 @@ doc.p("8 ms from cold. All three packs connected; the 12 V soft-starts; its PGOO
 dip_vtx = h.I_VTX / (2 * math.pi * lp["fc"] * (U1.C + 10e-6))
 doc.table(["Quantity", "Hand", "LTspice", "Δ"], [
     ["+12V / +5V / +3V3 (V)", f"{U1.vset:.3f} / {h.V5:.3f} / {h.V33:.3f}", f"{ma['v12']:.3f} / {ma['v5']:.3f} / {ma['v33']:.3f}", pct(h.V5, ma["v5"])],
-    ["12 V reaches 10.8 V (ms)", f"{U1.tss*10.8/12*1e3:.2f} + start delay", f"{ma['t12']*1e3:.2f}", ""],
+    ["12 V reaches 10.8 V (ms)", f"{U1.tss*10.8/12*1e3:.2f} + delay", f"{ma['t12']*1e3:.2f}", ""],
     ["12 V ripple (mV p-p) / inductor ripple (A)", f"{U1.ripple(h.V_NOM)[2]*1e3:.1f} / {U1.ripple(h.V_NOM)[1]:.2f}", f"{ma['rip12']*1e3:.1f} / {ma['il1pp']:.2f}", ""],
     ["Each pack's current, all 3 connected (A)", f"{av['i_in']/3:.3f}", f"{ma['i1']:.3f} / {ma['i2']:.3f} / {ma['i3']:.3f}", pct(av["i_in"] / 3, ma["i1"])],
     ["After pack 1 is pulled: packs 2, 3 (A)", f"{av['i_in']/2:.3f}", f"{ma['i2_after']:.3f}", pct(av["i_in"] / 2, ma["i2_after"])],
@@ -94,15 +94,15 @@ doc.p("The 5 V rail sits 1.2 %% high: 1 MΩ / 191 kΩ was sized for 0.800 V, and
 
 # =====================================================================================================================
 doc.h("5. ESC board: design")
-doc.table(["Block", "Design point", "Value"], [
-    ["Inverter switch", "4 × IPB065N15N3 (150 V, 6.5 mΩ max) in parallel", f"Ron {h.FETS['IPB065N15N3']['Ron']/4*1e3:.2f} mΩ per position (vendor model, 10 V, 25 °C)"],
-    ["Gate drive", "LTC7063 150 V half bridge, bootstrap 1 µF + ES1D", f"6 Qg fsw = {h.I_GATE*1e3:.0f} mA from +12V; ΔVboot = Qg/C = 0.30 V"],
-    ["Dead time", "DT resistor 150 kΩ", f"{ex['esc']['dead_bg_tg']:.0f} / {ex['esc']['dead_tg_bg']:.0f} ns at the 3 V threshold"],
-    ["Aux 12 V (U1 LTC7801)", "440 kHz, 150 µH, 0.1 Ω sense, 2 × 10 µF", f"{h.I_12V*1e3:.0f} mA load, ton {12/100.8/A.fsw*1e9:.0f} ns at 100.8 V"],
-    ["Logic", "LT1763-5 → LT1763-3.3", f"{h.I_5V*1e3:.0f} mA / {h.I_3V3*1e3:.0f} mA, {h.P_LDO5:.2f} W in U2"],
-    ["Current sense", "ACS770LCB-200B, 10 mV/A, 2/3 divider", f"±{h.I_RANGE:.0f} A fits the ADC, {h.ADC_A_PER_LSB*1e3:.0f} mA/LSB"],
-    ["Bus sense", "3 × 330 kΩ (1206, 200 V each) + 33 kΩ", f"100.8 V → {h.VBUS_ADC_FULL:.2f} V"],
-], widths=[0.2, 0.42, 0.38])
+doc.table(["Block", "Design point", "Result"], [
+    ["Inverter switch", "4 × IPB065N15N3 in parallel", f"{h.FETS['IPB065N15N3']['Ron']/4*1e3:.2f} mΩ per position"],
+    ["Gate drive", "LTC7063, bootstrap 1 µF + ES1D", f"6·Qg·fsw = {h.I_GATE*1e3:.0f} mA, ΔVboot 0.30 V"],
+    ["Dead time", "DT resistor 150 kΩ", f"{ex['esc']['dead_bg_tg']:.0f} / {ex['esc']['dead_tg_bg']:.0f} ns at Vgs = 3 V"],
+    ["Aux 12 V (U1 LTC7801)", "440 kHz, 150 µH, 0.1 Ω, 32 µF", f"{h.I_12V*1e3:.0f} mA, ton {12/100.8/A.fsw*1e9:.0f} ns at 100.8 V"],
+    ["Logic", "LT1763-5 → LT1763-3.3", f"{h.I_5V*1e3:.0f} / {h.I_3V3*1e3:.0f} mA, {h.P_LDO5:.2f} W in U2"],
+    ["Current sense", "ACS770 ±200 A, 2/3 divider", f"±{h.I_RANGE:.0f} A in range, {h.ADC_A_PER_LSB*1e3:.0f} mA/LSB"],
+    ["Bus sense", "3 × 330 kΩ (200 V each) + 33 kΩ", f"100.8 V → {h.VBUS_ADC_FULL:.2f} V"],
+], widths=[0.25, 0.37, 0.38])
 doc.p("Four D2PAKs per position give 1.4 mΩ against 09's assumed 1.05 mΩ, so conduction loss rises by a third. With 6.5 mΩ-max parts "
       "that is the price of using a FET LTspice has a vendor model for. A 4.8 mΩ part (IPB048N15N5) would bring it back to 09's number. "
       "The aux supply runs at 440 kHz rather than 148 kHz, so a 150 µH inductor can give 30 % ripple at 0.12 A. At 100.8 V the on-time "
@@ -114,27 +114,41 @@ doc.p("The ESC run is a real cold start of the electronics, with the rotor alrea
       "throttle punch at 7 ms. The motor coasts for 1.5 ms and slows by about 0.3 rad/s, and the 10 Hz speed loop takes tens of "
       "milliseconds to recover that. So the hand values below are evaluated at the operating point LTspice actually reached (its iq "
       "and ω), not at nominal hover.")
-w_h = ex["esc"]["omega_h"]; iq_h = me["iq_true"]
-mp = h09.motor_point(w_h, h.h09.Kt * iq_h, me["vbus_h"])
+es = ex["esc"]; w_h = es["omega_h"]; iq_h = es["iq_true"]
+mp = h09.motor_point(w_h, h09.Kt * iq_h, me["vbus_h"])
 inv_hand = h09.esc_loss(iq_h, me["vbus_h"])
 ron_ratio = (h.FETS["IPB065N15N3"]["Ron"] / 4) / h09.ron_esc
-inv_hand_cond = inv_hand["cond"] * ron_ratio
-inv_hand_tot = inv_hand["total"] - inv_hand["cond"] + inv_hand_cond
-p_in_hand = mp["p_el"] + inv_hand_tot
+inv_hand_tot = inv_hand["total"] + inv_hand["cond"] * (ron_ratio - 1)
+p_em = 1.5 * h09.Kph * w_h * iq_h; p_cu = 1.5 * h09.Rph * iq_h ** 2
+p_in_hand = p_em + p_cu + inv_hand_tot
+p_drag = h09.Bfric * w_h ** 2
+i_rgs = 3 * 0.5 * 12 / (10e3 / h.N_PAR)                       # high-side pull-downs, on half the time
+iboot_hand = 3 * h.QG_SWITCH * h.FSW_INV + i_rgs
 doc.table(["Quantity (4–7 ms)", "Hand at LTspice's iq, ω", "LTspice", "Δ"], [
-    ["12 V reaches 10.8 V (ms)", f"{A.tss*10.8/12*1e3:.2f} + delay", f"{me['t12']*1e3:.2f}", ""],
+    ["12 / 5 / 3.3 V reach 90 % (ms)", f"{A.tss*10.8/12*1e3:.2f} + delay", f"{me['t12']*1e3:.2f} / {me['t5']*1e3:.2f} / {me['t33']*1e3:.2f}", ""],
     ["+12V / +5V / +3V3 (V)", "12.000 / 5.000 / 3.300", f"{me['v12']:.3f} / {me['v5']:.3f} / {me['v33']:.3f}", ""],
-    ["iq read by the MCU vs. true iq (A)", f"{iq_h:.1f} (true)", f"{me['iq_h']:.1f}", pct(iq_h, me["iq_h"])],
-    ["Phase-current reading error, RMS (A)", "ADC LSB 0.12 A", f"{ex['esc']['ia_err_rms']:.2f}", ""],
-    ["Copper loss (W)", f"{mp['p_cu']:.1f}", f"{me['pcu']:.1f}", pct(mp["p_cu"], me["pcu"])],
-    ["Inverter loss (W)", f"{inv_hand_tot:.1f} (09 method, Ron scaled)", f"{me['pfet']:.1f}", pct(inv_hand_tot, me["pfet"])],
+    ["+12V min. at driver enable (V)", f"{12 - 3e-6*12/(A.C + 1e-6*3):.1f} (charge sharing)", f"{me['v12_en_min']:.2f}", ""],
+    ["True iq / id (A)", f"{iq_h:.1f} / 0", f"{iq_h:.1f} / {es['id_true']:.1f}", ""],
+    ["iq / id as read by the MCU (A)", f"{iq_h:.1f} / 0", f"{me['iq_h']:.1f} / {me['id_h']:.1f}", pct(iq_h, me["iq_h"])],
+    ["Phase-current error, RMS (A)", "ripple + filter lag", f"{es['ia_err_rms']:.2f}", ""],
+    ["Copper loss (W)", f"{p_cu:.1f}", f"{me['pcu']:.1f}", pct(p_cu, me["pcu"])],
+    ["Inverter loss (W)", f"{inv_hand_tot:.1f}", f"{me['pfet']:.1f}", pct(inv_hand_tot, me["pfet"])],
+    ["Electromagnetic power (W)", f"{p_em:.0f}", f"{es['p_em']:.0f}", pct(p_em, es["p_em"])],
+    ["  = prop + drag + accel. (W)", f"{h09.Kprop*w_h**3:.0f} + {p_drag:.0f} + {p_em - h09.Kprop*w_h**3 - p_drag:.0f}",
+     f"{me['pshaft']:.0f} + {p_drag:.0f} + {es['p_kin']:.0f}", ""],
     ["ESC input power (W)", f"{p_in_hand:.0f}", f"{me['pin_esc']:.0f}", pct(p_in_hand, me["pin_esc"])],
     ["DC-link capacitor RMS (A)", f"{h09.kolar(iq_h, mp['vd'], mp['vq'], me['vbus_h']):.1f}", f"{me['icap_rms']:.1f}", ""],
-    ["Gate-drive current via the bootstrap diodes (mA)", f"{3*h.QG_SWITCH*h.FSW_INV*1e3:.1f}", f"{me['iboot']*1e3:.1f}", pct(3 * h.QG_SWITCH * h.FSW_INV, me["iboot"])],
-    ["Bootstrap voltage min–max (V)", "12 − Vf − Qg/C ≈ 10.9–11.2", f"{me['vboot_min']:.2f}–{me['vboot_max']:.2f}", ""],
-    ["Aux 12 V ripple / min during punch (V)", "—", f"{me['v12_pp']:.3f} / {me['v12_min_p']:.3f}", ""],
+    ["Bootstrap current, 3 legs (mA)", f"{iboot_hand*1e3:.1f}", f"{me['iboot']*1e3:.1f}", pct(iboot_hand, me["iboot"])],
+    ["Bootstrap voltage min–max (V)", "12 − Vf − Qg/C", f"{me['vboot_min']:.2f}–{me['vboot_max']:.2f}", ""],
+    ["Aux 12 V ripple / punch min (V)", "—", f"{me['v12_pp']:.3f} / {me['v12_min_p']:.3f}", ""],
     ["Punch: iq / ESC current (A)", f"{h09.Imax:.0f} / —", f"{me['iq_p']:.1f} / {me['iesc_p']:.1f}", ""],
-], widths=[0.36, 0.26, 0.24, 0.14])
+], widths=[0.34, 0.27, 0.25, 0.14])
+doc.p("The rotor is still speeding up in this window (%.2f → %.2f rad/s in 3 ms), so %.0f W of the input goes into its kinetic "
+      "energy ½Jω². Counting that, the energy balance closes: input = electromagnetic + copper + inverter to within a few watts. "
+      "Bootstrap current: 3·Qg·fsw plus the high-side gate pull-downs, which draw 12 V / 2.5 kΩ while the FET is on. That is %.1f mA, "
+      "a cost of the pull-downs worth knowing. The MCU's id reads a few amps off because the 6.7 µs ADC filter lags the 640 Hz "
+      "currents by ωe·τ = 1.5°, and iq·sin(1.5°) ≈ 4 A. Firmware compensates for that by advancing the angle it uses for the Park "
+      "transform by ωe·τ." % (es["omega0"], es["omega1"], es["p_kin"], i_rgs * 1e3))
 doc.img(os.path.join(here, "ESC_results.png"), width=6.6)
 
 doc.h("7. What went wrong first (and what each taught)")
@@ -147,6 +161,9 @@ doc.bullets([
     "Encrypted IC models and .ic: forcing a soft-start pin or a rail at the operating point can leave a model in a state a real chip never reaches. Let the controllers start from cold, and give .ic only what is physically fixed (rotor speed).",
     "Missing parts the simulation found: gate-source pull-downs (without them the high-side FETs drift on through Cgd while the drivers are unpowered), and the LT1763 bypass capacitors (10 nF slows start-up to several ms; now 'do not fit').",
     "Burst Mode on the avionics 12 V gave a 90 mV, 25 kHz sawtooth at light load, which a radio does not want. MODE is tied to INTVCC (forced continuous).",
+    "Driver enable dipped the first ESC's +12V to 7.4 V: all three bootstrap capacitors (3 × 1 µF) charge from the rail at once, and it had only ~10 µF. A 47 µF X7R (≈22 µF at 12 V) brings the minimum to 9.9 V. Charge sharing, ΔV ≈ 3·Cboot·12 V / C12, predicts 11.0 V; the rest is the drivers' own start-up current before the loop responds.",
+    "A sensor model can lie too: the first ACS770 model got its 120 kHz bandwidth from 1 kΩ + 1.3 nF, and that 1 kΩ, loaded by the 30 kΩ ADC divider, lost 3 % of the signal. The real part's output impedance is a few ohms, so the model now uses 10 Ω + 133 nF.",
+    "The first 'drive efficiency' read 76.6 %. It was not an efficiency: the rotor was still speeding up after the coast, so ½Jω² was absorbing about 0.9 kW. Write the energy balance before you trust a ratio.",
 ])
 
 doc.h("8. Takeaways")

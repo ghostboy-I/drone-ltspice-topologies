@@ -73,6 +73,8 @@ def build():
     B.add(b, R("R17", "100k", "DRVSET_AUX", "0", desc="DRVSET: 10 V gate drive"))
     for r in ("C36", "C37"):
         B.add(b, C(r, "5µ", "+12V", "0", fp=C1210, pn="10 µF X7R 1210 (5 µF at 12 V)", rating="25 V", desc="12 V output", spice="Rser=3m", bomval="10µ"))
+    B.add(b, C("C64", "22µ", "+12V", "0", fp=C1210, pn="47 µF X7R 1210 (≈22 µF at 12 V)", rating="25 V", spice="Rser=3m", bomval="47µ",
+               desc="12 V bulk: absorbs the bootstrap charge (3 x 1 µF) when the drivers enable"))
     for r in ("C38", "C39"):
         B.add(b, C(r, "1.1µ", "VBUS", "0", fp=C1210, pn="2.2 µF X7R 1210 (≈1.1 µF at 90 V)", rating="250 V", desc="Aux input, at Q1", spice="Rser=5m", bomval="2.2µ"))
 
@@ -123,8 +125,9 @@ def build():
     for ph, u in (("A", "U7"), ("B", "U8")):
         B.add(b, Part(f"R_CS{ph}", "res", "100µ", {"1": f"PH_{ph}", "2": f"MOT_{ph}"}, sim=True))          # the sensor's 100 µΩ conductor
         B.add(b, Part(f"B_CS{ph}", "bv", f"V=V(+5V)/5*({h.ACS_ZERO}+{h.ACS_GAIN}*I(R_CS{ph}))", {"+": f"ACSI_{ph}", "-": "0"}, sim=True))
-        B.add(b, Part(f"R_BW{ph}", "res", "1k", {"1": f"ACSI_{ph}", "2": f"ACS_{ph}"}, sim=True))
-        B.add(b, Part(f"C_BW{ph}", "cap", g(1 / (2 * math.pi * 1e3 * h.ACS_BW)), {"1": f"ACS_{ph}", "2": "0"}, sim=True))   # 120 kHz bandwidth
+        # 120 kHz bandwidth with a low output resistance (a 1 kOhm version lost 3 % into the 30 kOhm ADC divider)
+        B.add(b, Part(f"R_BW{ph}", "res", "10", {"1": f"ACSI_{ph}", "2": f"ACS_{ph}"}, sim=True))
+        B.add(b, Part(f"C_BW{ph}", "cap", g(1 / (2 * math.pi * 10 * h.ACS_BW)), {"1": f"ACS_{ph}", "2": "0"}, sim=True))
         B.add(b, Part(u, None, "", {"IP+": f"PH_{ph}", "IP-": f"MOT_{ph}", "VCC": "+5V", "VIOUT": f"ACS_{ph}", "GND": "0"},
                       desc=f"Hall current sensor phase {ph}, ±200 A, 10 mV/A", pn="Allegro ACS770LCB-200B-PFF-T",
                       fp="Sensor_Current:Allegro_CB_PFF", rating="±200 A"))
@@ -228,7 +231,6 @@ def build():
         "I(La) I(Lb) I(Lc) I(L_HARN) I(C1) I(C17) I(L1) I(D1) I(D2) I(D3) Id(Q4) Id(Q8) Id(Q12) Id(Q16) Id(Q20) Id(Q24) V(SW_AUX) V(FAULT_N) V(DRV_EN)",
         f"!.meas TRAN RPM_h AVG V(rpm) {W}", f"!.meas TRAN Iq_h AVG V(iq) {W}", f"!.meas TRAN Id_h AVG V(id) {W}",
         f"!.meas TRAN Vq_h AVG V(vq) {W}", f"!.meas TRAN Vd_h AVG V(vd) {W}",
-        f"!.meas TRAN Iq_true AVG -I(La)*sin(V(the))+(I(La)+2*I(Lb))/sqrt(3)*cos(V(the)) {W}",
         f"!.meas TRAN Vbus_h AVG V(VBUS) {W}", f"!.meas TRAN Vbus_pp PP V(VBUS) {W}", f"!.meas TRAN Iesc_h AVG I(L_HARN) {W}",
         f"!.meas TRAN Pin_esc AVG V(VBUS)*I(L_HARN) {W}", f"!.meas TRAN Pshaft AVG {{Kprop}}*V(omega)**3 {W}",
         f"!.meas TRAN Pcu AVG {{Rph}}*(I(La)**2+I(Lb)**2+I(Lc)**2) {W}",
@@ -247,6 +249,7 @@ def build():
         "!.meas TRAN T12 WHEN V(+12V)=10.8 RISE=1", "!.meas TRAN T5 WHEN V(+5V)=4.5 RISE=1", "!.meas TRAN T33 WHEN V(+3V3)=3.0 RISE=1",
         "!.meas TRAN T_iq_catch TRIG V(DRV_EN) VAL=1.65 RISE=1 TARG V(iq) VAL={0.9*Iq0} RISE=1",
         "!.meas TRAN Vboot_en MAX V(BST_A,PH_A) FROM {Ten-0.05m} TO {Ten+0.1m}",
+        "!.meas TRAN V12_en_min MIN V(+12V) FROM {Ten} TO {Ten+0.5m}",
     ]
     return B
 

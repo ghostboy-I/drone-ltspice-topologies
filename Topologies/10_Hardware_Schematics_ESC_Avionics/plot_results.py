@@ -97,9 +97,9 @@ def esc():
     ax[3].plot(tz, K(z, "V(GAH)") - K(z, "V(PH_A)"), color=C["a"], lw=0.7, label="high-side Vgs")
     ax[3].plot(tz, K(z, "V(GAL)"), color=C["b"], lw=0.7, label="low-side Vgs")
     ax[3].set(title="Leg A: LTC7063 bootstrap drive", xlabel="ms", ylabel="V", ylim=(-1, 13.5)); ax[3].legend(fontsize=7, loc="center right")
-    z = win(d, 6.2e-3, 6.24e-3)
-    gh = K(z, "V(GAH)") - K(z, "V(PH_A)"); gl = K(z, "V(GAL)"); tz = z["time"]
-    i = int(np.argmax((np.r_[False, np.diff((gl > 3).astype(int)) == -1]))); t0 = tz[i]
+    z = win(d, 6.2e-3, 6.4e-3)
+    gl = K(z, "V(GAL)"); tz = z["time"]
+    i = int(np.where(np.diff((gl > 3).astype(int)) == -1)[0][0]) + 1; t0 = tz[i]          # first low-side turn-off
     zz = win(d, t0 - 0.3e-6, t0 + 0.6e-6); tt = (zz["time"] - t0) * 1e9
     ax[4].plot(tt, K(zz, "V(GAL)"), color=C["b"], lw=1, label="low-side Vgs")
     ax[4].plot(tt, K(zz, "V(GAH)") - K(zz, "V(PH_A)"), color=C["a"], lw=1, label="high-side Vgs")
@@ -117,10 +117,15 @@ def esc():
     def dt(a, b):
         idx = np.where(np.r_[False, np.diff((a > 3).astype(int)) == -1])[0][:40]
         return float(np.median([(tw[i + np.argmax(b[i:] > 3)] - tw[i]) * 1e9 for i in idx]))
-    hv = win(d, 4e-3, 7e-3)
+    hv = win(d, 4e-3, 7e-3); th = hv["time"]; T = th[-1] - th[0]
+    avg = lambda y: float(np.trapezoid(y, th) / T)
+    the = K(hv, "V(the)"); ia, ib = K(hv, "I(La)"), K(hv, "I(Lb)"); ibe = (ia + 2 * ib) / np.sqrt(3)
+    iq_t = -ia * np.sin(the) + ibe * np.cos(the); id_t = ia * np.cos(the) + ibe * np.sin(the)
+    om = K(hv, "V(omega)"); E = 0.5 * h.h09.Jrot * om ** 2
     metrics(dict(esc=dict(dead_bg_tg=dt(gl, gh), dead_tg_bg=dt(gh, gl),
-                          ia_err_rms=float(np.sqrt(np.mean((K(hv, "V(ia)") - K(hv, "I(La)")) ** 2))),
-                          omega_h=float(np.mean(K(hv, "V(omega)"))))))
+                          ia_err_rms=float(np.sqrt(np.mean((K(hv, "V(ia)") - ia) ** 2))),
+                          iq_true=avg(iq_t), id_true=avg(id_t), omega_h=avg(om), omega0=float(om[0]), omega1=float(om[-1]),
+                          p_kin=float((E[-1] - E[0]) / T), p_em=1.5 * h.h09.Kph * avg(om * iq_t))))
 
 
 if __name__ == "__main__":

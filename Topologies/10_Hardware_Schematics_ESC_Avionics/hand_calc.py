@@ -155,7 +155,9 @@ I_5V = 2 * I_ACS770 + I_ENC + I_3V3
 I_12V = I_GATE + I_DRV_Q + I_5V
 
 AUX = LTC7801(vout=12.0, iout=0.3, iout_typ=I_12V, rfreq=65e3, L=150e-6, dcr=0.4, rsense=0.1,
-              cout_bulk=0.0, esr_bulk=3e-3, cout_cer=2 * 10e-6 * 0.5, rtop=140e3, rbot=10e3, css=10e-9, fc=20e3,
+              cout_bulk=22e-6, esr_bulk=3e-3, cout_cer=2 * 10e-6 * 0.5, rtop=140e3, rbot=10e3, css=10e-9, fc=20e3,
+              # cout_bulk: one 47 uF 25 V X7R (~22 uF at 12 V), added after the first run dipped +12V to 7.4 V when the
+              # three 1 uF bootstrap capacitors all charged at driver enable
               qg_top=9e-9, qg_bot=11e-9)
 P_LDO5 = (12 - 5) * I_5V; P_LDO33 = (5 - 3.3) * I_3V3
 
