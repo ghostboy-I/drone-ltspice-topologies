@@ -11,11 +11,13 @@
 | 07 | Full 3-battery → 3-motor system: three protected channels, three switching FOC ESCs on their own harnesses, plus the BEC (plug-in/arming, flight, punch, pack loss) | `07_Three-Channel_Full_System/` | Done, verified by simulation |
 | 08 | Redundant avionics power: feed the BEC from all three packs (ideal-diode OR-ing) without creating ground loops | `08_Redundant_Avionics_Power/` | Done, verified by simulation |
 | 09 | 24S channel of the real tricopter: FOC drive (03) on a U15XL with bootstrap gate drive, ESC 12 V + 3.3 V supply, avionics 12 V (transmitter) → 5 V (06, controller + receiver) → 3.3 V | `09_24S_FOC_Drive_Low-Voltage_Rails/` | Done, verified by simulation |
-| 10 | Hardware schematics of 09 with real parts: ESC board (LTC7801 aux, 3 × LTC7063, 24 × IPB065N15N3, ACS770, STM32G431) and avionics power board (diode-OR, LTC7801, LT8641, LT3045), with BOMs and KiCad 9 projects for both boards: every footprint in one project library, PCBs with all footprints imported and netted | `10_Hardware_Schematics_ESC_Avionics/` | Done, verified by simulation |
+| 10 | Hardware schematics of 09 with real parts: ESC board (LTC7801 aux, 3 × LTC7063, 24 × IPB065N15N3, ACS772, STM32G431) and avionics power board (diode-OR, LTC4366 surge stopper, LTC7801, LT8641, LT3045), with BOMs and KiCad 9 projects for both boards: every footprint in one project library, PCBs with all footprints imported and netted | `10_Hardware_Schematics_ESC_Avionics/` | Done, verified by simulation |
 | 11 | Whole power system drawn part by part: 3 packs → 3 drawn ESC boards (every FET, driver, sensor, MCU) → 3 U15XL motors, plus the drawn avionics board, in one LTspice run; KiCad entry guide | `11_Whole_System_Schematic/` | Done, verified by simulation |
 | 12 | Full H-bridge (bidirectional / reversing) | — | Optional |
 
 **Flow chart of the whole system with part numbers:** [`System_Flowchart/System_Flowchart.pdf`](System_Flowchart/README.md), every block tagged with the topologies that cover it.
+
+**Parts alternatives study:** [`Alternatives_Study/Alternatives_Study.pdf`](Alternatives_Study/README.md), alternative parts and methods for every section of the two boards, judged at the 24S hover and punch points.
 
 **End goal:** three batteries driving three motors independently. Transmission (04, 05), down-conversion for avionics (06), then the full system (07), redundant avionics power (08), and the move to the real 24S packs with every low-voltage rail (09).
 

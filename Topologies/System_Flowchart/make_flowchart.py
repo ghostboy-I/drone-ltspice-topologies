@@ -108,13 +108,13 @@ wire([(44, cy), (50, cy)], "hv"); wire([(70, cy), (76, cy)], "hv"); wire([(102, 
 cluster(106, 128, 300, 232, "ESC BOARD 1   (BOM: 10_Hardware_Schematics_ESC_Avionics/ESC_BOM.csv;  drawn sheet: 11_Whole_System_Schematic/ESC_Block.asc)")
 box(110, 196, 131, 220, "conn", "J1 input", "AMASS AS150\nanti-spark plug\n150 A, 24S", "[05 10]")
 box(136, 196, 182, 220, "power", "DC link (VBUS)",
-    "C1-C16: 16 × 150 µF 125 V\n   hybrid polymer, ESR ≤ 20 mΩ\nC17-C26: 10 × 2.2 µF X7R 250 V",
+    "C1-C16, C65-C72: 24 × 150 µF 125 V\n   hybrid polymer, ESR ≤ 20 mΩ\nC17-C26: 10 × 2.2 µF X7R 250 V",
     "[04 07 10]")
 box(196, 192, 246, 222, "inv", "3-phase inverter",
     "Q4-Q27: 24 × Infineon IPB065N15N3\n150 V, 6.5 mΩ, TO-263\n4 FETs in parallel per switch\n"
     "3 half-bridges (phases A, B, C)\nRg 10 Ω + 10 kΩ G-S pull-down per FET", "[01 02 03 09 10]")
 box(252, 196, 296, 220, "sense", "Phase current sensors",
-    "U7, U8: Allegro ACS770LCB-200B\n±200 A, 10 mV/A, 5 V supply\nin phases A and B (C = -A-B)", "[03 10]")
+    "U7, U8: Allegro ACS772ECB-250B\n±250 A, 8 mV/A, 5 V supply\nin phases A and B (C = -A-B)", "[03 10]")
 wire([(131, cy), (136, cy)], "hv")
 wire([(182, cy), (196, cy)], "hv", "VBUS", at=(189, cy + 0.8))
 wire([(246, cy), (252, cy)], "phase")
@@ -166,8 +166,8 @@ for n, c in ((2, 116), (3, 96)):
     box(50, c - 6, 70, c + 6, "power", f"PDB {n}", "tap to avionics", "", fs=7.6)
     box(76, c - 6, 102, c + 6, "power", f"HARNESS {n}", "8 AWG, 1 m", "[04]", fs=7.6)
     box(106, c - 8, 300, c + 8, "inv", f"ESC BOARD {n}: the same circuit as ESC board 1",
-        "AS150 in → DC link 16 × 150 µF → LTC7801 12 V aux → LT1763-5 / LT1763-3.3 → 3 × LTC7063 → "
-        "24 × IPB065N15N3 → 2 × ACS770LCB-200B → phases\nSTM32G431CBT6 runs FOC from the AS5047P angle "
+        "AS150 in → DC link 24 × 150 µF → LTC7801 12 V aux → LT1763-5 / LT1763-3.3 → 3 × LTC7063 → "
+        "24 × IPB065N15N3 → 2 × ACS772ECB-250B → phases\nSTM32G431CBT6 runs FOC from the AS5047P angle "
         "and the DShot command from the flight controller", "[07 10]", fs=8.0)
     box(306, c - 4, 354, c + 8, "motor", f"MOTOR {n}", "U15XL 38 KV + AS5047P\n54 × 18 in prop", "[03 09]", fs=7.6)
     wire([(44, c), (50, c)], "hv"); wire([(70, c), (76, c)], "hv"); wire([(102, c), (106, c)], "hv")
@@ -183,7 +183,7 @@ for (yb, ytap, x, yin, lab) in ((199, 193, 4, 54, "PDB 1"), (110, 106, 7, 60, "P
 cluster(18, 6, 300, 80, "AVIONICS POWER BOARD   (BOM: 10_.../Avionics_BOM.csv;  drawn sheet: 11_Whole_System_Schematic/Avionics_Block.asc)")
 box(22, 36, 72, 73, "power", "Pack inputs + diode-OR",
     "J1-J3: Molex Micro-Fit 3.0, 2-pin\n   (one per pack PDB tap)\nF1-F3: Littelfuse 0451.500\n   0.5 A fast, 125 V DC\n"
-    "D1-D3: ES1D (200 V 1 A) diode-OR\nD4: SMBJ110A TVS, 110 V stand-off\nC1 33 µF 160 V + C2, C3 2.2 µF",
+    "D1-D3: ES1D (200 V 1 A) diode-OR\nD4: SMBJ110A TVS, 110 V stand-off\nU4 LTC4366 + Q4 FDB33N25: 115 V clamp\nC1 33 µF 160 V + C2, C3 2.2 µF",
     "[05 08 10]")
 box(82, 34, 140, 73, "lv", "12 V buck, 5 A",
     "U1: ADI LTC7801 150 V sync buck\nQ1 BSC520N15NS3 (top)\nQ2 BSC360N15NS3 (bottom)\nQ3 BSP89 DRVCC pre-regulator\n"

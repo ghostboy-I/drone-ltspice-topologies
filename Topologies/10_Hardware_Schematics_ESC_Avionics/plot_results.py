@@ -84,13 +84,13 @@ def esc():
                       ("V(FAULT_N)", "r", "FAULT_N (drivers ready)")):
         ax[0].plot(t, K(d, n), color=C[c], lw=0.8, label=lab)
     ax[0].set(title="Cold start of the ESC electronics, rotor already at hover", xlabel="ms", ylabel="V", xlim=(0, 3)); ax[0].legend(fontsize=7)
-    ax[1].plot(t, K(d, "V(iq)"), color=C["a"], lw=0.5, label="iq (from the ACS770 ADC nets)")
+    ax[1].plot(t, K(d, "V(iq)"), color=C["a"], lw=0.5, label="iq (from the ACS772 ADC nets)")
     ax[1].plot(t, K(d, "V(id)"), color=C["b"], lw=0.5, label="id")
     ax[1].plot(t, K(d, "I(L_HARN)"), color=C["k"], lw=0.6, label="battery current")
     ax[1].set(title="Flying start at 1.5 ms, throttle punch at 7 ms", xlabel="ms", ylabel="A", ylim=(-50, 260)); ax[1].legend(fontsize=7)
     z = win(d, 5.0e-3, 6.6e-3); tz = z["time"] * 1e3
     ax[2].plot(tz, K(z, "I(La)"), color=C["a"], lw=0.8, label="true phase A current")
-    ax[2].plot(tz, K(z, "V(ia)"), color=C["r"], lw=0.6, ls="--", label="MCU's reading (ACS770 -> 2/3 -> ADC)")
+    ax[2].plot(tz, K(z, "V(ia)"), color=C["r"], lw=0.6, ls="--", label="MCU's reading (ACS772 -> 2/3 -> ADC)")
     ax[2].set(title="Current sensing chain", xlabel="ms", ylabel="A"); ax[2].legend(fontsize=7)
     z = win(d, 6.20e-3, 6.30e-3); tz = z["time"] * 1e3
     ax[3].plot(tz, K(z, "V(BST_A)") - K(z, "V(PH_A)"), color=C["p"], lw=1, ls="--", label="Cboot (BST_A - PH_A)")
@@ -128,7 +128,25 @@ def esc():
                           p_kin=float((E[-1] - E[0]) / T), p_em=1.5 * h.h09.Kph * avg(om * iq_t))))
 
 
+def surge():
+    """Avionics_SurgeTest.asc: start-up of the LTC4366 and a 20 ms, 200 V surge on pack 1."""
+    d = read_raw("Avionics_SurgeTest.raw"); t = np.abs(d["time"]) * 1e3
+    su = h.surge()
+    fig, ax = plt.subplots(1, 2, figsize=(10, 3.4))
+    for a, (t0, t1), title in ((ax[0], (0, 200), "Start-up: Q4's gate ramps, VIN_PROT follows"),
+                               (ax[1], (245, 280), "Surge: pack 1 at 200 V behind 4 Ω for 20 ms")):
+        m = (t >= t0) & (t <= t1)
+        a.plot(t[m], K(d, "V(VIN_AV)")[m], color=C["r"], lw=1, label="VIN_AV (after diode-OR, at the TVS)")
+        a.plot(t[m], K(d, "V(VIN_PROT)")[m], color=C["a"], lw=1.2, label="VIN_PROT (LTC7801 input)")
+        a.axhline(150, color=C["k"], ls=":", lw=0.8); a.text(t0 + 1, 152, "LTC7801 VIN max 150 V", fontsize=7.5)
+        a.axhline(su["vreg"], color=C["g"], ls="--", lw=0.8); a.text(t0 + 1, su["vreg"] - 9, f"VREG hand {su['vreg']:.1f} V", fontsize=7.5)
+        a.set_xlabel("time (ms)"); a.set_ylabel("V"); a.set_title(title, fontsize=9, loc="left"); a.set_ylim(0, 195)
+    ax[0].legend(fontsize=7.5, loc="lower right")
+    fig.tight_layout(); fig.savefig("Avionics_surge.png", dpi=150); plt.close(fig)
+
+
 if __name__ == "__main__":
-    want = sys.argv[1:] or ["avionics", "esc"]
+    want = sys.argv[1:] or ["avionics", "esc", "surge"]
     if "avionics" in want: avionics(); print("plotted avionics")
     if "esc" in want: esc(); print("plotted esc")
+    if "surge" in want: surge(); print("plotted surge")

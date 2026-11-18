@@ -2,7 +2,7 @@
 
   Power_System.asc   top sheet, drawn with wires: 3 x 24S pack -> PDB -> harness -> ESC board -> U15XL motor,
                      and every PDB -> avionics power board -> 12 V / 5 V / 3.3 V
-  ESC_Block.asc      the ESC board, drawn part by part (esc_draw.py); inside it U7/U8 ACS770 and U9 STM32 are blocks
+  ESC_Block.asc      the ESC board, drawn part by part (esc_draw.py); inside it U7/U8 ACS772 and U9 STM32 are blocks
   U15XL_Motor.asc    the motor: windings, back-EMF and rotor/prop analog (esc_draw.py)
   Avionics_Block.asc the avionics board, drawn part by part (avionics_draw.py)
 
@@ -63,7 +63,7 @@ s.text(0, ay + 300, ";Phase wires M1_A..M3_C are on this sheet. Inside a block, 
 ch1 = ("V(ESC1:+12V) V(ESC1:+5V) V(ESC1:+3V3) V(ESC1:DRV_EN) V(ESC1:PWM_A) V(ESC1:GAH1) V(ESC1:GAL1) V(ESC1:BST_A) "
        "V(ESC1:ISNS_A) V(ESC1:ISNS_B) V(ESC1:SW_AUX) V(ESC1:U9:iq) V(ESC1:U9:iqref) V(ESC1:U9:id) "
        "I(MOTOR1:La) I(MOTOR1:Lb) I(MOTOR1:Lc) V(MOTOR1:rpm) V(MOTOR1:te) V(ESC1:PH_A) V(ESC1:GAH2) V(AV1:SW5) "
-       "V(AV1:VIN_AV) V(AV1:SW12) V(AV1:PG12) V(AV1:PG5) I(AV1:L1) I(AV1:L2)")
+       "V(AV1:VIN_AV) V(AV1:VIN_PROT) V(AV1:SW12) V(AV1:PG12) V(AV1:PG5) I(AV1:L1) I(AV1:L2)")
 allch = " ".join(f"V(M{n}_A) V(M{n}_B) V(M{n}_C) V(PDB{n}) I(L_HARN{n}) I(V_PACK{n}) V(MOTOR{n}:rpm)" for n in (1, 2, 3))
 D = [
     "; === 10  WHOLE POWER SYSTEM: power-up of all four boards, then every motor commanded from standstill ===",
@@ -74,7 +74,7 @@ D = [
     f"!.param Kpi={g(h09.Kpi)} Kii={g(h09.Kii)} Kpw={g(h09.Kpw)} Kiw={g(h09.Kiw)}",
     "!.param W0=0 Iq0=0 Wpunch=50 Imax=60          ; motors start at rest; at Tpunch the speed command steps, current-limited to Imax",
     "!.param Tplug=1m Ten=3m Tpunch=4m Tvtx=4.5m Tfc=5m Tpull=1      ; (Tpull: unused here, packs stay connected)",
-    "!.model SMBJ110A D(Is=1p Rs=0.5 N=1 BV=122 IBV=1m)",
+    "!.model SMBJ110A D(Is=1p Rs=12 N=1 BV=128 IBV=1m)",
     "!.tran 0 6m 0 uic        ; skip the DC solve: packs at 0 V, every board cold",
     "!.save V(AV_12V) V(AV_5V) V(AV_3V3) " + allch + " " + ch1,
     "!.meas TRAN Ipack1 AVG -I(V_PACK1) FROM 5.5m TO 6m", "!.meas TRAN Ipack2 AVG -I(V_PACK2) FROM 5.5m TO 6m",
@@ -87,4 +87,4 @@ D = [
     "!.meas TRAN RPM1 MAX V(MOTOR1:rpm)", "!.meas TRAN V12_esc1 AVG V(ESC1:+12V) FROM 5.5m TO 6m",
 ]
 s.write(directives=D)
-print("wrote Power_System.asc + ESC_Block / U15XL_Motor / ACS770 / STM32G431_FOC / Avionics_Block sheets and symbols")
+print("wrote Power_System.asc + ESC_Block / U15XL_Motor / ACS772 / STM32G431_FOC / Avionics_Block sheets and symbols")

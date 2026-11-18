@@ -16,9 +16,9 @@ same parts tables as the topology 10 BOM, so the drawing and the BOM cannot disa
 | Sheet | What you see (double-click a block to open it) |
 |---|---|
 | `Power_System.asc` | 3 × 24S pack → PDB → 8 AWG harness → **ESC1–3** → **MOTOR1–3** (phase wires `M1_A`…`M3_C`, encoder lines back), every PDB → **AV1** → 12 V / 5 V / 3.3 V |
-| `ESC_Block.asc` | The ESC board, 181 parts wired: (1) DC link, 16 + 10 caps, bus/NTC sense; (2) LTC7801 12 V aux buck; (3) LT1763 5 V / 3.3 V; (4–6) legs A–C, each with an LTC7063 and **all 8 FETs drawn, each with its own gate resistor and pull-down**; ACS770 sensors in phases A/B; (8) STM32 + connectors |
-| `Avionics_Block.asc` | The avionics board, 65 parts wired: fuse + diode-OR per pack, TVS, LTC7801 12 V, LT8641 5 V, LT3045 3.3 V |
-| `ACS770.asc` (U7, U8) | Hall sensor equivalent circuit (Allegro gives no SPICE model) inside a chip symbol |
+| `ESC_Block.asc` | The ESC board, 181 parts wired: (1) DC link, 24 + 10 caps, bus/NTC sense; (2) LTC7801 12 V aux buck; (3) LT1763 5 V / 3.3 V; (4–6) legs A–C, each with an LTC7063 and **all 8 FETs drawn, each with its own gate resistor and pull-down**; ACS772 sensors in phases A/B; (8) STM32 + connectors |
+| `Avionics_Block.asc` | The avionics board, 65 parts wired: fuse + diode-OR per pack, TVS, LTC4366 surge stopper (115 V), LTC7801 12 V, LT8641 5 V, LT3045 3.3 V |
+| `ACS772.asc` (U7, U8) | Hall sensor equivalent circuit (Allegro gives no SPICE model) inside a chip symbol |
 | `STM32G431_FOC.asc` (U9) | Chip symbol with the real pins. Inside: the FOC firmware as a signal-flow model (ADC → Clarke/Park → PI → inverse → SVPWM → TIM1) |
 | `U15XL_Motor.asc` | Three windings in star (Lph, Rph, back-EMF). The rotor and prop are an electrical analog: speed = voltage, inertia = capacitor, torque = current |
 
@@ -64,7 +64,7 @@ About 19 minutes under Wine (`.tran 0 6m 0 uic`, all 72 inverter FETs as separat
 
 The design PDF has the full table with the numbers pulled from `Power_System.log`.
 
-- **Current-sense offset (real finding).** The ACS770 output is ratiometric to its 5 V supply, and the ESC's LT1763 makes 4.978 V.
+- **Current-sense offset (real finding).** The ACS772 output is ratiometric to its 5 V supply, and the ESC's LT1763 makes 4.978 V.
   The zero moves from 2.500 V to 2.489 V, which the firmware reads as about −1.1 A on each sensed phase. At standstill the currents
   are DC, so the offset adds straight into iq. Real FOC firmware reads the ADC zero at boot with the drivers off and subtracts it.
 - A real anti-spark connector ramps over about 100 ms, which limits the inrush to about 2 A. The sim uses a 1 ms ramp only to keep the run short.

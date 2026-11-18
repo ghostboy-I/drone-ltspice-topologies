@@ -2,8 +2,8 @@ Version 4
 SymbolType BLOCK
 RECTANGLE Normal -128 -128 128 128
 WINDOW 0 -128 -144 Bottom 2
-TEXT 0 -96 Center 2 ACS770
-TEXT 0 -64 Center 2 ±200 A
+TEXT 0 -96 Center 2 ACS772
+TEXT 0 -64 Center 2 ±250 A
 TEXT 0 104 Center 1 Hall sensor
 PIN 0 -128 TOP 8
 PINATTR PinName IP+

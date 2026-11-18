@@ -19,7 +19,7 @@ win = t > 5.5e-3
 avg = lambda k: float(sig(k)[win].mean())
 
 # ------------------------------------------------------------------ hand calculations
-C_bus = 16 * 150e-6 + 12 * 1.1e-6                  # C1-C16, C17-C26, C38-C39
+C_bus = 24 * 150e-6 + 12 * 1.1e-6                  # C1-C16 + C65-C72, C17-C26, C38-C39
 I_inrush = C_bus * h.V_NOM / 1e-3
 Ke = 60 / (2 * math.pi * h09.KV); Kph = Ke / math.sqrt(3)
 ia_t, ib_t, ic_t = avg("I(motor1:La)"), avg("I(motor1:Lb)"), avg("I(motor1:Lc)")
@@ -84,8 +84,8 @@ doc.p("Topology 10 described each board as a parts table and wrote its LTspice s
 doc.img(P("power_system_top.png"), width=5.6)
 doc.table(["Sheet", "Contents"], [
     ["ESC_Block (×3)", "181 parts: DC link, LTC7801, 2 × LT1763, 3 × (LTC7063 + 8 FETs)"],
-    ["Avionics_Block", "65 parts: fuses + diode-OR, TVS, LTC7801, LT8641, LT3045"],
-    ["ACS770 (U7, U8)", "equivalent circuit: 100 µΩ primary, ratiometric output"],
+    ["Avionics_Block", "fuses + diode-OR, TVS, LTC4366 surge stopper, LTC7801, LT8641, LT3045"],
+    ["ACS772 (U7, U8)", "equivalent circuit: 100 µΩ primary, ratiometric output"],
     ["STM32G431_FOC (U9)", "real pins; FOC firmware as signal flow (ADC → PI → SVPWM)"],
     ["U15XL_Motor (×3)", "3 windings in star + back-EMF; rotor as RC analog"],
 ], widths=[0.24, 0.76])
@@ -97,7 +97,7 @@ doc.p("A drawn schematic can be wrong in ways a label list cannot: a wire touchi
       "is compared with the net the parts table assigns it. The mapping must be one-to-one: one LTspice net per table net.")
 doc.table(["Sheet", "Parts", "Wires", "Lint", "Pin errors"], [
     ["ESC_Block", "181", "427", "0", "0"], ["Avionics_Block", "65", "129", "0", "0"], ["STM32G431_FOC", "54", "52", "0", "0"],
-    ["U15XL_Motor", "20", "26", "0", "0"], ["ACS770", "5", "7", "0", "0"]], widths=[0.3, 0.15, 0.15, 0.15, 0.25])
+    ["U15XL_Motor", "20", "26", "0", "0"], ["ACS772", "5", "7", "0", "0"]], widths=[0.3, 0.15, 0.15, 0.15, 0.25])
 doc.p("The check found three real errors while the sheets were being drawn: a bootstrap diode placed reversed (its anode, labelled +12V, "
       "landed on the phase node and shorted 12 V to all three phases), and two rails (VIN_AV, VTX_12V) with no label, which left a FET "
       "drain and a load on unnamed islands. It also caught two netlist conventions worth knowing: LTspice names a MOSFET 'M§Q4' and a "
@@ -128,7 +128,7 @@ doc.img(P("11_motor.png"), width=6.2)
 doc.img(P("11_switching.png"), width=6.0)
 
 doc.h("5. A real finding: the current-sense zero moves with the 5 V rail")
-doc.p("The ACS770's output is ratiometric: Vout = (VCC/5)(2.5 V + 10 mV/A · I). The firmware converts with the nominal 2.5 V zero. "
+doc.p("The ACS772's output is ratiometric: Vout = (VCC/5)(2.5 V + 8 mV/A · I). The firmware converts with the nominal 2.5 V zero. "
       f"The ESC's LT1763-5 actually makes {V5:.3f} V, so every reading is scaled by r = VCC/5 = {rr:.4f}:")
 doc.eq(r"\hat{i} = \frac{r\,(2.5 + 0.01\,i) - 2.5}{0.01} = r\,i - (1-r)\cdot 250\ \mathrm{A} = r\,i - %.2f\ \mathrm{A}" % ((1 - rr) * 250))
 doc.p("While the motor spins, this offset rotates in the dq frame and only adds ripple (topology 10's hover test reads iq within "
@@ -163,7 +163,7 @@ doc.bullets([
     "Draw from the parts table, then check the drawing against it with the simulator's own netlister. A wrong wire on a drawn schematic "
     "is silent; the check turned three of them into error messages.",
     "Parts without a maker model become blocks with the real pin-out outside and an honest equivalent circuit inside, so the schematic "
-    "still reads like the PCB (U7/U8 ACS770, U9 STM32).",
+    "still reads like the PCB (U7/U8 ACS772, U9 STM32).",
     "A system with no DC path to start from (all sources at 0 V, switching controllers) needs `uic`; it is also the true physical start.",
     "Hierarchical probing: V(ESC1:<net>), V(ESC1:U9:<node>), I(MOTOR1:La). Only .save'd nodes are kept; saving everything would be GB.",
     "Ratiometric sensors move with their supply: calibrate the zero at boot, or measure the supply. Standstill current limiting is where "

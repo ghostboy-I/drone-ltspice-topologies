@@ -19,6 +19,9 @@ C21 C22,2,Output ceramic,47µ,X7R 1210 (~30 µF at 5 V),Capacitor_SMD:C_1210_322
 C23,1,CSET (noise filter / soft-start),47n,X7R,Capacitor_SMD:C_0603_1608Metric,
 C24,1,U3 input,4.7µ,X7R,Capacitor_SMD:C_0805_2012Metric,10 V
 C25,1,U3 output,4.7µ,X7R,Capacitor_SMD:C_0805_2012Metric,10 V
+C26,1,CG: gate ramp; bypasses Q4's Cgd during a surge,10n,X7R,Capacitor_SMD:C_0805_2012Metric,25 V
+C27,1,CT: 51 ms overvoltage time (3.5 nF/ms),180n,X7R,Capacitor_SMD:C_0603_1608Metric,
+C28,1,C1: OUT-VSS supply of the LTC4366 (5.7 V),470n,X7R,Capacitor_SMD:C_0805_2012Metric,25 V
 D1 D2 D3,3,"Diode-OR, ultrafast 200 V 1 A",ES1D,ES1D,Diode_SMD:D_SMA,200 V 1 A
 D4,1,"TVS 600 W, 110 V stand-off",SMBJ110A,SMBJ110A,Diode_SMD:D_SMB,VBR 122 V
 F1 F2 F3,3,"Fuse, fast, 0.5 A",0.5 A,"Littelfuse 0451.500 (NANO2, 125 V DC)",Fuse:Fuse_1206_3216Metric,125 V DC
@@ -34,6 +37,7 @@ L2,1,Power inductor 3.3 µH,3.3µ,"shielded, Isat ≥ 6 A, DCR ≤ 10 mΩ",Induc
 Q1,1,N-MOSFET 150 V 52 mΩ (top),BSC520N15NS3,Infineon BSC520N15NS3,Package_TO_SOT_SMD:TDSON-8-1,150 V 21 A
 Q2,1,N-MOSFET 150 V 36 mΩ (bottom),BSC360N15NS3,Infineon BSC360N15NS3,Package_TO_SOT_SMD:TDSON-8-1,150 V 30 A
 Q3,1,"N-MOSFET 240 V, DRVCC pre-regulator",BSP89,Infineon BSP89,Package_TO_SOT_SMD:SOT-223-3_TabPin2,240 V
+Q4,1,"Surge-stopper pass FET, 250 V",FDB33N25,"onsemi FDB33N25 (250 V, 94 mΩ, D2PAK)",Package_TO_SOT_SMD:TO-263-2,250 V 33 A
 R1,1,Current sense,10m,"current sense, 1 %, 1 W",Resistor_SMD:R_2512_6332Metric,1 W
 R2,1,RUN divider (UVLO 59.8 V),976k,"1 %, thick film",Resistor_SMD:R_1206_3216Metric,200 V
 R3,1,RUN divider bottom,20k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
@@ -53,6 +57,12 @@ R16,1,Current limit 300 mA,499,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
 R17,1,PGFB divider top,450k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
 R18,1,PGFB divider bottom,50k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
 R20,1,DRVSET: DRVCC = 5 x 20 µA x R = 10 V,100k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R21,1,RIN: VDD shunt-regulator feed,2.49Meg,"1 %, thick film",Resistor_SMD:R_1206_3216Metric,200 V
+R22,1,RSS: lets the LTC4366 float with the supply,274k,"1 %, thick film",Resistor_SMD:R_1206_3216Metric,200 V
+R23,1,RFB1 (1.23 V across it at regulation),12.4k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R24,1,RFB2: VREG = 1.23 V (1 + RFB2/RFB1) = 115 V,1.15Meg,"1 %, thick film",Resistor_SMD:R_1206_3216Metric,200 V
+R25,1,Gate resistor (stops Q4 oscillating; at the FET),10,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
 U1,1,150 V synchronous buck controller,LTC7801,LTC7801EFE (TSSOP-24 with exposed pad),Drone_Power:Linear_HTSSOP-24-1EP_4.4x7.8mm_P0.65mm_EP2.74x3.25mm,150 V
 U2,1,65 V 3.5 A synchronous buck,LT8641,LT8641EUDC#PBF (UDC 20(18)-lead 3x4 mm QFN),Drone_Power:Linear_UDC-18-2EP_3x4mm_P0.5mm,65 V
 U3,1,20 V 500 mA ultralow-noise LDO,LT3045,LT3045EDD (DFN-10 3x3),Package_DFN_QFN:DFN-10-1EP_3x3mm_P0.5mm_EP1.65x2.38mm,20 V
+U4,1,"Surge stopper, floating, auto-retry",LTC4366-2,LTC4366CTS8-2 (TSOT-23-8),Package_TO_SOT_SMD:TSOT-23-8,9 V to >500 V (floating)

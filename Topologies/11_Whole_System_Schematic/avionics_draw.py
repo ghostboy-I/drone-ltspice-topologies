@@ -1,6 +1,6 @@
 """Draws the avionics power board as a real wired schematic (python3 avionics_draw.py) -> Avionics_Block.asc
 
-  1 pack inputs: 3 x (fuse + diode-OR) -> VIN_AV, TVS, bulk     2 12 V / 5 A buck (LTC7801)     3 12 V transmitter output
+  1 pack inputs: 3 x (fuse + diode-OR) -> VIN_AV, TVS, LTC4366 surge stopper -> VIN_PROT, bulk     2 12 V / 5 A buck (LTC7801)     3 12 V transmitter output
   4 5 V / 3 A buck (LT8641)     5 3.3 V ultralow-noise LDO (LT3045)
 
 Values and nets come from avionics.py's parts table; verify() checks every pin with LTspice's netlister."""
@@ -17,7 +17,7 @@ T = Table(B)
 def sheet():
     s = TSheet("Avionics_Block", T)
     # ---------------------------------------------------------------- 1 inputs
-    s.frame(-400, -40, 1300, 800, "1  PACK INPUTS: fuse + diode-OR per pack, TVS, bulk")
+    s.frame(-400, -40, 1300, 1700, "1  PACK INPUTS: fuse + diode-OR per pack, TVS, U4 LTC4366 surge stopper (115 V), bulk")
     rail = 160
     for k, y in zip((1, 2, 3), (320, 480, 640)):
         s.port((64, y), f"PACK{k}+"); s.conn(64, y, f"J{k}", f"pack {k} (+), (-) = GND")
@@ -25,15 +25,34 @@ def sheet():
         s.wire(b, (288, y)); _, k_ = s.two(f"D{k}", (288, y), "R"); s.wire(k_, (560, y))
     s.wire((560, 640), (560, 480), (560, 320), (560, rail))
     s.text(80, 760, ";F1-F3 0.5 A fuses, D1-D3 ES1D diode-OR: any pack keeps the avionics alive", 2)
+    s.wire((560, rail), (720, rail))
     _, a = s.two("D4", (720, rail), "D", first="K"); s.gnd(a)
-    for i, r in enumerate(("C1",)):
-        _, c = s.two(r, (848, rail), "D"); s.gnd(c)
-    s.text(680, 330, ";D4 TVS   C1 33 uF bulk", 2)
     s.flag((640, rail), "VIN_AV")
+    s.flag((960, rail), "VIN_PROT"); s.wire((960, rail), (1216, rail))
+    _, c = s.two("C1", (1216, rail), "D"); s.gnd(c)
+    s.text(680, 330, ";D4 TVS", 2); s.text(1000, 330, ";C1 33 uF bulk", 2)
+    # surge stopper (drawn with net labels): Q4 passes VIN_AV -> VIN_PROT; U4 holds VIN_PROT at 115 V during a surge
+    q = s.put("Q4", -320, 900)
+    s.flag(q["D"], "VIN_AV"); s.flag(q["S"], "VIN_PROT")
+    _, b = s.two("R25", (-416 + 64, 980), "L", first="B"); s.wire(q["G"], (-352, 980)) if q["G"] != (-352, 980) else None
+    s.flag(b, "GATE_SSD"); s.flag(q["G"], "GATE_SS")
+    _, b = s.two("R_SSRUN", (-96, 900), "D"); s.flag((-96, 900), "VIN_AV"); s.flag(b, "VIN_PROT")
+    s.text(-140, 1060, ";R_SSRUN: Q4 already on (sim)", 1)
+    u = s.put("U4", 640, 1000)
+    for pin, net in (("VDD", "VDD_SS"), ("_SD", "VDD_SS"), ("TIMER", "TMR_SS"), ("VSS", "VSS_SS"), ("FB", "FB_SS"),
+                     ("OUT", "VIN_PROT"), ("GATE", "GATE_SSD")):
+        s.flag(u[pin], net)
+    for i, (r, top, bot) in enumerate((("R21", "VIN_AV", "VDD_SS"), ("R22", "VSS_SS", "0"), ("R23", "VIN_PROT", "FB_SS"),
+                                       ("R24", "FB_SS", "0"), ("C26", "GATE_SS", "0"), ("C27", "TMR_SS", "VSS_SS"),
+                                       ("C28", "VIN_PROT", "VSS_SS"))):
+        x = -320 + 192 * i; y = 1360
+        _, b = s.two(r, (x, y), "D"); s.flag((x, y), top)
+        s.gnd(b) if bot == "0" else s.flag(b, bot)
+    s.text(-360, 1620, ";U4 LTC4366-2 floats on the supply (R21 RIN, R22 RSS): VREG = 1.23 V (1 + R24/R23) = 115 V, C27 51 ms timer", 2)
     # ---------------------------------------------------------------- 2 12 V buck
     ox, oy = 2400, 800
     s.frame(1340, -40, 4300, 1700, "2  12 V / 5 A BUCK: U1 LTC7801, peak current mode, 148 kHz (video/telemetry TX, feeds the 5 V stage)")
-    s.wire((560, rail), (ox - 784, rail))
+    s.wire((1216, rail), (ox - 784, rail))
     out = ltc7801(s, ox, oy, rail, dict(U="U1", Q1="Q1", Q2="Q2", Q3="Q3", L="L1", Rsense="R1", Csense="C4", Cboost="C5", Cdrv="C6",
                                        Cint="C7", Rrun_t="R2", Rrun_b="R3", Rov_t="R4", Rov_b="R5", Rfreq="R6", Css="C8",
                                        Rfb_t="R7", Rfb_b="R8", Rith="R9", Cith="C9", Cithb="C10", Rpg="R10", Rdrvset="R20",

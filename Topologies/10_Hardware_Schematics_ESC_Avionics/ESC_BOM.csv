@@ -27,6 +27,7 @@ C61,1,VDDA,1µ,X7R,Capacitor_SMD:C_0603_1608Metric,
 C62,1,VDDA,100n,X7R,Capacitor_SMD:C_0603_1608Metric,
 C63,1,Reset,100n,X7R,Capacitor_SMD:C_0603_1608Metric,
 C64,1,12 V bulk: absorbs the bootstrap charge (3 x 1 µF) when the drivers enable,47µ,47 µF X7R 1210 (≈22 µF at 12 V),Capacitor_SMD:C_1210_3225Metric,25 V
+C65 C66 C67 C68 C69 C70 C71 C72,8,"DC-link bulk, hybrid polymer (ripple: 24 caps share 61.7 A rms at hover)",150µ,"150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ",Capacitor_SMD:CP_Elec_10x12.5 (check the can size of the chosen part),125 V
 D1 D2 D3,3,"Bootstrap diode, ultrafast 200 V",ES1D,ES1D,Diode_SMD:D_SMA,200 V 1 A
 D4,1,"Status LED (green, 0603)",QTLP690C,any 0603 green LED,LED_SMD:LED_0603_1608Metric,
 FB1,1,Ferrite bead 600 Ω @ 100 MHz,600R@100MHz,Murata BLM18PG601SN1,Inductor_SMD:L_0603_1608Metric,
@@ -71,6 +72,6 @@ U1,1,150 V synchronous buck controller,LTC7801,LTC7801EFE (TSSOP-24 with exposed
 U2,1,"500 mA low-noise LDO, 5 V",LT1763-5,LT1763CS8-5 (SO-8),Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,20 V
 U3,1,"500 mA low-noise LDO, 3.3 V",LT1763-3.3,LT1763CS8-3.3 (SO-8),Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,20 V
 U4 U5 U6,3,"150 V half-bridge gate driver, floating grounds",LTC7063,LTC7063EMSE (MSOP-12),Package_SO:MSOP-12-1EP_3x4.039mm_P0.65mm_EP1.651x2.845mm,150 V
-U7,1,"Hall current sensor phase A, ±200 A, 10 mV/A",,Allegro ACS770LCB-200B-PFF-T,Sensor_Current:Allegro_CB_PFF,±200 A
-U8,1,"Hall current sensor phase B, ±200 A, 10 mV/A",,Allegro ACS770LCB-200B-PFF-T,Sensor_Current:Allegro_CB_PFF,±200 A
+U7,1,"Hall current sensor phase A, ±250 A, 8 mV/A",,Allegro ACS772ECB-250B-PFF-T,Sensor_Current:Allegro_CB_PFF,±250 A
+U8,1,"Hall current sensor phase B, ±250 A, 8 mV/A",,Allegro ACS772ECB-250B-PFF-T,Sensor_Current:Allegro_CB_PFF,±250 A
 U9,1,"MCU, Cortex-M4F 170 MHz (FOC)",,ST STM32G431CBT6 (LQFP-48),Package_QFP:LQFP-48_7x7mm_P0.5mm,

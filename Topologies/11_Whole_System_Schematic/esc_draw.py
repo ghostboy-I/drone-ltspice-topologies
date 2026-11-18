@@ -2,8 +2,8 @@
 
   ESC_Block.asc        the ESC board, every part at a position and connected with wires: DC link (16 + 10 caps),
                        12 V aux buck (LTC7801), 5 V / 3.3 V LDOs, 3 legs (LTC7063 + 4 + 4 IPB065N15N3, each FET with its
-                       own gate and pull-down resistor), 2 ACS770 current sensors, STM32G431
-  ACS770.asc/.asy      the ACS770 Hall sensor (no maker model): its equivalent circuit inside a chip symbol
+                       own gate and pull-down resistor), 2 ACS772 current sensors, STM32G431
+  ACS772.asc/.asy      the ACS772 Hall sensor (no maker model): its equivalent circuit inside a chip symbol
   STM32G431_FOC.asc/.asy  the STM32: pins of the real chip; inside, the FOC firmware written as a signal-flow model
   U15XL_Motor.asc/.asy the motor (3 windings in star + back-EMF, rotor and prop as their electrical analog)
 
@@ -27,8 +27,8 @@ from tablesheet import ren
 
 # ====================================================================== sub-sheets (models of parts without a SPICE model)
 def acs770():
-    s = TSheet("ACS770", T)
-    s.frame(0, 0, 1500, 900, "ACS770LCB-200B Hall current sensor, equivalent circuit (Allegro gives no SPICE model)")
+    s = TSheet("ACS772", T)
+    s.frame(0, 0, 1500, 900, "ACS772ECB-250B Hall current sensor (±250 A, 8 mV/A), equivalent circuit (Allegro gives no SPICE model)")
     s.text(32, 96, ";The primary is a 100 uOhm copper conductor (IP+ to IP-). Output = VCC/5 x (2.5 V + 10 mV/A x Ip), 120 kHz bandwidth.", 2)
     pa = s.wire((400, 192), (400, 224)); s.port((400, 192), "IP+")
     _, b = s.free2("R_CS", "res", pa, "D", "100u")
@@ -46,8 +46,8 @@ def acs770():
     s.wire(q["+"], (400, 608)); s.port((400, 608), "VCC"); s.wire(q["-"], (400, 752)); s.port((400, 752), "GND")
     s.text(432, 690, ";supply current of the sensor", 2)
     s.write()
-    block_asy("ACS770.asy", [("IP+", 0, -128), ("IP-", 0, 128), ("VCC", -128, -48), ("GND", -128, 48), ("VIOUT", 128, 0)],
-              (-128, -128, 128, 128), "ACS770|±200 A", "Hall sensor")
+    block_asy("ACS772.asy", [("IP+", 0, -128), ("IP-", 0, 128), ("VCC", -128, -48), ("GND", -128, 48), ("VIOUT", 128, 0)],
+              (-128, -128, 128, 128), "ACS772|±250 A", "Hall sensor")
     return s
 
 
@@ -167,12 +167,12 @@ def esc_sheet():
     s.frame(-400, -40, 3800, 640, "1  POWER INPUT + DC LINK")
     s.port((64, 160), "VBUS"); s.conn(64, 160, "J1", "AS150 battery (+)")
     s.text(-380, 260, ";J1 (-) = GND", 2)
-    xs = [320 + 96 * i for i in range(16)] + [1920 + 96 * i for i in range(10)]
-    cap_refs = refs_of(blk("1 ")[0:0] or [T.by["C1"]]) + refs_of([T.by["C17"]])
+    xs = [320 + 64 * i for i in range(24)] + [1920 + 96 * i for i in range(10)]
+    cap_refs = refs_of([T.by["C1"]]) + refs_of([T.by["C65"]]) + refs_of([T.by["C17"]])
     s.wire((64, 160), (2944, 160))
     for x, r in zip(xs, cap_refs):
         s.wire((x, 160), (x, 224)); _, b = s.two(r, (x, 224), "D"); s.gnd(b)
-    s.text(320, 400, ";C1-C16: 150 uF 125 V hybrid polymer (bulk)", 2); s.text(1920, 400, ";C17-C26: 2.2 uF X7R 1210 at the FETs", 2)
+    s.text(320, 400, ";C1-C16, C65-C72: 24 x 150 uF 125 V hybrid polymer (bulk)", 2); s.text(1920, 400, ";C17-C26: 2.2 uF X7R 1210 at the FETs", 2)
     _, b = s.two("R1", (2944, 160), "D"); _, b = s.two("R2", b, "D"); _, n = s.two("R3", b, "D"); _, b = s.two("R4", n, "D"); s.gnd(b)
     s.wire(n, (3040, 400)); _, c = s.two("C27", (3040, 400), "D"); s.gnd(c); s.wire((3040, 400), (3136, 400)); s.flag((3136, 400), "VBUS_SNS")
     s.text(2976, 520, ";bus voltage sense -> MCU PA2", 2)
@@ -226,12 +226,12 @@ def esc_sheet():
         s.text(X[0] - 48, cy - 480, f";Q{qh[0][1:]}-Q{qh[3][1:]} high side, Q{ql[0][1:]}-Q{ql[3][1:]} low side: IPB065N15N3 (each with its own gate R and 10k pull-down)", 2)
         port = {"A": "MOT_A", "B": "MOT_B", "C": "PH_C"}[ph]
         if ph in "AB":
-            sp = [p for p in sens if p.ref.endswith(ph) or p.ref in ()]   # sim parts of this phase (inside the ACS770 block)
+            sp = [p for p in sens if p.ref.endswith(ph) or p.ref in ()]   # sim parts of this phase (inside the ACS772 block)
             i0 = [p.ref for p in sens].index(f"R_CS{ph}")
             Usens, _bq, Cdec, Rt, Rb, Cf = [p.ref for p in sens[i0 + 4:i0 + 10]]
             ys = cy + 512
             s.wire((xout, cy + 80), (xout, ys))
-            a = s.put(Usens, xout, ys + 128, symname="ACS770")
+            a = s.put(Usens, xout, ys + 128, symname="ACS772")
             s.wire(a["IP-"], (xout, cy + 896))
             s.wire(a["VCC"], (xout - 224, a["VCC"][1])); s.flag((xout - 224, a["VCC"][1]), "+5V")
             _, c = s.two(Cdec, (xout - 192, a["VCC"][1]), "D"); s.gnd(c)
@@ -331,7 +331,7 @@ def esc_sheet():
     s.text(mx - 960, my + 520, ";encoder supply (sim)", 2)
 
     s.text(-380, 4560, ";Labels used only for rails (VBUS, +12V, +5V, +3V3), ground and the control signals between the MCU and the legs."
-           " Parts without a maker SPICE model are blocks: U7/U8 ACS770, U9 STM32 (double-click to see inside).", 2)
+           " Parts without a maker SPICE model are blocks: U7/U8 ACS772, U9 STM32 (double-click to see inside).", 2)
     s.write(directives=["; ESC board, one per motor (block of Power_System.asc). Ports: VBUS, MOT_A, MOT_B, PH_C, ENC_THETA, ENC_OMEGA. Parameters on the top sheet."])
     return s
 

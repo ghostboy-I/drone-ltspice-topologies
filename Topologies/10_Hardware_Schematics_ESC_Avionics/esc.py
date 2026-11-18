@@ -1,5 +1,5 @@
 """ESC BOARD (one per motor): 24S -> DC link -> 3 x LTC7063 + 24 x IPB065N15N3 inverter -> U15XL, with its own
-LTC7801 12 V aux supply, LT1763 5 V / 3.3 V, two ACS770 phase-current sensors and an STM32G431 running FOC.
+LTC7801 12 V aux supply, LT1763 5 V / 3.3 V, two ACS772 phase-current sensors and an STM32G431 running FOC.
 python3 esc.py  ->  ESC_Board.asc (hover + throttle punch, starts at speed), ESC_BOM.csv, ESC_Netlist.csv
 In LTspice the STM32 is a behavioural FOC block (topology 03/09) that reads the same ADC nets the real MCU would."""
 import sys, math
@@ -17,7 +17,7 @@ def build(block=False):
     B = Board("ESC", "ESC BOARD")
     hv = h09.hover(); mp = hv["mp"]; iq0 = mp["iq"]; vb0 = hv["vbus"]
     # ================================================================== 1 power input, DC link, sensing of bus and temperature
-    b = B.block("1  POWER INPUT + DC LINK: AS150 anti-spark connector, 16 x 150 µF polymer + 10 x 2.2 µF ceramic, bus and NTC sense",
+    b = B.block("1  POWER INPUT + DC LINK: AS150 anti-spark connector, 24 x 150 µF polymer + 10 x 2.2 µF ceramic, bus and NTC sense",
                 0, 0, 3000, 900)
     if not block:
         B.add(b, Part("V_PACK", "voltage", g(h.V_NOM), {"+": "VP", "-": "0"}, sim=True, spice=f"Rser={g(h09.Rpk)}"))
@@ -28,6 +28,10 @@ def build(block=False):
                   pn="150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ", fp="Capacitor_SMD:CP_Elec_10x12.5 (check the can size of the chosen part)", rating="125 V"))
     B.add(b, Part("C17", "cap", "1.1µ", {"1": "VBUS", "2": "0"}, spice="Rser=5m", mult=10, bomval="2.2µ", desc="DC-link ceramic, at the FETs",
                   pn="2.2 µF X7R 1210 (≈1.1 µF at 90 V)", fp=C1210, rating="250 V"))
+    # 8 more bulk caps (Alternatives_Study): 16 carried 3.86 A rms each at hover, over their 3.5 A rating; 24 carry 2.57 A
+    B.add(b, Part("C65", "cap", "150µ", {"1": "VBUS", "2": "0"}, spice="Rser=20m", mult=h.N_BULK - 16,
+                  desc="DC-link bulk, hybrid polymer (ripple: 24 caps share 61.7 A rms at hover)",
+                  pn="150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ", fp="Capacitor_SMD:CP_Elec_10x12.5 (check the can size of the chosen part)", rating="125 V"))
     B.add(b, R("R1", "330k", "VBUS", "VS1", fp=R1206, rating="200 V", desc="Bus sense divider (3 in series for voltage rating)"))
     B.add(b, R("R2", "330k", "VS1", "VS2", fp=R1206, rating="200 V", desc="Bus sense divider (3 in series for voltage rating)"))
     B.add(b, R("R3", "330k", "VS2", "VBUS_SNS", fp=R1206, rating="200 V", desc="Bus sense divider (3 in series for voltage rating)"))
@@ -123,17 +127,17 @@ def build(block=False):
     B.add(B.blocks[3], R(f"R{take('R')}", "10k", "+3V3", "FAULT_N", desc="Driver fault pull-up (open drain, wired-OR)"))
 
     # ================================================================== 7 current sense
-    b = B.block("7  PHASE CURRENT: U7, U8 ACS770 ±200 A Hall sensors in phases A, B; 2/3 divider into the 3.3 V ADC", 4700, 1000, 2000, 1500)
+    b = B.block("7  PHASE CURRENT: U7, U8 ACS772 ±250 A Hall sensors in phases A, B; 2/3 divider into the 3.3 V ADC", 4700, 1000, 2000, 1500)
     for ph, u in (("A", "U7"), ("B", "U8")):
         B.add(b, Part(f"R_CS{ph}", "res", "100µ", {"1": f"PH_{ph}", "2": f"MOT_{ph}"}, sim=True))          # the sensor's 100 µΩ conductor
         B.add(b, Part(f"B_CS{ph}", "bv", f"V=V(+5V)/5*({h.ACS_ZERO}+{h.ACS_GAIN}*I(R_CS{ph}))", {"+": f"ACSI_{ph}", "-": "0"}, sim=True))
-        # 120 kHz bandwidth with a low output resistance (a 1 kOhm version lost 3 % into the 30 kOhm ADC divider)
+        # 200 kHz bandwidth with a low output resistance (a 1 kOhm version lost 3 % into the 30 kOhm ADC divider)
         B.add(b, Part(f"R_BW{ph}", "res", "10", {"1": f"ACSI_{ph}", "2": f"ACS_{ph}"}, sim=True))
         B.add(b, Part(f"C_BW{ph}", "cap", g(1 / (2 * math.pi * 10 * h.ACS_BW)), {"1": f"ACS_{ph}", "2": "0"}, sim=True))
         B.add(b, Part(u, None, "", {"IP+": f"PH_{ph}", "IP-": f"MOT_{ph}", "VCC": "+5V", "VIOUT": f"ACS_{ph}", "GND": "0"},
-                      desc=f"Hall current sensor phase {ph}, ±200 A, 10 mV/A", pn="Allegro ACS770LCB-200B-PFF-T",
-                      fp="Sensor_Current:Allegro_CB_PFF", rating="±200 A"))
-        B.add(b, Part(f"B_ACSQ{ph}", "bi", f"I={h.I_ACS770}*limit(V(+5V)/4.5,0,1)", {"+": "+5V", "-": "0"}, sim=True))
+                      desc=f"Hall current sensor phase {ph}, ±250 A, 8 mV/A", pn="Allegro ACS772ECB-250B-PFF-T",
+                      fp="Sensor_Current:Allegro_CB_PFF", rating="±250 A"))
+        B.add(b, Part(f"B_ACSQ{ph}", "bi", f"I={h.I_ACS}*limit(V(+5V)/4.5,0,1)", {"+": "+5V", "-": "0"}, sim=True))
         B.add(b, C(f"C{take('C')}", "100n", "+5V", "0", desc=f"{u} decoupling"))
         B.add(b, R(f"R{take('R')}", "10k", f"ACS_{ph}", f"ISNS_{ph}", desc="ADC scaling (2/3), top"))
         B.add(b, R(f"R{take('R')}", "20k", f"ISNS_{ph}", "0", desc="ADC scaling (2/3), bottom"))
@@ -234,7 +238,7 @@ def build(block=False):
         "!.tran 0 13m 0",
         "!.save V(VBUS) V(+12V) V(+5V) V(+3V3) V(PH_A) V(PH_B) V(PH_C) V(BST_A) V(TG_A) V(BG_A) V(GAH) V(GAL) V(PWM_A) "
         "V(ISNS_A) V(ISNS_B) V(ia) V(ib) V(id) V(iq) V(iqref) V(vd) V(vq) V(dua) V(omega) V(rpm) V(te) V(the) V(wref) V(vbusm) "
-        "I(La) I(Lb) I(Lc) I(L_HARN) I(C1) I(C17) I(L1) I(D1) I(D2) I(D3) Id(Q4) Id(Q8) Id(Q12) Id(Q16) Id(Q20) Id(Q24) V(SW_AUX) V(FAULT_N) V(DRV_EN)",
+        "I(La) I(Lb) I(Lc) I(L_HARN) I(C1) I(C65) I(C17) I(L1) I(D1) I(D2) I(D3) Id(Q4) Id(Q8) Id(Q12) Id(Q16) Id(Q20) Id(Q24) V(SW_AUX) V(FAULT_N) V(DRV_EN)",
         f"!.meas TRAN RPM_h AVG V(rpm) {W}", f"!.meas TRAN Iq_h AVG V(iq) {W}", f"!.meas TRAN Id_h AVG V(id) {W}",
         f"!.meas TRAN Vq_h AVG V(vq) {W}", f"!.meas TRAN Vd_h AVG V(vd) {W}",
         f"!.meas TRAN Vbus_h AVG V(VBUS) {W}", f"!.meas TRAN Vbus_pp PP V(VBUS) {W}", f"!.meas TRAN Iesc_h AVG I(L_HARN) {W}",
@@ -242,7 +246,7 @@ def build(block=False):
         f"!.meas TRAN Pcu AVG {{Rph}}*(I(La)**2+I(Lb)**2+I(Lc)**2) {W}",
         f"!.meas TRAN Pfet AVG {sw_loss} {W}",
         "!.meas TRAN Eff_drive PARAM Pshaft/Pin_esc",
-        f"!.meas TRAN Icap_rms RMS I(C1)+I(C17) {W}", f"!.meas TRAN Iph_rms RMS I(La) {W}",
+        f"!.meas TRAN Icap_rms RMS I(C1)+I(C65)+I(C17) {W}", f"!.meas TRAN Icap_bulk RMS I(C1)+I(C65) {W}", f"!.meas TRAN Iph_rms RMS I(La) {W}",
         f"!.meas TRAN V12 AVG V(+12V) {W}", f"!.meas TRAN V12_pp PP V(+12V) {W}", f"!.meas TRAN V5 AVG V(+5V) {W}", f"!.meas TRAN V33 AVG V(+3V3) {W}",
         f"!.meas TRAN I12 AVG I(L1) {W}", f"!.meas TRAN Iboot AVG I(D1)+I(D2)+I(D3) {W}",
         f"!.meas TRAN Vboot_min MIN V(BST_A,PH_A) {W}", f"!.meas TRAN Vboot_max MAX V(BST_A,PH_A) {W}",

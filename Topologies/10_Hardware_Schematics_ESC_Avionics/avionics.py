@@ -23,18 +23,24 @@ def C(ref, val, a, b, fp=C0603, pn="X7R", rating="", desc="Capacitor", spice="",
 
 
 MODELS = [   # ES1D, BSC520N15NS3, BSC360N15NS3 and BSP89 are vendor models in LTspice's own library; only the TVS is approximated
-    "!.model SMBJ110A D(Is=1p Rs=0.5 N=1 BV=122 IBV=1m)   ; 600 W TVS, 110 V stand-off (approx. datasheet)",
+    "!.model SMBJ110A D(Is=1p Rs=12 N=1 BV=128 IBV=1m)   ; 600 W TVS, 110 V stand-off: VBR 122-135 V, 177 V at 3.4 A (Littelfuse)",
 ]
 
 
-def build(loop_test=False, block=False):
+def build(loop_test=False, block=False, surge_test=False):
     """block=True: the sheet used inside Power_System.asc (packs come in on ports PACK1+..PACK3+)."""
     B = Board("Avionics", "AVIONICS POWER BOARD")
     # ------------------------------------------------------------------ inputs
     if not loop_test:
-        b = B.block("1  PACK INPUTS: fuse, diode-OR (any pack can feed the avionics), TVS, input filter", 0, 0, 2000, 900)
+        b = B.block("1  PACK INPUTS: fuse, diode-OR (any pack can feed the avionics), TVS, LTC4366 surge stopper (115 V), input filter", 0, 0, 2000, 900)
         for k in (1, 2, 3):
-            if not block: B.add(b, Part(f"V_PACK{k}", "voltage", f"PWL(0 {h.V_NOM} {{Tpull}} {h.V_NOM} {{Tpull+20u}} 0)" if k == 1 else f"{h.V_NOM}",
+            if surge_test:   # pack 1 carries the surge: 200 V behind 4 ohm (ISO 7637-2 pulse-5a-like source) for {Tsd}
+                B.add(b, Part(f"V_PACK{k}", "voltage", f"PWL(0 0 1m {h.V_NOM} {{Ts}} {h.V_NOM} {{Ts+0.2m}} 200 {{Ts+Tsd}} 200 "
+                              f"{{Ts+Tsd+0.2m}} {h.V_NOM})" if k == 1 else f"PWL(0 0 1m {h.V_NOM})",
+                              {"+": f"VP{k}", "-": "0"}, sim=True, spice="Rser=4" if k == 1 else "Rser=30m"))
+            # packs ramp up from 0 V in 0.2 ms: the LTC4366 model has no DC operating point with the packs already at 88.8 V
+            elif not block: B.add(b, Part(f"V_PACK{k}", "voltage", f"PWL(0 0 0.2m {h.V_NOM} {{Tpull}} {h.V_NOM} {{Tpull+20u}} 0)" if k == 1
+                                          else f"PWL(0 0 0.2m {h.V_NOM})",
                           {"+": f"VP{k}", "-": "0"}, sim=True, spice="Rser=30m"))
             if not block: B.add(b, Part(f"R_LEAD{k}", "res", "50m", {"1": f"VP{k}", "2": f"PACK{k}+"}, sim=True))
             B.add(b, Part(f"J{k}", None, "", {"1": f"PACK{k}+", "2": "0"}, desc=f"Pack {k} input (from that pack's PDB tap)",
@@ -46,11 +52,52 @@ def build(loop_test=False, block=False):
                           pn="ES1D", fp="Diode_SMD:D_SMA", rating="200 V 1 A"))
         B.add(b, Part("D4", "zener", "SMBJ110A", {"A": "0", "K": "VIN_AV"}, desc="TVS 600 W, 110 V stand-off", pn="SMBJ110A",
                       fp="Diode_SMD:D_SMB", rating="VBR 122 V"))
-        B.add(b, C("C1", "33µ", "VIN_AV", "0", fp="Capacitor_THT:CP_Radial_D10.0mm_P5.00mm", pn="Aluminium electrolytic, low ESR",
+        # ---- surge stopper (Alternatives_Study): the SMBJ110A alone clamps to 177 V at 3.4 A, above the LTC7801's 150 V.
+        # U4 LTC4366-2 floats on the supply and holds VIN_PROT at VREG = 1.23 V (1 + R24/R23) = 115 V while Q4 drops the
+        # rest; after 51 ms (C27) it turns Q4 off for its 9 s cool-down, then retries. Values: hand_calc.surge().
+        S = h.SURGE
+        B.add(b, Part("Q4", "nmos", h.FET_SURGE, {"D": "VIN_AV", "G": "GATE_SS", "S": "VIN_PROT"}, desc="Surge-stopper pass FET, 250 V",
+                      pn="onsemi FDB33N25 (250 V, 94 mΩ, D2PAK)", fp="Package_TO_SOT_SMD:TO-263-2", rating="250 V 33 A"))
+        B.add(b, Part("U4", "LTC4366-2", "LTC4366-2", {"VDD": "VDD_SS", "_SD": "VDD_SS", "TIMER": "TMR_SS", "VSS": "VSS_SS",
+                      "FB": "FB_SS", "OUT": "VIN_PROT", "GATE": "GATE_SSD"},
+                      desc="Surge stopper, floating, auto-retry", pn="LTC4366CTS8-2 (TSOT-23-8)", fp="Package_TO_SOT_SMD:TSOT-23-8",
+                      rating="9 V to >500 V (floating)"))
+        B.add(b, R("R21", g(S["rin"]), "VIN_AV", "VDD_SS", fp=R1206, rating="200 V", desc="RIN: VDD shunt-regulator feed"))
+        B.add(b, R("R22", g(S["rss"]), "VSS_SS", "0", fp=R1206, rating="200 V", desc="RSS: lets the LTC4366 float with the supply"))
+        B.add(b, R("R23", g(S["rfb1"]), "VIN_PROT", "FB_SS", desc="RFB1 (1.23 V across it at regulation)"))
+        B.add(b, R("R24", g(S["rfb2"]), "FB_SS", "0", fp=R1206, rating="200 V", desc="RFB2: VREG = 1.23 V (1 + RFB2/RFB1) = 115 V"))
+        B.add(b, R("R25", "10", "GATE_SSD", "GATE_SS", desc="Gate resistor (stops Q4 oscillating; at the FET)"))
+        B.add(b, C("C26", g(S["cg"]), "GATE_SS", "0", fp=C0805, rating="25 V", desc="CG: gate ramp; bypasses Q4's Cgd during a surge"))
+        B.add(b, C("C27", g(S["ct"]), "TMR_SS", "VSS_SS", desc="CT: 51 ms overvoltage time (3.5 nF/ms)"))
+        B.add(b, C("C28", g(S["c1"]), "VIN_PROT", "VSS_SS", fp=C0805, rating="25 V", desc="C1: OUT-VSS supply of the LTC4366 (5.7 V)"))
+        B.add(b, C("C1", "33µ", "VIN_PROT", "0", fp="Capacitor_THT:CP_Radial_D10.0mm_P5.00mm", pn="Aluminium electrolytic, low ESR",
                    rating="160 V", desc="Input bulk (damps the input filter)", spice="Rser=0.8"))
         for r in ("C2", "C3"):
-            B.add(b, C(r, "2.2µ", "VIN_AV", "0", fp=C1210, pn="X7R 1210", rating="250 V", desc="Input ceramic (near Q1)", spice="Rser=5m"))
-        vin12 = "VIN_AV"
+            B.add(b, C(r, "2.2µ", "VIN_PROT", "0", fp=C1210, pn="X7R 1210", rating="250 V", desc="Input ceramic (near Q1)", spice="Rser=5m"))
+        vin12 = "VIN_PROT"
+        if surge_test:
+            B.add(b, Part("R_LOAD_SS", "res", g(h.V_NOM / h.SURGE["i_load"]), {"1": "VIN_PROT", "2": "0"}, sim=True))
+            B.directives = [
+                "; === 10  AVIONICS INPUT SURGE TEST: diode-OR + SMBJ110A + LTC4366-2 surge stopper, 0.35 A load (the 12 V stage at full load) ===",
+                "; Pack 1 jumps to 200 V behind 4 ohm for 20 ms. Pass: VIN_PROT stays at VREG = 115 V; the LTC7801 (150 V) never sees the TVS clamp.",
+                "!.param Ts=250m Tsd=20m",
+                "!.tran 0 300m 0 startup",
+                "!.save V(VIN_AV) V(VIN_PROT) V(GATE_SS) V(VSS_SS) V(TMR_SS) V(VDD_SS) I(D4) Id(Q4)",
+                "!.meas TRAN Vprot_pre AVG V(VIN_PROT) FROM {Ts-20m} TO {Ts}",
+                "!.meas TRAN Vav_pre AVG V(VIN_AV) FROM {Ts-20m} TO {Ts}",
+                "!.meas TRAN T_on WHEN V(VIN_PROT)=80 RISE=1",
+                "!.meas TRAN Vav_surge MAX V(VIN_AV) FROM {Ts} TO {Ts+Tsd}",
+                "!.meas TRAN Vprot_max MAX V(VIN_PROT) FROM {Ts} TO {Ts+Tsd+5m}",
+                "!.meas TRAN Vprot_reg AVG V(VIN_PROT) FROM {Ts+5m} TO {Ts+Tsd}",
+                "!.meas TRAN Itvs_max MAX -I(D4) FROM {Ts} TO {Ts+Tsd}",
+                "!.meas TRAN Pq4 AVG (V(VIN_AV)-V(VIN_PROT))*Id(Q4) FROM {Ts+5m} TO {Ts+Tsd}",
+                "!.meas TRAN Vtmr_max MAX V(TMR_SS)-V(VSS_SS) FROM {Ts} TO {Ts+Tsd}",
+                "!.meas TRAN Vprot_post AVG V(VIN_PROT) FROM {Ts+Tsd+20m} TO {Ts+Tsd+28m}",
+            ] + MODELS
+            return B
+        # Simulation only: the LTC4366 needs ~0.1 s to ramp Q4's gate (7.5 uA into CG); this 8 ms run starts with Q4 already
+        # on, modelled by its 94 mOhm across D-S. The stopper itself is verified in Avionics_SurgeTest.asc.
+        B.add(b, Part("R_SSRUN", "res", "94m", {"1": "VIN_AV", "2": "VIN_PROT"}, sim=True))
     else:
         b = B.block("LOOP TEST: 12 V stage alone, 88.8 V input, sine injected in series with the feedback divider", 0, 0, 2000, 500)
         B.add(b, Part("V_IN", "voltage", f"{h.V_NOM}", {"+": "VIN_AV", "-": "0"}, sim=True))
@@ -169,7 +216,7 @@ def build(loop_test=False, block=False):
         "; Parts named V_..., R_LEAD.., B_..., C_VTX are simulation stimulus/loads, not board parts. Everything else is in Avionics_BOM.csv",
         "!.param Tvtx=6.0m Tfc=6.5m Tw1=6.8m Tw2=7.0m Tpull=7.1m",
         "!.tran 0 8.0m 0 startup",
-        "!.save V(VIN_AV) V(PACK1+) V(PACK2+) V(+12V) V(+5V) V(+3V3) V(SW12) V(SW5) V(PG12) V(PG5) V(PG33) V(SS12) V(ITH12) "
+        "!.save V(VIN_AV) V(VIN_PROT) V(PACK1+) V(PACK2+) V(+12V) V(+5V) V(+3V3) V(SW12) V(SW5) V(PG12) V(PG5) V(PG33) V(SS12) V(ITH12) "
         "I(L1) I(L2) I(D1) I(D2) I(D3) I(R_LEAD1) I(R_LEAD2) I(R_LEAD3) V(VTX_12V) I(B_VTX) I(B_FC) I(B_SENS)",
         "!.meas TRAN T12 WHEN V(+12V)=10.8 RISE=1", "!.meas TRAN T5 WHEN V(+5V)=4.5 RISE=1", "!.meas TRAN T33 WHEN V(+3V3)=3.0 RISE=1",
         f"!.meas TRAN V12 AVG V(+12V) {W}", f"!.meas TRAN V5 AVG V(+5V) {W}", f"!.meas TRAN V33 AVG V(+3V3) {W}",
@@ -191,7 +238,9 @@ def build(loop_test=False, block=False):
 
 
 if __name__ == "__main__":
-    if "loop" in sys.argv:
+    if "surge" in sys.argv:
+        build(surge_test=True).write_asc("Avionics_SurgeTest.asc"); print("wrote Avionics_SurgeTest.asc")
+    elif "loop" in sys.argv:
         build(loop_test=True).write_asc("Avionics_LoopTest.asc"); print("wrote Avionics_LoopTest.asc")
     else:
         B = build(); B.write_asc("Avionics_Board.asc")
