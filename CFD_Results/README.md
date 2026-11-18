@@ -7,4 +7,4 @@ folders, meshes) is not kept here: it lives under each project's `cfd.run_root` 
 | Folder | Project | Written by |
 |---|---|---|
 | [01_54x18_Composite/](01_54x18_Composite/) | 54″ × 18″ composite prop: Caradonna–Tung validation of the CFD method | `Props/01_54x18_Composite/src/ct_export.py` |
-| `02_Toroidal_Rotor/` | Toroidal rotor and its 2-blade 54x18 reference on the same mesh recipe (runs pending) | the toroidal rotor post stage |
+| [02_Toroidal_Rotor/](02_Toroidal_Rotor/) | Toroidal rotor (`toroid_prelim`, done) and its 2-blade 54x18 reference on the same mesh recipe (`reference_prelim`, running) | `Props/02_Toroidal_Rotor/src/toroid.py post <rotor>` |

@@ -1,0 +1,78 @@
+{
+ "rotor": "toroid",
+ "rpm": 2280,
+ "iterations": 1500,
+ "window": 300,
+ "T": 436.3243806948,
+ "Q": 38.559393433433335,
+ "P": 9206.480942438804,
+ "FoM": 0.54672854873764,
+ "CT_h": 0.009927044385842528,
+ "tw_at_cfd_rpm": 1.0509602450639326,
+ "T_drift_pct_per100": -0.061931395223973146,
+ "Q_drift_pct_per100": -0.021270597390207268,
+ "converged": true,
+ "viscous_thrust_fraction": -0.002541150561961283,
+ "viscous_torque_fraction": 0.1302146329947147,
+ "rpm_for_tw_required": 2723.875995591272,
+ "Q_at_tw_required": 55.03451764403468,
+ "P_at_tw_required": 15698.245435893106,
+ "motor_current_at_tw_required_a": 219.00164601085245,
+ "motor_rpm_available": 2553.6,
+ "tw_at_motor_rpm": 1.3183245314081966,
+ "mesh": {
+  "cells": 2762282.0,
+  "max_non_orthogonality": 64.646075,
+  "avg_non_orthogonality": 10.665305,
+  "max_skewness": 7.0002503,
+  "max_aspect_ratio": 10.211609,
+  "mesh_ok": false,
+  "failed_checks": [
+   "***Max skewness = 7.0002503, 20 highly skew faces detected which may impair the quality of the results"
+  ],
+  "layer_faces": 356097,
+  "layers_mean": 2.89,
+  "layer_thickness_m": 0.000829,
+  "layer_coverage_pct": 94.9,
+  "surface_closed": true,
+  "surface_self_intersections": 0,
+  "surface_self_intersecting": false,
+  "self_intersection_checked": true,
+  "surface_illegal_triangles": 0
+ },
+ "vs_hand": [
+  {
+   "quantity": "Thrust [N]",
+   "cfd": 436.3243806948,
+   "legs_tip_loss": 620.067491237691,
+   "legs_no_tip_loss": 635.9755356798441,
+   "reference": 584.7757536245092
+  },
+  {
+   "quantity": "Torque [N m]",
+   "cfd": 38.559393433433335,
+   "legs_tip_loss": 42.53930734870436,
+   "legs_no_tip_loss": 42.66207214045651,
+   "reference": 39.024974928021024
+  },
+  {
+   "quantity": "Shaft power [W]",
+   "cfd": 9206.480942438804,
+   "legs_tip_loss": 10156.729334617083,
+   "legs_no_tip_loss": 10186.040784176572,
+   "reference": 9317.64366507015
+  },
+  {
+   "quantity": "Figure of merit",
+   "cfd": 0.54672854873764,
+   "legs_tip_loss": 0.8395677627399623,
+   "legs_no_tip_loss": 0.869573694195376,
+   "reference": 0.8381642394399097
+  }
+ ],
+ "yplus": {
+  "min": 0.759294927,
+  "max": 323.918834,
+  "average": 30.00078
+ }
+}

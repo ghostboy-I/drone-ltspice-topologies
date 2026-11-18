@@ -943,8 +943,10 @@ def stage_status(p, p01, rotor="toroid"):
     t, F, M, _, _ = read_forces(case); T, Q = F[:, 2], -M[:, 2]; k2 = min(100, len(Q) - 1)
     dr = lambda y: 100 * (y[-1] - y[-1 - k2]) / abs(y[-1]) * 100 / k2
     bf = read_bottom_flow(case); L = guard_limits(p, p01)
+    dT_ = f", {dr(T):+.2f} %/100 it" if k2 >= 50 else ", drift shown after 50 iterations"
+    dQ_ = f" ({dr(Q):+.2f} %/100 it; converged below 0.5)" if k2 >= 50 else ""
     print(f"iteration {its[-1]} of {end}, {per:.1f} s/iteration, about {(end - its[-1]) * per / 3600:.1f} h left | thrust {T[-1]:.1f} N "
-          f"({T[-1] / T_req:.3f} of the T/W 1.5 thrust, {dr(T):+.2f} %/100 it) | torque {Q[-1]:.2f} N m ({dr(Q):+.2f} %/100 it; converged below 0.5)"
+          f"({T[-1] / T_req:.3f} of the T/W 1.5 thrust{dT_}) | torque {Q[-1]:.2f} N m{dQ_}"
           + (f" | outlet flow {bf[-1, 1]:.0f} m^3/s (2 vi A = {L['wake_flow_momentum']:.0f})" if len(bf) else "")
           + ("  ** FATAL error in the log **" if "FOAM FATAL" in txt else "") + ("  (finished)" if its[-1] >= end else ""))
 

@@ -1,0 +1,14 @@
+{
+ "stopped_by_guard": false,
+ "reason": null,
+ "returncode": 0,
+ "limits": {
+  "ct_min": 0.0,
+  "ct_max": 0.04250560375247485,
+  "flow_max": 407.2707732164218,
+  "wake_flow_momentum": 40.727077321642184,
+  "start": 150,
+  "window": 50,
+  "qref": 43953.10061442506
+ }
+}

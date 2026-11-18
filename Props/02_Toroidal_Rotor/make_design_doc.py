@@ -197,7 +197,7 @@ for nm, m_ in (("Toroid", M), ("2-blade reference", MREF)):
                       f"{sm['s_per_iteration']:.1f} s, {sm['solver_memory_gb']:.1f} GB" if sm.get("s_per_iteration") else "-",
                       f"{sm['estimated_run_h']:.1f} h" if sm.get("estimated_run_h") else "-"])
 if mrows:
-    doc.table(["Mesh", "Cells", "Max ortho / skew", "Skewed", "Layers", "Per iteration", "1500 it."], mrows,
+    doc.table(["Mesh", "Cells", "Ortho / skew", "Skewed", "Layers", "Per iteration", "1500 it."], mrows,
               widths=[0.19, 0.1, 0.16, 0.11, 0.14, 0.18, 0.12])
     doc.p("Both meshes keep non-orthogonality under 65 deg (the limited schemes are built for that). checkMesh's only flag is a handful of "
           "faces with skewness above 4, out of millions; the validation mesh had none. 'Per iteration' is from a 10-iteration smoke test "
@@ -210,10 +210,11 @@ if CFD:
     rows = []
     for row in CFD["vs_hand"]:
         c_ = row["cfd"]; lo, hi = row["legs_tip_loss"], row["legs_no_tip_loss"]
-        fmt = f3 if "merit" in row["quantity"] else f1
+        fmt = f3 if "merit" in row["quantity"] else (f0 if "power" in row["quantity"] else f1)
         rows.append([row["quantity"], fmt(lo), fmt(hi), fmt(c_), pct(lo, c_), fmt(row["reference"])])
-    doc.table(["At " + str(S["cfd_rpm"]) + " rpm", "BEMT, tip loss", "BEMT, closed tip", "CFD", "CFD vs. BEMT", "Reference BEMT"], rows,
-              widths=[0.22, 0.15, 0.16, 0.13, 0.15, 0.19])
+    doc.table(["At " + str(S["cfd_rpm"]) + " rpm", "BEMT 4 legs", "BEMT closed", "CFD", "CFD vs BEMT", "BEMT 2-blade"], rows,
+              widths=[0.24, 0.15, 0.15, 0.13, 0.16, 0.17])
+    doc.p("'BEMT 4 legs' has Prandtl tip loss, 'BEMT closed' none; 'BEMT 2-blade' is the reference blade at the same speed.")
     doc.p(f"CFD at {CFD['iterations']} iterations, drift thrust {CFD['T_drift_pct_per100']:+.2f} % and torque {CFD['Q_drift_pct_per100']:+.2f} % "
           f"per 100 iterations ({'converged' if CFD['converged'] else 'NOT converged'}, limit 0.5 %). T/W at {S['cfd_rpm']} rpm: {CFD['tw_at_cfd_rpm']:.2f}. "
           f"Scaling at constant C_T: T/W 1.5 needs {CFD['rpm_for_tw_required']:.0f} rpm, {CFD['Q_at_tw_required']:.1f} N m, "
@@ -243,17 +244,29 @@ if CFD and CFDREF:
 
 # ------------------------------------------------------------------------------------------------------------------
 doc.h("10. Takeaways so far")
-doc.bullets([
-    f"On the blade-element numbers the toroid meets T/W 1.5 at {f0(leg15['rpm'])} rpm with {f0(leg15['motor_current_a'])} A, inside the U15XL's "
-    f"{f0(I['rpm_available_sag'])} rpm and 180 A; its T/W at full motor speed is {B['legs_tip_loss']['at_motor_rpm']['tw']:.2f} to "
-    f"{B['legs_no_tip_loss']['at_motor_rpm']['tw']:.2f} against {B['reference']['at_motor_rpm']['tw']:.2f} for the 2-blade reference.",
-    f"Its blade set brackets {ms['volume_scaled_kg']:.2f} to {ms['area_scaled_kg']:.2f} kg against {ms['reference_kg']:.2f} kg: not the lever "
-    "that closes the 55 lb budget. Its value, if any, is the power it saves (battery mass) and the noise.",
-    "What the CFD settles: the real thrust and torque of the loop, including the tip-turn drag and the leg-to-leg interference that "
-    "the blade-element method cannot see. A like-for-like run of the 2-blade reference on the same mesh recipe "
-    "(`toroid.py case reference`) removes the mesh bias from the comparison.",
-    "Next: the decision matrix across the rotor options (2-blade 44xx, 3-blade, 64xx, 60 in, toroid), weighted with mass first.",
-])
+tk = []
+if CFD:
+    tk.append(f"CFD (converged, {CFD['iterations']} iterations): at {S['cfd_rpm']} rpm the toroid makes {f0(CFD['T'])} N, {pct(hp['legs_tip_loss']['T'], CFD['T'])} "
+              f"against the blade-element {f0(hp['legs_tip_loss']['T'])} N, for {f1(CFD['Q'])} N m ({pct(hp['legs_tip_loss']['Q'], CFD['Q'])}). Figure of merit "
+              f"{CFD['FoM']:.2f} against {hp['legs_tip_loss']['FoM']:.2f}: the loop loses thrust far more than it saves torque.")
+    ok = CFD["rpm_for_tw_required"] <= I["rpm_available_sag"] and CFD["motor_current_at_tw_required_a"] <= I["i_peak"]
+    tk.append(f"T/W 1.5 on the U15XL: {'MET' if ok else 'NOT MET'}. Scaled at constant C_T it needs {f0(CFD['rpm_for_tw_required'])} rpm "
+              f"(motor: {f0(I['rpm_available_sag'])}) and {f0(CFD['motor_current_at_tw_required_a'])} A (peak rating {I['i_peak']} A); "
+              f"the toroid reaches T/W {CFD['tw_at_motor_rpm']:.2f} at full motor speed.")
+    tk.append("The size of the shortfall matches the prop program's Caradonna-Tung check, where the same blade-element method over-predicted "
+              "thrust by about 31 % while CFD matched the experiment. So part of the gap may be blade-element optimism that the 2-blade "
+              "reference shares. " + ("The reference CFD in section 9b separates the two." if CFDREF else
+              "The 2-blade reference on the same mesh (running) separates loop topology from method: if it also lands ~30 % low, the "
+              "toroid's deficit is the method's; if it lands near its estimate, the loop itself is the problem."))
+else:
+    tk.append(f"On the blade-element numbers the toroid meets T/W 1.5 at {f0(leg15['rpm'])} rpm with {f0(leg15['motor_current_a'])} A, inside the U15XL's "
+              f"{f0(I['rpm_available_sag'])} rpm and 180 A; its T/W at full motor speed is {B['legs_tip_loss']['at_motor_rpm']['tw']:.2f} to "
+              f"{B['legs_no_tip_loss']['at_motor_rpm']['tw']:.2f} against {B['reference']['at_motor_rpm']['tw']:.2f} for the 2-blade reference.")
+tk.append(f"Its blade set brackets {ms['volume_scaled_kg']:.2f} to {ms['area_scaled_kg']:.2f} kg against {ms['reference_kg']:.2f} kg: not the lever "
+          "that closes the 55 lb budget. Its value, if any, would be the power it saves (battery mass) and the noise.")
+tk.append("Next: the decision matrix across the rotor options (2-blade 44xx, 3-blade, 64xx, 60 in, toroid), weighted with mass first, "
+          "using CFD-corrected thrust where both CFD runs exist.")
+doc.bullets(tk)
 
 out = os.path.join(here, "02_Toroidal_Rotor_Design.pdf")
 doc.save(out)
