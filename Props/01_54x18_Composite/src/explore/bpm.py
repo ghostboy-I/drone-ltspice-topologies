@@ -126,3 +126,16 @@ def tbl_te(c, L, U, alpha_deg, re, theta=math.pi / 2, phi=math.pi / 2, freqs=BAN
     out = {k: np.array(v) for k, v in out.items()}
     out.update({"st1": st1, "dstar_p": dp, "dstar_s": ds, "K1": k1, "Rc": Rc, "M": M})
     return out
+
+
+def tip_vortex(c, U, alpha_tip_deg, re, theta=math.pi / 2, phi=math.pi / 2, freqs=BANDS, c0=C0, rounded=True):
+    """1/3-octave SPL [dB] of tip-vortex formation noise, eqs. (61)-(67). alpha_tip_deg is alpha'_TIP (eq. 66),
+    the tip angle already scaled by the tip-loading ratio. rounded: eq. (63) l/c = 0.008 alpha; else flat tip, eq. (67)."""
+    a = abs(alpha_tip_deg); M = U / c0
+    if rounded: l = 0.008 * a * c
+    else: l = c * (0.0230 + 0.0169 * a if a <= 2 else 0.0378 + 0.0095 * a)
+    Mmax = M * (1 + 0.036 * a); Umax = c0 * Mmax
+    Dh = D_h(theta, phi, M, 0.8 * M)
+    base = 10 * math.log10(M * M * Mmax ** 3 * l * l * Dh / re ** 2) + 126
+    spl = np.array([base - 30.5 * (math.log10(f * l / Umax) + 0.3) ** 2 for f in freqs])
+    return {"spl": spl, "l": l, "Mmax": Mmax, "Umax": Umax, "f_peak": 0.5012 * Umax / l, "peak": base}

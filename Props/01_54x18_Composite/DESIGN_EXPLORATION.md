@@ -47,7 +47,9 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 34. ~~A noise-constrained ranking~~ (entry 28: at the hex's own hover level the tri loses 2.8 kg and the hex wins every scenario; with the 303 Wh/kg pack at free speed the tri wins only if the limit is looser than 40.6–43.5 dBA)
 35. ~~Broadband rotor noise scaling~~ (entry 29: on trailing-edge scaling the tri is 1.0 dB *quieter* than the hex at cap 0.60, though 7 dBA louder in tones; which one dominates decides what a noise limit costs)
 36. ~~Absolute broadband level (BPM TBL-TE)~~ (entry 30: broadband sets the dBA for both layouts; total hex 49.8 against tri 52.0 dBA; equal total noise costs the tri 1.9 kg, so the tri keeps a narrow free-speed lead at 303 Wh/kg with a constant or streamlined body)
-37. The remaining broadband sources: tip-vortex noise (BPM section 5.4) and leading-edge noise from the rotor ingesting its own recirculating wake turbulence in hover (Amiet). Both scale with blade loading and would add to the tri more than the hex
+37. ~~Tip-vortex formation noise (BPM section 5.3)~~ (entry 31: from negligible to +2.4 dBA on the tri depending on how the tip angle is defined; the hex moves at most 0.5 dB; with flat tips the tri cannot reach the hex's level within cap 0.45)
+38. Leading-edge noise from the rotor ingesting its own recirculating wake turbulence in hover (Amiet's model). This needs a turbulence intensity and length scale for the ingested flow, from the literature or from the toroid CFD case's hover field
+39. Tip shape as a noise lever: a rounded or swept tip, plus a narrower tip chord on the tri at low caps (entry 31: a 110 mm flat tip puts the tri's tip noise at 6 kHz, where A-weighting counts it fully). Price it in payload with the e13 optimiser, with a tip-chord bound
 33. A laminar-flow section from coordinates (NACA 63-2xx / 64-2xx, or an XFOIL-designed section): needs coordinate generation, since XFOIL's NACA command only builds 4- and 5-digit sections
 
 ## Entries
@@ -1768,3 +1770,75 @@ The code gives **20.64 dB in the 4 kHz band** (which spans 3.55–4.47 kHz) ✓.
 - Item 33 (laminar section from coordinates).
 - Item 13 (restate the coaxial case).
 - Still waiting on the user: speed requirement, battery chemistry, and noise metric. Two of the three now decide the layout only at the margins: with a noise limit, free speed and 303 Wh/kg is a near tie.
+
+
+## 31 — Tip-vortex formation noise (BPM section 5.3) (2026-11-18)
+
+**Question.** Entry 30 left out the second BPM broadband source that grows with blade loading: noise from the **tip vortex forming** at the blade tip. Turbulence in the vortex core passes over the trailing edge near the tip. Does it change the tri–hex noise ranking?
+- **Model:** `bpm.tip_vortex`, eqs. 61–67 transcribed from the report (pages 71–73).
+- **Rotor study:** `src/explore/e31_tip_noise.py`, results `results/explore/e31_tip_noise.json` / `.png`.
+
+**The model.**
+
+  SPL_TIP = 10 log₁₀(M² M_max³ ℓ² D̄_h / r_e²) − 30.5 (log₁₀ St″ + 0.3)² + 126,   St″ = f ℓ / U_max
+
+- **ℓ** is the spanwise size of the separated vortex core at the trailing edge:
+  - rounded tip: ℓ/c = 0.008 α′_TIP;
+  - flat (square) tip: ℓ/c = 0.0378 + 0.0095 α′_TIP for α′ > 2°. The report notes this flat-tip definition is not yet confirmed by experiment.
+- **M_max** = M(1 + 0.036 α′_TIP) is the peak Mach number in the vortex.
+- **Spectrum shape:** a parabola in log St″ with its peak at St″ = 0.5, so f_peak = 0.5 U_max/ℓ. A small core radiates high in frequency.
+- **Level:** it grows as ℓ², so tip noise grows quickly with tip chord and tip angle.
+- **The awkward input is α′_TIP** (eq. 66). It is the tip angle, scaled by how steeply the lift per unit span falls off at the tip compared with the report's reference wing. That reference loading is not given, so this entry brackets α′_TIP three ways:
+  1. **edge angle:** α* of the outermost BEMT strip (r/R = 0.999). Prandtl's tip loss has already unloaded it, so α* ≈ 0.8–1.1°;
+  2. **max-Γ angle:** α* at the station of peak bound circulation Γ = ½ W c C_l. The vortex rolls up the blade's bound circulation, so this is its strength in angle terms. Tri 6.7–8.0°, hex 3.9–4.8°;
+  3. **circulation-equivalent angle:** the angle at which the tip section alone would carry that circulation, 2Γ_max/(2π W_tip c_tip). Tri 8.7–10.2°, hex 5.7–7.1°. This is not run; it would be louder than case 2.
+
+**Validation.** The report's Figure 91 case is a rounded-tip model, 15.24 cm chord, U = 71.3 m/s, α′_TIP = 0.71 × 10.8° = 7.7°, observer at 1.22 m and 90°.
+- Our code gives a peak of **52.9 dB at 4.9 kHz**. The report's prediction (open circles) peaks at **≈ 50.5 dB around 5–6 kHz**, with the same shape.
+- This is about 2 dB high. Fig. 44 matched within 1 dB, so part of this offset may be in reading the figure, but the tip level carries at least ±2 dB here.
+
+**Results at 50 m, 30° below the disk (tip-vortex dBA; total = trailing edge + tip + tones):**
+
+| Layout | Cap | Tip chord [mm] | α* at max Γ | Tip, edge angle, flat | Tip, max-Γ, rounded | Tip, max-Γ, flat | TE (entry 30) | **Total, max-Γ flat** | Entry 30 total |
+|---|---|---|---|---|---|---|---|---|---|
+| tri | 0.45 | 110 | 8.0° | 30.9 | 39.4 | 46.5 | 47.6 | **50.3** | 47.9 |
+| tri | 0.50 | 89 | 7.9° | 29.2 | 38.1 | 46.0 | 48.7 | **50.9** | 49.2 |
+| tri | 0.55 | 71 | 7.1° | 27.2 | 34.1 | 43.7 | 49.7 | **51.4** | 50.6 |
+| tri | 0.60 | 57 | 6.7° | 24.6 | 30.1 | 41.4 | 50.5 | **52.4** | 52.0 |
+| hex | 0.45 | 67 | 4.8° | 25.7 | 25.6 | 38.3 | 47.5 | **48.1** | 47.6 |
+| hex | 0.50 | 59 | 4.3° | 24.1 | 22.2 | 37.2 | 48.5 | **49.0** | 48.7 |
+| hex | 0.55 | 52 | 3.9° | 22.3 | 18.8 | 36.2 | 49.3 | **49.9** | 49.7 |
+| hex | 0.60 | 52 | 4.3° | 22.1 | 20.7 | 37.0 | 49.4 | **50.0** | 49.8 |
+
+Equal-noise payload cost to the tri (tri held to the hex's cap-0.60 total):
+
+| α′_TIP definition, tip shape | Hex total [dBA] | Tri total at cap 0.60 [dBA] | Tri payload cost [kg] |
+|---|---|---|---|
+| edge angle (≈ entry 30), rounded or flat | 49.8 | 52.0 | 1.86–1.89 |
+| max-Γ, rounded | 49.8 | 52.0 | 2.15 |
+| max-Γ, flat | 50.0 | 52.4 | **out of range**: the tri's quietest point (cap 0.45, 50.3 dBA) is still louder than the hex |
+
+**Findings.**
+- **Tip noise ranges from negligible to as loud as the trailing edge, depending on α′_TIP.** BPM's eq. 66 leaves the tip angle open for a rotor. A BEMT strip at the very tip reads about 1°, because tip loss has unloaded it. The physical vortex strength is the peak circulation, which corresponds to 4–10°. Since level grows as ℓ² ∝ α′², this choice moves the result by about 20 dB.
+- **Under the loading-based reading, tip noise hurts the tri and barely touches the hex.** Each tri blade carries about twice the circulation, so its vortex is stronger: Γ_max is 4.9 against 2.31 m²/s at cap 0.60. The tri's total rises by 0.4–2.4 dB; the hex's by 0.2–0.5 dB.
+- **Slowing the tri down makes its tip noise *worse*.** At lower caps the optimiser widens the blade, including the tip: 57 mm at cap 0.60, 110 mm at cap 0.45. A wider tip means a larger vortex core ℓ (ℓ ∝ c) and a lower peak frequency, 16 kHz down to 6 kHz. That moves the noise from where A-weighting removes 6.6 dB into the band where it counts fully. With flat tips, the tri's quieting curve flattens: going from cap 0.60 to 0.45 buys only 2.1 dBA for 4.6 kg, and the tri never reaches the hex's 50.0 dBA.
+- **Tip shape is a real design lever.** A rounded tip has a much smaller core (ℓ/c = 0.008α against about 0.1 for flat) and stays 7–16 dB below the flat tip. That is consistent with rounded or swept tips on quiet rotors. Queue item 39 prices a rounded tip with a bounded tip chord for the tri.
+- **Ranking:** the hex's noise advantage is 2.2 dBA (entry 30) to 2.4 dBA in total. With flat tips at the loading-based angle, a hex-level noise limit is unreachable for the tri. With rounded tips it costs 2.15 kg. At free speed with the 303 Wh/kg pack, that turns entry 30's near tie (tri ahead by 0.2–0.5 kg) into a hex lead of up to ≈ 0.1 kg (−2.19 + 2.15 = −0.04 for the constant body: an exact tie).
+
+**Hand checks.**
+- **Tip formula, tri cap 0.60, flat tip, max-Γ angle α′ = 6.69°**, tip chord 57.2 mm, W_tip = ΩR = 153.3 m/s:
+  - ℓ = 0.0572 × (0.0378 + 0.0095 × 6.69) = **5.80 mm**;
+  - M = 153.3/357.6 = 0.4288, and M_max = 0.4288 × (1 + 0.036 × 6.69) = 0.5321;
+  - one tip at 50 m with D̄_h = 1: 10 log₁₀(0.4288² × 0.5321³ × 0.00580² / 2500) + 126 = **31.7 dB**, at f = 0.5 × 357.6 × 0.5321 / 0.00580 = **16.5 kHz**;
+  - nine tips add 10 log₁₀ 9 = 9.5 dB, giving 41.2 dB.
+  
+  The code's single-source peak is 31.71 dB at 16.45 kHz ✓. The vehicle's 41.4 dBA then adds the azimuth-averaged directivity, the A-weighting (−6.6 dB at 16 kHz) and the energy in the neighbouring bands of the broad spectrum.
+- **Circulation ratio.** By Kutta–Joukowski, a strip at radius r makes thrust ρ (Ωr) Γ dr. With near-uniform Γ, blade thrust is T_b ≈ ρ Ω Γ (R² − r₀²)/2, so Γ ∝ T_b/Ω. Each tri blade carries 2× the thrust at 2135/1973 = 1.082× the hex's rpm, so Γ_tri/Γ_hex ≈ 2/1.082 = **1.85**. BEMT gives 4.90/2.31 = **2.12**. The remaining 15 % is because Γ is not uniform: the max-Γ value sits above the mean, more so for the tri's more peaked distribution.
+
+**Lesson.** An empirical model is only as good as its least-defined input. Here BPM's tip angle has no unique meaning for a rotor with Prandtl tip loss: one reasonable reading makes the source vanish, another makes it dominant. The useful output is then the **bracket and the trend**. Whatever definition is used, tip noise penalises the tri, and it penalises the tri more as it slows down with a wider tip. This points to a design lever (the tip shape) rather than a single number.
+
+**Next.**
+- Queue item 39: rounded tip with a bounded tip chord for the tri; does it recover the 2.15 kg?
+- Item 38: ingested-turbulence leading-edge noise.
+- Item 33: laminar section.
+- Still waiting on the user: speed requirement, battery chemistry, noise metric and distance.
