@@ -21,7 +21,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 7. ~~Planar hexacopter against Y6: six isolated disks need a bigger frame, but they have no interference~~ (entry 09: hex best on energy, all three tie on payload)
 8. ~~Cruise speed per configuration~~ (entry 16: best-range speeds 21–25 m/s for all layouts; at its best speed the tri wins payload by 3.4 kg, the hex still wins energy by 25 %)
 9. ~~Camber (64xx)~~ (entry 20: loses with torque-sized motors: hybrid −0.14/−0.18 kg, full 64xx −0.9/−1.1 kg for tri/hex; keep 44xx)
-10. Tip-speed limit: is 0.60 Mach still the right cap for the slower coaxial rotors (noise)?
+10. ~~Tip speed and noise~~ (entry 27: the hex is 6–7 dBA quieter in tonal loading noise; quieting the tri to match costs it > 2 kg, which removes most of its free-speed lead)
 11. ~~Check the cruise wake-overlap model with a prescribed-wake (Biot–Savart) calculation~~ (entry 07: the lens model was optimistic; use the vortex-wake / biplane σ from now on)
 12. Mast structure at h/D 0.4–0.5: bending under motor-out and gust loads, first bending mode against 1P/2P, gyroscopic moments
 13. Re-state the coaxial case (CONFIG_STUDY headline, entries 01–06 payloads) with the vortex-wake cruise term: at h/D 0.2 the coax is −12 % energy and −2.4 kg payload, not −22 % and +0.1 kg
@@ -44,6 +44,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 30. ~~Re-run the entry 14–19 chain with the best-camber blades~~ (entry 24: hex leads by +1.73 kg at 15 m/s, now outside the motor-fit band; tri leads by 2.2 kg at free speed; break-even batteries 382 / 204 Wh/kg)
 31. ~~A section designed for Cl ≈ 0.3 (NACA 230xx)~~ (entry 25: −1.1 kg hex, −0.9 kg tri vs 24xx; its forward camber peak moves transition from 76 % to 37 % chord. 24xx's bucket is already at Cl 0.25–0.30)
 32. ~~Camber further aft at 2 % (NACA 25xx, 26xx)~~ (entry 26: 25xx ties 24xx (−0.04 / −0.00 kg), 26xx −0.2 kg; upper-surface transition moves aft but the lower surface's moves forward and cancels it)
+34. A noise-constrained ranking: re-optimise the tri (and hex) blade at a tonal-noise cap (equal dBA at 50 m) instead of a tip-Mach cap, with the 2 % blades; add a broadband estimate (Schlegel–King–Mull or BPM) since the A-weighted tonal level is a lower bound
 33. A laminar-flow section from coordinates (NACA 63-2xx / 64-2xx, or an XFOIL-designed section): needs coordinate generation, since XFOIL's NACA command only builds 4- and 5-digit sections
 
 ## Entries
@@ -1520,3 +1521,54 @@ Thin-airfoil theory gets the moment trend right to within 0.006. Aft camber weig
 The hand model reproduces the 26xx penalty: +0.0005, against XFOIL's +0.0003 to +0.0005. It ranks 24xx and 25xx within 0.0001 of each other, the same tie the optimiser finds. The upper surface saves 0.0005 in C_F, the lower loses 0.0009: **friction is roughly linear in the turbulent length, so moving transition by the same distance on the other surface simply moves the drag there.** (The XFOIL points sit at slightly different Cl, 0.27–0.33, which is the main scatter in this check.)
 
 **Next.** Queue item 10: tip speed and noise. The 2 % blades raise the hex's hover speed to 1973 rpm (tip Mach 0.40 in hover, about 0.56 at T/W 2 since rpm ∝ √T), so a noise requirement is the next thing that could move the ranking. Item 33 (a laminar section from coordinates) stays open as the last aerofoil lever.
+
+
+## 27 — Hover noise of the tri and hex: Gutin steady-loading tones, A-weighted (2026-11-18)
+
+**Question.** Queue item 10: would a noise requirement move the ranking? Both layouts weigh the same. The tri carries the weight on 3 rotors at twice the thrust each and spins faster in hover (2135 against 1973 rpm). The hex has twice as many sources. Script `src/explore/e27_rotor_noise.py` (runs in about a second), results `results/explore/e27_rotor_noise.json` / `.png`. Blades: the best 2 % blades of entries 22/24 (hex 24xx, tri 44/24 hybrid).
+
+**Model: Gutin's steady-loading noise.** A rotor's steady thrust and torque, spinning, are a rotating force pattern. Far away it radiates tones at multiples of the blade-passing frequency f_m = mBΩ/2π. With the loading distributed along the span (BEMT dT/dr and dQ/dr), the rms pressure of harmonic m at distance S and angle θ from the thrust axis is
+
+  p_m = mBΩ / (2√2 π a S) · | ∫ [ −cos θ · dT + (a / Ω r²) · dQ ] · J_mB(mBΩ r sin θ / a) |
+
+- The thrust term radiates along and below the disk (cos θ < 0 below a hovering rotor), and the torque (drag) term radiates in the plane.
+- The Bessel function J_mB carries the tip-Mach dependence: it is tiny for small arguments, so slow rotors are quiet in their tones.
+- Straight below (θ = 180°), J_mB(0) = 0. Steady loading makes no sound on the axis, and the loudest direction is about 20–25° below the disk plane.
+- Above the disk (θ < 90°), −cos θ·T is negative and cancels the torque term. The plot shows that null at θ ≈ 65–75°, where T cos θ = Q a / (Ω R_e²); above a hovering rotor it is quieter than below by 12–15 dB.
+- The n rotors run at slightly different rpm, so their tones add incoherently (+10 log₁₀ n). Harmonics 1–20 are summed, then A-weighted (IEC 61672). The observer is at 50 m.
+
+**What Gutin leaves out:** thickness noise (small below tip Mach ≈ 0.5), broadband noise (turbulence, trailing edge) and unsteady loading (blade–wake interaction, arms in the downwash). For large, slow rotors those often set the A-weighted level. **The absolute dBA here are a lower bound; the comparison between layouts is the result.**
+
+| Point | Layout | rpm | Tip Mach | T per rotor [N] | Q [N·m] | BPF [Hz] | Max OASPL [dB] | **Max tonal level [dBA]** | at θ |
+|---|---|---|---|---|---|---|---|---|---|
+| hover | tri | 2135 | 0.429 | 415 | 25.2 | 71 | 69.7 | **46.8** | 112° |
+| hover | hex | 1973 | 0.396 | 208 | 10.2 | 66 | 64.2 | **39.9** | 115° |
+| T/W 2 | tri | 2992 | 0.601 | 830 | 50.6 | 100 | 83.5 | **67.7** | 112° |
+| T/W 2 | hex | 2763 | 0.555 | 415 | 20.5 | 92 | 78.0 | **60.5** | 112° |
+
+**Finding.**
+- **The hex is 5.5 dB quieter unweighted and 6.9–7.2 dBA quieter A-weighted**, in hover and at full thrust. It has twice the sources (+3 dB), but each carries half the thrust (−6 dB), and it spins 8 % slower (−2 dB from 60 log₁₀, see hand check 2). The A-weighted gap is bigger than the unweighted one because the tri's higher harmonics sit a little higher in frequency, where the A-curve is less severe.
+- **A-weighting removes most of the fundamental.** At 66–100 Hz the A-curve is −19 to −26 dB, so the dBA level is set by harmonics 3–10 (200–700 Hz). Those harmonics grow fastest with tip Mach (J_mB with mB = 6–20), which is why tip speed matters so much more for dBA than for OASPL.
+- **What noise parity would cost the tri (estimate).** To be as quiet as the hex in tonal noise, the tri would need about 7 dB less, i.e. a rotor speed lower by a factor 10^(−7/60) = 0.76 (tip Mach at T/W 2: 0.60 → 0.46). Entry 15's tip-Mach sweep (44xx blades) shows that even a 0.50 cap costs the tri **2.0 kg** (its hover speed falls to 1782 rpm). At that speed it would be roughly level with the hex: +0.4 dB on the first harmonic (+6 − 3 + 60 log₁₀(1782/1973) = +6 − 3 − 2.7), or about +2 dBA if the A-weighted gap only fell as 60 log₁₀ (the higher harmonics fall faster, so the truth lies between).
+  - So a noise requirement set at the hex's level costs the tri **more than 2 kg**. That removes most of its free-speed lead (1.1–2.4 kg, entry 24) and adds to the hex's 15 m/s lead (+1.7 kg).
+  - This is an extrapolation of entry 15 below its range; queue item 34 re-optimises with a noise cap directly.
+- **Ranking:** the hex is better or equal on payload at 15 m/s, on energy everywhere, and on tonal noise everywhere. The tri's only win is payload at free cruise speed with a high-energy pack, and a noise limit would cut into that.
+
+**Hand check 1: Gutin's concentrated form for the first harmonic (θ = 120°, observer 30° below the disk plane, one rotor).** Put all the load at the classic effective radius R_e = 0.8R = 0.549 m:
+- **Hex:** Ω = 1973·π/30 = 206.6 rad/s; Bessel argument x = BΩR_e sin θ / a = 2 × 206.6 × 0.549 × 0.866 / 357.6 = **0.549**; J₂(0.549) = **0.0368** (small-argument form (x/2)²/2! = 0.0377).
+  - Thrust term −T cos θ = 207.6 × 0.5 = 103.8 N.
+  - Torque term Q·a/(ΩR_e²) = 10.2 × 357.6 / (206.6 × 0.301) = 58.8 N.
+  - p₁ = 2 × 206.6 / (2√2 π × 357.6 × 50) × (103.8 + 58.8) × 0.0368 = **0.0155 Pa → 57.8 dB** per rotor, **65.6 dB** for six.
+  - The distributed model gives **64.0 dB** for six.
+- **Tri:** x = 0.594, J₂ = 0.0428, p₁ = 0.0412 Pa → 66.3 dB per rotor, **71.0 dB** for three. The model gives **69.5 dB**.
+- **The concentrated form is 1.6 dB high on both.** The reason: the BEMT thrust centroid is at 0.65R, not 0.8R. For harmonic 1, J₂ ∝ r² weights the loading by r², so the effective radius is about 0.7R. On the thrust term that is 20 log₁₀((0.7/0.8)²) ≈ −2.3 dB, partly offset by the torque term's 1/R_e². The 0.8R rule of thumb comes from propellers with more outboard-loaded blades.
+
+**Hand check 2: why tones scale as 60 log₁₀ of the rotor speed at fixed thrust.** For small x, J_B(x) ≈ (x/2)^B / B!, so with B = 2 the first harmonic goes as p₁ ∝ Ω (prefactor) × T × Ω² (Bessel) = T·Ω³: **+60 log₁₀ Ω at fixed thrust** (the torque term scales the same way, since Q·a/Ω ∝ T). Tri against hex, first harmonic, whole vehicle:
+- thrust per rotor ×2: +6.0 dB;
+- half the rotors: −3.0 dB;
+- rpm ratio 2135/1973: 60 log₁₀(1.082) = +2.1 dB;
+- hand total **+5.1 dB**, against the model's **+5.4 dB** ✓.
+
+This is the same 60 log₁₀ rule entry 15 used, now derived from Gutin.
+
+**Next.** Queue item 34: a noise-capped re-optimisation, with the tri and hex blades optimised under an equal-dBA cap instead of the tip-Mach cap, plus a broadband estimate, since tones are only the lower bound. Still open for the user: is there a noise requirement (e.g. dBA at a distance)? It would now be the third input that decides the layout, after the speed requirement and the battery chemistry.
