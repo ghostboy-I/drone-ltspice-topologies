@@ -44,7 +44,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 30. ~~Re-run the entry 14–19 chain with the best-camber blades~~ (entry 24: hex leads by +1.73 kg at 15 m/s, now outside the motor-fit band; tri leads by 2.2 kg at free speed; break-even batteries 382 / 204 Wh/kg)
 31. ~~A section designed for Cl ≈ 0.3 (NACA 230xx)~~ (entry 25: −1.1 kg hex, −0.9 kg tri vs 24xx; its forward camber peak moves transition from 76 % to 37 % chord. 24xx's bucket is already at Cl 0.25–0.30)
 32. ~~Camber further aft at 2 % (NACA 25xx, 26xx)~~ (entry 26: 25xx ties 24xx (−0.04 / −0.00 kg), 26xx −0.2 kg; upper-surface transition moves aft but the lower surface's moves forward and cancels it)
-34. A noise-constrained ranking: re-optimise the tri (and hex) blade at a tonal-noise cap (equal dBA at 50 m) instead of a tip-Mach cap, with the 2 % blades; add a broadband estimate (Schlegel–King–Mull or BPM) since the A-weighted tonal level is a lower bound
+34. ~~A noise-constrained ranking~~ (entry 28: at the hex's own hover level the tri loses 2.8 kg and the hex wins every scenario; with the 303 Wh/kg pack at free speed the tri wins only if the limit is looser than 40.6–43.5 dBA)
+35. Broadband rotor noise (Schlegel–King–Mull vortex noise, or a BPM trailing-edge estimate) on the entry-28 optima: the tonal dBA is a lower bound, and broadband scales differently (≈ V⁶ × blade area), so it could narrow or widen the gap
 33. A laminar-flow section from coordinates (NACA 63-2xx / 64-2xx, or an XFOIL-designed section): needs coordinate generation, since XFOIL's NACA command only builds 4- and 5-digit sections
 
 ## Entries
@@ -1572,3 +1573,57 @@ The hand model reproduces the 26xx penalty: +0.0005, against XFOIL's +0.0003 to 
 This is the same 60 log₁₀ rule entry 15 used, now derived from Gutin.
 
 **Next.** Queue item 34: a noise-capped re-optimisation, with the tri and hex blades optimised under an equal-dBA cap instead of the tip-Mach cap, plus a broadband estimate, since tones are only the lower bound. Still open for the user: is there a noise requirement (e.g. dBA at a distance)? It would now be the third input that decides the layout, after the speed requirement and the battery chemistry.
+
+
+## 28 — Payload against noise: both layouts re-optimised at tip-Mach caps 0.45–0.60 (2026-11-18)
+
+**Question.** Entry 27 found the hex 6.9 dBA quieter in hover tones. It estimated, by extrapolating entry 15 (44xx blades), that quieting the tri to match would cost it more than 2 kg. This entry does it properly:
+- **Method:** entries 11 (hex) / 13 (tri) optimisers, with the best-camber polars (hex 24xx, tri 44/24 hybrid), started from the entry-22 optima, at tip-Mach caps 0.45, 0.50, 0.55 and 0.60 (at T/W 2, hot day). Each optimum's hover and T/W 2 tonal level then comes from entry 27's Gutin model (50 m, A-weighted).
+- **Combining with the ranking:** the payload change from each layout's own cap-0.60 optimum is added to entry 24's full-chain ranking. That transfers a 15 m/s-frame change into entry 24's frame, which is a fair approximation since the change is almost all motor and blade hardware.
+- **Files:** script `src/explore/e28_noise_cap.py`, results `results/explore/e28_noise_cap.json` / `.png`.
+
+| Layout | Cap | Hover rpm | σ | Q_max [N·m] | Motor [kg] | Pack [Wh] | Hover [dBA] | T/W 2 [dBA] | **Δ payload vs own 0.60 [kg]** |
+|---|---|---|---|---|---|---|---|---|---|
+| tri | 0.60 | 2135 | 0.151 | 50.6 | 4.53 | 7365 | 46.8 | 67.7 | 0 |
+| tri | 0.55 | 1955 | 0.161 | 55.2 | 4.93 | 7284 | 43.7 | 64.2 | **−1.01** |
+| tri | 0.50 | 1777 | 0.174 | 60.8 | 5.44 | 7220 | 40.4 | 60.5 | **−2.47** |
+| tri | 0.45 | 1601 | 0.182 | 68.1 | 6.08 | 7217 | 36.9 | 56.8 | **−4.58** |
+| hex | 0.60 (not binding: M 0.555) | 1973 | 0.131 | 20.5 | 1.84 | 5140 | 39.8 | 60.5 | 0 |
+| hex | 0.55 | 1955 | 0.131 | 20.6 | 1.85 | 5127 | 39.5 | 60.2 | −0.00 |
+| hex | 0.50 | 1769 | 0.133 | 22.1 | 1.99 | 5017 | 35.7 | 56.2 | **−0.29** |
+| hex | 0.45 | 1587 | 0.137 | 24.2 | 2.17 | 4944 | 31.7 | 52.0 | **−1.09** |
+
+**Hex minus tri payload at the tri held to the hex's own hover level (39.8 dBA; tri −2.80 kg, hex 0):**
+
+| Scenario | 303 Wh/kg | 200 Wh/kg |
+|---|---|---|
+| 15 m/s | **+4.54 kg** (was +1.73) | **+8.87** (was +6.07) |
+| free speed, constant body | **+0.61** (was −2.19) | **+2.91** (was +0.11) |
+| free speed, streamlined body | +0.72 (was −2.08) | +3.09 |
+| free speed, bluff body | +1.69 (was −1.11) | +4.56 |
+| free speed, bluff pre-tilted | +0.41 (was −2.40) | +2.61 |
+
+**Finding.**
+- **Quieting the tri is expensive; quieting the hex is cheap.** Each 0.05 of tip Mach costs the tri 1.0–2.1 kg (a steepening curve) and the hex 0.0–0.8 kg. The tri's motors carry twice the torque each, and a lower cap raises that torque by 1/M (hand check 1), so its motor mass climbs from 4.53 to 6.08 kg per motor at 0.45. The hex at 0.60 isn't even on the cap (its T/W 2 tip Mach is 0.555), so its first 0.05 is free.
+- **At equal noise the hex wins every scenario.** Held to the hex's hover level, the tri gives up 2.80 kg, and its free-speed lead (1.1–2.4 kg with the 303 Wh/kg pack) turns into a hex lead of 0.4–1.7 kg.
+- **Break-even noise limits.** With the 303 Wh/kg pack at free speed, the tri wins only if the hover tonal limit is looser than **40.6–43.5 dBA** (by body model). That is any limit less than 3–6 dB below the tri's unconstrained 46.8 dBA. With a 200 Wh/kg pack the hex wins at every limit in the range, except a bluff pre-tilted body above 46.2 dBA.
+- **So a noise requirement, if there is one, decides for the hex** unless it is looser than the tri's natural level. The decision inputs are now: speed requirement, battery, noise. The hex wins on two of the three in almost every combination.
+- **Caveat:** absolute dBA are Gutin steady-loading tones only (a lower bound; broadband and unsteady loading are missing, queue item 35). The limits above are in that metric. What carries over to any real noise metric is the *ordering*, and the slope: payload per dB, 0.3–0.6 kg/dB for the tri against 0.1–0.2 kg/dB for the hex.
+
+**Hand check 1: motor mass ∝ 1/M on the cap.** On the cap the top rotor speed is Ω_cap = M a / R, and Q_max = P_max / Ω_cap. With P_max roughly constant, Q ∝ 1/M, and the torque-sized motor too (m ≈ 0.0909 τ). Tri from 0.60 to 0.55:
+- hand 0.60/0.55 = **1.091**;
+- optimiser 4.93/4.53 = **1.089** ✓.
+
+At lower caps the ratio rises faster than 1/M (0.45: 6.08/4.53 = 1.34 against 1.33), because P_max creeps up too: a slower rotor needs more solidity, and its profile power grows.
+
+**Hand check 2: why dBA falls faster than 60 log₁₀ rpm.** Entry 27 derived p₁ ∝ T Ω³ for the first harmonic. But the dBA level is carried by harmonics 3–10, and for harmonic m the small-argument Bessel term gives p_m ∝ Ω · (Ω)^(mB) at fixed thrust, i.e. 20(mB + 1) log₁₀ Ω. With B = 2, harmonic 3 already scales as 140 log₁₀ Ω. So the A-weighted level falls faster than the 60 log₁₀ rule:
+
+| Tri cap | rpm ratio vs 0.60 | 60 log₁₀ (first harmonic) | Model dBA | Effective exponent |
+|---|---|---|---|---|
+| 0.55 | 1955/2135 | −2.3 dB | **−3.1 dB** | 82 log₁₀ |
+| 0.50 | 1777/2135 | −4.8 dB | **−6.5 dB** | 81 log₁₀ |
+| 0.45 | 1601/2135 | −7.5 dB | **−9.9 dB** | 79 log₁₀ |
+
+The model's A-weighted level falls as about **80 log₁₀ rpm**, between the first-harmonic 60 and the higher harmonics' 100+. The larger solidity at low caps spreads the load over more chord but doesn't change the Gutin sources, which depend only on dT and dQ along the radius. This makes quieting a rotor cheaper per dB than entry 15's 60 log rule suggested, but not cheap enough to save the tri.
+
+**Next.** Queue item 35: a broadband estimate. Trailing-edge and vortex noise scale as about V⁶ × blade area, so the tri's larger solidity at low caps adds broadband noise and might narrow the hex's advantage. Then item 33 (laminar section from coordinates), or item 13 (restating the coaxial case).
