@@ -50,7 +50,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 37. ~~Tip-vortex formation noise (BPM section 5.3)~~ (entry 31: from negligible to +2.4 dBA on the tri depending on how the tip angle is defined; the hex moves at most 0.5 dB; with flat tips the tri cannot reach the hex's level within cap 0.45)
 38. Leading-edge noise from the rotor ingesting its own recirculating wake turbulence in hover (Amiet's model). This needs a turbulence intensity and length scale for the ingested flow, from the literature or from the toroid CFD case's hover field
 39. ~~Tip chord bound with flat or rounded tip~~ (entry 32: a bounded tip chord does not help. Loading per unit span is fixed by thrust, so a narrower outboard blade runs at a higher α* and its trailing-edge noise rises more than its tip noise falls. The rounded tip itself is the lever)
-40. Trailing-edge noise treatment: trailing-edge serrations, scored as a reduction of BPM's SPL_s and SPL_α (literature: 3–8 dB in mid-to-high bands). Trailing-edge noise now sets the dBA for every design, so this is the biggest remaining lever for both layouts; price the added mass and drag
+40. ~~Trailing-edge serrations~~ (entry 33: at a hex-level noise limit, serrations cut the tri's noise cost from 2.15 kg to 0.16–0.95 kg, so the tri regains a 1.2–2.0 kg free-speed lead at 303 Wh/kg; under tighter limits both layouts need them and the hex quiets more cheaply)
+42. Serration effectiveness for this rotor: the bracket D = 2–6 dB spans the payload answer. A BPM-compatible serration model calibrated on published rotor data (Lyu–Azarpeyvand theory or a measured propeller test) would narrow it
 41. Planform for low α*: since α* drives SPL_α, would a blade *wider* outboard (lower C_l), traded against its profile drag, be quieter per kg? This is the reverse of entry 32's bound, as a minimum-noise objective in the optimiser
 33. A laminar-flow section from coordinates (NACA 63-2xx / 64-2xx, or an XFOIL-designed section): needs coordinate generation, since XFOIL's NACA command only builds 4- and 5-digit sections
 
@@ -1832,9 +1833,12 @@ Equal-noise payload cost to the tri (tri held to the hex's cap-0.60 total):
   - ℓ = 0.0572 × (0.0378 + 0.0095 × 6.69) = **5.80 mm**;
   - M = 153.3/357.6 = 0.4288, and M_max = 0.4288 × (1 + 0.036 × 6.69) = 0.5321;
   - one tip at 50 m with D̄_h = 1: 10 log₁₀(0.4288² × 0.5321³ × 0.00580² / 2500) + 126 = **31.7 dB**, at f = 0.5 × 357.6 × 0.5321 / 0.00580 = **16.5 kHz**;
-  - nine tips add 10 log₁₀ 9 = 9.5 dB, giving 41.2 dB.
-  
-  The code's single-source peak is 31.71 dB at 16.45 kHz ✓. The vehicle's 41.4 dBA then adds the azimuth-averaged directivity, the A-weighting (−6.6 dB at 16 kHz) and the energy in the neighbouring bands of the broad spectrum.
+  - the code's single-source peak is 31.71 dB at 16.45 kHz ✓;
+  - from peak band to vehicle dBA *(corrected in entry 33: an earlier version counted nine tips; the tri has 3 rotors × 2 blades = 6)*:
+    - summing the whole parabolic spectrum of one tip adds +6.7 dB (OASPL 38.4 dB), and A-weighting it gives **34.8 dBA**;
+    - six tips add 10 log₁₀ 6 = **+7.8 dB**;
+    - the azimuth-averaged directivity D̄_h is 0.75, so **−1.2 dB**;
+    - 34.8 + 7.8 − 1.2 = **41.4 dBA**, which matches the model exactly ✓.
 - **Circulation ratio.** By Kutta–Joukowski, a strip at radius r makes thrust ρ (Ωr) Γ dr. With near-uniform Γ, blade thrust is T_b ≈ ρ Ω Γ (R² − r₀²)/2, so Γ ∝ T_b/Ω. Each tri blade carries 2× the thrust at 2135/1973 = 1.082× the hex's rpm, so Γ_tri/Γ_hex ≈ 2/1.082 = **1.85**. BEMT gives 4.90/2.31 = **2.12**. The remaining 15 % is because Γ is not uniform: the max-Γ value sits above the mean, more so for the tri's more peaked distribution.
 
 **Lesson.** An empirical model is only as good as its least-defined input. Here BPM's tip angle has no unique meaning for a rotor with Prandtl tip loss: one reasonable reading makes the source vanish, another makes it dominant. The useful output is then the **bracket and the trend**. Whatever definition is used, tip noise penalises the tri, and it penalises the tri more as it slows down with a wider tip. This points to a design lever (the tip shape) rather than a single number.
@@ -1905,3 +1909,78 @@ Equal-noise payload cost to the tri (tri held to the hex's cap-0.60 total):
 - Item 38: ingested turbulence.
 - Item 33: laminar section.
 - Still waiting on the user: speed requirement, battery chemistry, noise metric and distance.
+
+
+## 33 — Trailing-edge serrations (2026-11-18)
+
+**Question.** Entries 30–32 found that trailing-edge noise sets the A-weighted hover level of every design, and that planform changes only trade it against tip noise. Serrated (sawtooth) trailing edges reduce the trailing-edge source directly. What do they buy each layout under a noise limit, after paying for their drag and mass?
+- **Files:** `src/explore/e33_serrations.py`, `results/explore/e33_serrations.json` / `.png`.
+
+**Model (an engineering bracket, not a theory).**
+- **Why serrations work:** a straight trailing edge scatters boundary-layer turbulence into sound most efficiently when the eddies cross the edge squarely. Teeth make the edge oblique to the flow, so the scattering is less efficient.
+- **What theory and tests say:**
+  - Howe's (1991) sawtooth theory gives a high-frequency reduction of about 10 log₁₀(1 + (4h/λ)²): 10–20 dB for typical teeth. It over-predicts badly.
+  - Tests (Oerlemans et al. 2009 full-scale wind turbine; Gruber 2012 airfoils) measure **2–6 dB** in the mid band, with a slight *increase* above a crossover near f δ/U ≈ 1, where δ is the boundary-layer thickness.
+- **How it is applied here, for each BPM strip and 1/3-octave band:**
+  - SPL_p and SPL_s are reduced by **D** dB below the crossover f_c = U/δ (with δ ≈ 8 δ*, the 1/7-power-law profile) and raised by 1 dB above it;
+  - the angle term SPL_α is reduced by only **D/2**, since tests show serrations are less effective at incidence;
+  - scenarios D = 2, 4 and 6 dB;
+  - tip vortex (rounded tip, max-Γ angle, entry 31) and Gutin tones are unchanged.
+- **Cost:**
+  - profile drag C_d × 1.03 (× 1.06 as sensitivity), re-run through BEMT hover;
+  - pack energy scaled with hover power;
+  - plus 15 g of serration per blade.
+
+**Results at 50 m, 30° below the disk.** Cap-0.60 rotors, trailing-edge level / total [dBA]:
+
+| Layout | D = 0 | D = 2 | D = 4 | D = 6 |
+|---|---|---|---|---|
+| tri | 50.5 / **52.0** | 49.1 / 51.1 | 47.8 / 50.3 | 46.6 / 49.6 |
+| hex | 49.4 / **49.8** | 47.8 / 48.4 | 46.2 / 47.1 | 44.7 / 45.9 |
+
+- **The trailing-edge level falls by less than D: tri 1.4 dB per 2 dB, hex 1.6 dB.** The tri's sections run at higher α*, so the SPL_α term, which gets only D/2, carries more of its energy.
+- **The total falls by less still for the tri: 0.9 dB per 2 dB.** Its tones (46.6 dBA) are only 4 dB below its broadband, and serrations do nothing to tones.
+
+**Cost of serrations** (cap 0.60, C_d × 1.03):
+
+| | Profile share of hover power | Hover power | Pack | Serration mass | **Payload** |
+|---|---|---|---|---|---|
+| tri | 9.1 % | +0.28 % | +20.7 Wh | 6 × 15 g | **−0.16 kg** |
+| hex | 16.4 % | +0.50 % | +25.9 Wh | 12 × 15 g | **−0.27 kg** |
+
+With C_d × 1.06 the costs are −0.23 and −0.35 kg. The hex pays more, because it has twice the blades and a larger profile-power share: its sections run at lower C_l (0.34 against 0.50 at 0.75R), so drag is a larger part of its power.
+
+**Under an absolute noise limit** (each layout picks its cap, and serrations if they pay off): hex − tri payload margin in kg, where a positive number means the hex leads.
+
+| Limit [dBA] | No serrations: 15 m/s / free, 303 | D = 2 | D = 4 | D = 6 |
+|---|---|---|---|---|
+| none | +1.73 / −2.19 | — | — | — |
+| 52 | +1.75 / −2.17 | +1.75 / −2.17 | +1.75 / −2.17 | +1.75 / −2.17 |
+| 51 | +2.51 / −1.41 | +1.96 / −1.96 | +1.89 / −2.03 | +1.89 / −2.03 |
+| **50** | +3.65 / −0.27 | +2.68 / −1.24 | +2.09 / −1.83 | +1.89 / −2.03 |
+| 49 | +5.13 / +1.21 | +3.59 / −0.33 | +2.54 / −1.38 | +2.07 / −1.85 |
+| 48 | tri unreachable | +5.26 / +1.34 | +3.65 / −0.27 | +2.64 / −1.28 |
+| 47 | neither can comply | tri unreachable | +5.65 / +1.73 | +3.92 / −0.00 |
+
+**Findings.**
+- **At a limit near the hex's natural level (50 dBA), serrations restore the tri's free-speed lead.** The hex meets 50 dBA without them. The tri's noise cost falls from 1.92 kg (rounded tips, no serrations; 2.15 kg at exactly the hex's 49.8 dBA) to 0.95, 0.36 or 0.16 kg at D = 2, 4 or 6. At D = 6 it can stay at its full-speed cap and pays only the drag and mass. At free speed with the 303 Wh/kg pack, the tri leads by 1.2–2.0 kg instead of 0.3 kg without serrations. At 15 m/s the hex still leads by 1.9–2.7 kg.
+- **Under tighter limits (47–48 dBA) both layouts need serrations, and the hex quiets more cheaply.** The hex reaches 47 dBA for just its 0.27 kg serration cost. The tri must also slow down, at 1–2.5 kg per dB. Below about 47–48 dBA (depending on D) the tri cannot comply at any cap tested.
+- **Serrations are cheap for what they give.** At 0.16–0.27 kg, they are worth about 0.1 kg/dB for the hex and 0.04–0.16 kg/dB for the tri. Slowing the rotor costs 0.5–1 kg/dB for the tri (entry 28). Specify them, with rounded tips, for whichever layout is chosen, if any noise limit applies.
+- **The answer depends on D,** which this model cannot pin down for a rotor at Mach 0.3–0.43. A 2 dB and a 6 dB serration lead to different free-speed winners at the 48 dBA limit. Queue item 42 is to calibrate D.
+
+**Hand checks.**
+- **Why the trailing-edge level falls by less than D** (tri cap 0.60, 0.76R strip at its peak band): the levels are SPL_α = 24.4, SPL_s = 20.6 and SPL_p = 14.4 dB, so mean-square shares of 0.66, 0.27 and 0.07.
+  - With D = 2: the α share drops by 1 dB, the others by 2 dB, so 0.66 × 10^(−0.1) + 0.34 × 10^(−0.2) = 0.524 + 0.215 = 0.739, which is **−1.31 dB**.
+  - The model gives −1.4 dB for the whole rotor ✓.
+- **Profile power from a strip sum,** P₀ = B Σ ½ρW³ c C_d dr: tri 511 W against 5641 W per rotor (9.1 %), hex 347 W against 2113 W (16.4 %). A 3 % C_d increase should then add 0.27 % and 0.49 % of hover power; BEMT gives **0.28 % and 0.50 %** ✓.
+- **Payload penalty, tri:** 0.28 % × 7365 Wh = 20.7 Wh; 20.7/303.3 = 0.068 kg of pack, plus 6 × 0.015 = 0.090 kg of serrations, so **0.158 kg** ✓.
+- **Correction to entry 31.** That entry's hand check counted nine tips for the tri, but the tri has 3 rotors × 2 blades = 6. Six tips give +7.8 dB, not +9.5. The corrected chain matches the model exactly (34.8 dBA for one tip, + 7.8 dB, − 1.2 dB for the mean directivity, = 41.4 dBA). The entry has been corrected; no results change, because the code always used n × B.
+
+**Lesson.** A treatment that acts on one noise source helps a design only in proportion to that source's share of the total. The hex's noise is almost all trailing-edge, so serrations work fully. The tri's has an angle-dominated trailing-edge term (half effective) and tones close behind (not affected), so the same serration helps it less per dB. Yet at a given limit it still helps the tri more in *kilograms*, because the tri's alternative, slowing down, is so expensive. How much a fix is worth depends on what it replaces.
+
+**Next.**
+- Item 42: calibrate serration effectiveness.
+- Item 41: low-α* planform.
+- Item 38: ingested turbulence.
+- Item 33: laminar section.
+- Still waiting on the user: speed requirement, battery chemistry, noise metric and limit.
