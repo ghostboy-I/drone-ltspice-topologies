@@ -17,6 +17,8 @@
 
 **Flow chart of the whole system with part numbers:** [`System_Flowchart/System_Flowchart.pdf`](System_Flowchart/README.md), every block tagged with the topologies that cover it.
 
+**Parts alternatives study:** [`Alternatives_Study/Alternatives_Study.pdf`](Alternatives_Study/README.md), alternative parts and methods for every section of the two boards, judged at the 24S hover and punch points.
+
 **End goal:** three batteries driving three motors independently. Transmission (04, 05), down-conversion for avionics (06), then the full system (07), redundant avionics power (08), and the move to the real 24S packs with every low-voltage rail (09).
 
 `tools/ltraw.py` reads LTspice binary `.raw` files into Python so results can be plotted.
