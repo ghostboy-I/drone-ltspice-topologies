@@ -5,7 +5,7 @@ Design, simulation and verification of a carbon-composite propeller for a 280 lb
 
 **Status: Phases 0–3 done (environment, sizing, airfoils + BEMT + blade design, geometry). Decisions so far: MTOW stays 280 lb with
 payload as an output; diameter stays 54″. Next is Phase 4.0, the Caradonna–Tung CFD validation.** Read the reports in order:
-`PHASE1_REPORT.md`, `PHASE2_REPORT.md`, `DIAMETER_STUDY.md`, `PHASE3_REPORT.md`. Claims and assumptions are in `REGISTERS.md`.
+`PHASE1_REPORT.md`, `PHASE2_REPORT.md`, `DIAMETER_STUDY.md`, `PHASE3_REPORT.md`, `BLADE_TRADE_STUDY.md`, `CONFIG_STUDY.md` (pitch, duct, coaxial). Claims and assumptions are in `REGISTERS.md`.
 
 ## Run
 

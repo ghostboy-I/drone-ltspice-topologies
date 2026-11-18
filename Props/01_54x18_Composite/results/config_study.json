@@ -1,0 +1,759 @@
+{
+ "baseline": {
+  "hover_w": 16764.298971033888,
+  "climb_w": 18576.03279796351,
+  "cruise_w": 12347.503186919806,
+  "pack_wh": 7474.815851143397,
+  "hover_fom": 0.8360299966821605,
+  "hover_rpm": 1931.9379280220517,
+  "segments": [
+   {
+    "segment": "takeoff hover",
+    "time_s": 15.0,
+    "shaft_w": 16764.298971033888,
+    "electrical_w": 19246.997176093737,
+    "energy_wh": 80.19582156705724
+   },
+   {
+    "segment": "climb",
+    "time_s": 24.0,
+    "shaft_w": 18576.03279796351,
+    "electrical_w": 21310.827929559164,
+    "energy_wh": 142.0721861970611
+   },
+   {
+    "segment": "cruise",
+    "time_s": 1234.6666666666667,
+    "shaft_w": 12347.503186919806,
+    "electrical_w": 14215.618484843431,
+    "energy_wh": 4875.43063591297
+   },
+   {
+    "segment": "descent",
+    "time_s": 30.0,
+    "shaft_w": 16764.298971033888,
+    "electrical_w": 19246.997176093737,
+    "energy_wh": 160.39164313411447
+   },
+   {
+    "segment": "delivery hover",
+    "time_s": 120.0,
+    "shaft_w": 16764.298971033888,
+    "electrical_w": 19246.997176093737,
+    "energy_wh": 641.5665725364579
+   },
+   {
+    "segment": "landing hover",
+    "time_s": 15.0,
+    "shaft_w": 16764.298971033888,
+    "electrical_w": 19246.997176093737,
+    "energy_wh": 80.19582156705724
+   }
+  ],
+  "hover_energy_share": 0.18469051060850028
+ },
+ "pitch": {
+  "rows": [
+   {
+    "d_theta_deg": -6,
+    "hover_w": 17963.915500391508,
+    "hover_rpm": 2622.864801431722,
+    "hover_fom": 0.7802005125941939,
+    "stall_margin_hover_deg": 10.621221910227291,
+    "climb_w": 20130.816259102205,
+    "cruise_w": 12981.81250146887,
+    "cruise_rpm": 2384.405785382434,
+    "cruise_stall_margin_deg": 8.213008094546364,
+    "cruise_alpha_max_deg": 5.778342604384111,
+    "pack_wh": 7884.752986609154,
+    "motor": {
+     "volts": 84.0,
+     "rpm_available": 2553.6000000000004,
+     "tw_rpm_limit": 0.9458136472112308,
+     "rpm_at_current_limit": 3423.458821428998,
+     "tw_current_limit": 1.7411396693618264,
+     "tw": 0.9458136472112308
+    },
+    "tw": 0.9458136472112308,
+    "tip_mach_hover": 0.5267943099779426
+   },
+   {
+    "d_theta_deg": -4,
+    "hover_w": 17078.213654790707,
+    "hover_rpm": 2318.6206582829627,
+    "hover_fom": 0.8206628575254942,
+    "stall_margin_hover_deg": 10.326071583818997,
+    "climb_w": 19070.884194745962,
+    "cruise_w": 12460.15665364913,
+    "cruise_rpm": 2126.7928006836573,
+    "cruise_stall_margin_deg": 6.970906308915403,
+    "cruise_alpha_max_deg": 7.0329257023956,
+    "pack_wh": 7556.87814857072,
+    "motor": {
+     "volts": 84.0,
+     "rpm_available": 2553.6000000000004,
+     "tw_rpm_limit": 1.2216939455041973,
+     "rpm_at_current_limit": 3070.7755394985934,
+     "tw_current_limit": 1.7961588225807974,
+     "tw": 1.2216939455041973
+    },
+    "tw": 1.2216939455041973,
+    "tip_mach_hover": 0.4656878117065131
+   },
+   {
+    "d_theta_deg": -3,
+    "hover_w": 16839.00468685121,
+    "hover_rpm": 2200.477033580968,
+    "hover_fom": 0.8323209435527364,
+    "stall_margin_hover_deg": 9.945319566840801,
+    "climb_w": 18767.829903860522,
+    "cruise_w": 12355.747837402454,
+    "cruise_rpm": 2025.184944164028,
+    "cruise_stall_margin_deg": 6.305428552382671,
+    "cruise_alpha_max_deg": 7.695986490095366,
+    "pack_wh": 7485.981686595974,
+    "motor": {
+     "volts": 84.0,
+     "rpm_available": 2553.6000000000004,
+     "tw_rpm_limit": 1.3617189038676496,
+     "rpm_at_current_limit": 2926.858008227956,
+     "tw_current_limit": 1.8125151020527306,
+     "tw": 1.3617189038676496
+    },
+    "tw": 1.3617189038676496,
+    "tip_mach_hover": 0.4419590288812575
+   },
+   {
+    "d_theta_deg": -2,
+    "hover_w": 16762.88261173442,
+    "hover_rpm": 2098.5336124055702,
+    "hover_fom": 0.8361006329255871,
+    "stall_margin_hover_deg": 9.505000479650871,
+    "climb_w": 18598.306500360868,
+    "cruise_w": 12304.773305490555,
+    "cruise_rpm": 1937.2652872247934,
+    "cruise_stall_margin_deg": 5.616032880969398,
+    "cruise_alpha_max_deg": 8.37951056359059,
+    "pack_wh": 7454.059039960264,
+    "motor": {
+     "volts": 84.0,
+     "rpm_available": 2553.6000000000004,
+     "tw_rpm_limit": 1.5032806836442483,
+     "rpm_at_current_limit": 2798.198671237979,
+     "tw_current_limit": 1.8218961881907005,
+     "tw": 1.5032806836442483
+    },
+    "tw": 1.5032806836442483,
+    "tip_mach_hover": 0.4214840069946662
+   },
+   {
+    "d_theta_deg": -1,
+    "hover_w": 16751.72987068917,
+    "hover_rpm": 2010.21429410302,
+    "hover_fom": 0.8366573412154867,
+    "stall_margin_hover_deg": 9.013808918182571,
+    "climb_w": 18567.92639778429,
+    "cruise_w": 12300.395300140975,
+    "cruise_rpm": 1861.1805283072122,
+    "cruise_stall_margin_deg": 4.902921823889157,
+    "cruise_alpha_max_deg": 9.084425625932687,
+    "pack_wh": 7450.8385798076215,
+    "motor": {
+     "volts": 84.0,
+     "rpm_available": 2553.6000000000004,
+     "tw_rpm_limit": 1.645181925535303,
+     "rpm_at_current_limit": 2681.2327765005916,
+     "tw_current_limit": 1.823239286141663,
+     "tw": 1.645181925535303
+    },
+    "tw": 1.645181925535303,
+    "tip_mach_hover": 0.40374534417166535
+   },
+   {
+    "d_theta_deg": 0,
+    "hover_w": 16764.298971033888,
+    "hover_rpm": 1931.9379280220517,
+    "hover_fom": 0.8360299966821605,
+    "stall_margin_hover_deg": 8.480795463005354,
+    "climb_w": 18576.03279796351,
+    "cruise_w": 12347.503186919806,
+    "cruise_rpm": 1795.7189883001054,
+    "cruise_stall_margin_deg": 4.146000623775459,
+    "cruise_alpha_max_deg": 9.813098466943407,
+    "pack_wh": 7474.815851143397,
+    "motor": {
+     "volts": 84.0,
+     "rpm_available": 2553.6000000000004,
+     "tw_rpm_limit": 1.7872562921916564,
+     "rpm_at_current_limit": 2576.7942726171445,
+     "tw_current_limit": 1.8216948117109035,
+     "tw": 1.7872562921916564
+    },
+    "tw": 1.7872562921916564,
+    "tip_mach_hover": 0.3880237773434036
+   },
+   {
+    "d_theta_deg": 1,
+    "hover_w": 16794.10640401869,
+    "hover_rpm": 1861.9950125567077,
+    "hover_fom": 0.8345463252325163,
+    "stall_margin_hover_deg": 7.9154266198342285,
+    "climb_w": 18603.98370057874,
+    "cruise_w": 12447.043765318715,
+    "cruise_rpm": 1739.8405345630954,
+    "cruise_stall_margin_deg": 3.3474181728072576,
+    "cruise_alpha_max_deg": 10.567742478079666,
+    "pack_wh": 7525.814658887808,
+    "motor": {
+     "volts": 84.0,
+     "rpm_available": 2553.6000000000004,
+     "tw_rpm_limit": 1.930065173895588,
+     "rpm_at_current_limit": 2482.9897021192082,
+     "tw_current_limit": 1.8191949227097488,
+     "tw": 1.8191949227097488
+    },
+    "tw": 1.8191949227097488,
+    "tip_mach_hover": 0.37397595838212927
+   },
+   {
+    "d_theta_deg": 2,
+    "hover_w": 16838.085666714767,
+    "hover_rpm": 1799.4518369671102,
+    "hover_fom": 0.8323664418694334,
+    "stall_margin_hover_deg": 7.269600952500136,
+    "climb_w": 18646.062570719594,
+    "cruise_w": 12598.102513601085,
+    "cruise_rpm": 1692.5235698948716,
+    "cruise_stall_margin_deg": 2.523350782257358,
+    "cruise_alpha_max_deg": 11.349146562326393,
+    "pack_wh": 7603.115799213806,
+    "motor": {
+     "volts": 84.0,
+     "rpm_available": 2553.6000000000004,
+     "tw_rpm_limit": 2.072390358039946,
+     "rpm_at_current_limit": 2398.325799733308,
+     "tw_current_limit": 1.8154962689941196,
+     "tw": 1.8154962689941196
+    },
+    "tw": 1.8154962689941196,
+    "tip_mach_hover": 0.36141435436404695
+   },
+   {
+    "d_theta_deg": 3,
+    "hover_w": 16895.235283116606,
+    "hover_rpm": 1743.5268119128173,
+    "hover_fom": 0.8295510187295889,
+    "stall_margin_hover_deg": 6.587281133132177,
+    "climb_w": 18700.34400479912,
+    "cruise_w": 12800.942477459332,
+    "cruise_rpm": 1652.8926734868342,
+    "cruise_stall_margin_deg": 1.6735852579875914,
+    "cruise_alpha_max_deg": 12.158148387776368,
+    "pack_wh": 7706.758152775652,
+    "motor": {
+     "volts": 84.0,
+     "rpm_available": 2553.6000000000004,
+     "tw_rpm_limit": 2.2121380195917735,
+     "rpm_at_current_limit": 2322.047751446977,
+     "tw_current_limit": 1.8106635528877022,
+     "tw": 1.8106635528877022
+    },
+    "tw": 1.8106635528877022,
+    "tip_mach_hover": 0.3501819854794999
+   },
+   {
+    "d_theta_deg": 4,
+    "hover_w": 16973.747796334508,
+    "hover_rpm": 1694.1834929109968,
+    "hover_fom": 0.8257137563990455,
+    "stall_margin_hover_deg": 5.885821508665594,
+    "climb_w": 18766.637815047252,
+    "cruise_w": 13065.288431455785,
+    "cruise_rpm": 1620.4104579431514,
+    "cruise_stall_margin_deg": 0.7985019380753169,
+    "cruise_alpha_max_deg": 12.995176624571938,
+    "pack_wh": 7842.072352276958,
+    "motor": {
+     "volts": 84.0,
+     "rpm_available": 2553.6000000000004,
+     "tw_rpm_limit": 2.3447239486861724,
+     "rpm_at_current_limit": 2253.981743067551,
+     "tw_current_limit": 1.803962613925482,
+     "tw": 1.803962613925482
+    },
+    "tw": 1.803962613925482,
+    "tip_mach_hover": 0.34027153196645704
+   },
+   {
+    "d_theta_deg": 6,
+    "hover_w": 17264.85680266433,
+    "hover_rpm": 1618.3551099535316,
+    "hover_fom": 0.8117911352462139,
+    "stall_margin_hover_deg": 4.391536681058145,
+    "climb_w": 18983.78917155531,
+    "cruise_w": 13852.972478239404,
+    "cruise_rpm": 1578.7925574367127,
+    "cruise_stall_margin_deg": -1.0456202983394842,
+    "cruise_alpha_max_deg": 14.78365036834815,
+    "pack_wh": 8249.53031860109,
+    "motor": {
+     "volts": 84.0,
+     "rpm_available": 2553.6000000000004,
+     "tw_rpm_limit": 2.5590262898466825,
+     "rpm_at_current_limit": 2144.3585986092885,
+     "tw_current_limit": 1.7813325087853549,
+     "tw": 1.7813325087853549
+    },
+    "tw": 1.7813325087853549,
+    "tip_mach_hover": 0.3250416350022612
+   }
+  ],
+  "baseline": {
+   "d_theta_deg": 0,
+   "hover_w": 16764.298971033888,
+   "hover_rpm": 1931.9379280220517,
+   "hover_fom": 0.8360299966821605,
+   "stall_margin_hover_deg": 8.480795463005354,
+   "climb_w": 18576.03279796351,
+   "cruise_w": 12347.503186919806,
+   "cruise_rpm": 1795.7189883001054,
+   "cruise_stall_margin_deg": 4.146000623775459,
+   "cruise_alpha_max_deg": 9.813098466943407,
+   "pack_wh": 7474.815851143397,
+   "motor": {
+    "volts": 84.0,
+    "rpm_available": 2553.6000000000004,
+    "tw_rpm_limit": 1.7872562921916564,
+    "rpm_at_current_limit": 2576.7942726171445,
+    "tw_current_limit": 1.8216948117109035,
+    "tw": 1.7872562921916564
+   },
+   "tw": 1.7872562921916564,
+   "tip_mach_hover": 0.3880237773434036
+  },
+  "best_fixed": {
+   "d_theta_deg": -1,
+   "hover_w": 16751.72987068917,
+   "hover_rpm": 2010.21429410302,
+   "hover_fom": 0.8366573412154867,
+   "stall_margin_hover_deg": 9.013808918182571,
+   "climb_w": 18567.92639778429,
+   "cruise_w": 12300.395300140975,
+   "cruise_rpm": 1861.1805283072122,
+   "cruise_stall_margin_deg": 4.902921823889157,
+   "cruise_alpha_max_deg": 9.084425625932687,
+   "pack_wh": 7450.8385798076215,
+   "motor": {
+    "volts": 84.0,
+    "rpm_available": 2553.6000000000004,
+    "tw_rpm_limit": 1.645181925535303,
+    "rpm_at_current_limit": 2681.2327765005916,
+    "tw_current_limit": 1.823239286141663,
+    "tw": 1.645181925535303
+   },
+   "tw": 1.645181925535303,
+   "tip_mach_hover": 0.40374534417166535
+  },
+  "variable": {
+   "settings_deg": {
+    "hover": -1.0298534855743227,
+    "climb": -0.7106296908985098,
+    "cruise": -1.4149668934810413
+   },
+   "shaft_w": {
+    "hover": 16751.719299873686,
+    "climb": 18566.3150607474,
+    "cruise": 12295.962428602099
+   },
+   "pack_wh": 7448.657709577663,
+   "tw_max": 1.8191949227097488,
+   "tw_max_at_deg": 1
+  }
+ },
+ "duct": {
+  "duct_length_m": 0.3429,
+  "duct_mass_kg_each": 4.609984108230707,
+  "cases": [
+   {
+    "sigma_e": 1.0,
+    "tip_loss": false,
+    "hover_w": 10897.224016176957,
+    "hover_rpm": 1777.6170244415293,
+    "hover_tip_mach": 0.3570288995774974,
+    "rotor_thrust_share": 0.5,
+    "v_d": 15.913942462509208,
+    "v_open_momentum": 11.252856630652804,
+    "P_ideal_w": 9910.423998404352,
+    "fom_open_definition": 1.2861492070462395,
+    "profile_w": 838.8113217543104,
+    "climb_w": 14010.979146859307,
+    "cruise_w": {
+     "pessimistic": 39924.07303189706,
+     "pessimistic_drag_n": 1354.5307972964238,
+     "optimistic": 26194.68756569113,
+     "optimistic_drag_n": 992.2945255727298
+    },
+    "ring_drag_n_each": 35.222609331600665,
+    "momentum_drag_n_each": 391.32416596552076,
+    "pack_wh_pessimistic": 20480.959645126262,
+    "pack_wh_optimistic": 13776.12579089344
+   },
+   {
+    "sigma_e": 1.0,
+    "tip_loss": true,
+    "hover_w": 10970.494709280178,
+    "hover_rpm": 1829.9002907226902,
+    "hover_tip_mach": 0.3675298324387501,
+    "rotor_thrust_share": 0.5,
+    "v_d": 15.913942462509208,
+    "v_open_momentum": 11.252856630652804,
+    "P_ideal_w": 9910.423998404352,
+    "fom_open_definition": 1.2775591619906854,
+    "profile_w": 902.7219497694865,
+    "climb_w": 14084.249839962527,
+    "cruise_w": {
+     "pessimistic": 40040.295049955355,
+     "pessimistic_drag_n": 1354.5307972964238,
+     "optimistic": 26288.483807520082,
+     "optimistic_drag_n": 992.2945255727298
+    },
+    "ring_drag_n_each": 35.222609331600665,
+    "momentum_drag_n_each": 391.32416596552076,
+    "pack_wh_pessimistic": 20543.629596737195,
+    "pack_wh_optimistic": 13827.843970187972
+   },
+   {
+    "sigma_e": 1.1,
+    "tip_loss": false,
+    "hover_w": 10464.123788538653,
+    "hover_rpm": 1787.7238743694238,
+    "hover_tip_mach": 0.3590588292295746,
+    "rotor_thrust_share": 0.4545454545454545,
+    "v_d": 16.69068366395035,
+    "v_open_momentum": 11.252856630652804,
+    "P_ideal_w": 9449.218526040271,
+    "fom_open_definition": 1.3393817113251612,
+    "profile_w": 884.0022777449689,
+    "climb_w": 13577.878919221004,
+    "cruise_w": {
+     "pessimistic": 40684.250079386606,
+     "pessimistic_drag_n": 1411.831042702191,
+     "optimistic": 26646.550730972573,
+     "optimistic_drag_n": 1031.9144357902132
+    },
+    "ring_drag_n_each": 35.222609331600665,
+    "momentum_drag_n_each": 410.42424776744315,
+    "pack_wh_pessimistic": 20817.250335948465,
+    "pack_wh_optimistic": 13961.849410797053
+   },
+   {
+    "sigma_e": 1.1,
+    "tip_loss": true,
+    "hover_w": 10525.515086835741,
+    "hover_rpm": 1838.754277423131,
+    "hover_tip_mach": 0.3693081283737394,
+    "rotor_thrust_share": 0.4545454545454545,
+    "v_d": 16.69068366395035,
+    "v_open_momentum": 11.252856630652804,
+    "P_ideal_w": 9449.218526040271,
+    "fom_open_definition": 1.3315696107775625,
+    "profile_w": 937.6300453813951,
+    "climb_w": 13639.270217518093,
+    "cruise_w": {
+     "pessimistic": 40796.07362376792,
+     "pessimistic_drag_n": 1411.831042702191,
+     "optimistic": 26732.222644345427,
+     "optimistic_drag_n": 1031.9144357902132
+    },
+    "ring_drag_n_each": 35.222609331600665,
+    "momentum_drag_n_each": 410.42424776744315,
+    "pack_wh_pessimistic": 20876.813721417042,
+    "pack_wh_optimistic": 14008.64147876125
+   }
+  ],
+  "open_rotor_induced_ratio_cruise_over_hover": 0.6914439883619741
+ },
+ "coax": {
+  "rows": [
+   {
+    "h_over_D": 0.1,
+    "hover_w_arm": 5558.537148750498,
+    "split_upper": 0.517663697128743,
+    "rpm_upper": 1538.3324528492933,
+    "rpm_lower": 1585.3798724156457,
+    "kappa_int": 1.4155878579936836,
+    "kappa_int_equal_thrust": 1.415590607584318,
+    "vs_isolated_pair": 1.395465969889504,
+    "vs_single_rotor": 0.9947097385380903,
+    "r_wake_over_R": 0.9143518028944266,
+    "w_over_viu": 1.195279545987189,
+    "torque_upper": 16.992418106485097,
+    "torque_lower": 16.992855818445346,
+    "tip_mach_upper": 0.3089693310051899
+   },
+   {
+    "h_over_D": 0.15,
+    "hover_w_arm": 5535.497556079568,
+    "split_upper": 0.5263069250148604,
+    "rpm_upper": 1528.2213489058408,
+    "rpm_lower": 1601.1321818947386,
+    "kappa_int": 1.4083410878096554,
+    "kappa_int_equal_thrust": 1.4088132581993358,
+    "vs_isolated_pair": 1.3896818999675058,
+    "vs_single_rotor": 0.9905867639876951,
+    "r_wake_over_R": 0.8813573649392643,
+    "w_over_viu": 1.2866223761201343,
+    "torque_upper": 16.891445713424087,
+    "torque_lower": 16.891947001056216,
+    "tip_mach_upper": 0.3069385469472016
+   },
+   {
+    "h_over_D": 0.2,
+    "hover_w_arm": 5500.175853175626,
+    "split_upper": 0.5317617111880493,
+    "rpm_upper": 1518.7137421743155,
+    "rpm_lower": 1615.833715636768,
+    "kappa_int": 1.397338078087556,
+    "kappa_int_equal_thrust": 1.398748875859431,
+    "vs_isolated_pair": 1.3808144168362508,
+    "vs_single_rotor": 0.9842658847851159,
+    "r_wake_over_R": 0.8539243616557849,
+    "w_over_viu": 1.3708680876848194,
+    "torque_upper": 16.755869124218076,
+    "torque_lower": 16.756329275355426,
+    "tip_mach_upper": 0.30502897344385455
+   },
+   {
+    "h_over_D": 0.3,
+    "hover_w_arm": 5379.0517222207545,
+    "split_upper": 0.5352016392093836,
+    "rpm_upper": 1499.527796075142,
+    "rpm_lower": 1630.7078279116558,
+    "kappa_int": 1.3614925233027375,
+    "kappa_int_equal_thrust": 1.3648925742232492,
+    "vs_isolated_pair": 1.3504063079477533,
+    "vs_single_rotor": 0.9625905141959571,
+    "r_wake_over_R": 0.8125797023176028,
+    "w_over_viu": 1.5142705000270684,
+    "torque_upper": 16.41037384233748,
+    "torque_lower": 16.409039109110417,
+    "tip_mach_upper": 0.30117553531350527
+   },
+   {
+    "h_over_D": 0.5,
+    "hover_w_arm": 5314.63186539361,
+    "split_upper": 0.5473942834958857,
+    "rpm_upper": 1482.0562037744246,
+    "rpm_lower": 1672.2177020542974,
+    "kappa_int": 1.3354456521627411,
+    "kappa_int_equal_thrust": 1.3457086595701089,
+    "vs_isolated_pair": 1.3342337583035286,
+    "vs_single_rotor": 0.9510624705351182,
+    "r_wake_over_R": 0.7653668647301796,
+    "w_over_viu": 1.707067449385319,
+    "torque_upper": 16.090374810165862,
+    "torque_lower": 16.088907612897632,
+    "tip_mach_upper": 0.297666419858813
+   },
+   {
+    "h_over_D": 1.0,
+    "hover_w_arm": 5049.702293744269,
+    "split_upper": 0.5427363282161999,
+    "rpm_upper": 1448.2076676813213,
+    "rpm_lower": 1690.0176212558545,
+    "kappa_int": 1.2591576789131043,
+    "kappa_int_equal_thrust": 1.2755111673215602,
+    "vs_isolated_pair": 1.267723417226261,
+    "vs_single_rotor": 0.9036528701503187,
+    "r_wake_over_R": 0.7265425280053609,
+    "w_over_viu": 1.894357214737953,
+    "torque_upper": 15.364998675854762,
+    "torque_lower": 15.36634627272634,
+    "tip_mach_upper": 0.29086804572790226
+   }
+  ],
+  "hand_check": {
+   "kappa_int_uniform_far_hand": 1.3535533905932737,
+   "kappa_int_bemt_far": 1.2690532117262092,
+   "r_wake_far_over_R": 0.7073274418430869,
+   "r_wake_far_hand": 0.7071067811865475,
+   "leishman_momentum_equal_thrust": 1.2808
+  },
+  "isolated_half_thrust": {
+   "P": 1991.641956410673,
+   "P_induced": 1793.0198167400233,
+   "rpm": 1375.2777102383202
+  },
+  "single_rotor_hover_w": 5588.099657011296,
+  "design_spacing_over_D": 0.2,
+  "selected": {
+   "h_over_D": 0.2,
+   "hover_w_arm": 5500.175853175626,
+   "split_upper": 0.5317617111880493,
+   "rpm_upper": 1518.7137421743155,
+   "rpm_lower": 1615.833715636768,
+   "kappa_int": 1.397338078087556,
+   "kappa_int_equal_thrust": 1.398748875859431,
+   "vs_isolated_pair": 1.3808144168362508,
+   "vs_single_rotor": 0.9842658847851159,
+   "r_wake_over_R": 0.8539243616557849,
+   "w_over_viu": 1.3708680876848194,
+   "torque_upper": 16.755869124218076,
+   "torque_lower": 16.756329275355426,
+   "tip_mach_upper": 0.30502897344385455
+  },
+  "hover_w": 16500.527559526876,
+  "climb_w": 18283.755357684888,
+  "cruise": {
+   "isolated_w": 7425.523996005342,
+   "overlap_w": 9308.814539707379,
+   "one_disk_w": 12238.660373120583,
+   "rpm": 1213.8895002146355,
+   "mu": 0.17134088365091243,
+   "wake_skew_deg": 68.1885838502233,
+   "wake_shift_m": 0.6854528057200155,
+   "overlap_fraction": 0.3912813592102681,
+   "p_induced_isolated_rotor_w": 960.0663699000057,
+   "p_induced_one_disk_w": 3524.511532171758
+  },
+  "pack_wh": {
+   "optimistic": 5049.581395083212,
+   "overlap": 5969.298466604799,
+   "pessimistic": 7400.10755707026
+  },
+  "motor_out": {
+   "six_u15xl_max_thrust_over_arm_hover": 1.7872562921916564,
+   "half_size_max_thrust_over_arm_hover": 0.8936281460958281,
+   "note": "half-size motor assumed to reach the same T/W on its half of the arm thrust as the U15XL does on the full"
+  }
+ },
+ "summary": [
+  {
+   "config": "Baseline: open, fixed pitch",
+   "pack_wh_best": 7474.815851143397,
+   "pack_wh_worst": 7474.815851143397,
+   "pack_wh_estimate": 7474.815851143397,
+   "pack_change_pct_best": 0.0,
+   "pack_change_pct_worst": 0.0,
+   "hardware_kg": 0.0,
+   "note": "Phase 2 design",
+   "payload_change_kg": {
+    "303": [
+     -0.0,
+     -0.0
+    ],
+    "200": [
+     -0.0,
+     -0.0
+    ]
+   }
+  },
+  {
+   "config": "Re-pitched fixed blade (-1 deg)",
+   "pack_wh_best": 7450.8385798076215,
+   "pack_wh_worst": 7450.8385798076215,
+   "pack_wh_estimate": 7450.8385798076215,
+   "pack_change_pct_best": -0.32077407408113157,
+   "pack_change_pct_worst": -0.32077407408113157,
+   "hardware_kg": 0.0,
+   "note": "one new blade setting",
+   "payload_change_kg": {
+    "303": [
+     0.07905463678132273,
+     0.07905463678132273
+    ],
+    "200": [
+     0.11988635667887593,
+     0.11988635667887593
+    ]
+   }
+  },
+  {
+   "config": "Variable (collective) pitch",
+   "pack_wh_best": 7448.657709577663,
+   "pack_wh_worst": 7448.657709577663,
+   "pack_wh_estimate": 7448.657709577663,
+   "pack_change_pct_best": -0.34995031431753754,
+   "pack_change_pct_worst": -0.34995031431753754,
+   "hardware_kg": 2.4000000000000004,
+   "note": "pitch hub + servo per rotor",
+   "payload_change_kg": {
+    "303": [
+     -2.3137548909801064,
+     -2.3137548909801064
+    ],
+    "200": [
+     -2.2692092921713316,
+     -2.2692092921713316
+    ]
+   }
+  },
+  {
+   "config": "Ducted (sigma_e 1.0)",
+   "pack_wh_best": 13776.12579089344,
+   "pack_wh_worst": 20480.959645126262,
+   "pack_wh_estimate": 17128.542718009852,
+   "pack_change_pct_best": 84.30053750135068,
+   "pack_change_pct_worst": 173.99952123226367,
+   "hardware_kg": 13.82995232469212,
+   "note": "duct shell, lip and struts",
+   "payload_change_kg": {
+    "303": [
+     -34.60578463511099,
+     -56.712061767431535
+    ],
+    "200": [
+     -45.33650202344234,
+     -78.86067129460643
+    ]
+   }
+  },
+  {
+   "config": "Coaxial pair per arm (h/D 0.2), half-size motors",
+   "pack_wh_best": 5049.581395083212,
+   "pack_wh_worst": 7400.10755707026,
+   "pack_wh_estimate": 5969.298466604799,
+   "pack_change_pct_best": -32.445407410126435,
+   "pack_change_pct_worst": -0.999466683339223,
+   "hardware_kg": 5.725600000000002,
+   "note": "3 more motors, ESCs, props; no yaw tilt servo",
+   "payload_change_kg": {
+    "303": [
+     2.270557125157219,
+     -5.479281852709738
+    ],
+    "200": [
+     6.400572280300924,
+     -5.352058529634316
+    ]
+   }
+  },
+  {
+   "config": "Coaxial pair per arm (h/D 0.2), six U15XL",
+   "pack_wh_best": 5049.581395083212,
+   "pack_wh_worst": 7400.10755707026,
+   "pack_wh_estimate": 5969.298466604799,
+   "pack_change_pct_best": -32.445407410126435,
+   "pack_change_pct_worst": -0.999466683339223,
+   "hardware_kg": 19.054000000000002,
+   "note": "motor-out tolerant at hover",
+   "payload_change_kg": {
+    "303": [
+     -11.05784287484278,
+     -18.807681852709738
+    ],
+    "200": [
+     -6.927827719699076,
+     -18.68045852963432
+    ]
+   }
+  }
+ ],
+ "mass_refs": {
+  "arm_single_kg": 6.518000000000001,
+  "arm_coax_scaled_kg": 8.593200000000001,
+  "hobbywing_h13_pair_kg": 8.01,
+  "note": "Hobbywing H13 coaxial pair (data/catalog.yaml): 8.01 kg per arm incl. props, rated 45 kgf, max 113 kgf"
+ },
+ "runtime_s": 297.6659686565399
+}
