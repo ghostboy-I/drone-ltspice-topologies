@@ -27,7 +27,9 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 13. Re-state the coaxial case (CONFIG_STUDY headline, entries 01–06 payloads) with the vortex-wake cruise term: at h/D 0.2 the coax is −12 % energy and −2.4 kg payload, not −22 % and +0.1 kg
 14. ~~Stagger: offset the lower rotor forward along the flight path (tilted mast)~~ (entry 08: modest gain; large stagger turns into the planar layout, item 7)
 15. Faired (aerofoil) arms and masts: entry 09's arm cross-flow drag is 0.15–0.7 kW at Cd 1.2
-16. Motor and fitting mass: entry 09's payload ranking is set by the half-size motor penalty (×1.15) and 0.6 kg per arm fitting; find real catalogue numbers
+16. ~~Motor and fitting mass: find real catalogue numbers~~ (entry 10: motors sized by torque; hex ties the tri, y6 −3.3 kg)
+17. **(next)** Re-optimise the blade with motor mass ∝ peak torque in the objective: entry 03's slow, wide blade saved energy but needs a heavy motor
+18. U15XL torque margin: the tri needs 55.8 N·m at T/W 2 on a hot day, against 50.4 N·m in the vendor's 96 V test (T/W ≈ 1.8 on that motor)
 
 ## Entries
 
@@ -553,3 +555,64 @@ The first attempt reused e05's `hand()`. It gave κ ≈ 1.59 at every spacing, a
 - **Queue item 16:** real motor and ESC masses for the half-size class. It decides the payload ranking.
 - **Queue item 15:** faired arms and masts.
 - **Queue item 8:** cruise speed per configuration. The hex's low induced power should push its best-range speed up.
+
+### 10 · 2026-11-18 · Motor and fitting masses from catalogue data (`src/explore/e10_motor_mass.py`)
+
+**Question.** Entry 09's payload ranking depended on two assumed numbers: a half-size motor weighs 0.5 × U15XL × 1.15, and each arm fitting weighs 0.6 kg. What do catalogue data say?
+
+**What sizes a motor.** An electric motor's torque is roughly (rotor volume) × (magnetic shear stress in the air gap). At a given technology and cooling, **mass scales with peak torque, not with power**: power is torque × speed, and speed is nearly free. So the motor fit is mass against the 100 %-throttle torque in the vendor test tables (T-Motor, accessed 2026-11-18):
+
+| Motor | Mass [kg] | Test point | Torque [N·m] | N·m/kg | Check: τω / VI |
+|---|---|---|---|---|---|
+| [U13II KV65](https://store.tmotor.com/product/u13-v2-kv65-motor-u-power.html) | 0.975 | G32×11, 98 V, 4397 rpm | 11.4 | 11.7 | 5.25 / 6.73 kW = 0.78 |
+| [U15II KV80](https://store.tmotor.com/goods.php?id=732) | 1.740 | G40×13.1, 60 V, 3546 rpm | 18.0 | 10.3 | 6.68 / 8.58 kW = 0.78 |
+| [U15XL KV38](https://ligpower.com/product/u15xl-manned-aircraft-combo.html) | 4.408 | 52×20, 96 V, 2910 rpm | 50.4 | 11.4 | 15.36 / 16.89 kW = 0.91 |
+
+The last column checks that each table row is self-consistent: shaft power τω against electrical power VI gives a plausible efficiency in every row. The automated page reading had swapped the U15II's thrust and RPM columns, and this check caught it.
+
+- **Fit:** log-log least squares gives m = 0.0909·τ^**0.996**. Torque density is flat at about 11 N·m/kg across a 4.4× torque range, so **this family shows no small-motor penalty.**
+- **The ×1.15 assumption is not supported.** Pairwise exponents bracket the fit: 0.90 (U15II–U15XL) to 1.02 (U13II–U15XL). One caveat: the U15II row is at 60 V, below its 24S limit, so it is a test point rather than a torque ceiling. That makes 0.90 the pessimistic end.
+
+**Required torque.** BEMT hover trim at T/W = 2 on a hot day (thrust 2 × T_rotor). For the y6 the full coaxial model is used at twice the arm thrust; with equal torque, both motors see the same torque.
+
+**Hand check:** a fixed-pitch rotor's thrust and torque both scale with Ω² (constant C_T and C_Q), so torque is proportional to thrust:
+
+  Q_max = 2·Q_hover = 2·P_hover/Ω_hover
+
+| Rotor | Q_hover × 2 (hand) [N·m] | Q_max, BEMT [N·m] | rpm at max | Motor from the fit [kg] | Old assumption [kg] |
+|---|---|---|---|---|---|
+| tri (Phase 2 blade, T/3) | 55.2 | **55.8** | 2693 | 4.99 | 4.41 (U15XL) |
+| hex (entry 03 blade, T/6) | 30.2 | **30.2** | 1786 | **2.70** | 2.53 |
+| y6 (entry 03 blade, coaxial at h/D 0.4) | n/a | **34.9** | 1941 / lower | **3.13** | 2.53 |
+
+The hand estimate is within 1 % (the small difference comes from Reynolds-number effects on C_Q).
+
+**Why the six-rotor motors are not "half-size":**
+- **hex:** half the thrust on the same diameter, but entry 03's blade is wide and slow (1270 rpm in hover), so it needs **54 %** of the tri's torque, not 50 %. Torque is P/Ω, and a slow rotor needs more of it for the same power.
+- **y6:** the coaxial interference raises the power at the same thrust (κ_int), and the equal-torque trim shares it, so each motor needs **63 %**.
+
+**Fittings** per arm = folding joint + motor mount + root clamp.
+- **Joint:** [retail listings](https://rcdrone.top/sv/products/rjxhobby-30mm-40mm-50mm-vikbar-dronare-arm-kol-ror-koppling-klamma-sjalvlas-for-lantbruksdronare) give 257 g at 40 mm and 334 g at 50 mm. Scaled with d² to entry 09's tubes, that is 0.42 kg at 56 mm and 0.58 kg at 66 mm.
+- **Motor mount:** 0.20 kg per full-size motor, 0.12 kg per half-size one.
+- **Root clamp:** 0.10 kg.
+- **Totals:** tri 0.72 kg, y6 arm 0.76 kg, hex arm 0.80 kg, against 0.6 kg assumed for all.
+- **ESC:** mass ∝ (peak power)^0.7 from the 0.87 kg 300 A unit. That exponent is an assumption; there is no catalogue series behind it.
+
+**Entry 09 re-scored** (pack energies unchanged; only mass changes):
+
+| | Hardware [kg] | vs tri | Pack [Wh] | Payload vs tri, entry 09 [kg] | **Payload vs tri, now [kg]** |
+|---|---|---|---|---|---|
+| tri | 24.52 | 0 | 7528 | 0 | 0 |
+| y6 (h/D 0.4) | 32.76 | +8.24 | 6040 | −1.27 | **−3.33** |
+| hex0 | 33.99 | +9.48 | 4789 | −0.91 | **−0.44** |
+| hex30 | 33.99 | +9.48 | 4841 | −1.08 | −0.61 |
+
+Sensitivity of the hex payload to the motor fit: −0.9 kg (exponent 0.90) to +0.2 kg (1.02).
+
+**Finding.**
+- **The planar hex ties the tricopter on payload** (−0.4 kg, within ±0.9 kg of model uncertainty) **while needing 36 % less energy.** On the payload metric it is now **2.9 kg ahead of the y6**. The y6 fell back because its coaxial interference costs torque as well as energy, so its motors are 0.4 kg heavier each than the hex's.
+- **Motor torque couples blade design to vehicle mass.** That coupling was missing from entries 01–03, whose optimisers counted the slow, wide blade's energy savings but not its motor. A slow rotor needs torque, and torque is mass, at about 11 N·m per kg. Queue item 17 re-optimises the blade with motor mass ∝ Q_max in the objective. It will probably move back toward a somewhat faster, narrower blade.
+- **Side finding (queue item 18).** The tri at T/W 2 on a hot day needs 55.8 N·m, but the U15XL's 96 V test delivers 50.4 N·m. On that test point the tri reaches T/W ≈ 2 × 50.4/55.8 = **1.8**: still above the 1.5 requirement, below the 2.0 target. Phase 1 sized the T/W target at the tip-Mach limit; the motor's torque limit is the tighter constraint.
+- **Data quality:** vendor test tables, accessed today, are vendor claims. The ESC exponent and the motor-mount masses are assumptions. All of them are logged in `results/explore/e10_motor_mass.json`.
+
+**Next.** Queue item 17: the blade re-optimisation with the motor in the objective, for the hex (now the leading layout) and for the y6.
