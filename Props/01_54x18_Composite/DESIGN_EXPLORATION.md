@@ -45,7 +45,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 31. ~~A section designed for Cl ≈ 0.3 (NACA 230xx)~~ (entry 25: −1.1 kg hex, −0.9 kg tri vs 24xx; its forward camber peak moves transition from 76 % to 37 % chord. 24xx's bucket is already at Cl 0.25–0.30)
 32. ~~Camber further aft at 2 % (NACA 25xx, 26xx)~~ (entry 26: 25xx ties 24xx (−0.04 / −0.00 kg), 26xx −0.2 kg; upper-surface transition moves aft but the lower surface's moves forward and cancels it)
 34. ~~A noise-constrained ranking~~ (entry 28: at the hex's own hover level the tri loses 2.8 kg and the hex wins every scenario; with the 303 Wh/kg pack at free speed the tri wins only if the limit is looser than 40.6–43.5 dBA)
-35. Broadband rotor noise (Schlegel–King–Mull vortex noise, or a BPM trailing-edge estimate) on the entry-28 optima: the tonal dBA is a lower bound, and broadband scales differently (≈ V⁶ × blade area), so it could narrow or widen the gap
+35. ~~Broadband rotor noise scaling~~ (entry 29: on trailing-edge scaling the tri is 1.0 dB *quieter* than the hex at cap 0.60, though 7 dBA louder in tones; which one dominates decides what a noise limit costs)
+36. Absolute broadband level: implement the BPM TBL-TE model (NASA RP-1218, with its published spectra and constants), check it against the RP's NACA 0012 test case, and apply it to the entry-28 blades, to find whether tones or broadband set the dBA at 50 m
 33. A laminar-flow section from coordinates (NACA 63-2xx / 64-2xx, or an XFOIL-designed section): needs coordinate generation, since XFOIL's NACA command only builds 4- and 5-digit sections
 
 ## Entries
@@ -1627,3 +1628,56 @@ At lower caps the ratio rises faster than 1/M (0.45: 6.08/4.53 = 1.34 against 1.
 The model's A-weighted level falls as about **80 log₁₀ rpm**, between the first-harmonic 60 and the higher harmonics' 100+. The larger solidity at low caps spreads the load over more chord but doesn't change the Gutin sources, which depend only on dT and dQ along the radius. This makes quieting a rotor cheaper per dB than entry 15's 60 log rule suggested, but not cheap enough to save the tri.
 
 **Next.** Queue item 35: a broadband estimate. Trailing-edge and vortex noise scale as about V⁶ × blade area, so the tri's larger solidity at low caps adds broadband noise and might narrow the hex's advantage. Then item 33 (laminar section from coordinates), or item 13 (restating the coaxial case).
+
+
+## 29 — Broadband (trailing-edge) noise scaling on the entry-28 optima (2026-11-18)
+
+**Question.** Entries 27–28 used only Gutin's steady-loading tones and found the hex 7 dBA quieter. For large, slow rotors the A-weighted level is often set by **broadband** noise instead, mostly turbulent-boundary-layer trailing-edge noise. Does broadband change the comparison? There is no calibrated broadband model in the repo, so this entry compares the layouts by the physical scaling of edge noise and reports **level differences only**. Script `src/explore/e29_broadband.py` (seconds), results `results/explore/e29_broadband.json` / `.png`.
+
+**Model (scaling only).**
+- **Edge noise** (Ffowcs Williams & Hall, 1970): turbulence convecting past a sharp trailing edge radiates far more efficiently than turbulence in open flow. Its intensity per unit span is dI ∝ ρ² W⁵ δ* dr / (a r²). The exponent is 5, not the 8 of free turbulence (Lighthill), because the edge scatters the near field.
+- **Boundary-layer thickness:** turbulent flat plate, δ* = 0.046 c Re_c^(−1/5) per side, both sides counted.
+- **Whole vehicle:** n rotors × B blades, adding incoherently.
+- **Peak frequency:** f_p ≈ 0.02 W / δ* (Brooks–Pope–Marcolini Strouhal scaling).
+- **Cross-check:** the older Schlegel–King–Mull "vortex noise" law, ∝ W₀.₇⁶ × blade area.
+
+**Hover levels against the hex at cap 0.60 [dB]:**
+
+| Layout | Cap | rpm | σ | Δ payload [kg] | **Tonal (Gutin, dBA)** | **Trailing-edge broadband** | SKM scaling | f_peak at 0.75R | A-weight at f_peak |
+|---|---|---|---|---|---|---|---|---|---|
+| hex | 0.60 | 1973 | 0.131 | 0 | 0 | 0 | 0 | 5.9 kHz | +0.1 dB |
+| hex | 0.50 | 1769 | 0.133 | −0.29 | −4.2 | −2.0 | −2.5 | 4.8 kHz | +0.6 |
+| hex | 0.45 | 1587 | 0.137 | −1.09 | −8.2 | −3.9 | −4.9 | 3.9 kHz | +1.0 |
+| tri | 0.60 | 2135 | 0.151 | 0 | **+7.0** | **−1.0** | −0.5 | 5.8 kHz | +0.2 |
+| tri | 0.55 | 1955 | 0.161 | −1.01 | +3.8 | −2.3 | −2.1 | 4.6 kHz | +0.7 |
+| tri | 0.50 | 1777 | 0.174 | −2.47 | +0.5 | −3.7 | −3.8 | 3.6 kHz | +1.1 |
+| tri | 0.45 | 1601 | 0.182 | −4.58 | −2.9 | −5.3 | −5.8 | 2.8 kHz | +1.3 |
+
+**Finding.**
+- **In broadband the tri is the quieter layout**, by 1.0 dB at cap 0.60 (0.5 dB on the SKM law). Trailing-edge noise counts blade edge length times speed to the fifth, and the tri has half the blades (−3 dB), spinning only 8 % faster (+1.7 dB). Tones go the other way, because they depend on the *loading per blade*, and each tri blade carries twice the thrust.
+- **So entry 28's verdict holds only if tones dominate the A-weighted level.** If broadband dominates, the tri needs no quieting to match the hex, and its free-speed lead (1.1–2.4 kg at 303 Wh/kg) stands. Entry 28's ranking-at-equal-noise is an upper bound on what a noise limit costs the tri.
+- **Why it isn't obvious which dominates.** The tones sit at 66–100 Hz and their harmonics at 200–700 Hz, where A-weighting removes 5–26 dB. The broadband peak is at 3–6 kHz, where A-weighting adds about +1 dB. Measured multirotor spectra often show the tonal peaks standing above a broadband floor in the unweighted spectrum, but the A-weighted total can be carried by either. Only an absolute broadband level can tell, which needs a calibrated model (queue item 36: BPM, NASA RP-1218) or a measurement.
+- **Quieting a rotor in broadband costs more payload per dB than in tones.** Broadband falls only as about 50 log₁₀ rpm (W⁵, slightly offset by the larger chord at low caps), tones as about 80 log₁₀ (entry 28). Over caps 0.60 → 0.45:
+  - tri: 1.1 kg/dB in broadband (4.3 dB for 4.58 kg), against 0.46 kg/dB in tones;
+  - hex: 0.28 kg/dB in broadband, against 0.13 kg/dB in tones.
+
+  If broadband sets the limit, slowing the rotor is a poor way to meet it. Blade-edge treatments (serrations, porous trailing edges) target broadband directly and would be the cheaper lever.
+- **Decision status:**
+  - The hex wins on payload at 15 m/s, on energy everywhere, and on tonal noise.
+  - The tri wins on payload at free speed with a high-energy pack, and is slightly quieter in broadband.
+  - A noise requirement only decides for the hex if the noise that counts is tonal: low-frequency, propagating far, as a community-noise metric usually weights it.
+
+**Hand check: tri vs hex trailing-edge difference at cap 0.60 from blade count, speed and chord.** Since δ* ∝ c (W c)^(−1/5), the integrand W⁵ δ* ∝ W^4.8 c^0.8. Taking the ratios at 0.75R (rpm 2135/1973, chord 135/119 mm):
+- blade count, 3 × 2 against 6 × 2 blades: 10 log₁₀(½) = **−3.01 dB**;
+- speed: 50 log₁₀(2135/1973) = **+1.71 dB**;
+- Reynolds-number correction on δ*: −2 log₁₀(1.082) = **−0.07 dB**;
+- chord: 8 log₁₀(135/119) = **+0.45 dB**;
+- hand total **−0.92 dB**, against the model's spanwise integral **−1.00 dB** ✓.
+
+The chord enters only weakly (power 0.8 and inside a log), so the tri's wider blades at low caps (σ 0.151 → 0.182) add just 0.6 dB while the speed drop removes 3.9 dB.
+
+**Lesson.** Rotor noise has two scalings with different physics: tones scale with loading per blade and rotor speed to a high power; broadband scales with total edge length and section speed to the fifth. A design that wins one can lose the other. Before a noise requirement can rank layouts, it has to say which metric it uses (dBA, or a tone-corrected metric such as EPNL or PNLT) and at what distance.
+
+**Next.**
+- Queue item 36: calibrated BPM trailing-edge noise for absolute levels. It is a self-contained model with published constants and a published validation case (NACA 0012), which fits this project's verify-against-a-reference approach.
+- For the user: does the vehicle have a noise requirement, and in which metric? That answer now decides whether noise favours the hex or is neutral.
