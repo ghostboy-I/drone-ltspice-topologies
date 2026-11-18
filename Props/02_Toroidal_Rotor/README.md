@@ -15,7 +15,8 @@ cache, the atmosphere model and the U15XL motor data.
 ## Status
 
 Sizing, geometry and both OpenFOAM cases are done, meshed and smoke-tested (10 solver iterations each, then reset).
-**Toroid CFD: done and converged. It does NOT reach T/W 1.5 on the U15XL:** 436 N at 2280 rpm (BEMT said 620 N), figure of merit 0.55; T/W 1.5 would need 2724 rpm and 219 A (motor: 2554 rpm, 180 A), so it tops out at T/W 1.32. The 2-blade reference CFD on the same mesh (running) tells whether that ~30 % gap is the loop or blade-element optimism. Summary in `CFD_Results/02_Toroidal_Rotor/toroid_prelim/`.
+**Both CFD runs are done and converged (2280 rpm, hot day, same mesh recipe). Neither reaches T/W 1.5 on the U15XL.**
+The toroid makes 436 N for 38.6 N·m (FoM 0.55); the 2-blade reference makes 437 N for 35.9 N·m (FoM 0.59). Both are ~25-30 % below their blade-element estimates, the same over-prediction the Caradonna-Tung check found, so the loop's own cost is the 7.5 % extra torque at equal thrust. Motor ceilings (speed 2554 rpm or torque 45.2 N·m, whichever binds first): toroid T/W 1.23 (torque-limited at 2469 rpm), 2-blade T/W 1.32 (speed-limited). Summaries in `CFD_Results/02_Toroidal_Rotor/`.
 
 Blade-element numbers at T/W 1.5: 2285 rpm, 42.7 N·m, 10.2 kW, 170 A on the
 U15XL (2-blade reference: 2350 rpm, 41.6 N·m, 166 A). Both cases run at 2280 rpm.

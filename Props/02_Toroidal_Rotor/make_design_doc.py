@@ -218,8 +218,10 @@ if CFD:
     doc.p(f"CFD at {CFD['iterations']} iterations, drift thrust {CFD['T_drift_pct_per100']:+.2f} % and torque {CFD['Q_drift_pct_per100']:+.2f} % "
           f"per 100 iterations ({'converged' if CFD['converged'] else 'NOT converged'}, limit 0.5 %). T/W at {S['cfd_rpm']} rpm: {CFD['tw_at_cfd_rpm']:.2f}. "
           f"Scaling at constant C_T: T/W 1.5 needs {CFD['rpm_for_tw_required']:.0f} rpm, {CFD['Q_at_tw_required']:.1f} N m, "
-          f"{CFD['P_at_tw_required']:.0f} W and {CFD['motor_current_at_tw_required_a']:.0f} A on the U15XL; T/W at its {f0(I['rpm_available_sag'])} rpm: "
-          f"{CFD['tw_at_motor_rpm']:.2f}.")
+          f"{CFD['P_at_tw_required']:.0f} W and {CFD['motor_current_at_tw_required_a']:.0f} A on the U15XL. The motor's ceiling: the {CFD['motor_limit']} limit binds "
+          f"first, at {f0(CFD['rpm_motor_limit'])} rpm and {f1(CFD['Q_motor_limit'])} N m, for T/W {CFD['tw_max_motor']:.2f}.")
+    doc.p("Motor ceiling, from one CFD point: T and Q scale as rpm^2 at constant C_T and C_Q, so the rotor reaches the torque limit "
+          "k_t I_peak at rpm x sqrt(Q_max/Q). Whichever comes first, that speed or the motor's k_load KV V, sets the ceiling.")
 else:
     doc.table(["At " + str(S["cfd_rpm"]) + " rpm", "BEMT, tip loss", "BEMT, closed tip", "CFD", "Reference BEMT"], [
         ["Thrust [N]", f1(hp["legs_tip_loss"]["T"]), f1(hp["legs_no_tip_loss"]["T"]), "run pending", f1(hp["reference"]["T"])],
@@ -237,13 +239,64 @@ if CFD and CFDREF:
     rows = [[q_, fmt(CFD[k_]), fmt(CFDREF[k_]), pct(CFDREF[k_], CFD[k_])] for q_, k_, fmt in (
         (f"Thrust at {S['cfd_rpm']} rpm [N]", "T", f1), (f"Torque at {S['cfd_rpm']} rpm [N m]", "Q", f2), ("Figure of merit", "FoM", f3),
         ("rpm for T/W 1.5", "rpm_for_tw_required", f0), ("Power at T/W 1.5 [W]", "P_at_tw_required", f0),
-        ("Motor current at T/W 1.5 [A]", "motor_current_at_tw_required_a", f0), ("T/W at full motor speed", "tw_at_motor_rpm", f2))]
+        ("Motor current at T/W 1.5 [A]", "motor_current_at_tw_required_a", f0), ("Speed at the motor ceiling [rpm]", "rpm_motor_limit", f0),
+        ("T/W at the motor ceiling", "tw_max_motor", f2))]
     doc.table(["Quantity", "Toroid", "Reference", "Toroid vs. ref."], rows, widths=[0.4, 0.2, 0.2, 0.2])
     doc.p(f"Both converged: toroid {CFD['converged']}, reference {CFDREF['converged']}. Same speed, air, domain and mesh settings, so the "
-          "mesh error is largely common to both and the difference is the rotor.")
+          f"mesh error is largely common to both and the difference is the rotor. At equal thrust the loop needs {pct(CFDREF['Q'], CFD['Q'])} torque; "
+          f"the toroid hits the torque limit ({CFD['motor_limit']}) while the 2-blade reaches the speed limit ({CFDREF['motor_limit']}).")
 
 # ------------------------------------------------------------------------------------------------------------------
-doc.h("10. Takeaways so far")
+LD, CAL, SW, BIAS, SWR, PRED = J("loads_toroid.json"), J("opt_calibration.json"), J("opt_sweep.json"), J("opt_bias.json"), J("opt_sweep_reference.json"), J("opt_predict_toroid_opt1.json")
+OPT1 = J("cfd_toroid_opt1.json")
+if LD and CAL and SW:
+    doc.h("10. Optimisation, step 1")
+    doc.p("Goal: T/W 1.5 inside the U15XL envelope (speed k_load KV V, torque k_t I_peak) at the lowest blade mass. Inside that envelope "
+          f"the shaft power is at most Q_max Omega_max = {I['kt'] * I['i_peak']:.1f} N m x {I['rpm_available_sag'] * math.pi / 30:.1f} rad/s = "
+          f"{I['kt'] * I['i_peak'] * I['rpm_available_sag'] * math.pi / 30 / 1000:.1f} kW, so T/W 1.5 needs a figure of merit of")
+    pmax = I['kt'] * I['i_peak'] * I['rpm_available_sag'] * math.pi / 30
+    doc.eq(r"FoM \geq \frac{T^{3/2}}{\sqrt{2\rho A}\;Q_{max}\,\Omega_{max}}" + f" = {I['T_required'] ** 1.5 / math.sqrt(2 * air['rho'] * I['A']) / pmax:.2f}")
+    doc.p("and the best rotor is the one that absorbs the torque limit exactly at the speed limit with the highest figure of merit.")
+    sg = LD["segments"]
+    doc.p(f"Where the loop's thrust goes (CFD pressure forces, both loops): leading legs {f0(sg['leading leg']['Fz'])} N, trailing legs "
+          f"{f0(sg['trailing leg']['Fz'])} N ({100 * LD['leg_thrust_ratio_trailing_to_leading']:.0f} % of the leading), tip turns {f0(sg['tip turn']['Fz'])} N, "
+          f"root turns {f1(sg['root turn']['Fz'])} N. Both legs run ~35 % under the blade-element loading inboard; outboard, where the legs "
+          "stack, the trailing leg loses most: biplane interference.")
+    doc.img(os.path.join(R_, "fig_loads_toroid.png"), width=6.6)
+    doc.p("A blade-element model anchored to the CFD: the section pitch is reduced by an effective pitch loss and the section drag raised "
+          "by dcd, both fitted to the CFD (thrust per unit span and total torque):")
+    doc.eq(r"\theta_{eff}=\theta-\left[a_0+a_1\left(\frac{r}{R}-0.6\right)\right],\qquad c_{d,eff}=c_d+\Delta c_d")
+    doc.p(f"Fit on the toroid: a0 = {CAL['a0_deg']:.2f} deg, a1 = {CAL['a1_deg']:.2f} deg, dcd = {CAL['dcd']:.4f}; it reproduces the CFD "
+          f"({f1(CAL['calibrated']['T'])} N, {f2(CAL['calibrated']['Q'])} N m) with the spanwise thrust within {CAL['span_rms_error_pct_of_peak']:.1f} % rms.")
+    if BIAS:
+        bb = BIAS[f"a1={CAL['a1_deg']:.2f}"]
+        doc.table(["Fit (totals, same a1)", "a0 [deg]", "dcd", "Reading"], [
+            ["2-blade reference CFD", f2(bb["reference"]["a0_deg"]), f"{bb['reference']['dcd']:.4f}", "the method (mesh, strip theory)"],
+            ["Toroid CFD", f2(bb["toroid"]["a0_deg"]), f"{bb['toroid']['dcd']:.4f}", "method + loop"],
+            ["Difference", f2(bb["toroid"]["a0_deg"] - bb["reference"]["a0_deg"]), f"{bb['toroid']['dcd'] - bb['reference']['dcd']:.4f}", "what the loop itself costs"],
+        ], widths=[0.32, 0.14, 0.14, 0.4])
+        doc.p("Most of the correction is common to both rotors, so it is the method: the thrust shortfall matches the Caradonna-Tung "
+              "finding, and the extra drag is likely part mesh (coarse leading edges read high on torque). Comparisons between the two "
+              "rotors remain fair; absolute torques probably read high.")
+    doc.img(os.path.join(R_, "fig_opt_sweep.png"), width=6.6)
+    bt = SW["highest_tw"]
+    rows = [["Toroid as built", "0.50 x / +0", f2(CFD["tw_max_motor"]) + " (CFD)", f2(ms["area_scaled_kg"])],
+            ["Toroid, best of sweep", f"{bt['chord_fraction']:.2f} x / {bt['collective_add_deg']:+.0f}", f2(bt["tw_max"]), f2(bt["mass_area_kg"])]]
+    if PRED:
+        rows.append(["Toroid candidate opt1", "0.30 x / +5, -3 deg/R", (f"{OPT1['tw_max_motor']:.2f} CFD ({PRED['motor']['tw_max']:.2f} fcst)" if OPT1 else f"{PRED['motor']['tw_max']:.2f} (forecast)"),
+                     f2(T_ if (T_ := J('geometry_toroid_opt1.json')['mass']['area_scaled_kg']) else 0)])
+    if SWR:
+        br = SWR["best"]
+        rows.append(["2-blade as built", "1.0 x / +0", f2(CFDREF["tw_max_motor"]) + " (CFD)" if CFDREF else f2(SWR["as_built_check"]["tw_max"]), f2(P["mass"]["reference_blade_set_kg"])])
+        rows.append(["2-blade, best of sweep", f"{br['chord_scale']:.1f} x / {br['collective_add_deg']:+.0f}", f2(br["tw_max"]), f2(br["mass_area_kg"])])
+    doc.table(["Rotor", "Chord / collective [deg]", "T/W ceiling on U15XL", "Blade set [kg]"], rows, widths=[0.27, 0.26, 0.31, 0.16])
+    doc.p("Blade-set mass by wetted area (thin skins at minimum gauge). Swept rows are the calibrated model; 'CFD' rows are direct. "
+          "Both rotor families improve the same way: thinner blades with more pitch absorb the torque limit right at the speed limit. "
+          "Optimised, the two land within a few hundredths of each other, and neither reaches T/W 1.5 on this motor: the ~12 kW it "
+          "can deliver is the binding limit, not the blade.")
+
+# ------------------------------------------------------------------------------------------------------------------
+doc.h("11. Takeaways so far")
 tk = []
 if CFD:
     tk.append(f"CFD (converged, {CFD['iterations']} iterations): at {S['cfd_rpm']} rpm the toroid makes {f0(CFD['T'])} N, {pct(hp['legs_tip_loss']['T'], CFD['T'])} "
@@ -252,10 +305,12 @@ if CFD:
     ok = CFD["rpm_for_tw_required"] <= I["rpm_available_sag"] and CFD["motor_current_at_tw_required_a"] <= I["i_peak"]
     tk.append(f"T/W 1.5 on the U15XL: {'MET' if ok else 'NOT MET'}. Scaled at constant C_T it needs {f0(CFD['rpm_for_tw_required'])} rpm "
               f"(motor: {f0(I['rpm_available_sag'])}) and {f0(CFD['motor_current_at_tw_required_a'])} A (peak rating {I['i_peak']} A); "
-              f"the toroid reaches T/W {CFD['tw_at_motor_rpm']:.2f} at full motor speed.")
+              f"the toroid's ceiling on this motor is T/W {CFD['tw_max_motor']:.2f} ({CFD['motor_limit']}-limited at {f0(CFD['rpm_motor_limit'])} rpm)" +
+              (f", the 2-blade reference's {CFDREF['tw_max_motor']:.2f} ({CFDREF['motor_limit']}-limited)." if CFDREF else "."))
     tk.append("The size of the shortfall matches the prop program's Caradonna-Tung check, where the same blade-element method over-predicted "
               "thrust by about 31 % while CFD matched the experiment. So part of the gap may be blade-element optimism that the 2-blade "
-              "reference shares. " + ("The reference CFD in section 9b separates the two." if CFDREF else
+              "reference shares. " + ("The reference CFD (section 9b) confirms it: the 2-blade lands as far below its own estimate, so the "
+              "shortfall is the method's, and the loop's own cost is the extra torque." if CFDREF else
               "The 2-blade reference on the same mesh (running) separates loop topology from method: if it also lands ~30 % low, the "
               "toroid's deficit is the method's; if it lands near its estimate, the loop itself is the problem."))
 else:

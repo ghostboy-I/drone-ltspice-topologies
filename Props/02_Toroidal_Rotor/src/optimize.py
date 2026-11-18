@@ -78,6 +78,58 @@ def stage_calibrate():
     return out
 
 
+def stage_bias():
+    """Same correction model fitted to BOTH CFD runs on totals only (thrust and torque at 2280 rpm; a1 held at a common
+    value, so two unknowns a0 and dcd for two equations). The 2-blade reference shares the mesh recipe and the solver, so its
+    corrections measure the method (mesh, strip theory); the toroid's excess over them is what the loop itself costs."""
+    from scipy.optimize import least_squares
+    s = T.load_json("sizing.json"); air = s["inputs"]["air"]; rpm = s["cfd_rpm"]; db = T.build_polars(P01)
+    rows = {}
+    for a1 in (0.0, T.load_json("opt_calibration.json")["a1_deg"]):
+        for name, blade_fn in (("reference", lambda a0: T.reference_blade(P01)), ("toroid", lambda a0: T.leg_blade(P))):
+            C = T.load_json(f"cfd_{name}.json")
+            def run(x):
+                b = blade_fn(0); xr = b.r_def / b.R
+                bb = bemt.Blade(b.R, b.r_hub, b.N, b.r_def, b.c_def, b.th_def - np.radians(x[0] + a1 * (xr - 0.6)), b.tc_def)
+                return bemt.axial(bb, DragShift(db, x[1]), air, rpm, 0.0, n=60)
+            fit = least_squares(lambda x: [run(x)["T"] / C["T"] - 1, run(x)["Q"] / C["Q"] - 1], x0=[3.0, 0.02], bounds=([-5, -0.02], [12, 0.2]))
+            r_ = run(fit.x)
+            rows.setdefault(f"a1={a1:.2f}", {})[name] = {"a0_deg": float(fit.x[0]), "dcd": float(fit.x[1]), "T_fit": float(r_["T"]), "Q_fit": float(r_["Q"]),
+                                                         "T_cfd": C["T"], "Q_cfd": C["Q"]}
+    T.save_json("opt_bias.json", rows)
+    print(json.dumps(rows, indent=1))
+
+
+def stage_sweep_reference():
+    """The same CFD-anchored sweep for the 2-blade reference (its own fitted corrections from `bias`, a1 as for the
+    toroid): chord scale x collective. Blade mass scales with chord (wetted area) or chord^2 (volume) from 0.94 kg."""
+    from scipy.optimize import brentq
+    s = T.load_json("sizing.json"); I = s["inputs"]; air = I["air"]; db = T.build_polars(P01)
+    a1 = T.load_json("opt_calibration.json")["a1_deg"]; cal = T.load_json("opt_bias.json")[f"a1={a1:.2f}"]["reference"]
+    base = T.reference_blade(P01); xr = base.r_def / base.R
+    q_max, rpm_max = I["kt"] * I["i_peak"], I["rpm_available_sag"]
+    rows = []
+    for fs in (0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1):
+        for co in np.arange(-2.0, 10.01, 1.0):
+            b = bemt.Blade(base.R, base.r_hub, base.N, base.r_def, base.c_def * fs, base.th_def + np.radians(co) - np.radians(cal["a0_deg"] + a1 * (xr - 0.6)), base.tc_def)
+            f = lambda rpm: bemt.axial(b, DragShift(db, cal["dcd"]), air, rpm, 0.0, n=40)
+            top = f(rpm_max)
+            if top["Q"] > q_max:
+                r_q = brentq(lambda r: f(r)["Q"] - q_max, 600, rpm_max, xtol=1.0); lim = f(r_q); limit = "torque"
+            else:
+                r_q, lim, limit = rpm_max, top, "speed"
+            rows.append({"chord_scale": fs, "collective_add_deg": float(co), "tw_max": lim["T"] / I["T_hover"], "limit": limit, "rpm_limit": r_q,
+                         "FoM_at_limit": float(lim["FoM"]), "mass_area_kg": P["mass"]["reference_blade_set_kg"] * fs,
+                         "mass_volume_kg": P["mass"]["reference_blade_set_kg"] * fs ** 2, "solidity": b.solidity()})
+        best = max((r for r in rows if r["chord_scale"] == fs), key=lambda r: r["tw_max"])
+        print(f"2-blade chord x{fs:.1f}: best T/W {best['tw_max']:.3f} at coll {best['collective_add_deg']:+.0f} ({best['limit']}), FoM {best['FoM_at_limit']:.3f}, "
+              f"mass {best['mass_area_kg']:.2f} kg (area) / {best['mass_volume_kg']:.2f} kg (volume)", flush=True)
+    check = [r for r in rows if r["chord_scale"] == 1.0 and r["collective_add_deg"] == 0.0][0]
+    T.save_json("opt_sweep_reference.json", {"calibration": cal, "a1_deg": a1, "rows": rows, "as_built_check": check,
+                                              "best": max(rows, key=lambda r: r["tw_max"])})
+    print("as built (x1.0, +0):", {k: round(v, 3) if isinstance(v, float) else v for k, v in check.items()})
+
+
 def blade_area_volume(p):
     """Wetted area and solid volume of the loop set from the section integrals (checked against the STL within 0.5 %)."""
     path = T.loop_path(p)
@@ -172,4 +224,4 @@ def stage_predict(rotor):
 
 
 if __name__ == "__main__":
-    {"calibrate": stage_calibrate, "sweep": stage_sweep, "predict": stage_predict}[sys.argv[1]](*sys.argv[2:])
+    {"calibrate": stage_calibrate, "sweep": stage_sweep, "predict": stage_predict, "bias": stage_bias, "sweep_reference": stage_sweep_reference}[sys.argv[1]](*sys.argv[2:])

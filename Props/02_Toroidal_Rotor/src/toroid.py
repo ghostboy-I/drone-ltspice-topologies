@@ -967,6 +967,17 @@ def stage_status(p, p01, rotor="toroid"):
           + ("  ** FATAL error in the log **" if "FOAM FATAL" in txt else "") + ("  (finished)" if its[-1] >= end else ""))
 
 
+def motor_limited(T, Q, rpm, I):
+    """The motor's real ceiling from one CFD point, at constant C_T and C_Q (T, Q ~ rpm^2): the speed limit
+    (k_load KV V) or the torque limit (k_t I_peak), whichever the rotor reaches first."""
+    q_max = I["kt"] * I["i_peak"]
+    rpm_q = rpm * math.sqrt(q_max / Q)                               # speed at which this rotor's torque hits the limit
+    rpm_lim = min(I["rpm_available_sag"], rpm_q)
+    return {"motor_limit": "torque" if rpm_q < I["rpm_available_sag"] else "speed", "rpm_motor_limit": rpm_lim,
+            "T_motor_limit": T * (rpm_lim / rpm) ** 2, "Q_motor_limit": Q * (rpm_lim / rpm) ** 2,
+            "tw_max_motor": T * (rpm_lim / rpm) ** 2 / I["T_hover"]}
+
+
 def stage_post(p, p01, rotor="toroid"):
     import matplotlib
     matplotlib.use("Agg")
@@ -986,7 +997,8 @@ def stage_post(p, p01, rotor="toroid"):
            "viscous_thrust_fraction": float(Fv[last, 2].mean() / Tm), "viscous_torque_fraction": float(-Mv[last, 2].mean() / Qm),
            "rpm_for_tw_required": rpm_req, "Q_at_tw_required": Qm * scale, "P_at_tw_required": Qm * scale * rpm_req * math.pi / 30,
            "motor_current_at_tw_required_a": Qm * scale / I["kt"], "motor_rpm_available": I["rpm_available_sag"],
-           "tw_at_motor_rpm": Tm * (I["rpm_available_sag"] / rpm) ** 2 / I["T_hover"],
+           "tw_at_motor_rpm": Tm * (I["rpm_available_sag"] / rpm) ** 2 / I["T_hover"],          # speed limit only (kept for history)
+           **motor_limited(Tm, Qm, rpm, I),
            "mesh": mesh_info(case)}
     if rpm == s["cfd_rpm"] and rotor in ("toroid", "reference"):
         hand = s["cfd_point_bemt"]

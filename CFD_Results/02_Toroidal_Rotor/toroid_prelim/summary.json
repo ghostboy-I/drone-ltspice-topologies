@@ -20,6 +20,11 @@
  "motor_current_at_tw_required_a": 219.00164601085245,
  "motor_rpm_available": 2553.6,
  "tw_at_motor_rpm": 1.3183245314081966,
+ "motor_limit": "torque",
+ "rpm_motor_limit": 2469.448056779948,
+ "T_motor_limit": 511.84631141543946,
+ "Q_motor_limit": 45.2335101419071,
+ "tw_max_motor": 1.2328674460584665,
  "mesh": {
   "cells": 2762282.0,
   "max_non_orthogonality": 64.646075,
