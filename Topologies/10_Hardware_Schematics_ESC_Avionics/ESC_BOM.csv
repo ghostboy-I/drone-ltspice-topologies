@@ -1,0 +1,75 @@
+References,Qty,Description,Value,Part number / specification,KiCad footprint,Rating
+C1 C2 C3 C4 C5 C6 C7 C8 C9 C10 C11 C12 C13 C14 C15 C16,16,"DC-link bulk, hybrid polymer",150µ,"150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ",Capacitor_SMD:CP_Elec_10x12.5 (check the can size of the chosen part),125 V
+C17 C18 C19 C20 C21 C22 C23 C24 C25 C26,10,"DC-link ceramic, at the FETs",2.2µ,2.2 µF X7R 1210 (≈1.1 µF at 90 V),Capacitor_SMD:C_1210_3225Metric,250 V
+C27,1,ADC filter,10n,X7R,Capacitor_SMD:C_0603_1608Metric,
+C28,1,ADC filter,100n,X7R,Capacitor_SMD:C_0603_1608Metric,
+C29,1,Sense filter,1n,X7R,Capacitor_SMD:C_0603_1608Metric,
+C30,1,Boost,0.1µ,X7R,Capacitor_SMD:C_0603_1608Metric,25 V
+C31,1,DRVCC,4.7µ,X7R,Capacitor_SMD:C_0805_2012Metric,25 V
+C32,1,INTVCC,0.1µ,X7R,Capacitor_SMD:C_0603_1608Metric,
+C33,1,Soft-start (0.8 ms),10n,X7R,Capacitor_SMD:C_0603_1608Metric,
+C34,1,Compensation CITH,5.6n,X7R,Capacitor_SMD:C_0603_1608Metric,
+C35,1,Compensation CITHB,68p,X7R,Capacitor_SMD:C_0603_1608Metric,
+C36 C37,2,12 V output,10µ,10 µF X7R 1210 (5 µF at 12 V),Capacitor_SMD:C_1210_3225Metric,25 V
+C38 C39,2,"Aux input, at Q1",2.2µ,2.2 µF X7R 1210 (≈1.1 µF at 90 V),Capacitor_SMD:C_1210_3225Metric,250 V
+C40,1,LDO input,1µ,X7R,Capacitor_SMD:C_0805_2012Metric,25 V
+C41 C44,2,LDO output,10µ,X7R,Capacitor_SMD:C_0805_2012Metric,10 V
+C42 C45,2,"LDO bypass, DO NOT FIT (10 nF lowers noise but slows start-up to several ms)",,"10 nF X7R, DNP",Capacitor_SMD:C_0603_1608Metric,
+C43,1,LDO input,1µ,X7R,Capacitor_SMD:C_0805_2012Metric,10 V
+C46 C48 C50,3,Bootstrap capacitor (Qg/C = 0.3 V),1µ,X7R,Capacitor_SMD:C_0805_2012Metric,25 V
+C47 C49 C51,3,Driver Vcc / BGVcc decoupling,1µ,X7R,Capacitor_SMD:C_0805_2012Metric,25 V
+C52,1,U7 decoupling,100n,X7R,Capacitor_SMD:C_0603_1608Metric,
+C53 C55,2,ADC anti-alias (24 kHz with 6.7 kΩ),1n,X7R,Capacitor_SMD:C_0603_1608Metric,
+C54,1,U8 decoupling,100n,X7R,Capacitor_SMD:C_0603_1608Metric,
+C56 C57 C58 C59,4,MCU VDD decoupling (one per VDD pin),100n,X7R,Capacitor_SMD:C_0603_1608Metric,
+C60,1,MCU bulk,4.7µ,X7R,Capacitor_SMD:C_0805_2012Metric,10 V
+C61,1,VDDA,1µ,X7R,Capacitor_SMD:C_0603_1608Metric,
+C62,1,VDDA,100n,X7R,Capacitor_SMD:C_0603_1608Metric,
+C63,1,Reset,100n,X7R,Capacitor_SMD:C_0603_1608Metric,
+D1 D2 D3,3,"Bootstrap diode, ultrafast 200 V",ES1D,ES1D,Diode_SMD:D_SMA,200 V 1 A
+D4,1,"Status LED (green, 0603)",QTLP690C,any 0603 green LED,LED_SMD:LED_0603_1608Metric,
+FB1,1,Ferrite bead 600 Ω @ 100 MHz,600R@100MHz,Murata BLM18PG601SN1,Inductor_SMD:L_0603_1608Metric,
+J1,1,"Battery input, anti-spark",,"AMASS AS150 (male, PCB) or pads for AS150 leads",custom: AS150 (no stock KiCad footprint) or two large solder pads for AS150 pigtail leads,"150 A, 24S"
+J2,1,Motor phase A (8 mm bullet or solder pad),,8 mm bullet / pad,Connector_Wire:SolderWire-2.5sqmm_1x01_D2.4mm_OD3.6mm,
+J3,1,Motor phase B,,8 mm bullet / pad,Connector_Wire:SolderWire-2.5sqmm_1x01_D2.4mm_OD3.6mm,
+J4,1,Motor phase C,,8 mm bullet / pad,Connector_Wire:SolderWire-2.5sqmm_1x01_D2.4mm_OD3.6mm,
+J5,1,"Signal from flight controller (DShot in, telemetry out)",,JST GH 3 pin,Connector_JST:JST_GH_BM03B-GHS-TBT_1x03-1MP_P1.25mm_Vertical,
+J6,1,"Rotor encoder (AS5047P on the motor, SPI)",,JST GH 6 pin,Connector_JST:JST_GH_BM06B-GHS-TBT_1x06-1MP_P1.25mm_Vertical,
+J7,1,SWD programming,,Tag-Connect TC2030-NL,Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical,
+L1,1,Power inductor 150 µH,150µ,"shielded, Isat ≥ 1 A, DCR ≤ 0.4 Ω",Inductor_SMD:L_Bourns_SRR1260,Isat 1 A
+Q1,1,N-MOSFET 150 V 52 mΩ (top),BSC520N15NS3,Infineon BSC520N15NS3,Package_TO_SOT_SMD:TDSON-8-1,150 V 21 A
+Q2,1,N-MOSFET 150 V 36 mΩ (bottom),BSC360N15NS3,Infineon BSC360N15NS3,Package_TO_SOT_SMD:TDSON-8-1,150 V 30 A
+Q3,1,"N-MOSFET 240 V, DRVCC pre-regulator",BSP89,Infineon BSP89,Package_TO_SOT_SMD:SOT-223-3_TabPin2,240 V
+Q4 Q5 Q6 Q7 Q8 Q9 Q10 Q11 Q12 Q13 Q14 Q15 Q16 Q17 Q18 Q19 Q20 Q21 Q22 Q23 Q24 Q25 Q26 Q27,24,"N-MOSFET 150 V 6.5 mΩ, 4 in parallel per switch",IPB065N15N3,Infineon IPB065N15N3 G,Package_TO_SOT_SMD:TO-263-2,150 V 130 A
+R1 R2 R3,3,Bus sense divider (3 in series for voltage rating),330k,"1 %, thick film",Resistor_SMD:R_1206_3216Metric,200 V
+R4,1,Bus sense divider bottom (100.8 V -> 3.25 V),33k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R5,1,NTC pull-up,10k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R6,1,NTC thermistor 10k B3950 (on the FET heatsink),10k,NTC 10 kΩ B3950,Resistor_SMD:R_0603_1608Metric,
+R7,1,Current sense,100m,current sense 1 %,Resistor_SMD:R_0805_2012Metric,0.25 W
+R8,1,RUN divider (UVLO 59.8 V),976k,"1 %, thick film",Resistor_SMD:R_1206_3216Metric,200 V
+R9,1,RUN divider bottom,20k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R10,1,OVLO divider (118.8 V),1Meg,"1 %, thick film",Resistor_SMD:R_1206_3216Metric,200 V
+R11,1,OVLO divider bottom,10.2k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R12,1,FREQ (≈ 435 kHz),64.9k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R13,1,Feedback top,140k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R14,1,Feedback bottom,10k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R15,1,Compensation RITH,11.3k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R16,1,PGOOD pull-up,100k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R17,1,DRVSET: 10 V gate drive,100k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R18 R35 R52,3,Dead-time resistor (≈140 ns at the FET threshold),150k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R19 R20 R21 R22 R36 R37 R38 R39 R53 R54 R55 R56,12,"Gate resistor, one per FET (high side)",10,1 %,Resistor_SMD:R_0603_1608Metric,
+R23 R24 R25 R26 R31 R32 R33 R34 R40 R41 R42 R43 R48 R49 R50 R51 R57 R58 R59 R60 R65 R66 R67 R68,24,"Gate-source pull-down, one per FET (keeps the FETs off while the driver is unpowered)",10k,1 %,Resistor_SMD:R_0603_1608Metric,
+R27 R28 R29 R30 R44 R45 R46 R47 R61 R62 R63 R64,12,"Gate resistor, one per FET (low side)",10,1 %,Resistor_SMD:R_0603_1608Metric,
+R69,1,"Driver fault pull-up (open drain, wired-OR)",10k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R70 R72,2,"ADC scaling (2/3), top",10k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R71 R73,2,"ADC scaling (2/3), bottom",20k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R74,1,BOOT0 pull-down,10k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R75,1,LED series,1k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+R76,1,Signal input series (DShot / PWM),100,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
+U1,1,150 V synchronous buck controller,LTC7801,LTC7801EUFD (QFN-24 4x5),Package_DFN_QFN:QFN-24-1EP_4x5mm_P0.5mm_EP2.65x3.65mm,150 V
+U2,1,"500 mA low-noise LDO, 5 V",LT1763-5,LT1763CS8-5 (SO-8),Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,20 V
+U3,1,"500 mA low-noise LDO, 3.3 V",LT1763-3.3,LT1763CS8-3.3 (SO-8),Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,20 V
+U4 U5 U6,3,"150 V half-bridge gate driver, floating grounds",LTC7063,LTC7063EMSE (MSOP-12),Package_SO:MSOP-12-1EP_3x4.039mm_P0.65mm_EP1.651x2.845mm,150 V
+U7,1,"Hall current sensor phase A, ±200 A, 10 mV/A",,Allegro ACS770LCB-200B-PFF-T,Sensor_Current:Allegro_CB_PFF,±200 A
+U8,1,"Hall current sensor phase B, ±200 A, 10 mV/A",,Allegro ACS770LCB-200B-PFF-T,Sensor_Current:Allegro_CB_PFF,±200 A
+U9,1,"MCU, Cortex-M4F 170 MHz (FOC)",,ST STM32G431CBT6 (LQFP-48),Package_QFP:LQFP-48_7x7mm_P0.5mm,
