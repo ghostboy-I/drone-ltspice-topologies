@@ -40,8 +40,9 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 26. ~~3-blade for the tri and hex~~ (entry 21)
 28. Is the 50 N / 1.2 mm flex test a per-blade handling spec, or should it scale with blade load? It alone decides the 3-blade case
 27. ~~A less-cambered section (24xx)~~ (entry 22: hex +1.0 kg with 24xx full span, tri +0.25 kg with the 44/24 hybrid)
-29. Camber sweep below 2 % (14xx, 00xx outboard) for the hex: the trend in entries 20–22 points to still less camber
-30. Re-run the entry 14–19 chain (arms, speed, body, ranking) with the 24xx blades
+29. ~~Camber sweep below 2 % (14xx, 00xx outboard)~~ (entry 23: 2 % is the optimum; 14xx −0.11 kg, 00xx −0.94 kg on the hex vs 24xx; tri prefers 44/24)
+30. Re-run the entry 14–19 chain (arms, speed, body, ranking) with the 24xx blades (hex) and the 44/24 hybrid (tri)
+31. A custom outboard section with its drag bucket centred on Cl ≈ 0.3 (e.g. a thinner 2 % section, t/c 7–8 %, or a laminar 63-2xx): the remaining camber lever once the NACA 4-digit family is exhausted
 
 ## Entries
 
@@ -1315,3 +1316,58 @@ The script also prints the cruise hub-load ripple with blade_trade_study's `hub_
 
 **Next.** Queue item 29: does still less camber (14xx, or a symmetric 00xx outboard) keep paying on the hex? The trend says the hex wants Cl ≈ 0.4 sections. Then item 30: re-run the arms, speed, body and ranking chain (entries 14–19) with the 24xx blades, so the layout table uses the best blades.
 
+
+
+## 23 — Camber below 2 %: NACA 14xx and symmetric 00xx (2026-11-18)
+
+**Question.** Entries 20 and 22 went 6 % → 4 % → 2 % camber and each step gained payload. Does less still pay? New XFOIL polars for **14xx** (1 % camber at 40 % chord) and **00xx** (symmetric), t/c 9–18 %, same Re/Mach grid as before. All 160 new cases converged. The same optimisers as entries 20–22 (motor in the objective, 15 m/s design point), started from the 44xx optima. Script `src/explore/e23_camber_sweep.py`, results `results/explore/e23_camber_sweep.json` / `.png`.
+
+| Layout | Section | Hover rpm | σ | Q_max [N·m] | Motor [kg] | Pack [Wh] | Hover stall margin | **Δ payload vs 44xx [kg]** | vs best of entry 22 |
+|---|---|---|---|---|---|---|---|---|---|
+| hex | 24xx (entry 22) | 1973 | 0.131 | 20.5 | 1.84 | 5139 | 9.4° | **+1.03** | 0 |
+| hex | 14xx | 2059 | 0.132 | 20.1 | 1.80 | 5245 | 8.1° | +0.93 | −0.11 |
+| hex | 24/00 hybrid | 2056 | 0.134 | 20.6 | 1.85 | 5347 | 6.7° | +0.27 | −0.76 |
+| hex | 00xx | 2063 | 0.134 | 20.6 | 1.85 | 5396 | 6.7° | +0.10 | −0.94 |
+| tri | 44/24 hybrid (entry 22) | 2135 | 0.151 | 50.6 | 4.53 | 7367 | 8.3° | **+0.25** | 0 |
+| tri | 44/14 hybrid | 2135 | 0.157 | 51.3 | 4.59 | 7400 | 7.5° | −0.10 | −0.35 |
+| tri | 14xx | 2136 | 0.165 | 51.4 | 4.60 | 7425 | 7.6° | −0.31 | −0.56 |
+
+Payload against full-span camber (hex): 0 % +0.10, 1 % +0.93, **2 % +1.03**, 4 % 0, 6 % −1.14 kg. The curve has its peak between 1 and 2 %, and it is flat there (0.1 kg between them).
+
+**Finding.**
+- **The trend stops at 2 %.** NACA 24xx stays the best hex section, and the 44/24 hybrid the best tri section. Going to 1 % costs the hex 0.11 kg and the tri 0.35–0.56 kg; symmetric sections cost the hex 0.9 kg.
+- **Why the hex stops gaining.** With less camber the hex rotor spins faster again (1973 → 2059 rpm), but the torque saving is now small: 20.5 → 20.1 N·m, so only −0.04 kg of motor per rotor. Faster spinning at the same thrust lowers the section Cl (mean 0.29 → 0.26), and below Cl ≈ 0.3 even the 14xx section is past its low-drag range. Hover power rises 345 W and the pack grows 106 Wh. The trade in kilograms: hardware −0.25 kg, pack +106 Wh / 303.3 Wh/kg = +0.35 kg, net **−0.10 kg** ✓ (model −0.11).
+- **Why the tri loses straight away.** It is pinned on the tip-Mach cap (2136 rpm in every case; T/W at the cap 1.99), so it cannot use the lower effective pitch to spin faster. The optimiser instead adds chord (σ 0.151 → 0.165) to hold thrust at the same rpm, and the section works at Cl ≈ 0.4 where 14xx drags 10 % more than 24xx. Torque, motor and pack all rise.
+- **Symmetric sections are poor here** for two reasons: drag at Cl 0.3–0.4 is 28–38 % above 24xx (thin 9 % section), and Cl_max drops to 0.95, cutting the hover stall margin to 6.7°.
+- **The general lesson.** The best camber is the one whose drag bucket matches the Cl that the *motor-and-Mach-constrained* rotor runs at. The hex runs at Cl ≈ 0.3, the tri at ≈ 0.4. Within the NACA 4-digit family, the 2 % sections are closest to both. The remaining lever is a section whose bucket is centred lower (queue item 31), not still less camber.
+- **No change to the ranking** from entry 22's estimate: hex +1.6 kg at 15 m/s, tri +2.4 kg at free speed (still estimates until queue item 30).
+
+**Hand check 1: zero-lift angle is linear in camber.** Thin-airfoil theory gives α_L0 = −(1/π)∫(dz/dx)(cos θ − 1) dθ, and dz/dx is proportional to m, so α_L0 ∝ m:
+
+| Section | Thin-airfoil α_L0 | XFOIL α_L0 (t/c 9 %) | XFOIL α_L0 (t/c 12 %) |
+|---|---|---|---|
+| 24xx | −2.08° | −2.27° | −2.22° |
+| 14xx | **−1.04°** (half) | −0.96° | −0.92° |
+| 00xx | 0 | 0.00° | 0.00° |
+
+Thin-airfoil theory is within 0.2° of XFOIL. The viscous solution's ratio 14xx/24xx is 0.42 rather than 0.5, because the boundary layer at Re 6×10⁵ adds a little effective camber to the 2 % section and removes a little from the 1 % one. Each 1 % of camber is worth about 1° of effective pitch, which is why the hex start blade spins faster the less camber it has (start rpm 2345 for 14xx, 2661 for 00xx, against 1783 for the 44xx optimum).
+
+**Hand check 2: hover profile power, 24xx → 14xx (hex).** Profile power of a rotor with a uniform section Cd: P₀ = ρA(ΩR)³·σ·Cd/8.
+- **24xx:** ΩR = 1973·π/30 × 0.6858 = 141.7 m/s; Cd at the mean Cl 0.29 (t/c 9 %) = 0.00529; P₀ = 1.109 × 1.478 × 141.7³ × 0.131 × 0.00529 / 8 = **404 W** per rotor.
+- **14xx:** ΩR = 147.9 m/s; Cd at Cl 0.26 ≈ 0.00547 (extrapolated from the table below); P₀ = 1.109 × 1.478 × 147.9³ × 0.132 × 0.00547 / 8 = **479 W** per rotor.
+- **Hand ΔP₀ = 6 × 75 = +450 W**, against the model's total hover change of **+345 W**. The sign and size agree. The hand figure is about 30 % high because it uses one Cl and one t/c for the whole blade; the thick inboard sections and the lower induced power at the higher tip speed are not in it.
+- The (ΩR)³ term is the point: **a 4.4 % rpm rise costs 14 % in profile power before Cd moves at all**, which is why spinning faster stops paying once the motor-torque saving gets small.
+
+**Hand check 3: section drag at the operating Cl** (Re 6×10⁵, M 0.30, from the polar tables):
+
+| Cl | 24xx 9 % | 14xx 9 % | 00xx 9 % | 24xx 12 % | 14xx 12 % | 00xx 12 % |
+|---|---|---|---|---|---|---|
+| 0.3 | **0.00529** | 0.00565 | 0.00677 | **0.00633** | 0.00660 | 0.00736 |
+| 0.4 | **0.00560** | 0.00615 | 0.00773 | **0.00666** | 0.00714 | 0.00822 |
+| 0.6 | **0.00682** | 0.00833 | 0.01086 | **0.00743** | 0.00825 | 0.01016 |
+| 0.8 | **0.00941** | 0.01257 | 0.01622 | **0.00869** | 0.01068 | 0.01271 |
+| Cl_max | 1.21 | 1.09 | 0.95 | 1.31 | 1.23 | 1.13 |
+
+24xx has the lowest drag at every Cl from 0.3 up. Less camber would only win if the rotor ran below Cl ≈ 0.25, and spinning that fast costs more in (ΩR)³ than the section saves.
+
+**Next.** Queue item 30: re-run the arms, speed, body and ranking chain (entries 14–19) with the 24xx hex blade and the 44/24 tri blade, so the layout ranking uses the best blades. Item 31 (a section with its bucket at Cl ≈ 0.3) is the remaining aerofoil lever.
