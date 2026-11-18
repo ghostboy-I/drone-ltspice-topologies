@@ -14,7 +14,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 1. ~~Coaxial blade redesigned for half the thrust per rotor~~ (entry 01)
 2. ~~Two-point (hover + cruise) refinement of the coaxial blade~~ (entry 02)
 2b. ~~**Blade structure and mass model.**~~ (entry 03) Entry 02's payload gain comes from blade mass ∝ volume. Add a fixed part (spar, root fitting, erosion strip) and the 50 N / 1.2 mm flex requirement as a constraint, then re-run entries 01–02.
-3. Different upper and lower blades: the lower rotor works in the upper wake inboard, so it wants more pitch there
+3. ~~Different upper and lower blades: the lower rotor works in the upper wake inboard, so it wants more pitch there~~ (entry 04: no gain, keep one blade)
 4. Upper/lower diameter split: a smaller lower rotor that sits inside the upper's contracted wake, or a larger one that reaches past it
 5. Coaxial spacing in cruise: the wake-overlap fraction against h/D, against the hover mast and its mass
 6. 3-blade coaxial: vibration (3P against 2P hub loads) and solidity per blade
@@ -145,3 +145,50 @@ Every blade lighter than about 0.45 kg under the volume model fails the flex tes
 - **Caveats:** T/W at the tip-Mach limit is 5.8, so this blade has far more thrust margin than needed. The motor is now the limit, not the blade, and the half-size-motor mass assumption decides the payload. Fatigue, the centrifugal load path and the flapping (in-flight) deflection are not modelled.
 
 **Next.** Queue item 3: different upper and lower blades, sized with this spar model.
+
+### 04 · 2026-11-18 · Different upper and lower blades (`src/explore/e04_upper_lower_blades.py`, `e04_hand_check.py`)
+
+**Question.** Inboard of the upper wake edge (r_w = 0.85 R at h = 0.2 D), the lower rotor sees the upper rotor's wake, w ≈ 9.7 m/s. Does a lower blade with more pitch there save energy?
+
+**Method.**
+- **Upper blade:** entry 03's winner (σ 0.14, 0.44 kg).
+- **Lower blade:** the same planform, re-twisted as Δθ(x) = d0 + d_in·g(x), where g = 1 inboard of 0.75 R and blends to 0 at 0.90 R with a cosine. Twist does not change the spar-sized mass, so payload follows pack energy.
+- **Grid:** d0 ∈ {−2, −1, 0, +1, +2}°, d_in ∈ {0, 1.5, 3, 4.5}°. 20 cases.
+- **Model:** the full coaxial model with two different blades: vortex-cylinder interference, both RPMs trimmed for equal torque and total thrust; cruise at T/6 per rotor plus the wake-overlap term; the 10 nmi mission.
+- **Regression check:** identical blades give **5778 Wh**, entry 03's number exactly.
+
+| d0 [°] | d_in [°] | Pack [Wh] | vs identical | Upper thrust share | Lower stall margin [°] |
+|---|---|---|---|---|---|
+| +1 | 0 | 5777 | −0.01 % | 0.543 | 10.7 |
+| 0 | 0 | **5778** | 0 | 0.530 | 11.2 |
+| 0 | 1.5 | 5785 | +0.12 % | 0.544 | 11.3 |
+| −1 | 1.5 | 5786 | +0.14 % | 0.533 | 11.7 |
+| +2 | 0 | 5786 | +0.15 % | 0.554 | 10.2 |
+| +2 | 4.5 | 5930 | **+2.6 %** | | 10.4 |
+
+All 20 cases converged. The spread is 153 Wh, and every change from identical blades costs energy or is a wash.
+
+**Why: the RPM trim already does the job that the extra twist was meant to do.**
+
+The naive argument is "more inflow → larger inflow angle φ → lower α → add twist to compensate." At fixed Ω, the hand estimate at 0.5 R is
+
+  Δφ = atan((w + v_l)/(Ωr)) − atan(v_iso/(Ωr)) = atan(14.0/53.3) − atan(7.96/53.3) = **6.2°**
+
+That would call for about 6° of extra inboard twist. But a fixed-pitch rotor is not run at fixed Ω. The equal-torque trim lets each rotor find its own speed. The velocity triangles at 0.5 R with the trimmed speeds (`e04_hand_check.py`; mean inflows from the vortex-cylinder model, k = h/√(R² + h²) = 0.371):
+
+| | Inflow [m/s] | RPM | Ωr [m/s] | φ [°] |
+|---|---|---|---|---|
+| Upper | v_u + (1 − k)·v_l = 7.09 + 2.68 = 9.77 | 1423 | 49.3 | **11.2** |
+| Lower | v_l + w = 4.26 + 9.73 = 13.99 | 1540 | 53.3 | **14.7** |
+| Lower at the upper's RPM | 13.99 | 1423 | 49.3 | 15.9 |
+
+- **Same twist on both blades**, so α_lower − α_upper = −(φ_l − φ_u) = **−3.5°** (hand) against **−2.2°** from BEMT. The hand number uses the mean inflow; BEMT uses each blade's local induced velocity at 0.5 R. That is a fair match.
+- **The lower rotor takes less of its inflow from itself.** v_l is 4.3 m/s against 8.0 for an isolated rotor at the same thrust, because the upper wake already carries momentum. Its α is lower, but that is the right operating point: it makes 47 % of the thrust while running 8 % faster.
+- **Twist and pitch here only shift load between the rotors.** That moves the thrust share from 0.53 to 0.55 at most. Two things hold the power nearly constant:
+  1. Induced power is fixed by the interference (κ_int, momentum theory), not by the blade.
+  2. The profile power sits on the flat bottom of the drag bucket.
+- **Large inboard twist makes it worse.** Inboard of 0.75 R, the lower blade is pushed toward the upper wake edge, and the loading becomes less uniform: more induced loss.
+
+**Finding.** Keep one blade for both rotors. That is also the better production outcome: one mould, one balance spec, spares that fit either position. The ±1° pitch offset is a wash (−0.01 %). It is not worth a second part number, but a set-screw pitch adjustment at the hub could trim the torque split for yaw if needed.
+
+**Next.** Queue item 4: diameter split. Twist cannot change the wake-edge effect, but radius can. A lower rotor whose tip sits at r_w would avoid the "half in the wake, half clean" loading mismatch. A larger lower rotor would reach clean air. The spar model sets each blade's mass.
