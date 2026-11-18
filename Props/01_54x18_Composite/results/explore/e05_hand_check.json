@@ -1,0 +1,112 @@
+[
+ {
+  "mode": "lower",
+  "s": 0.8,
+  "D_upper_in": 54.0,
+  "D_lower_in": 43.2,
+  "area_only": 1.125,
+  "momentum": 1.0538826258538854,
+  "bemt_induced": 1.1417101644966565,
+  "pack_ratio": 1.0451504211295588
+ },
+ {
+  "mode": "lower",
+  "s": 0.85,
+  "D_upper_in": 54.0,
+  "D_lower_in": 45.9,
+  "area_only": 1.0882352941176472,
+  "momentum": 1.0341844436112568,
+  "bemt_induced": 1.1117703429775159,
+  "pack_ratio": 1.0224059312745555
+ },
+ {
+  "mode": "lower",
+  "s": 0.9,
+  "D_upper_in": 54.0,
+  "D_lower_in": 48.6,
+  "area_only": 1.0555555555555556,
+  "momentum": 1.0215378691280081,
+  "bemt_induced": 1.0770101677400754,
+  "pack_ratio": 1.0073514291497325
+ },
+ {
+  "mode": "lower",
+  "s": 0.95,
+  "D_upper_in": 54.0,
+  "D_lower_in": 51.3,
+  "area_only": 1.0263157894736843,
+  "momentum": 1.0112363793781498,
+  "bemt_induced": 1.03177788182069,
+  "pack_ratio": 0.9981682068698604
+ },
+ {
+  "mode": "lower",
+  "s": 1.0,
+  "D_upper_in": 54.0,
+  "D_lower_in": 54.0,
+  "area_only": 1.0,
+  "momentum": 1.0,
+  "bemt_induced": 1.0,
+  "pack_ratio": 1.0
+ },
+ {
+  "mode": "lower",
+  "s": 1.05,
+  "D_upper_in": 54.0,
+  "D_lower_in": 56.7,
+  "area_only": 0.9761904761904762,
+  "momentum": 0.9850122375673916,
+  "bemt_induced": 0.9557791673584574,
+  "pack_ratio": 0.976018181908051
+ },
+ {
+  "mode": "lower",
+  "s": 1.1,
+  "D_upper_in": 54.0,
+  "D_lower_in": 59.400000000000006,
+  "area_only": 0.9545454545454545,
+  "momentum": 0.9700625649373301,
+  "bemt_induced": 0.9257507651212874,
+  "pack_ratio": 0.9570995536269356
+ },
+ {
+  "mode": "lower",
+  "s": 1.15,
+  "D_upper_in": 54.0,
+  "D_lower_in": 62.099999999999994,
+  "area_only": 0.9347826086956522,
+  "momentum": 0.9566373703969167,
+  "bemt_induced": 0.8972079517856272,
+  "pack_ratio": 0.9398303451034217
+ },
+ {
+  "mode": "footprint",
+  "s": 1.05,
+  "D_upper_in": 51.42857142857142,
+  "D_lower_in": 54.0,
+  "area_only": 1.025,
+  "momentum": 1.0342255803478257,
+  "bemt_induced": 1.004010853495964,
+  "pack_ratio": 1.005384112618412
+ },
+ {
+  "mode": "footprint",
+  "s": 1.1,
+  "D_upper_in": 49.090909090909086,
+  "D_lower_in": 54.0,
+  "area_only": 1.05,
+  "momentum": 1.067333340561305,
+  "bemt_induced": 1.0188016435859997,
+  "pack_ratio": 1.0160807337188593
+ },
+ {
+  "mode": "footprint",
+  "s": 1.15,
+  "D_upper_in": 46.956521739130444,
+  "D_lower_in": 54.0,
+  "area_only": 1.0749999999999997,
+  "momentum": 1.1017038798508991,
+  "bemt_induced": 1.0144913311187496,
+  "pack_ratio": 1.024264604447382
+ }
+]
