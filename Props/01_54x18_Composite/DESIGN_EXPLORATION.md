@@ -41,7 +41,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 28. Is the 50 N / 1.2 mm flex test a per-blade handling spec, or should it scale with blade load? It alone decides the 3-blade case
 27. ~~A less-cambered section (24xx)~~ (entry 22: hex +1.0 kg with 24xx full span, tri +0.25 kg with the 44/24 hybrid)
 29. ~~Camber sweep below 2 % (14xx, 00xx outboard)~~ (entry 23: 2 % is the optimum; 14xx −0.11 kg, 00xx −0.94 kg on the hex vs 24xx; tri prefers 44/24)
-30. Re-run the entry 14–19 chain (arms, speed, body, ranking) with the 24xx blades (hex) and the 44/24 hybrid (tri)
+30. ~~Re-run the entry 14–19 chain with the best-camber blades~~ (entry 24: hex leads by +1.73 kg at 15 m/s, now outside the motor-fit band; tri leads by 2.2 kg at free speed; break-even batteries 382 / 204 Wh/kg)
 31. A custom outboard section with its drag bucket centred on Cl ≈ 0.3 (e.g. a thinner 2 % section, t/c 7–8 %, or a laminar 63-2xx): the remaining camber lever once the NACA 4-digit family is exhausted
 
 ## Entries
@@ -1371,3 +1371,54 @@ Thin-airfoil theory is within 0.2° of XFOIL. The viscous solution's ratio 14xx/
 24xx has the lowest drag at every Cl from 0.3 up. Less camber would only win if the rotor ran below Cl ≈ 0.25, and spinning that fast costs more in (ΩR)³ than the section saves.
 
 **Next.** Queue item 30: re-run the arms, speed, body and ranking chain (entries 14–19) with the 24xx hex blade and the 44/24 tri blade, so the layout ranking uses the best blades. Item 31 (a section with its bucket at Cl ≈ 0.3) is the remaining aerofoil lever.
+
+
+## 24 — The layout ranking re-run with the best-camber blades (2026-11-18)
+
+**Question.** Entries 16–19 ranked tri against hex with 4 % camber (44xx) blades. Entries 22–23 found 2 % camber better: the hex with 24xx full span, the tri with the 44/24 hybrid. Entry 22 only *estimated* the effect on the ranking. Here those blades, each with its own polar set, go through entry 18's full vehicle model: entry 17's bookkeeping (arms and fairings of entry 14, hover download, torque-sized motors, ESCs, spar blades) and cruise trimmed with each fuselage-drag model, at 14–30 m/s. The results then go through entry 19's ranking (tip-Mach cap 0.60). Script `src/explore/e24_chain_best_blades.py`, results `results/explore/e24_chain_best_blades.json` / `.png`. The blades are not re-optimised at each layout's best speed, because entry 17 showed that step is worth under 0.15 kg.
+
+**Regression check.** The same script run on the old entry-17 blades with 44xx polars reproduces every one of entry 18's 136 rows to **0.0000 kg**. So the polar swap is the only thing that changed.
+
+**Hex payload minus tri payload [kg]** (positive: hex wins; brackets: the motor-fit band of entry 10):
+
+| Speed | Body | Battery | 44xx blades (entry 19) | **Best-camber blades** | Change | Break-even battery |
+|---|---|---|---|---|---|---|
+| 15 m/s | any (entry 18: < 0.06 kg) | 303 Wh/kg | +0.86 [−0.02, +1.07] | **+1.73 [+0.85, +1.94]** | +0.87 | 338 → **382 Wh/kg** |
+| 15 m/s | any | 200 Wh/kg | +5.27 | **+6.07** | +0.80 | |
+| free | constant | 303 Wh/kg | −3.19 | **−2.19** | +1.00 | 177 → **204 Wh/kg** |
+| free | constant | 200 Wh/kg | −0.88 | **+0.11** (tie) | +0.99 | |
+| free | streamlined | 303 Wh/kg | −3.09 | −2.08 | +1.01 | 181 → 208 |
+| free | bluff | 303 Wh/kg | −2.16 | −1.11 | +1.05 | 217 → 252 |
+| free | bluff | 200 Wh/kg | +0.68 | +1.76 | +1.08 | |
+| free | bluff pre-tilted | 303 Wh/kg | −3.45 | −2.40 | +1.05 | 167 → 196 |
+
+Best-range speeds barely move (tri 24.8 → 24.6, hex 21.1 → 21.0 m/s with the constant body). The hex still uses 23–34 % less energy in every case.
+
+**Finding.**
+- **Better blades help the hex about 1 kg more than the tri, in every scenario.** At 15 m/s the hex now leads by **+1.73 kg**, and the whole motor-fit band (+0.85 to +1.94) is above zero. This is the first time a 15 m/s result is robust to the motor-mass uncertainty.
+- **At free speed the tri still leads with the 303 Wh/kg pack, by 1.1–2.4 kg** depending on the body. With a 200 Wh/kg LiPo the free-speed case is now a **tie** (constant or streamlined body) or a **hex win** (+1.8 kg, bluff body).
+- **The break-even batteries rise by 27–44 Wh/kg.** The hex now wins at 15 m/s for any pack below 382 Wh/kg, and at free speed for any pack below about 200 Wh/kg. A typical LiPo (≈ 200 Wh/kg) now sits right on the free-speed break-even.
+- **Where the hex's gain comes from:** six motors that each lose 0.16 kg (2.004 → 1.841 kg). Torque falls because the 2 % blade spins faster in hover (entry 22). The tri cannot follow, because it is pinned on the tip-Mach cap.
+- **The decision still turns on the two open questions** (is 15 m/s a requirement or only a minimum? which battery?). But the hex's region has grown: it now wins at 15 m/s with any plausible battery, and ties or wins at free speed with a LiPo.
+
+**Hand check 1: decomposing the 15 m/s shift.** The payload difference is −(Δhw + Δpack/e_b). With e_b = 303.3 Wh/kg:
+
+| | Tri (hw, pack) | Hex (hw, pack) | hex − tri |
+|---|---|---|---|
+| 44xx blades | 23.104 kg, 7515 Wh | 30.766 kg, 4929 Wh | Δhw +7.662 kg, Δpack −2586 Wh |
+| Best camber | 23.121 kg, 7482 Wh | 29.774 kg, 4938 Wh | Δhw +6.653 kg, Δpack −2544 Wh |
+
+Change in (hex − tri) payload = −(6.653 − 7.662) − (−2544 + 2586)/303.3 = +1.009 − 0.139 = **+0.870 kg** ✓ (model +0.870). The hardware term is almost all motors: 6 × (2.004 − 1.841) = **0.978 kg**.
+
+**Hand check 2: against entry 22's estimate.** Entry 22 estimated the shift as hex gain − tri gain = 1.03 − 0.25 = **+0.78 kg**. The full chain gives **+0.87 kg**. The gap is all on the tri side:
+- In this frame the tri gains only 0.09 kg (mass 47.883 → 47.790 kg), not 0.25 kg.
+- The reason is the baseline. Entry 22 compared against entry 13's tri blade, optimised for 15 m/s. This frame's baseline is entry 17's tri blade, already re-optimised for cruise at 24.7 m/s. That blade had already taken part of the profile-drag saving that the 44/24 hybrid offers.
+- The hex gains 0.96 kg here against 1.03 in entry 22; its entry-17 blade had moved less.
+- **Lesson:** gains measured against different baselines don't add exactly. That is why the chain had to be re-run rather than the estimate kept.
+
+**Hand check 3: break-even battery.** The layouts tie when Δhw = −Δpack/e_b, so e_b* = −Δpack/Δhw = 2544 / 6.653 = **382 Wh/kg** ✓ (model 382.4). The break-even rises because the hex's hardware penalty fell by 1.0 kg while its energy advantage (≈ 2540 Wh) is unchanged: the same energy saving now pays for less extra hardware.
+
+**Next.**
+- Queue item 31: a custom outboard section with its drag bucket at Cl ≈ 0.3 (thinner 2 % section, or a laminar 6-series section). This is the remaining aerofoil lever, and from this entry it is worth more to the hex than to the tri.
+- Queue item 10: tip speed against noise. The hex now runs faster (1973 rpm hover), which raises its tip Mach and noise. That should be in the ranking if noise is a requirement.
+- Still waiting on the user: the 15 m/s requirement and the battery chemistry. With the new break-evens, a LiPo pack would make the hex the choice in nearly every scenario.
