@@ -59,7 +59,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 46. ~~Motors between 18 and 50 N·m~~ (entry 38: real 24S motors fill the gap at 0.057–0.064 kg/N·m, against the fit's 0.090. The hex on the T-Motor MN1123 (1.425 kg, 22.2 N·m) gets +6.37 kg; the tri on the Hobbywing V13828 (2.465 kg, 43.1 N·m) gets +6.87 kg, but only by lifting its cap to 0.70. At 15 m/s the layouts are tied (hex +0.06 kg), and at equal noise the hex wins by 7.4 dBA. Both optima use 100 % of the motor's test-point torque.)
 47. ~~Torque margin on catalogue motors~~ (entry 39: with a 12 % reserve the hex on the MN1123 drops to +5.06 kg at 50.8 dBA; the tri on the V13828 needs tip Mach 0.84 at T/W 2 for +4.37 kg at 61.4 dBA. The hex leads by ≈ 1.2 kg and is 10.5 dBA quieter. The free-speed and 200 Wh/kg scenarios are still open, now item 50.)
 48. **Equal-noise comparison with the V13828 tri:** the tri's catalogue gain needs tip Mach 0.70 and costs it 3.8 dBA (52.1 → 55.9). Compare the tri at the hex's 48.5 dBA (serrations from entry 33, or a lower cap with the U15XL) against the hex on the MN1123.
-49. **Tri on the U15XL with the same 12 % reserve** (44.4 N·m): it needs a tip Mach ≈ 0.69 at T/W 2, against 0.84 on the V13828, at 1.94 kg more motor per arm. Check whether the heavier but quieter motor beats the V13828 for the tri at any reasonable noise limit.
+49. ~~Tri on the U15XL with the 12 % reserve~~ (entry 40: +1.68 kg at 55.5 dBA, cap 0.70; it trades 2.7 kg for 5.9 dB against the V13828 tri. The hex on the MN1123, +5.06 kg at 50.8 dBA, beats every tri variant on payload *and* noise.)
+51. **Hex payload against noise between the MN1123 and the MN1320** (entry 40): MN1123 with the reserve, +5.06 kg at 50.8 dBA; MN1320, +2.95 kg at 46.3 dBA (0.47 kg/dB). Try the MN1123 at a lower cap and the V13823 (34.4 N·m, 2.16 kg).
 50. **Free-speed and 200 Wh/kg scenarios with the catalogue motors and the 12 % reserve.** Entries 37–39 updated only the 15 m/s, 303 Wh/kg row exactly; the other rows were shifted by Δhex − Δtri.
 44. Absolute-level caveat from the toroid session's CFD (2026-11-18): on its rotor, BEMT predicted 620 N against 436 N in CFD (30 % high), in line with the earlier Caradonna–Tung check. The tri–hex comparisons here are relative, but absolute payloads and the motor sizing at T/W 2 should be re-based when its 2-blade reference solve (same mesh) reports
 
@@ -2513,3 +2514,50 @@ A real design needs headroom for gusts, battery sag at the end of the flight, mo
 - Item 50: the free-speed and 200 Wh/kg scenarios with the catalogue motors and the reserve.
 - Item 44: fold the CFD's 25 % thrust shortfall into the sizing, for example by calibrating BEMT's lift slope or tip loss on the toroid session's 2-blade result when it finishes, then re-size the motors for both layouts.
 - The user's open questions (cruise speed, battery chemistry, noise limit) remain.
+
+## 40 — The tri on the heavier U15XL with the same reserve: quieter, but the hex still dominates (2026-11-18)
+
+**Question.** With the 12 % torque reserve of entry 39, the tri on the V13828 (37.9 N·m) had to reach tip Mach 0.84 at T/W 2 and made 61.4 dBA. The U15XL (4.408 kg, 50.4 N·m) allows 0.88 × 50.4 = **44.35 N·m** under the same reserve. More torque lets the rotor spin slower for the same power (Ω = P/Q), at 1.94 kg more motor per arm. Is the heavier, slower, quieter tri better?
+
+**Method.** src/explore/e40_tri_u15xl_reserve.py reuses e37's optimiser with e39's scaled catalogue, at caps 0.65 and 0.70 with the hard torque penalty. It ran on 2 cores at nice 19, because the toroid session's CFD was running.
+
+| Tri design (12 % reserve) | Q_max / limit [N·m] | Payload [kg] | rpm hover / max | P_max [W] | Pack [Wh] | Hardware [kg] | σ | Tip Mach at T/W 2 | TE / tonal / total [dBA] |
+|---|---|---|---|---|---|---|---|---|---|
+| U15XL, cap 0.65 | 44.35 / 44.35 | +0.78 | 2443 / 3405 | 15816 | 7662 | 23.51 | 0.110 | 0.68 | 53.2 / 51.8 / 55.6 |
+| **U15XL, cap 0.70** | 44.35 / 44.35 | **+1.68** | 2509 / 3486 | 16192 | 7636 | 22.69 | 0.125 | **0.70** | 51.8 / 53.1 / **55.5** |
+| V13828, cap 0.80 (entry 39) | 38.07 / 37.93 | +4.37 | 2993 / 4159 | 16582 | 8024 | 18.73 | 0.102 | 0.835 | — / — / 61.4 |
+| *for comparison: hex, MN1123, cap 0.65 (entry 39)* | 19.53 / 19.53 | *+5.06* | 2139 / 2982 | 6099 | 5274 | 26.89 | 0.130 | 0.60 | — / — / *50.8* |
+
+(The tri payload is in entry 13's frame; its continuous-fit optimum is +2.14 kg.)
+
+**Findings.**
+- **The U15XL tri trades 2.7 kg of payload for 5.9 dB** against the V13828 tri: +1.68 kg at 55.5 dBA against +4.37 kg at 61.4. That is 0.46 kg per dB.
+- **Cap 0.65 is worse than cap 0.70 on both counts** (+0.78 kg, 55.6 dBA). At the lower cap the optimiser cuts solidity (0.125 → 0.110) to save blade mass, so the blades work at a higher angle of attack, and the trailing-edge term rises 1.4 dB (entry 34's mechanism). The tonal term falls only 1.3 dB.
+- **The hex dominates every tri variant with a reserve.** It has more payload than the best tri and is 4.7 dB quieter than the quietest:
+
+  | 15 m/s, 303 Wh/kg, 12 % reserve | Δhex | Δtri | Margin | Noise (hex / tri) |
+  |---|---|---|---|---|
+  | tri on the V13828 | +1.75 | +2.23 | **hex +1.25 kg** | 50.8 / 61.4 dBA |
+  | tri on the U15XL | +1.75 | −0.46 | **hex +3.67 kg** | 50.8 / 55.5 dBA |
+
+  (Margin = hex +1.73 kg on the continuous fit + Δhex − Δtri.)
+- **Why the tri has no good motor:** at T/W 2 it needs about 16 kW per rotor, three times the hex's per-rotor power. A motor sized with a reserve at a quiet tip Mach of 0.60 would need Q = 16 000 / 312.9 ≈ 51 N·m / 0.88 ≈ **58 N·m** of test torque. Nothing in the surveyed catalogue has that, and the U15XL's 50.4 is the ceiling. The hex needs 19.5 N·m per rotor, which sits in the densest part of the 24S market.
+- **The BEMT caveat from entry 39 applies here too:** absolute payloads are optimistic, because CFD puts BEMT thrust 25 % high. A thrust correction raises every motor's torque requirement and pushes the tri even further past its catalogue ceiling. The hex has room: the MN1320 (32.4 N·m, 2.07 kg) is the next step up.
+
+**Hand checks.**
+- **Q = P/Ω:** 16192 W / (3486 × 2π/60 = 365.05 rad/s) = **44.36 N·m** ✓. Tip Mach = 365.05 × 0.6858 / 357.6 = **0.700** ✓.
+- **Predicted rpm from torque alone:** Ω = P/Q = 15900 / 44.35 = 358.5 rad/s, about 3424 rpm, so tip Mach ≈ 0.688. The optimiser landed at 3486 rpm, 1.8 % higher, because peak power also rose 1.8 % (15900 → 16192 W) ✓.
+- **Current:** 175 A × 44.35/50.4 = **154 A**.
+- **Payload against the V13828 tri, from mass alone:**
+  - hardware +3.96 kg (22.69 − 18.73);
+  - pack −388 Wh at 303 Wh/kg = −1.28 kg;
+  - net −2.68 kg, against the optimiser's **−2.69** ✓.
+  - The hardware difference is smaller than the motor difference alone (3 × 1.943 = 5.83 kg), because the slower rotor needs lighter blades and the lower power needs smaller ESCs.
+- **Noise per payload:** (4.37 − 1.68) / (61.4 − 55.5) = **0.46 kg/dB**. That is cheaper than entry 34's wider chord (0.6–2.7 kg/dB) and in the range of entry 33's serrations.
+
+**Lesson.** Size the motor with a reserve, then ask which layout's motor lands in a populated part of the catalogue. The tri needs 3 × 16 kW rotors, which push past the largest 24S motors, so every way of fitting them costs payload, noise or both. The hex's 6 × 6 kW rotors sit where many motors exist, so it can choose torque headroom (MN1320) or low mass (MN1123). **With realistic motor reserves, the hex is the better layout at 15 m/s and 303 Wh/kg, by 1.3–3.7 kg and 4.7–10.6 dBA.**
+
+**Next.**
+- Item 50: re-run the free-speed and 200 Wh/kg scenarios with the catalogue motors and the reserve. Before entry 37 the tri led at free speed and 303 Wh/kg by 2.19 kg, so that row is where the tri could still win.
+- Item 44: calibrate BEMT on the toroid session's 2-blade CFD (437 N against 585 N), then re-size the motors.
+- Also: the hex on the MN1320 with the reserve already built in, +2.95 kg at 46.3 dBA, is the quiet option. Map the hex's payload–noise curve between the MN1123 and the MN1320 (item 51).
