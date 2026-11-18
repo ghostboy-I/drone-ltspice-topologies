@@ -120,7 +120,12 @@ def plot(ok, ref):
     axs[0].plot(hd, [100 * (r["cruise_w"] / ref["cruise_w"] - 1) for r in ok], "^--", color="#c0392b", label="cruise power")
     axs[0].axhline(0, color="#999", lw=.8); axs[0].set_xlabel("h / D"); axs[0].set_ylabel("change vs h/D = 0.2 [%]"); axs[0].legend(fontsize=7); axs[0].grid(alpha=.3)
     axs[1].plot(hd, [r["kappa_bemt"] for r in ok], "o-", color="#0b0b0b", label="BEMT")
-    axs[1].plot(hd, [r["kappa_hand"] for r in ok], "o--", color="#2a78d6", label="momentum hand check")
+    hp = os.path.join(OUT, "e06_hand_check.json")
+    if os.path.exists(hp):          # two-region momentum bounds (e06_hand_check.py); run that script, then plot() again
+        hcr = json.load(open(hp))["rows"]
+        axs[1].fill_between([q["h_over_D"] for q in hcr], [q["kappa_optimal"] for q in hcr], [q["kappa_uniform"] for q in hcr], color="#2a78d6", alpha=.15)
+        axs[1].plot([q["h_over_D"] for q in hcr], [q["kappa_uniform"] for q in hcr], "--", color="#2a78d6", label="momentum, uniform lower loading")
+        axs[1].plot([q["h_over_D"] for q in hcr], [q["kappa_optimal"] for q in hcr], ":", color="#2a78d6", label="momentum, optimal lower loading")
     axs[1].axhline(math.sqrt(2), color="#999", ls=":", lw=.8); axs[1].axhline(1.2808, color="#999", ls="--", lw=.8)
     axs[1].text(hd[-1], math.sqrt(2), "√2 (h → 0)", fontsize=6, ha="right", va="bottom"); axs[1].text(hd[-1], 1.2808, "1.281 (far wake, Leishman)", fontsize=6, ha="right", va="bottom")
     axs[1].set_xlabel("h / D"); axs[1].set_ylabel("hover interference κ_int"); axs[1].legend(fontsize=7); axs[1].grid(alpha=.3)
@@ -133,4 +138,8 @@ def plot(ok, ref):
 
 
 if __name__ == "__main__":
-    run()
+    if sys.argv[1:] == ["plot"]:      # redraw from the saved results
+        rows = [r for r in json.load(open(os.path.join(OUT, "e06_coax_spacing.json")))["rows"] if "error" not in r]
+        plot(rows, next(r for r in rows if r["h_over_D"] == H_REF))
+    else:
+        run()
