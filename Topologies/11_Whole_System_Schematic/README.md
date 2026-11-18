@@ -58,7 +58,7 @@ About 20–45 minutes under Wine (`.tran 0 6m 0 uic`, all 72 inverter FETs as se
 | Avionics 12 V / 5 V / 3.3 V | 12.0 / 5.05 / 3.32 V | 12.00 / 5.05 / 3.20 V, still rising at 6 ms |
 | 3.3 V soft-start time constant, R_SET·C_SET | 1.56 ms | fit from the run → settles at 3.32 V |
 | Rotor speed 2 ms after the punch (13 N·m into J = 0.15 kg·m²) | ≈1.7 rpm | 1.61 rpm |
-| Phase currents at standstill, θe ≈ 0 | ia ≈ 0, ib = −ic = 0.866·iq | 1.2 / 52.2 / −53.4 A |
+| Phase currents at standstill, θe ≈ 0 | ia ≈ 0, ib = −ic = 0.866·iq | 1.5 / 52.6 / −54.1 A |
 | Each pack's current (ESC + 1/3 of the avionics board) | — | 1.065 A, equal to within 0.03 % on all three |
 | MCU iq vs true iq from the motor currents | equal | 58.3 vs 61.0 A (see below) |
 
