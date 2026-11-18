@@ -17,7 +17,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 3. ~~Different upper and lower blades: the lower rotor works in the upper wake inboard, so it wants more pitch there~~ (entry 04: no gain, keep one blade)
 4. ~~Upper/lower diameter split: a smaller lower rotor that sits inside the upper's contracted wake, or a larger one that reaches past it~~ (entry 05: keep 54/54 in)
 5. ~~Coaxial spacing in cruise: the wake-overlap fraction against h/D, against the hover mast and its mass~~ (entry 06: h/D 0.4 if the overlap model holds)
-6. 3-blade coaxial: vibration (3P against 2P hub loads) and solidity per blade
+6. ~~3-blade rotors~~ (entry 21: −2.2 kg tri, −4.3 kg hex, driven by the per-blade 50 N / 1.2 mm flex test; hub roll ripple −89 %)
 7. ~~Planar hexacopter against Y6: six isolated disks need a bigger frame, but they have no interference~~ (entry 09: hex best on energy, all three tie on payload)
 8. ~~Cruise speed per configuration~~ (entry 16: best-range speeds 21–25 m/s for all layouts; at its best speed the tri wins payload by 3.4 kg, the hex still wins energy by 25 %)
 9. ~~Camber (64xx)~~ (entry 20: loses with torque-sized motors: hybrid −0.14/−0.18 kg, full 64xx −0.9/−1.1 kg for tri/hex; keep 44xx)
@@ -37,7 +37,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 24. ~~Fuselage drag against pitch attitude~~ (entry 18: a bluff body costs the tri 2.5 kg and the hex 1.5 kg at free speed; a body built nose-down at the cruise attitude recovers it; the tri still leads by 2.2–3.4 kg)
 21. ~~Consolidated layout ranking with uncertainty bands~~ (entry 19: the speed requirement decides it; hex wins at 15 m/s for any pack below 338 Wh/kg, tri wins at free speed for any pack above 177 Wh/kg)
 25. Pack specific energy as a design input: which cell (semi-solid 303 vs LiPo 200 Wh/kg) is planned? It swings the 15 m/s result by 4.4 kg
-26. 3-blade (item 6) for the tri and hex blades (camber done in entry 20)
+26. ~~3-blade for the tri and hex~~ (entry 21)
+28. Is the 50 N / 1.2 mm flex test a per-blade handling spec, or should it scale with blade load? It alone decides the 3-blade case
 27. A less-cambered section (24xx) for the outboard blade: entry 20 shows the optimum runs at Cl 0.6–0.9, below 44xx's drag bucket
 
 ## Entries
@@ -1218,4 +1219,45 @@ The XFOIL 64xx polars come from the blade trade study's cache, on the same Re/Ma
 The optimiser then strips the extra pitch back out (hover 1574 → 1646 rpm). That puts the sections at low Cl, where the 64xx section drags more, and leaves the blade worse than the 44xx at either end.
 
 **Next.** Queue item 6 / 26: 3-blade rotors for the tri and hex. A third blade at the same solidity lowers the tip-loss factor and the hub vibration (3P), at the cost of a heavier hub and narrower chords, which are harder on the spar model.
+
+## 21 — 3-blade rotors with torque-sized motors (2026-11-18)
+
+**Question.** A third blade at the same solidity cuts tip loss and moves the hub vibration from 2P to 3P. The blade trade study saw no energy gain, but it held the motor fixed. With the motor and the spar model in the objective, does a 3-blade rotor pay on the tri or the hex?
+
+**Method** (`src/explore/e21_three_blade.py`). Each layout's 2-blade optimum (entries 11 and 13) is the start, with N = 3 and the chord scaled by 2/3, so the solidity and C_T/σ are unchanged. It is then re-optimised with the entry 11/13 optimisers at 15 m/s. For three blades the bookkeeping adds:
+- the third blade (spar model, each blade passing the 50 N / 1.2 mm flex test of params `structure_prelim`, plus its own root fitting);
+- 0.10 kg of hub per rotor for the third grip and pitch link (an assumption).
+
+The script also prints the cruise hub-load ripple with blade_trade_study's `hub_ripple`, which superposes one blade's azimuthal loads at N phase offsets.
+
+**Results.**
+
+| Layout | Blades | Hover rpm | σ | Blade [kg each] | Q_max [N·m] | Motor [kg] | Pack [Wh] | FM | Payload change [kg] | Hub roll ripple [N·m] | Thrust ripple [N] |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| tri | 2 (entry 13) | 2141 | 0.140 | 0.475 | 50.6 | 4.53 | 7422 | 0.833 | 0 | 54.3 (2P) | 29.0 |
+| tri | 3, same σ (start) | 2125 | 0.140 | **0.936** | 50.4 | 4.51 | 7477 | 0.840 | −5.97 | | |
+| tri | **3, optimised** | 2123 | **0.198** | 0.460 | 52.7 | 4.72 | 7426 | 0.804 | **−2.22** | **6.1 (3P)** | **1.6** |
+| hex | 2 (entry 11) | 1783 | 0.128 | 0.451 | 22.6 | 2.03 | 5113 | 0.789 | 0 | 31.8 (2P) | 20.1 |
+| hex | 3, same σ (start) | 1771 | 0.128 | **0.777** | 22.7 | 2.03 | 5194 | 0.787 | −9.46 | | |
+| hex | **3, optimised** | 1577 | **0.191** | 0.445 | 25.7 | 2.30 | 4933 | 0.781 | **−4.26** | **4.6 (3P)** | **0.9** |
+
+**Finding.**
+- **The 3-blade rotor loses heavily: −2.2 kg on the tri, −4.3 kg on the hex. Keep two blades.**
+- **The cause is structural, not aerodynamic.**
+  - The flex test is a **per-blade** bench requirement: 50 N at the tip, at most 1.2 mm of deflection. A blade with 2/3 of the chord and the same t/c has a spar about 2/3 as deep, and EI ∝ depth². To stay stiff it needs about twice the spar: blade mass **0.475 → 0.936 kg**.
+  - The optimiser escapes by **widening each blade back to nearly the 2-blade chord**, which gives σ 0.20. The blades are then light again (0.46 kg each), but the rotor now carries 40 % more blade area. That costs profile power (FM 0.83 → 0.80), and on the hex it costs torque too.
+  - On top of that come one extra blade, its root fitting and a heavier hub per rotor: 3 × 0.56 kg on the tri and 6 × 0.55 kg on the hex.
+- **It is still a ride-quality win:** hub roll ripple falls **−89 %** (54 → 6 N·m) and thrust ripple −95 %. Those are the 2P loads a 2-blade rotor passes to the airframe in forward flight (hand check 2). If vibration or camera stability becomes a requirement, the price is about 2 kg on the tri.
+- **The answer depends entirely on one requirement** (queue item 28). If the 50 N bench load stood for *blade load*, it would scale with thrust per blade (×2/3 for three blades) and the 3-blade spar penalty would mostly vanish. That is a question for whoever owns the test spec.
+
+**Hand check 1: tip loss against Reynolds number at equal solidity.** Prandtl's effective-radius tip loss is R_e/R = 1 − √(2C_T)/B, and ideal induced power at fixed thrust goes as 1/R_e.
+- **Tri:** C_T = 415 / (1.109 × 1.478 × 153.8²) = 0.0107, so √(2C_T) = 0.146. Then P_i3/P_i2 = (1 − 0.073)/(1 − 0.049) = **0.974**: a 2.6 % induced-power saving, **−120 W** per rotor.
+- **BEMT at the same σ:** only **−50 W**.
+- **The difference is the narrower chord's Reynolds number.** Re drops by 2/3, and turbulent-ish section drag goes as Re^(−0.2), so Cd rises by (3/2)^0.2 = 1.084. Profile power is (1 − FM) × P ≈ 0.17 × 5588 = 950 W per rotor, so the 8.4 % rise is **+80 W**. Net −120 + 80 = **−40 W**, against BEMT's −50 W ✓.
+- **Hex:** lower C_T means less tip loss to recover (−36 W). The Re penalty, 0.21 × 2094 × 0.084 = +37 W, cancels it. Net ≈ 0, against BEMT's +6 W ✓.
+- **So at this size a third blade has no aerodynamic payoff.**
+
+**Hand check 2: why the ripple collapses.** One blade's loads in forward flight vary around the azimuth as a Fourier series in ψ. With N equally spaced blades, the hub sum Σₖ f(ψ + 2πk/N) cancels every harmonic except multiples of N. So a 2-blade rotor passes 2P, 4P, …, a 3-blade rotor passes 3P, 6P, …, and a blade's load harmonics fall off quickly with order (roughly as μⁿ). The model's 2P → 3P drop of about 9× in roll ripple and 18× in thrust ripple is that fall-off.
+
+**Next.** Queue item 27: a less-cambered outboard section (24xx). Entry 20 found the motor-sized optimum runs at Cl 0.6–0.9, below the 44xx drag bucket, so the next airfoil to try goes the other way from 64xx. That needs new XFOIL polars, which are light runs but must wait if a foamRun is active.
 
