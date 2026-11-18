@@ -108,7 +108,7 @@ doc.p("ESC_Block as drawn (preview render; LTspice also shows pin names).", size
 doc.h("3. Power-up")
 doc.p("Every pack starts at 0 V and ramps to 88.8 V in Tplug = 1 ms (a stand-in for the anti-spark pre-charge). The ESC bus is "
       "mostly capacitance, so the harness current during the ramp is")
-doc.eq(r"I = C_{bus}\,\frac{dV}{dt} = (16\times150\,\mu F + 12\times1.1\,\mu F)\,\frac{88.8\ \mathrm{V}}{1\ \mathrm{ms}} = %.0f\ \mathrm{A}" % I_inrush)
+doc.eq(r"I = C_{bus}\,\frac{dV}{dt} = (24\times150\,\mu F + 12\times1.1\,\mu F)\,\frac{88.8\ \mathrm{V}}{1\ \mathrm{ms}} = %.0f\ \mathrm{A}" % I_inrush)
 doc.p("A real anti-spark connector ramps over about 100 ms, which limits the inrush to about 2 A. The simulation starts with `uic` "
       "(no DC operating point): with every source at 0 V, LTspice cannot find an operating point for four switching boards, and the "
       "physical start is all-cold anyway. The avionics 3.3 V rail is an LT3045, whose output follows its SET pin; C_SET filters it:")
@@ -142,9 +142,10 @@ doc.table(["", "ia (A)", "ib (A)", "iq (A)"], [
 doc.p(f"The hand model explains {iq_true - iq_read_hand:.1f} of the {iq_true - M['iq1']:.1f} A gap; the remaining "
       f"{(iq_read_hand - M['iq1']):.1f} A is a further ~0.1 % low reading in the sense chain that I have not traced.", size=9.5)
 
+I_in_sim = float(np.max(np.asarray(sig("I(L_HARN1)"))[t < 1.5e-3]))     # harness 1 peak during the pack ramp
 doc.h("6. Hand calculation vs. LTspice")
 doc.table(["Quantity", "Hand", "LTspice", "Diff."], [
-    ["Inrush per pack (1 ms ramp)", f"{I_inrush:.0f} A", "214 A", "0 %"],
+    ["Inrush per pack (1 ms ramp)", f"{I_inrush:.0f} A", f"{I_in_sim:.0f} A", f"{(I_in_sim/I_inrush-1)*100:+.1f} %"],
     ["Avionics 12 V / 5 V (5.5–6 ms)", "12.0 / 5.05 V", f"{M['vav12']:.2f} / {M['vav5']:.2f} V", "0 %"],
     ["3.3 V: τ and final value", f"{tau33*1e3:.2f} ms, {V33:.2f} V", f"{tau_fit*1e3:.2f} ms, {v_inf:.2f} V (fit)", f"{(tau_fit/tau33-1)*100:+.1f} %"],
     ["12 V / 5 V reach 90 %", "—", f"{M['t_av12']*1e3:.2f} / {M['t_av5']*1e3:.2f} ms", ""],
@@ -154,7 +155,7 @@ doc.table(["Quantity", "Hand", "LTspice", "Diff."], [
     ["Pack currents 1 / 2 / 3", "equal", f"{M['ipack1']:.3f} / {M['ipack2']:.3f} / {M['ipack3']:.3f} A", "0.03 %"],
     ["ESC1 12 V aux", "12.0 V", f"{M['v12_esc1']:.2f} V", "0 %"],
 ], widths=[0.36, 0.22, 0.28, 0.14])
-doc.p("The rotor speed is 4 % under the hand value because the current takes about 0.1 ms to reach the limit after the command. The "
+doc.p(f"The rotor speed is {(1-M['rpm1']/rpm_hand)*100:.0f} % under the hand value because the current takes about 0.1 ms to reach the limit after the command. The "
       f"bus-current gap, {M['iesc1'] - I_bus_hand:.2f} A × 88.8 V ≈ {(M['iesc1'] - I_bus_hand)*88.8:.0f} W, is the switching and "
       "gate-drive loss of 24 FETs at 20 kHz, which the hand estimate leaves out.", size=9.5)
 
