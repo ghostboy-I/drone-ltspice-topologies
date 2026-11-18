@@ -53,6 +53,6 @@ R16,1,Current limit 300 mA,499,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
 R17,1,PGFB divider top,450k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
 R18,1,PGFB divider bottom,50k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
 R20,1,DRVSET: DRVCC = 5 x 20 µA x R = 10 V,100k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
-U1,1,150 V synchronous buck controller,LTC7801,LTC7801EUFD (QFN-24 4x5),Package_DFN_QFN:QFN-24-1EP_4x5mm_P0.5mm_EP2.65x3.65mm,150 V
+U1,1,150 V synchronous buck controller,LTC7801,LTC7801EFE (TSSOP-24 with exposed pad),Package_SO:HTSSOP-24-1EP_4.4x7.8mm_P0.65mm_EP3.2x5mm (check EP size vs ADI FE24 drawing),150 V
 U2,1,65 V 3.5 A synchronous buck,LT8641,LT8641EV (LQFN-18 3x4),custom: LQFN-18 3x4 mm (ADI package drawing; no stock KiCad footprint),65 V
 U3,1,20 V 500 mA ultralow-noise LDO,LT3045,LT3045EDD (DFN-10 3x3),Package_DFN_QFN:DFN-10-1EP_3x3mm_P0.5mm_EP1.65x2.38mm,20 V

@@ -43,7 +43,7 @@ def build():
         "ITH": "ITH_AUX", "MODE": "0", "CPUMP_EN": "INTVCC_AUX", "PLLIN": "0", "PGOOD": "PG_AUX", "FREQ": "FREQ_AUX",
         "DRVSET": "DRVSET_AUX", "DRVUV": "0", "TG": "TG_AUX", "SW": "SW_AUX", "BOOST": "BST_AUX", "BG": "BG_AUX", "DRVCC": "DRVCC_AUX",
         "NDRV": "NDRV_AUX", "EXTVCC": "+12V", "INTVCC": "INTVCC_AUX", "GND": "0"},
-        desc="150 V synchronous buck controller", pn="LTC7801EUFD (QFN-24 4x5)", fp="Package_DFN_QFN:QFN-24-1EP_4x5mm_P0.5mm_EP2.65x3.65mm",
+        desc="150 V synchronous buck controller", pn="LTC7801EFE (TSSOP-24 with exposed pad)", fp="Package_SO:HTSSOP-24-1EP_4.4x7.8mm_P0.65mm_EP3.2x5mm (check EP size vs ADI FE24 drawing)",
         rating="150 V"), dx=260)
     B.add(b, Part("Q1", "nmos", "BSC520N15NS3", {"D": "VBUS", "G": "TG_AUX", "S": "SW_AUX"}, desc="N-MOSFET 150 V 52 mΩ (top)",
                   pn="Infineon BSC520N15NS3", fp="Package_TO_SOT_SMD:TDSON-8-1", rating="150 V 21 A"))
@@ -141,7 +141,7 @@ def build():
     b = B.block("8  MCU U9 STM32G431CBT6 (FOC firmware) + connectors.  In simulation: the behavioural FOC block below", 4700, 2600, 2000, 1700)
     mcu = {"PA8": "PWM_A", "PA9": "PWM_B", "PA10": "PWM_C", "PA0": "ISNS_A", "PA1": "ISNS_B", "PA2": "VBUS_SNS", "PA3": "TEMP",
            "PB0": "DRV_EN", "PB12": "FAULT_N", "PA4": "ENC_CS", "PA5": "ENC_SCK", "PA6": "ENC_MISO", "PA7": "ENC_MOSI",
-           "PA15": "SIG_IN", "PB6": "TLM_TX", "PA13": "SWDIO", "PA14": "SWCLK", "PG10-NRST": "NRST", "PB8-BOOT0": "BOOT0",
+           "PA15": "SIG_IN", "PB6": "TLM_TX", "PA13": "SWDIO", "PA14": "SWCLK", "PG10": "NRST", "PB8": "BOOT0", "VBAT": "+3V3",
            "PC13": "LED", "VDD": "+3V3", "VDDA": "VDDA", "VREF+": "VDDA", "VSS": "0", "VSSA": "0"}
     B.add(b, Part("U9", None, "", mcu, desc="MCU, Cortex-M4F 170 MHz (FOC)", pn="ST STM32G431CBT6 (LQFP-48)",
                   fp="Package_QFP:LQFP-48_7x7mm_P0.5mm", note="pin map proposed: check alternate functions in STM32CubeMX"))
