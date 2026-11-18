@@ -39,7 +39,7 @@ Parts named `V_…`, `B_…`, `L_HARN`, `R_CS…`, `R_BW…`, `C_BW…`, `La/Lb/
 [Alternatives_Study](../Alternatives_Study/README.md) checked each section against datasheet ratings. Three problems are fixed here:
 | Problem | Fix | Check |
 |---|---|---|
-| DC-link ripple 61.7 A rms at hover over 16 caps = 3.86 A each, above the 3.5 A rating | C65–C72: 8 more 150 µF 125 V hybrid polymer, 24 in all → 2.57 A each (3.48 A at punch, seconds only) | `python3 hand_calc.py changes`; ESC run `Icap_bulk` |
+| DC-link ripple 61.7 A rms at hover over 16 caps = 3.86 A each, above the 3.5 A rating | C65–C72: 8 more 150 µF 125 V hybrid polymer, 24 in all → 2.57 A each (3.48 A at punch, seconds only) | `python3 hand_calc.py changes`; ESC run `Icap_bulk`: 68.8 A → 2.87 A each at the run's iq of 160 A (hand 2.80) |
 | Punch needs iq = 210 A; ACS770LCB-200B is specified to ±200 A | U7, U8 → ACS772ECB-250B: ±250 A, 8 mV/A, 200 kHz, same CB package and pinout. ADC still fits ±306 A, 151 mA/LSB | ESC run (firmware block uses 8 mV/A) |
 | SMBJ110A clamps to 177 V at 3.4 A; the LTC7801 is rated to 150 V | U4 LTC4366-2 surge stopper + Q4 FDB33N25 (250 V): VIN_PROT held at VREG = 1.23 V (1 + R24/R23) = 115.3 V, 51 ms timer, 9 s cool-down | `Avionics_SurgeTest.asc`: 179 V in → 115.5 V out (hand 115.3 V) |
 

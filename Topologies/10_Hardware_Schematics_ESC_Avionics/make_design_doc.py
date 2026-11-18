@@ -138,7 +138,7 @@ doc.table(["Quantity (4–7 ms)", "Hand at LTspice's iq, ω", "LTspice", "Δ"], 
      f"{me['pshaft']:.0f} + {p_drag:.0f} + {es['p_kin']:.0f}", ""],
     ["ESC input power (W)", f"{p_in_hand:.0f}", f"{me['pin_esc']:.0f}", pct(p_in_hand, me["pin_esc"])],
     ["DC-link capacitor RMS (A)", f"{h09.kolar(iq_h, mp['vd'], mp['vq'], me['vbus_h']):.1f}", f"{me['icap_rms']:.1f}", ""],
-    ["Per bulk capacitor RMS (A; rating 3.5 A, 24 caps)", f"{h09.kolar(iq_h, mp['vd'], mp['vq'], me['vbus_h'])/h.N_BULK:.2f}",
+    ["Per bulk cap RMS (A, 24 x 3.5 A)", f"{h09.kolar(iq_h, mp['vd'], mp['vq'], me['vbus_h'])/h.N_BULK:.2f}",
      f"{me['icap_bulk']/h.N_BULK:.2f}", ""],
     ["Bootstrap current, 3 legs (mA)", f"{iboot_hand*1e3:.1f}", f"{me['iboot']*1e3:.1f}", pct(iboot_hand, me["iboot"])],
     ["Bootstrap voltage min–max (V)", "12 − Vf − Qg/C", f"{me['vboot_min']:.2f}–{me['vboot_max']:.2f}", ""],
@@ -182,7 +182,7 @@ doc.table(["Quantity", "Hand", "LTspice", "Error"], [
     ["VIN_AV at the TVS (V)", f"{su['v_av']:.0f}", f"{ms['vav_surge']:.1f}", pct(su["v_av"], ms["vav_surge"])],
     ["Q4 dissipation while regulating (W)", f"{su['p_fet']:.1f}", f"{ms['pq4']:.1f}", pct(su["p_fet"], ms["pq4"])],
     ["TIMER after 20 ms (V; fault at 2.8 V)", f"{9e-6*20e-3/h.SURGE['ct']:.2f}", f"{ms['vtmr_max']:.2f}", pct(9e-6*20e-3/h.SURGE['ct'], ms["vtmr_max"])],
-    ["Start-up: VIN_PROT reaches 80 V (ms)", "~ 100 (7.5 µA into CG)", f"{ms['t_on']*1e3:.0f}", "—"],
+    ["Start-up: VIN_PROT reaches 80 V (ms)", "~100 (7.5 µA, CG)", f"{ms['t_on']*1e3:.0f}", "—"],
 ], widths=[0.42, 0.2, 0.18, 0.2])
 doc.img(os.path.join(here, "Avionics_surge.png"), width=6.4)
 doc.p("The LTC4366 needs about 0.1 s to ramp Q4's gate, far longer than the 8 ms board run. Avionics_Board.asc therefore starts "
