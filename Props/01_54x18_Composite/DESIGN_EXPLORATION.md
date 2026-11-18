@@ -25,7 +25,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 11. ~~Check the cruise wake-overlap model with a prescribed-wake (Biot–Savart) calculation~~ (entry 07: the lens model was optimistic; use the vortex-wake / biplane σ from now on)
 12. Mast structure at h/D 0.4–0.5: bending under motor-out and gust loads, first bending mode against 1P/2P, gyroscopic moments
 13. Re-state the coaxial case (CONFIG_STUDY headline, entries 01–06 payloads) with the vortex-wake cruise term: at h/D 0.2 the coax is −12 % energy and −2.4 kg payload, not −22 % and +0.1 kg
-14. Stagger: offset the lower rotor forward along the flight path (tilted mast) so the swept-back upper wake misses it; Prandtl's stagger correction says this helps a biplane
+14. ~~Stagger: offset the lower rotor forward along the flight path (tilted mast)~~ (entry 08: modest gain; large stagger turns into the planar layout, item 7)
 
 ## Entries
 
@@ -411,3 +411,66 @@ The first attempt reused e05's `hand()`. It gave κ ≈ 1.59 at every spacing, a
 **Next.**
 - **Queue item 14, stagger.** Mount the lower rotor forward of the upper along the flight path, on a mast tilted forward. Then the swept-back upper wake and its trailing pair pass farther behind the lower rotor. For biplanes, positive stagger lowers σ. The same vortex code can test it in one evening's run, so it goes before item 12.
 - **Then item 12 (mast structure) and item 13 (re-state the coaxial case).**
+
+### 08 · 2026-11-18 · Stagger: the lower rotor forward of the upper (`src/explore/e08_stagger.py`, `e08_hand_check.py`)
+
+**Question.** Entry 07 showed the cruise interference decays like a biplane's. Biplanes gain from stagger, one wing set ahead of the other. Does it help to mount the lower rotor a distance s forward of the upper, on a mast tilted forward?
+
+**Method.**
+- **Geometry:** upper hub at the origin, lower hub at (−s, 0, −h) (x points aft). The mast has length L = √(h² + s²). Grid: h/D ∈ {0.2, 0.3, 0.4}, s/R ∈ {−0.5, 0, 0.25, 0.5, 0.75, 1.0, 1.5}.
+- **Cruise:** entry 07's skewed vortex wakes, with the lower rotor's wake starting at its new hub.
+- **Hover:** the wakes are vertical, so stagger moves part of the lower disk out of the upper wake. Entry 06's two-region momentum model (optimal lower loading), with geometric overlaps:
+  - core area = intersection of the wake circle r_w = R/√(1+k) with the offset lower disk;
+  - the upper rotor feels the lower's inflow over the two disks' overlap fraction φ.
+
+  The ratio κ(s)/κ(0) scales the BEMT induced power from entry 06. At s = 0 the model gives κ = 1.344 (entry 06's value), and 1.00 once the disks no longer overlap (s ≥ 2R).
+- **Mast:** 0.51 kg/m. Cross-flow drag: only the velocity component normal to the mast loads it, so D = q·C_d·d·L·sin²θ = q·C_d·d·h²/L.
+- **Regression check:** s = 0 reproduces entry 07 exactly (6575 / 6071 / 5715 Wh).
+- **Bug found during the run:** aft stagger (s < 0) passed a signed distance into the circle-intersection formula, so it scored as fully overlapped in hover. Fixed (|s|) and re-run; only the s < 0 rows changed.
+
+**Hand check: Munk's stagger theorem in the Trefftz plane.**
+- Munk (1923): the total induced drag of lifting surfaces with fixed loads does not change when they are moved along the direction their wakes trail in. Only their positions in the Trefftz plane, far downstream and normal to the wake, matter.
+- Here the wakes trail along e = (sin χ, 0, −cos χ), at 68° from the shaft, not along the flight path. The Trefftz-plane normal in the x–z plane is n = (cos χ, 0, sin χ). The lower hub at (−s, 0, −h) therefore sits a Trefftz distance
+
+  **G_eff = |s·cos χ + h·sin χ| = |0.372·s + 0.928·h|**
+
+  from the upper.
+- Two predictions follow:
+  1. σ depends on G_eff alone.
+  2. Forward stagger buys only 0.372/0.928 = **40 %** as much as the same length of extra mast height. Aft stagger moves the lower rotor back toward the upper wake (G_eff → 0 at s = −2.5·h).
+
+| (h/D, s/R) | G_eff/b | σ, vortex wake | σ, Prandtl at G_eff |
+|---|---|---|---|
+| (0.2, 0) and (0.3, −0.5) | 0.186 | **0.594, 0.594** | 0.504 |
+| (0.2, 0.5), (0.3, 0) and (0.4, −0.5) | 0.279 | **0.419, 0.419, 0.419** | 0.391 |
+| (0.2, 1.0), (0.3, 0.5) and (0.4, 0) | 0.371 | **0.292, 0.292, 0.292** | 0.311 |
+| (0.2, 1.5), (0.3, 1.0) and (0.4, 0.5) | 0.464 | **0.232, 0.232, 0.232** | 0.250 |
+
+- **Prediction 1 holds to all three decimals:** geometries with the same G_eff give the same σ. The vortex-wake code obeys Munk's theorem exactly, which is a strong check on it, because nothing in the code was written to make that happen.
+- **Prandtl's formula is 5–15 % off at G_eff,** and better above G_eff/b ≈ 0.3. His σ is a curve fit for elliptic wings of the same span, not circular disks. So **entry 07's "1 % match" at G = h was partly luck:** the right gap is G_eff = 0.93·h. The vortex-wake numbers stand; the biplane formula is a sanity check, good to about 10 %.
+- **Munk also says how the interference is shared.** The front surface sits in the rear one's upwash, and the rear one in the front one's downwash. With the lower rotor ahead (s ≥ R), the lower sees an upwash (w̄_l < 0) and the upper takes the downwash. The total is set by G_eff alone.
+
+**Results (selected):**
+
+| h/D | s/R | Mast [cm], tilt | σ cruise | κ hover | Cruise [W] | Hover [W] | Pack [Wh] | Payload [kg] |
+|---|---|---|---|---|---|---|---|---|
+| 0.4 | 0 | 55, 0° | 0.292 | 1.291 | 8851 | 16121 | 5715 | +0.05 |
+| 0.3 | 0.5 | 54, 40° | 0.292 | 1.236 | 8772 | 15507 | **5626** | **+0.36** |
+| 0.4 | 0.5 | 65, 32° | 0.232 | 1.220 | 8476 | 15324 | 5467 | +0.71 |
+| 0.3 | 0.75 | 66, 51° | 0.259 | 1.175 | 8562 | 14825 | 5468 | +0.69 |
+| 0.4 | 1.0 | 88, 51° | 0.189 | 1.107 | 8184 | 14051 | 5220 | +1.17 |
+| 0.4 | 1.5 | 117, 62° | 0.155 | 1.029 | 7964 | 13183 | 5041 | +1.32 |
+| 0.4 | −0.5 | 65, −32° | 0.419 | 1.220 | 9553 | 15324 | 5993 | −1.02 |
+
+**Finding.**
+- **The fair comparison is at equal mast length,** since mast length is the structural cost (queue item 12). At about 55 cm, the tilted mast (h/D 0.3, s = R/2) beats the vertical one (h/D 0.4) by **1.6 %** energy and 0.3 kg of payload:
+  - cruise: the same σ, by Munk, because both have the same G_eff;
+  - hover: the gain is all here. The lower disk is partly out from under the upper wake, so κ drops from 1.29 to 1.24.
+
+  At about 65 cm the two layouts tie (5467 against 5468 Wh). Stagger is a small refinement, not a new lever.
+- **Large stagger turns into a different configuration.** At s ≥ R the rotors barely overlap in plan (κ → 1). The 0.9–1.2 m "mast" is then a cantilever arm carrying a rotor, and the arm becomes a tandem pair: queue item 7 (planar hexacopter) in disguise. Its apparent gains (−30 % energy against the tricopter) come mostly from adding planform area, the same lesson as entry 05. They need a real frame-mass model, not 0.51 kg/m of tube.
+- **Aft stagger is worse in every case,** as Munk predicts: the lower rotor moves back toward the wake.
+- **Stagger only works in one flight direction.** Flying sideways, or with a crosswind component, the Trefftz gap falls back toward h·sin χ, and flying backwards gives aft stagger. A cargo drone that holds its heading in cruise can use it; one that crabs into crosswinds will see the benefit shrink.
+- **Trim cost:** forward stagger moves the arm's centre of thrust forward by about s/2 (about 17 cm at s = R/2). The CG has to follow, or the rotors must trim it with differential thrust.
+
+**Next.** The planar layout is now the natural comparison. **Queue item 7: planar hexacopter against Y6**, with a frame-mass model that scales with arm length. That model also covers the long-mast and large-stagger limits seen here. Item 12 (mast structure) follows, because it prices every option in entries 06–08.
