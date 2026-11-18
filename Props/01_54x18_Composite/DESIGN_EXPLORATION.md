@@ -46,7 +46,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 32. ~~Camber further aft at 2 % (NACA 25xx, 26xx)~~ (entry 26: 25xx ties 24xx (−0.04 / −0.00 kg), 26xx −0.2 kg; upper-surface transition moves aft but the lower surface's moves forward and cancels it)
 34. ~~A noise-constrained ranking~~ (entry 28: at the hex's own hover level the tri loses 2.8 kg and the hex wins every scenario; with the 303 Wh/kg pack at free speed the tri wins only if the limit is looser than 40.6–43.5 dBA)
 35. ~~Broadband rotor noise scaling~~ (entry 29: on trailing-edge scaling the tri is 1.0 dB *quieter* than the hex at cap 0.60, though 7 dBA louder in tones; which one dominates decides what a noise limit costs)
-36. Absolute broadband level: implement the BPM TBL-TE model (NASA RP-1218, with its published spectra and constants), check it against the RP's NACA 0012 test case, and apply it to the entry-28 blades, to find whether tones or broadband set the dBA at 50 m
+36. ~~Absolute broadband level (BPM TBL-TE)~~ (entry 30: broadband sets the dBA for both layouts; total hex 49.8 against tri 52.0 dBA; equal total noise costs the tri 1.9 kg, so the tri keeps a narrow free-speed lead at 303 Wh/kg with a constant or streamlined body)
+37. The remaining broadband sources: tip-vortex noise (BPM section 5.4) and leading-edge noise from the rotor ingesting its own recirculating wake turbulence in hover (Amiet). Both scale with blade loading and would add to the tri more than the hex
 33. A laminar-flow section from coordinates (NACA 63-2xx / 64-2xx, or an XFOIL-designed section): needs coordinate generation, since XFOIL's NACA command only builds 4- and 5-digit sections
 
 ## Entries
@@ -1681,3 +1682,89 @@ The chord enters only weakly (power 0.8 and inside a log), so the tri's wider bl
 **Next.**
 - Queue item 36: calibrated BPM trailing-edge noise for absolute levels. It is a self-contained model with published constants and a published validation case (NACA 0012), which fits this project's verify-against-a-reference approach.
 - For the user: does the vehicle have a noise requirement, and in which metric? That answer now decides whether noise favours the hex or is neutral.
+
+
+## 30 — Absolute broadband noise (BPM trailing-edge model) against the Gutin tones (2026-11-18)
+
+**Question.** Entry 29 compared broadband noise by scaling only and found the tri 1 dB *quieter*. Entry 28's noise ranking assumed tones set the dBA. Which is right needs an absolute broadband level. This entry implements the Brooks–Pope–Marcolini turbulent-boundary-layer trailing-edge model (NASA RP-1218, 1989) and applies it to entry 28's rotors.
+- **Model:** `src/explore/bpm.py`, with the equations transcribed from the report's scanned pages:
+  - untripped boundary-layer fits, eqs. 5–6, 9, 12/15;
+  - SPL_p, SPL_s and SPL_α, eqs. 24–30;
+  - Strouhal numbers, eqs. 31–34;
+  - spectral shapes A and B, eqs. 35–46;
+  - K₁, ΔK₁ and K₂, eqs. 47–50;
+  - directivity D̄_h and D̄_l, eqs. B1–B2.
+- **Rotor study:** `src/explore/e30_bpm_rotor.py`, results `results/explore/e30_bpm_rotor.json` / `.png`.
+
+**Validation against the report.** The report's Figure 44 shows its own predictions for a 30.48 cm NACA 0012, untripped, α = 0, 45.72 cm span, observer 1.22 m at 90°. Our code gives:
+
+| U [m/s] | Our total peak (1/3 octave) | Figure 44 prediction (read off the plot) | Our suction-side peak | Figure 44 |
+|---|---|---|---|---|
+| 71.3 | 59.7 dB at 3.15 kHz | ≈ 59–60 dB at 2.5–3 kHz | 56.7 dB | ≈ 56–57 |
+| 55.5 | 54.5 dB at 3.15 kHz | ≈ 53–54 dB | 51.5 | ≈ 51 |
+| 39.6 | 47.6 dB at 2.5 kHz | ≈ 47 dB | 44.6 | ≈ 44 |
+| 31.7 | 43.8 dB at 2.0 kHz | ≈ 43–44 dB | 40.8 | ≈ 40 |
+
+Agreement is within the ≈ 1 dB that reading a scanned plot allows. (The report's predictions themselves match its measured data within a few dB for this airfoil.)
+
+**Applying it to a rotor.**
+- **Strips:** each blade strip outboard of 0.25R is treated as a BPM airfoil segment: chord c, span dr, local speed W, untripped boundary layer.
+- **Angle of attack:** α* is the effective angle measured from **zero lift**, α − α_L0. BPM was fitted on the symmetric NACA 0012, so this is the usual adaptation for cambered sections.
+- **Observer:** 50 m, 30° below the disk plane (θ = 120°, near the tonal maximum).
+- **Directivity:** D̄_h is evaluated in each strip's own trailing-edge frame at 24 azimuth positions and averaged (time-averaged mean square), with Doppler frequency shift neglected.
+- **Summing:** n rotors × B blades, added incoherently, in 1/3-octave bands from 100 Hz to 20 kHz, then A-weighted.
+
+**Hover levels at 50 m, 30° below the disk:**
+
+| Layout | Cap | rpm | Broadband [dBA] (peak band) | Tonal [dBA] | **Total [dBA]** | Δ payload [kg] |
+|---|---|---|---|---|---|---|
+| hex | 0.60 | 1973 | 49.4 (8 kHz) | 39.7 | **49.8** | 0 |
+| hex | 0.50 | 1769 | 48.5 (6.3 kHz) | 35.5 | **48.7** | −0.29 |
+| hex | 0.45 | 1587 | 47.5 (4 kHz) | 31.5 | **47.6** | −1.09 |
+| tri | 0.60 | 2135 | 50.5 (5 kHz) | 46.6 | **52.0** | 0 |
+| tri | 0.55 | 1955 | 49.7 (4 kHz) | 43.4 | **50.6** | −1.01 |
+| tri | 0.50 | 1777 | 48.7 (3.15 kHz) | 40.0 | **49.2** | −2.47 |
+| tri | 0.45 | 1601 | 47.6 (2.5 kHz) | 36.5 | **47.9** | −4.58 |
+
+**Finding.**
+- **Broadband sets the A-weighted level for both layouts.** For the hex, broadband is 9.7 dB above the tones; for the tri, 3.9 dB. The tones are 18–20 dB louder unweighted, but they sit at 66–700 Hz where A-weighting removes most of them. The broadband peak is at 2.5–8 kHz, where A-weighting is about 0 dB.
+- **The hex is still quieter in total, by 2.2 dBA (not 7).** Entry 29's scaling had the tri 1 dB quieter in broadband. BPM puts it **1.1 dB louder**, because of the **angle-of-attack term SPL_α**, which entry 29's zero-α scaling left out. Each tri blade carries twice the thrust, so it runs at α* = 4.2° at 0.75R against the hex's 2.9°. The suction-side boundary layer thickens with α* (δ*_s = 1.05 against 0.81 mm), and SPL_α grows with it. Per blade the tri is 3.6 dB louder (its 0.76R strip 4.1 dB). With half as many blades (−3 dB) the vehicle is 0.6 dB louder unweighted and 1.1 dBA louder A-weighted, because the tri's spectrum peaks lower: at 5 kHz A-weighting adds 0.5 dB, while the hex's 8 kHz peak loses 1.1 dB.
+- **Noise parity on total dBA costs the tri 1.9 kg** (it needs 49.8 dBA: cap ≈ 0.52), not entry 28's 2.8 kg. Applied to entry 24's ranking (hex − tri payload):
+
+  | Scenario | No noise limit | Equal total dBA (BPM + Gutin) | Equal tonal dBA (entry 28) |
+  |---|---|---|---|
+  | 15 m/s, 303 Wh/kg | +1.73 | **+3.59** | +4.54 |
+  | free, constant body, 303 | −2.19 | **−0.33** | +0.61 |
+  | free, streamlined, 303 | −2.08 | **−0.22** | +0.72 |
+  | free, bluff, 303 | −1.11 | **+0.75** | +1.69 |
+  | free, bluff pre-tilted, 303 | −2.40 | **−0.54** | +0.41 |
+  | free, constant body, 200 | +0.11 | **+1.97** | +2.91 |
+
+  With the more complete noise model, a noise limit at the hex's level turns the free-speed case into a **near tie** with the 303 Wh/kg pack (the tri by 0.2–0.5 kg, or the hex by 0.75 kg with a bluff body). Everywhere else the hex leads.
+- **Quieting either rotor is now slow going.** Broadband falls only about 1 dB per 0.05 of cap. The tri pays 1.9 kg for 2.2 dB, and the hex 1.1 kg for 2.2 dB. Edge treatments (serrations) aimed directly at SPL_α and SPL_s would likely be the cheaper lever for both.
+- **Caveats:**
+  - BPM is a 2-D, NACA 0012-based empirical model, applied here with α measured from zero lift.
+  - Doppler and rotational effects are neglected.
+  - Two broadband sources are missing: **tip-vortex noise** and **leading-edge noise from ingested turbulence** (in hover the rotor re-ingests its own recirculating wake). Both grow with blade loading and would add more to the tri than to the hex (queue item 37). The 2.2 dB gap is therefore more likely a lower bound than an upper one.
+
+**Hand check: one strip at its peak Strouhal number.** BPM's spectrum shape A equals 0 dB at St = St₁, so the suction-side band level at the peak is simply
+
+  SPL_s,peak = 10 log₁₀(δ*_s M⁵ L D̄_h / r_e²) + K₁ − 3
+
+For the tri at 0.76R (W = 116.2 m/s, c = 135 mm, α* = 4.2°):
+- M = 116.2/357.6 = **0.325**, so M⁵ = 3.62 × 10⁻³;
+- R_c = W c/ν = 9.0 × 10⁵ > 8 × 10⁵, so **K₁ = 128.5** (eq. 47, the high-Re plateau);
+- δ*_s = **1.05 mm** (eq. 6 at R_c, × 10^(0.0679 α*) from eq. 15);
+- L = the strip width, 21.8 mm; D̄_h = 1; r_e = 50 m;
+- SPL_s,peak = 10 log₁₀(1.05×10⁻³ × 3.62×10⁻³ × 0.0218 / 2500) + 125.5 = **20.71 dB**;
+- peak frequency f = St₁ W / δ*_s with St₁ = 0.02 M^(−0.6) = 0.0393, so f = 0.0393 × 116.2 / 1.05×10⁻³ = **4.3 kHz**.
+
+The code gives **20.64 dB in the 4 kHz band** (which spans 3.55–4.47 kHz) ✓. The same strip's angle term SPL_α peaks at **24.4 dB**, 3.7 dB above the suction side, which confirms that the angle-of-attack contribution sets the level here.
+
+**Lesson.** At these blade loadings, broadband noise depends on loading per blade too, through α*, and not only on blade count and speed. Entry 29's zero-angle scaling had the sign of the tri–hex difference wrong. A model with the right physics in it (here, BPM's angle term), checked against a published reference before use, changed the answer.
+
+**Next.**
+- Queue item 37 (tip-vortex and ingested-turbulence noise).
+- Item 33 (laminar section from coordinates).
+- Item 13 (restate the coaxial case).
+- Still waiting on the user: speed requirement, battery chemistry, and noise metric. Two of the three now decide the layout only at the margins: with a noise limit, free speed and 303 Wh/kg is a near tie.
