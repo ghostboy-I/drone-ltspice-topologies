@@ -1,0 +1,143 @@
+{
+ "stl": {
+  "triangles": 182400,
+  "edges_not_shared_by_two": 0,
+  "edges_inconsistent": 0,
+  "volume_m3": 0.0010725624942459367,
+  "area_m2": 0.34488716947417297,
+  "izz_unit_density": 0.00013377959893694092,
+  "degenerate_triangles": 0,
+  "bbox_min": [
+   -0.6884303626731578,
+   -0.1144754925475627,
+   -0.055540177333744986
+  ],
+  "bbox_max": [
+   0.6884303626731578,
+   0.11447549254756274,
+   0.045021191710415194
+  ]
+ },
+ "R": 0.6858,
+ "rt": 0.6507999999999999,
+ "r0": 0.075,
+ "stations": 380,
+ "ring_points": 120,
+ "volume_from_sections_m3": 0.0010695879356917818,
+ "volume_diff_pct": 0.2781032260083416,
+ "area_from_sections_m2": 0.3433567168831697,
+ "area_diff_pct": 0.445732532887666,
+ "area_by_segment_m2": {
+  "leg A": 0.1546613383486119,
+  "tip turn": 0.01764226676410775,
+  "leg B": 0.1546613383486119,
+  "root turn": 0.016391773421838153
+ },
+ "min_flow_projection": 0.9372952278665199,
+ "fold_check": {
+  "min_advance_ratio": 0.5494374804110677,
+  "station": 340,
+  "segment": 3,
+  "n_negative": 0
+ },
+ "gaps": [
+  {
+   "r": 0.075,
+   "gap_normal_to_chord_m": 0.06660549145029512,
+   "stagger_along_chord_m": 0.02367604994362031,
+   "chord_m": 0.051474633123689724
+  },
+  {
+   "r": 0.10276961366469507,
+   "gap_normal_to_chord_m": 0.06893089065458359,
+   "stagger_along_chord_m": 0.01742083561080095,
+   "chord_m": 0.058373760420077664
+  },
+  {
+   "r": 0.1394134736425403,
+   "gap_normal_to_chord_m": 0.07331904056089283,
+   "stagger_along_chord_m": 0.005846952049310353,
+   "chord_m": 0.06747660328359066
+  },
+  {
+   "r": 0.18407468214922743,
+   "gap_normal_to_chord_m": 0.08059959936188882,
+   "stagger_along_chord_m": -0.015245850727499743,
+   "chord_m": 0.0754199805509518
+  },
+  {
+   "r": 0.23538583357400122,
+   "gap_normal_to_chord_m": 0.08900522290226721,
+   "stagger_along_chord_m": -0.045396952690030995,
+   "chord_m": 0.07544
+  },
+  {
+   "r": 0.2915560845706887,
+   "gap_normal_to_chord_m": 0.09603978766366286,
+   "stagger_along_chord_m": -0.07707954928863667,
+   "chord_m": 0.07544
+  },
+  {
+   "r": 0.3504851867133673,
+   "gap_normal_to_chord_m": 0.09829983707292453,
+   "stagger_along_chord_m": -0.096719413839893,
+   "chord_m": 0.07544
+  },
+  {
+   "r": 0.4098972206423932,
+   "gap_normal_to_chord_m": 0.09373760906858963,
+   "stagger_along_chord_m": -0.09240522830257414,
+   "chord_m": 0.07126030647646064
+  },
+  {
+   "r": 0.4674855161263495,
+   "gap_normal_to_chord_m": 0.08554943975212481,
+   "stagger_along_chord_m": -0.06918373701162954,
+   "chord_m": 0.061726383841474615
+  },
+  {
+   "r": 0.5210595301978705,
+   "gap_normal_to_chord_m": 0.07843687827699641,
+   "stagger_along_chord_m": -0.04109449664959489,
+   "chord_m": 0.0536899866199837
+  },
+  {
+   "r": 0.5686843308401733,
+   "gap_normal_to_chord_m": 0.07380628938888907,
+   "stagger_along_chord_m": -0.018523326111792672,
+   "chord_m": 0.04618106996694235
+  },
+  {
+   "r": 0.608803804545598,
+   "gap_normal_to_chord_m": 0.07149258841630739,
+   "stagger_along_chord_m": -0.005500382491910269,
+   "chord_m": 0.04
+  },
+  {
+   "r": 0.6403397424563249,
+   "gap_normal_to_chord_m": 0.07075111933936533,
+   "stagger_along_chord_m": -0.0011987716057774624,
+   "chord_m": 0.04
+  }
+ ],
+ "mass": {
+  "reference_kg": 0.94,
+  "reference_volume_cm3": 1957.0752458588618,
+  "reference_area_m2": 0.3145423322275198,
+  "toroid_volume_cm3": 1072.5624942459367,
+  "toroid_area_m2": 0.34488716947417297,
+  "volume_scaled_kg": 0.515160950875309,
+  "area_scaled_kg": 1.0306846045486222
+ },
+ "z_extent_m": [
+  -0.055540177333744986,
+  0.045021191710415194
+ ],
+ "r_extent_m": [
+  0.04209851378341241,
+  0.6884346733273176
+ ],
+ "leading_edge_length_m": 2.780768149432959,
+ "nose_radius_mm_at_tip_turn": 0.7448844000000001,
+ "nose_radius_mm_at_075R": 1.0184052309322682
+}

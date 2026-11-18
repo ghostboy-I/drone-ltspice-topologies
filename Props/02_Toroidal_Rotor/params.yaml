@@ -1,0 +1,77 @@
+# Toroidal (closed-loop) rotor for the 280 lb tricopter: preliminary sizing, geometry and OpenFOAM case.
+# kind: requirement = from the user; assumption = a design choice made here, listed in the design document.
+# Rotor-program inputs (atmosphere, motor, the 2-blade reference blade, XFOIL polars) are READ from ../01_54x18_Composite.
+
+vehicle:
+  mtow_lb: 280.0            # requirement (user, 2026-11-18)
+  drone_max_lb: 55.0        # requirement (user); Phase 1 of the prop program showed it does not close with batteries
+  payload_lb: 225.0         # requirement (user)
+  n_rotors: 3               # requirement: tricopter, as in the prop and airframe programs
+  tw_required: 1.5          # requirement (user): every rotor must reach T/W 1.5 at 100 % throttle on the hot day
+  tw_target: 2.0            # reference target from the prop program
+
+design_atmosphere: hot_sl   # 45 C sea level, dry, the prop program's sizing case
+
+rotor:
+  diameter_in: 54.0         # assumption: same disk as the 2-blade 54 in reference, so ideal induced power is identical
+                            # and any CFD difference comes from the loop topology alone
+  n_loops: 2                # assumption: 2 loops = 4 legs, 2-fold symmetric (balanced); fewer loops keep the chord large
+  r_root_m: 0.075           # legs start here (inside the hub fairing in a real rotor)
+  root_turn_depth_m: 0.030  # the loop closes inward of r_root through a turn that stands in for the hub (low speed, q < 2 % of 0.75R)
+  root_turn_chord_cut: 0.35 # chord at the middle of the root turn = (1 - this) x the leg root chord
+  tip_turn_depth_m: 0.035   # radial depth of the tip turn: legs run straight to R - this, then turn through the tip
+  gap_m: 0.070              # axial gap between the two legs of a loop (about 1.3 leg chords at 0.75 R)
+  sweep_max_m: 0.120        # tangential (azimuthal) leg separation at mid-span: gives the petal shape seen from above
+  sweep_end_m: 0.010        # tangential separation at both turns, so the turns are nearly axial (box-wing-like tips)
+  trailing_leg_high: true   # trailing leg above the leading leg: it then passes above the leading leg's descending wake
+  chord_fraction: 0.50      # each leg gets half the reference chord at the same radius -> same solidity as the 2-blade rotor
+  chord_min_m: 0.040        # no free tip, so no tip taper: legs hold at least 40 mm out to the tip turn
+  tc_r_over_R: [0.0, 0.30, 0.70, 1.00]   # assumption: thicker than the 2-blade reference (weight: deeper spar per kg)
+  tc:          [0.18, 0.16, 0.13, 0.13]
+  camber: 0.04              # NACA 44xx on the legs; the camber fades to zero at the middle of each turn (sign follows the path)
+  camber_position: 0.40
+  twist_from: reference     # leg pitch = the 2-blade reference blade's twist at the same radius
+  collective_offset_deg: 0.0
+  stacking_x_over_c: 0.25
+  n_leg_stations: 150       # step ~2.5 mm at the leg ends (matches the turns), ~5 mm mid-span
+  n_tip_turn_stations: 40
+  n_root_turn_stations: 40
+  n_airfoil_points: 61      # per surface, cosine spaced, closed (sharp) trailing edge
+
+mass:                       # preliminary blade-set mass, two ways (structure is not designed yet)
+  reference_blade_set_kg: 0.94          # 2-blade 54 in reference, vendor-scaled (Props/01 blade trade study)
+  reference_blade_set_volume_cm3: 1969.0
+  reference_blade_set_area_m2: null     # computed from the reference STL if present, else from the BEMT planform
+
+cfd:
+  # OpenFOAM aborts on paths with spaces, so the case lives under the user run directory; logs are copied back to cfd/.
+  run_root: "~/OpenFOAM/elijah-callahan-13/run/toroid"
+  rpm: null                 # null = the BEMT (4 open legs, Prandtl tip loss) RPM for T = W x 1.5 / 3, rounded to 10 rpm
+  domain:                   # in rotor diameters D (same rules as the Caradonna-Tung validation case)
+    radius_D: 5.0
+    above_D: 5.0
+    below_D: 10.0
+    core_half_width_R: 2.45 # Cartesian core of the O-grid, where all refinement happens
+  mrf_zone:
+    radius_R: 1.15
+    half_height_R: 0.20     # legs and turns span |z| < 0.06 m = 0.09 R
+  n_proc: 10
+  guard:
+    start_iteration: 150
+    window: 50
+    ct_max_factor: 3.0
+    bottom_flow_max_factor: 10.0
+  meshes:
+    prelim:
+      base_cell_m: 0.32
+      surface_level: [8, 10]  # 1.25 mm on the blades, curvature-refined (resolveFeatureAngle) to 0.31 mm round the nose
+      resolve_feature_angle: 25
+      edge_level: 9           # sharp trailing edge: 0.63 mm
+      disk_level: 4           # 20 mm in the rotor disk region
+      wake_level: 3           # 40 mm to 2 R below
+      far_wake_level: 2       # 80 mm to 6 R below
+      n_layers: 3
+      final_layer_rel: 0.40   # relative sizes: last layer = 0.4 x local cell, so layers shrink with the LE refinement
+      expansion: 1.25
+      max_global_cells: 6000000
+      iterations: 1500
