@@ -18,13 +18,15 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 4. ~~Upper/lower diameter split: a smaller lower rotor that sits inside the upper's contracted wake, or a larger one that reaches past it~~ (entry 05: keep 54/54 in)
 5. ~~Coaxial spacing in cruise: the wake-overlap fraction against h/D, against the hover mast and its mass~~ (entry 06: h/D 0.4 if the overlap model holds)
 6. 3-blade coaxial: vibration (3P against 2P hub loads) and solidity per blade
-7. Planar hexacopter against Y6: six isolated disks need a bigger frame, but they have no interference
+7. ~~Planar hexacopter against Y6: six isolated disks need a bigger frame, but they have no interference~~ (entry 09: hex best on energy, all three tie on payload)
 8. Cruise speed per configuration: the coaxial pair's lower induced power moves the minimum-energy speed
 9. Camber (64xx) for the coaxial blade: the blade trade study found camber pays mostly in cruise
 10. Tip-speed limit: is 0.60 Mach still the right cap for the slower coaxial rotors (noise)?
 11. ~~Check the cruise wake-overlap model with a prescribed-wake (Biot–Savart) calculation~~ (entry 07: the lens model was optimistic; use the vortex-wake / biplane σ from now on)
 12. Mast structure at h/D 0.4–0.5: bending under motor-out and gust loads, first bending mode against 1P/2P, gyroscopic moments
 13. Re-state the coaxial case (CONFIG_STUDY headline, entries 01–06 payloads) with the vortex-wake cruise term: at h/D 0.2 the coax is −12 % energy and −2.4 kg payload, not −22 % and +0.1 kg
+15. Faired (aerofoil) arms and masts: entry 09's arm cross-flow drag is 0.15–0.7 kW at Cd 1.2
+16. Motor and fitting mass: entry 09's payload ranking is set by the half-size motor penalty (×1.15) and 0.6 kg per arm fitting; find real catalogue numbers
 14. ~~Stagger: offset the lower rotor forward along the flight path (tilted mast)~~ (entry 08: modest gain; large stagger turns into the planar layout, item 7)
 
 ## Entries
@@ -474,3 +476,80 @@ The first attempt reused e05's `hand()`. It gave κ ≈ 1.59 at every spacing, a
 - **Trim cost:** forward stagger moves the arm's centre of thrust forward by about s/2 (about 17 cm at s = R/2). The CG has to follow, or the rotors must trim it with differential thrust.
 
 **Next.** The planar layout is now the natural comparison. **Queue item 7: planar hexacopter against Y6**, with a frame-mass model that scales with arm length. That model also covers the long-mast and large-stagger limits seen here. Item 12 (mast structure) follows, because it prices every option in entries 06–08.
+
+### 09 · 2026-11-18 · Tricopter vs Y6 vs planar hexacopter (`src/explore/e09_hex_vs_y6.py`)
+
+**Question.** Entries 01–08 refined the coaxial (Y6) arm. Six rotors could also sit side by side in one plane, a hexacopter: no stacked interference, but longer arms and a wider footprint. Which layout wins once the arms are sized and every rotor's wake acts on every other rotor?
+
+**Configurations.** All use 54 in rotors with 1.10 D between neighbouring hubs (`arm_clearance_factor`).
+
+| | Rotors | Blade, motors | Hub circle | Span |
+|---|---|---|---|---|
+| tri | 3 at T/3 | Phase 2 blade, U15XL, tilt servo | 0.635 D = 0.87 m | 3.11 m |
+| y6 | 3 arms × 2 at T/6, vertical mast h/D 0.4 | entry 03 blade, half-size motors | 0.87 m | 3.11 m |
+| hex0 | 6 at T/6 in one plane, one arm on the flight line | entry 03 blade, half-size motors | 1.10 D = 1.51 m | **4.39 m** |
+| hex30 | the same, rotated 30° (rotors in side-by-side pairs) | | | 4.39 m |
+
+**Method.**
+- **Hover:**
+  - tri: Phase 2 numbers;
+  - y6: entry 06 (BEMT coaxial model at h/D 0.4);
+  - hex: six isolated BEMT rotors at T/6. Interference between neighbouring coplanar rotors with a 10 % tip gap is neglected.
+- **Cruise:** each rotor edgewise at its share of the trimmed thrust. On top of that:
+  - the vortex-wake interference (entry 07) of every rotor on every other disk: 6, 30, 30 and 30 pairs;
+  - cross-flow drag of the arm tubes (Cd 1.2, only the velocity component normal to each arm);
+  - y6 mast drag.
+- **Mass, relative to the tri:**
+  - motors, ESCs, blades, hubs and tilt servo as in earlier entries;
+  - y6 masts at 0.51 kg/m, now counted in full;
+  - **arms sized as carbon tubes** (below);
+  - fuselage, gear, payload mount and avionics common to all.
+- **Regression checks:**
+  - The tri with the interference and arm-drag terms removed gives **7475 Wh**, the Phase 2 baseline.
+  - The y6's within-arm wake numbers come out 0.294 / 0.291, the same as entry 07 at h/D 0.4.
+
+**Hand check: sizing the arm tube.** A cantilever from the fuselage edge (0.25 m) to the hub. Quasi-isotropic carbon, E = 70 GPa, allowable stress 300 MPa, wall at least 1 mm, d/t ≤ 50 against local buckling, plus 0.6 kg of fittings per arm (hinge, clamps, motor mount).
+- **Stiffness** (tip deflection ≤ 1 % of L under hover thrust): T·L³/(3EI) ≤ 0.01·L, so I ≥ T·L²/(0.03·E).
+  - tri arm: T = 415 N, L = 0.621 m, giving I ≥ 415 × 0.386/(2.1·10⁹) = 7.63·10⁻⁸ m⁴.
+  - With d/t = 50, I = πd³t/8 = πd⁴/400, so d = (400·I/π)^¼ = **56 mm**, t = **1.12 mm**.
+  - Mass: ρπdtL = 1550 × π × 0.056 × 0.00112 × 0.621 = **0.19 kg**. The code gives 56 mm, 1.12 mm, 0.190 kg.
+- **Strength at T/W 2:** M = 830 N × 0.621 m = 515 N·m, so σ = M(d/2)/I = 515 × 0.028/7.63·10⁻⁸ = **189 MPa** < 300. The arm is stiffness-driven.
+- **Scaling law.** With stiffness governing and d/t fixed, I ∝ d⁴ ∝ T·L², so d ∝ (T·L²)^¼, and mass per metre ∝ d·t ∝ d², giving **mass ∝ T^½·L²**.
+  - hex arm: half the thrust on 2.03× the length: 0.707 × 2.03² = 2.91× the tri tube, i.e. 0.55 kg. The code gives 0.56 kg (66 mm × 1.39 mm).
+  - Six of them against three: **5.9× the tube mass**.
+  - With fittings the arms come to 1.16 kg per hex arm against 0.79 kg per tri arm, **+4.6 kg** for the hex.
+- **Hover by momentum.** The hex has twice the tri's disk area at the same total thrust. Ideal power ∝ T^1.5/√A, so the hex needs 1/√2 = 0.707 of the tri's induced power, a 29.3 % reduction. BEMT gives 12030/16764 = 0.718, a **28.2 %** reduction (the hex rotors run at a lower FoM). The y6 against the hex: same disk count, but κ_int = 1.29 on the induced part. Its hover is 16121/12030 = **1.34×**: the 29 % interference plus a little profile power.
+
+**Results:**
+
+| | Hover [W] | Cruise [W] | Interference [W] | Arm + mast drag [W] | Pack [Wh] | vs tri | Range on the same pack | Hardware vs tri [kg] | Payload vs tri row [kg] |
+|---|---|---|---|---|---|---|---|---|---|
+| tri | 16764 | 12457 | −37 | 147 | **7528** | 0 | 1.00× | 0 | 0 |
+| y6 (h/D 0.4) | 16121 | 9518 | 2205 | 332 | 6040 | −19.8 % | 1.25× | +6.18 | **−1.27** |
+| hex0 | 12030 | 7640 | −41 | 700 | **4789** | **−36.4 %** | **1.57×** | +9.94 | **−0.90** |
+| hex30 | 12030 | 7746 | +65 | 700 | 4841 | −35.7 % | 1.56× | +9.94 | −1.07 |
+
+**What the interference column says.**
+- **Planar layouts barely interfere in cruise.** At a 1.1 D hub spacing, the tri's three rotors, and the hex's six, sit far apart in the Trefftz plane.
+  - Side-by-side rotors are even slightly favourable: like formation flight, each sits in the other's tip upwash.
+  - The fore-aft pairs of hex0 cost little: a fore-aft spacing of 1.9 D puts them 0.7 D apart in the Trefftz plane (×cos χ, entry 08).
+- **The y6's 2.2 kW is 1.7 kW from the stacked pairs** (entry 07) plus 0.5 kW between arms.
+
+**Finding.**
+- **On energy the planar hex wins clearly.** It needs 36 % less pack energy than the tri and 21 % less than the y6, so it flies 1.57× the tri's range on the same pack. The reasons:
+  1. six unshared disks (no κ_int);
+  2. the big, slow entry 03 blade, which also cruises better than the Phase 2 blade;
+  3. almost no interference.
+- **On payload, the three layouts are tied** within about 1.3 kg (2 % of the 61 kg payload). This model can't separate differences that small. Battery saved on the hex (2.7 kWh = 9.0 kg) is almost exactly spent on hardware (+9.9 kg). That hardware is mostly six half-size motors at 1.15× the specific mass, plus three extra arms and fittings. The tube itself is only 2.8 kg of it.
+- **The ranking hangs on two assumptions:**
+  - **Motors:** at the U15XL's own specific mass (scale 0.5 instead of 0.575), both six-rotor layouts gain 2.0 kg of payload and beat the tri.
+  - **Fittings:** ±0.3 kg per arm fitting moves the hex by ∓0.9 kg against the y6.
+  - Queue item 16 replaces both with catalogue numbers.
+- **Arm drag is now a real term.** The hex's six bare tubes cost 700 W in cruise. Faired arms (Cd ≈ 0.2) would recover about 580 W, which is roughly 260 Wh (≈ 0.45 Wh per W of cruise, from entries 06–08), or about 0.9 kg. Queue item 15.
+- **The catch is size.** A 4.4 m span against 3.1 m (+41 %) affects ground handling, transport and landing zones. If the footprint is capped near today's 3.1 m, the y6 is the best six-rotor option. If it isn't, the planar hex is the most efficient layout found so far.
+- **The tri's place:** it is the lightest and simplest (three motors), but it has the worst range of the four, by a wide margin.
+
+**Next.**
+- **Queue item 16:** real motor and ESC masses for the half-size class. It decides the payload ranking.
+- **Queue item 15:** faired arms and masts.
+- **Queue item 8:** cruise speed per configuration. The hex's low induced power should push its best-range speed up.
