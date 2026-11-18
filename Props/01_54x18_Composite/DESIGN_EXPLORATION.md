@@ -56,7 +56,9 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 33. ~~Laminar-flow section from coordinates~~ (entry 35: NACA 24xx-64 gains the hex 0.34 kg and the tri 0.06 kg; 24xx-65 loses 0.4–0.6 kg. Aft thickness pays above Re ≈ 7 × 10⁵ and costs below it, and this rotor sits at that crossover)
 43. ~~Section by spanwise Reynolds number~~ (entry 36: banding the -64 to 0.45–0.93R changes nothing, −0.03 kg; the -65 band still loses. The -64's gain comes from lower drag at T/W 2, where Re is higher, through a lighter torque-sized motor, and not from mission energy)
 45. A section designed for the T/W-2 point: entry 36 shows the motor-sizing condition, at about 1.4 × hover rpm and Re ≈ 1.1 × 10⁶, is where section drag pays on the hex. A true 6-series (63-2xx/64-2xx, Theodorsen mapping) or an XFOIL inverse design centred on C_l ≈ 0.35 at Re 1.1 × 10⁶ could push this further; worth it only if the motor model's torque exponent (≈ 1) holds
-46. **Motors between 18 and 50 N·m** (entry 37): the hex's ranking now depends on whether a 20–25 N·m, ≈ 2 kg motor exists, or whether the U15II can run above its 18 N·m test point (needs its peak current at 24S: ≈ 163 A for 20.5 N·m). Survey other vendors' 20–30 N·m motors and their masses, then re-score the hex. This is the single most decisive open input for the layout choice, along with the user's questions
+46. ~~Motors between 18 and 50 N·m~~ (entry 38: real 24S motors fill the gap at 0.057–0.064 kg/N·m, against the fit's 0.090. The hex on the T-Motor MN1123 (1.425 kg, 22.2 N·m) gets +6.37 kg; the tri on the Hobbywing V13828 (2.465 kg, 43.1 N·m) gets +6.87 kg, but only by lifting its cap to 0.70. At 15 m/s the layouts are tied (hex +0.06 kg), and at equal noise the hex wins by 7.4 dBA. Both optima use 100 % of the motor's test-point torque.)
+47. **Torque margin on catalogue motors** (entry 38): both re-optimised layouts end at exactly the rated test-point torque (MN1123 at 108.65 A against a 108 A peak; V13828 at 245 A against a 245 A maximum). Re-run with a 10–15 % torque reserve and check the continuous/thermal ratings (hover is at ≈ 50 % torque, which is fine). Also re-run the free-speed and 200 Wh/kg scenarios with the catalogue motors.
+48. **Equal-noise comparison with the V13828 tri:** the tri's catalogue gain needs tip Mach 0.70 and costs it 3.8 dBA (52.1 → 55.9). Compare the tri at the hex's 48.5 dBA (serrations from entry 33, or a lower cap with the U15XL) against the hex on the MN1123.
 44. Absolute-level caveat from the toroid session's CFD (2026-11-18): on its rotor, BEMT predicted 620 N against 436 N in CFD (30 % high), in line with the earlier Caradonna–Tung check. The tri–hex comparisons here are relative, but absolute payloads and the motor sizing at T/W 2 should be re-based when its 2-blade reference solve (same mesh) reports
 
 ## Entries
@@ -2306,3 +2308,130 @@ What happens with motors you can actually pick?
 - **Item 46: survey 18–30 N·m motors** (other vendors) and the U15II's peak current. This decides the layout.
 - The user's open questions (speed requirement, battery chemistry, noise limit) remain the other deciders.
 - After that: items 45, 42, 38, 13, 22.
+
+## 38 — Motor survey: real 24S motors fill the 18–50 N·m gap, and both layouts gain 3–5 kg (2026-11-18)
+
+**Question.** Entry 37 found that the hex needs 20.5 N·m, which falls between the U15II (18 N·m) and the U15XL (50.4 N·m). Falling back to the U15II cost it 2.45 kg. Two questions follow. Can the U15II run above its 18 N·m test point? And does any real motor fill the gap?
+
+**Method.**
+- I surveyed vendor data sheets for 24S heavy-lift motors.
+- Each motor is rated by its 100 %-throttle test-point torque, and its mass includes cables.
+- Each motor's measured test current is checked against the ideal motor constant K_t.
+- Two steps follow (src/explore/e38_motor_survey.py, reusing e37's machinery):
+  - (1) re-score the entry-28 cap-0.60 optima with the surveyed list;
+  - (2) re-optimise the blades (e11/e13 Nelder–Mead) with each candidate's mass fixed and a hard torque penalty at its test torque.
+- The run was niced on 2 cores, because the toroid session's foamRun was running.
+
+| Motor | Mass [kg] | Test torque [N·m] | Test current [A] | Test point | Rated current | kg per N·m |
+|---|---|---|---|---|---|---|
+| T-Motor U13II KV65 | 0.975 | 11.4 | — | (entry 37) | — | 0.086 |
+| T-Motor U15II KV80 | 1.740 | 18.0 | 143 | 3546 rpm, 60 V, G40×13.1 | 143 A max continuous; **no peak listed** | 0.097 |
+| **T-Motor MN1123 KV53** | **1.425** | **22.19** | 108.65 | 3632 rpm, 92 V, VZ42×16.5, 47.5 kgf | 108 A peak | **0.064** |
+| T-Motor MN1320 KV49 | 2.070 | 32.44 | 148.96 | 3218 rpm, 92 V, NS45×17.5 | 150 A peak | 0.064 |
+| Hobbywing V13823 60KV | 2.160 | 34.44 | 212.9 | 4260 rpm, 92 V, 42×16.5 | 213 A max | 0.063 |
+| **Hobbywing V13828 55KV** | **2.465** | **43.09** | 244.9 | 3878 rpm, 92 V, 45×18 | 245 A max | **0.057** |
+| T-Motor U15XL KV38 | 4.408 | 50.4 | 175 | (entry 13) | — | 0.087 |
+
+Sources:
+- T-Motor U15II: store.tmotor.com/goods.php?id=732
+- T-Motor MN1123: uav-en.tmotor.com/2026/navigato_0403/1372.html
+- T-Motor MN1320: uav-en.tmotor.com/2026/navigato_0403/1375.html
+- Hobbywing V13823: hobbywing.com/en/products/v13823
+- Hobbywing V13828: hobbywing.com/en/products/v13828
+
+Rejected candidates:
+- MAD M40C30 PRO (3.46 kg, 47.4 N·m): its figures come only from a reseller.
+- Hobbywing X11 Plus: it runs on 12–14S, not this 24S bus.
+
+**The U15II question.**
+- The U15II's 143 A is its *maximum continuous* current, and no peak is published.
+- 20.5 N·m would need ≈ 143 × 20.5/18.0 = 163 A, which is 114 % of that rating.
+- Copper loss would rise by (163/143)² = 1.30.
+- Running it there is not a sound design basis, so the U15II stays capped at 18 N·m.
+
+**Results.**
+
+Step 1, re-scoring the entry-28 optima. The blades stay the same; only the motor changes:
+
+| Layout | Q_max needed | Fit mass | Catalogue pick | Payload (fit → catalogue) |
+|---|---|---|---|---|
+| hex | 20.51 N·m | 1.84 kg | MN1123, 1.425 kg | +3.31 → **+5.81** |
+| tri | 50.62 N·m | 4.53 kg | U15XL, 4.408 kg | +2.14 → +2.50 |
+
+Step 2, re-optimising with each motor's mass fixed and the hard torque penalty:
+
+| Layout, motor, cap | Q_max / limit [N·m] | Fits | Payload [kg] | rpm hover / max | P_max [W] | Pack [Wh] | Hardware [kg] | σ | T/W at cap | Total [dBA] |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **hex, MN1123, 0.60** | 22.19 / 22.19 | yes | **+6.37** | 1768 / 2489 | 5783 | 4989 | 26.52 | 0.141 | 2.93 | **48.5** |
+| hex, MN1320, 0.60 | 26.83 / 32.4 | yes | +2.95 | 1427 / 2020 | 5674 | 4886 | 30.28 | 0.143 | 4.48 | 46.3 |
+| tri, V13828, 0.60 | 43.94 / 43.1 | no (+1.9 %) | (+6.20) | 2468 / 3439 | 15821 | 7684 | 18.02 | 0.107 | 1.49 | 55.8 |
+| tri, V13828, 0.65 | 43.42 / 43.1 | yes (within 1 %) | +6.22 | 2502 / 3486 | 15850 | 7694 | 17.96 | 0.106 | 1.71 | 56.0 |
+| **tri, V13828, 0.70** | 43.10 / 43.1 | yes | **+6.87** | 2535 / 3530 | 15932 | 7654 | 17.45 | 0.115 | 1.95 | **55.9** |
+| *(entry 37) hex, U15II, 0.65* | 18.00 / 18.0 | yes | +0.86 | 2342 / 3264 | 6152 | 5462 | — | 0.115 | 1.96 | 52.4 |
+| *(entry 37) tri, U15XL, 0.60* | 50.49 / 50.4 | yes | +2.47 | 2138 / 2995 | 15835 | — | — | 0.149 | 1.99 | 52.1 |
+
+(Hex payloads are in entry 11's frame and tri payloads in entry 13's. Compare each layout's change against its own continuous-fit optimum: hex +3.31, tri +2.14.)
+
+**Findings.**
+- **The gap was a list artefact, not a market gap.** The newer integrated 24S motors weigh 0.057–0.064 kg per N·m. The U15 line weighs 0.087–0.097, and the continuous fit (0.0909 τ^0.996) gives 0.090.
+  - The fit was calibrated on the U-series, so it overstates the motor mass of *both* layouts by about 30 %.
+- **The hex on the MN1123 gains +3.06 kg** over its continuous fit (+3.31 → +6.37 kg). This is +5.5 kg over its entry-37 U15II result.
+  - The optimiser uses the extra 8 % torque headroom (22.19 against 20.5) to spin *slower*: hover 1973 → 1768 rpm, solidity 0.131 → 0.141. The lower profile power cuts the pack from 5140 to 4989 Wh.
+  - It stays at cap 0.60, and the noise falls from 52.4 to **48.5 dBA**.
+- **The tri gains even more, +4.73 kg (+2.14 → +6.87 kg), but by spinning faster.**
+  - 43.1 N·m is 15 % below the 50.6 N·m it needed, and Q = P/Ω, so it must turn ≈ 15 % faster. The tip Mach rises to 0.70, and only at cap 0.70 does it reach T/W 1.95.
+  - Each arm sheds 2.06 kg of motor (4.53 → 2.465 kg), which outweighs the +290 Wh of extra pack.
+  - The cost is noise: **55.9 dBA**, +3.8 dB over the tri's U15XL design and +7.4 dB over the hex.
+  - At cap 0.60 it cannot fit the torque (43.9 N·m, +1.9 %).
+- **The MN1320 is the wrong choice for the hex** (+2.95 kg). It has 32 N·m but needs only 27, so 0.65 kg per arm of torque goes unused. Even so, it is the quietest design (46.3 dBA, hover 1427 rpm).
+- **The hex − tri margin at 15 m/s and 303 Wh/kg** (continuous fit: hex +1.73 kg):
+
+  | Comparison | Δhex | Δtri | Margin |
+  |---|---|---|---|
+  | entry 37 (U15II / U15XL) | −2.45 | +0.33 | tri +1.05 |
+  | **free cap: hex MN1123 at 0.60, tri V13828 at 0.70** | +3.06 | +4.73 | **hex +0.06, a tie** |
+  | equal cap 0.65 for the tri (V13828) | +3.06 | +4.08 | hex +0.71 |
+  | equal noise: tri kept on the U15XL (52.1 dBA) vs hex 48.5 dBA | +3.06 | +0.36 | hex +4.4 |
+
+  So on payload alone the layouts are tied, while on noise the hex is 7.4 dBA quieter. Entry 33 priced the tri's noise at 0.16–2.15 kg per few dB (serrations or a lower cap). At any noise limit below ≈ 55 dBA, **the hex leads by ≈ 1–4 kg**.
+- **The free-speed and 200 Wh/kg rows** were not re-run (queue item 47). The motor saving is a hardware-mass change, so it shifts every scenario by about the same Δhex − Δtri = −1.67 kg against the continuous fit, provided the tri accepts cap 0.70.
+- **Caveats:**
+  - Both optimum layouts sit at *exactly* 100 % of the motor's test-point torque. The MN1123 test point is 108.65 A against a 108 A peak, and the V13828 is 245 A against a 245 A maximum.
+  - That is the T/W-2 transient point. Hover runs at ≈ (T/W)^−1 of the peak thrust, about half the peak torque, so the continuous rating matters less. Even so, a 10–15 % reserve is the sound design basis (item 47).
+  - The absolute payloads still carry BEMT's ≈ 30 % thrust optimism (item 44); the layout differences carry less of it.
+
+**Hand checks.**
+- **Motor constant K_t = 60/(2π·KV) against the measured test points.** These are the vendors' measurements at full throttle.
+
+  | Motor | K_t [N·m/A] | K_t × I | Measured | Measured vs ideal |
+  |---|---|---|---|---|
+  | U15II KV80 | 0.1194 | 17.07 | 18.0 | +5 % |
+  | MN1123 KV53 | 0.1802 | 19.58 | 22.19 | +13 % |
+  | MN1320 KV49 | 0.1949 | 29.03 | 32.44 | +12 % |
+  | V13823 60KV | 0.1592 | 33.88 | 34.44 | +1.6 % |
+  | V13828 55KV | 0.1736 | 42.52 | 43.09 | +1.3 % |
+
+  - The ideal K_t comes from the back-EMF: e = Ω/ω_KV with ω_KV = KV × 2π/60 rad/s per volt, and energy balance gives τ·Ω = e·I, so K_t = 1/ω_KV.
+  - Real motors exceed this ideal because the published KV is usually measured at no load. The waveform and saturation also shift K_t, by up to ≈ 15 % here.
+  - So torque at a new operating point is scaled from the *measured* test point (I ∝ Q), not from K_t.
+- **Q = P/Ω for the optima:**
+  - hex on the MN1123: 5783 W / (2489 × 2π/60 = 260.6 rad/s) = **22.19 N·m** ✓;
+  - tri on the V13828 at cap 0.70: 15932 / (3530 × 0.10472 = 369.7) = **43.10 N·m** ✓;
+  - hex on the MN1320: 5674 / (2020 × 0.10472 = 211.5) = 26.83 N·m ✓.
+- **Why the tri needs cap 0.70 on the V13828:**
+  - Ω = P/Q = 15900/43.1 = 368.9 rad/s, so the tip Mach is 368.9 × 0.6858/357.6 = **0.707** ✓ (log: 0.709).
+  - At cap 0.60 the most it can reach is Ω = 0.60 × 357.6/0.6858 = 312.9 rad/s. That would need 15900/312.9 = 50.8 N·m, which is the U15XL again.
+- **Payload change from hardware alone:**
+  - Hex: 6 × (1.84 − 1.425) = 2.49 kg of motor saved, plus 150 Wh less pack at 303 Wh/kg = 0.50 kg, gives 2.99 kg against **3.06** from the optimiser ✓. The remainder is the ESC (∝ P^0.7) and the blade.
+  - Tri: 3 × (4.53 − 2.465) = 6.20 kg of motor saved, minus 287 Wh more pack (0.95 kg), gives 5.25 kg against **4.73**. The remaining 0.5 kg is the heavier ESC and the hover-flex blade mass at higher rpm (hardware falls 23.13 → 17.45 kg, −5.68 kg, not −6.20) ✓.
+- **Current check for the hex:**
+  - at 22.19 N·m the MN1123 draws its test current, 108.65 A, its full 108 A peak;
+  - at hover thrust (T/W 1) the torque is ≈ Q_max × (P_h/P_max) ≈ 22.19 × 0.45 ≈ 10 N·m, so ≈ 49 A, well within any continuous rating.
+
+**Lesson.** Entry 37's lesson, "check where the fit lands between products", applies in both directions. The fit came from one product line, and a newer product generation is 30 % lighter per N·m. With real catalogue points, the motor is *where the optimiser chooses its rotor speed*: a motor with more torque than needed lets the rotor spin slower and quieter, while one with less forces it faster and louder. The layout decision is now less about payload, where the two are tied, than about noise, where the hex is ≈ 7 dBA quieter.
+
+**Next.**
+- Item 47: re-optimise with a 10–15 % torque reserve, and re-run the free-speed and 200 Wh/kg scenarios with these motors.
+- Item 48: equal-noise comparison with the V13828 tri.
+- The user's open questions (cruise speed, battery chemistry, noise limit) now decide between a payload tie and a 7 dBA noise advantage.
+- After that: items 45, 42, 38.
