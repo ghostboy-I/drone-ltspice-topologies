@@ -33,7 +33,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 19. ~~Y6 blade with the motor in the objective~~ (entry 12: y6 −0.4 kg vs tri; the hex leads by 2.7 kg and 19 % energy)
 20. ~~Tip-Mach sensitivity of the tri~~ (entry 15: 0.71 kg per 0.05 of cap below 0.60; the hex is insensitive down to 0.50, so a stricter cap favours the hex)
 22. Lighter fairing construction (skin < 0.39 kg/m² is the break-even) and thicker sections (t/c 0.5 won at the edge of the sweep)
-23. Re-optimise each layout's blade at its own best-range speed (motor in the objective), and re-state the 15 m/s requirement as a minimum
+23. ~~Re-optimise each layout's blade at its own best-range speed~~ (entry 17: −0.14 kg tri, −0.07 kg hex; the blades are set by hover sizing; tri leads by 3.2 kg at free speed). Still open: re-state the 15 m/s requirement as a minimum
 24. Fuselage drag against pitch attitude: at 24 m/s the shaft tilts 13°; CdA 0.60 m² is held fixed here
 21. Re-run entry 09's layout ranking with all three re-optimised blades and real motors (uncertainty band from the ±0.9 kg motor fit)
 
@@ -993,4 +993,47 @@ The advancing-tip Mach stays ≤ 0.53 and the largest section angle ≤ 8.4°, s
 - To pack with the 20 % reserve: 1524 / 0.8 = **1905 Wh**, against 7508 − 5603 = **1905 Wh** from the model ✓.
 
 **Next.** Queue item 23: re-optimise each layout's blade at its own best-range speed, with the motor in the objective. Hover sizing stays the same, so the hover blade trade from entries 11–13 now competes with a faster cruise point, and the tri's lead should be re-checked there. Then item 24: fuselage drag against pitch attitude, which caps how fast the tri can usefully go.
+
+## 17 — Blades re-optimised for cruise at each layout's best-range speed (2026-11-18)
+
+**Question.** Entry 16 moved every layout's cruise to 21–25 m/s, but each blade was still optimised for a 15 m/s cruise. With the cruise point at the layout's own best-range speed, does the blade change, and does the tri's 3.4 kg payload lead hold?
+
+**Method** (`src/explore/e17_blade_at_best_speed.py`). Entry 11/13's optimiser, with the cruise point moved to each layout's best-range speed: tri 24.7 m/s, hex 21.0 m/s.
+- At every evaluation the trim is re-solved for that blade (body CdA + rotor H-forces + arm force, as in entry 16).
+- The rest is unchanged from entries 11–14: hover with entry 14's download, motor ∝ peak torque at T/W 2, ESC, spar blade mass, arms, fairing (hex), tilt servo (tri).
+- Added constraint: largest cruise section angle ≤ 11°.
+- The objective is hardware + battery mass (lower is better), and the layout difference is the payload difference.
+- After optimising, the speed is swept again ±5 m/s.
+- **Regression:** the start blades reproduce entry 16's packs at those speeds (5597 and 4206 Wh against 5596 and 4207).
+- The y6 is left out: it trails at every speed, and its coaxial surrogate was built for 15 m/s.
+
+**Results.**
+
+| Layout | | Hover rpm | Cruise rpm | σ | Q_max [N·m] | Motor [kg] | Pack [Wh] | Hardware + battery [kg] | Best V after re-sweep |
+|---|---|---|---|---|---|---|---|---|---|
+| tri | 15 m/s blade | 2141 | 2018 | 0.140 | 50.6 | 4.53 | 5597 | 41.64 | 24.7 |
+| tri | **re-optimised** | 2141 | 2034 | 0.123 | 50.7 | 4.53 | 5580 | **41.50** (−0.14) | 24.7 |
+| hex | 15 m/s blade | 1783 | 1580 | 0.128 | 22.6 | 2.03 | 4206 | 44.76 | 21.0 |
+| hex | **re-optimised** | 1821 | 1619 | 0.122 | 22.3 | 2.00 | 4224 | **44.69** (−0.07) | 21.0 |
+
+**Finding.**
+- **The blades barely change: −0.14 kg on the tri and −0.07 kg on the hex.** Each layout's blade is set by **hover sizing**, not by the cruise point:
+  - the T/W 2 torque, through the motor (both layouts);
+  - the tip-Mach cap (tri).
+
+  Both re-optimised blades lose some inboard chord (lower σ), which a faster, lighter-loaded cruise can afford. Hover rpm and peak torque stay where entries 11 and 13 put them.
+- **The ranking holds:** at its own best speed, **the tri carries 3.19 kg more payload than the hex**, and **the hex uses 24 % less energy** (4224 against 5580 Wh).
+- **The best-range speeds don't move** (24.7 and 21.0 m/s): the speed optimum is just as flat as the blade optimum.
+- **What this closes off:** a blade tuned for the cruise point can't reverse the speed effect. The design levers left are **requirements** (is 15 m/s a floor or a design point? range or payload?) and the **airframe** (fuselage drag at 13° pitch, item 24).
+
+**Hand check: why the tri gains only 0.14 kg.**
+- **Marginal value of cruise power.** At 24.7 m/s, cruise lasts 18 520/24.7 = 750 s. One watt of cruise shaft power costs 750/3600 h ÷ (0.905 × 0.97) ÷ 0.8 (reserve) ÷ 303.3 Wh/kg = **9.8×10⁻⁴ kg per W**.
+- **What the new blade saves:**
+  - 57 W of cruise power (13 989 → 13 933 W) is 0.056 kg;
+  - 10 W of hover (17 120 → 17 111) is ≈ 0.002 kg;
+  - a lighter blade and hub hardware, 23.191 → 23.104 kg, is 0.087 kg.
+- **Total:** 0.056 + 0.002 + 0.087 = **0.145 kg** ✓ (the model gives 41.645 − 41.500 = 0.145 kg).
+- **Why it's small:** a 4 % cut in cruise profile power is worth only about 0.06 kg. The blade's big terms (motor torque, battery for hover) were already balanced in entry 13, and the cruise point doesn't touch them.
+
+**Next.** Queue item 24: fuselage drag against pitch attitude. At 24.7 m/s the tri flies with 13° of shaft tilt. A real fuselage's CdA rises with incidence (crossflow on the fuselage underside), which will pull the tri's best speed down and shrink its lead. That is the last physical term in the payload-at-free-speed comparison.
 
