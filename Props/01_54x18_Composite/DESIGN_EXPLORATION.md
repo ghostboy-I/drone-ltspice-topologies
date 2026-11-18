@@ -49,7 +49,9 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 36. ~~Absolute broadband level (BPM TBL-TE)~~ (entry 30: broadband sets the dBA for both layouts; total hex 49.8 against tri 52.0 dBA; equal total noise costs the tri 1.9 kg, so the tri keeps a narrow free-speed lead at 303 Wh/kg with a constant or streamlined body)
 37. ~~Tip-vortex formation noise (BPM section 5.3)~~ (entry 31: from negligible to +2.4 dBA on the tri depending on how the tip angle is defined; the hex moves at most 0.5 dB; with flat tips the tri cannot reach the hex's level within cap 0.45)
 38. Leading-edge noise from the rotor ingesting its own recirculating wake turbulence in hover (Amiet's model). This needs a turbulence intensity and length scale for the ingested flow, from the literature or from the toroid CFD case's hover field
-39. Tip shape as a noise lever: a rounded or swept tip, plus a narrower tip chord on the tri at low caps (entry 31: a 110 mm flat tip puts the tri's tip noise at 6 kHz, where A-weighting counts it fully). Price it in payload with the e13 optimiser, with a tip-chord bound
+39. ~~Tip chord bound with flat or rounded tip~~ (entry 32: a bounded tip chord does not help. Loading per unit span is fixed by thrust, so a narrower outboard blade runs at a higher α* and its trailing-edge noise rises more than its tip noise falls. The rounded tip itself is the lever)
+40. Trailing-edge noise treatment: trailing-edge serrations, scored as a reduction of BPM's SPL_s and SPL_α (literature: 3–8 dB in mid-to-high bands). Trailing-edge noise now sets the dBA for every design, so this is the biggest remaining lever for both layouts; price the added mass and drag
+41. Planform for low α*: since α* drives SPL_α, would a blade *wider* outboard (lower C_l), traded against its profile drag, be quieter per kg? This is the reverse of entry 32's bound, as a minimum-noise objective in the optimiser
 33. A laminar-flow section from coordinates (NACA 63-2xx / 64-2xx, or an XFOIL-designed section): needs coordinate generation, since XFOIL's NACA command only builds 4- and 5-digit sections
 
 ## Entries
@@ -1840,5 +1842,66 @@ Equal-noise payload cost to the tri (tri held to the hex's cap-0.60 total):
 **Next.**
 - Queue item 39: rounded tip with a bounded tip chord for the tri; does it recover the 2.15 kg?
 - Item 38: ingested-turbulence leading-edge noise.
+- Item 33: laminar section.
+- Still waiting on the user: speed requirement, battery chemistry, noise metric and distance.
+
+
+## 32 — Bounding the tri's tip chord, flat and rounded tips (2026-11-18)
+
+**Question.** Entry 31 found that the tri widens its tip as it slows down (57 → 110 mm from cap 0.60 to 0.45). Tip-vortex noise grows as ℓ² with ℓ ∝ c_tip, and moves into the A-weighted band. Does an upper bound on the tip chord let the tri reach the hex's noise level more cheaply?
+- **Method:** the entry 13 tri optimiser (best-camber 44/24 blade, torque-sized motor, 15 m/s frame as in entry 28) re-run at caps 0.45, 0.50 and 0.55, with the chord at r = R bounded to ≤ 65 mm and ≤ 45 mm. The bound is enforced by rejecting any blade above it, and the start blade is tapered inside it. Six runs in 6 minutes on 4 cores.
+- **Scoring:** each optimum scored for total hover dBA at 50 m, 30° below the disk. Total = BPM trailing edge (entry 30) + BPM tip vortex at the max-Γ angle, flat and rounded tip (entry 31) + Gutin tones.
+- **Files:** `src/explore/e32_tip_chord.py`, `results/explore/e32_tip_chord.json` / `.png`.
+
+**Results** (payload relative to the unbounded cap-0.60 tri optimum):
+
+| Cap | Tip chord | Payload [kg] | TE [dBA] | Tip, flat | Tip, rounded | **Total, flat** | **Total, rounded** |
+|---|---|---|---|---|---|---|---|
+| 0.60 | free (57 mm) | 0 | 50.5 | 41.4 | 30.1 | 52.4 | 52.0 |
+| 0.55 | free (71) | −1.01 | 49.7 | 43.7 | 34.1 | 51.4 | 50.7 |
+| 0.55 | ≤ 65 | −1.02 | 49.8 | 42.4 | 32.4 | 51.3 | 50.7 |
+| 0.55 | ≤ 45 | −1.18 | 50.8 | 36.9 | 25.7 | 51.7 | 51.5 |
+| 0.50 | free (89) | −2.47 | 48.7 | 46.0 | 38.1 | 50.9 | **49.6** |
+| 0.50 | ≤ 65 | −2.59 | 49.4 | 42.0 | 33.2 | 50.6 | 50.0 |
+| 0.50 | ≤ 45 | −2.87 | 50.9 | 36.3 | 26.1 | 51.3 | 51.2 |
+| 0.45 | free (110) | −4.58 | 47.6 | 46.5 | 39.4 | 50.3 | 48.5 |
+| 0.45 | ≤ 65 | −4.96 | 49.4 | 41.2 | 33.4 | **50.2** | 49.7 |
+| 0.45 | ≤ 45 | −5.44 | 51.0 | 35.6 | 26.5 | 51.3 | 51.2 |
+| hex 0.60 | free (52) | (+1.73 over the tri at 15 m/s) | 49.4 | 37.0 | 20.7 | **50.0** | **49.8** |
+
+**Findings.**
+- **A tip-chord bound does not buy the tri its way to the hex's level.**
+  - *Flat tips:* the 65 mm bound shifts the tri's curve about 0.3–0.4 dB quieter at caps 0.50–0.55. The best point is still 50.2 dBA at −4.96 kg, above the hex's 50.0. The 45 mm bound is worse at every cap.
+  - *Rounded tips:* every bound makes the tri louder. The best tri at or below the hex's 49.8 dBA is the unbounded cap-0.50 blade (49.6 dBA, −2.47 kg); interpolating gives ≈ −2.15 kg (entry 31).
+- **Why: the load has to go somewhere.** Lift per unit span is L′ = ½ρW²c C_l. At a given radius, thrust fixes L′ and the rpm fixes W, so **c × C_l is fixed**. A narrower outboard blade must run at a higher lift coefficient, so a higher α*. In the cap-0.45 optimum at 0.9R:
+
+  | Tip bound | Chord at 0.9R | α* at 0.9R | Strip OASPL |
+  |---|---|---|---|
+  | free | 188 mm | 4.0° | 27.6 dB |
+  | ≤ 65 mm | 122 mm | 5.8° | 29.8 dB |
+  | ≤ 45 mm | 94 mm | 7.0° | 32.1 dB |
+
+  BPM's SPL_α term (entry 30) grows with α*. The narrower chord also gives a thinner boundary layer, which moves the trailing-edge peak up (2.5 → 5 kHz) into the band A-weighting counts fully. **Trailing-edge noise rises 1.8–3.4 dB while tip noise falls 5–11 dB.** Trailing-edge noise was already the larger term, so the total gets worse.
+- **The tip shape is the lever, not the tip size.** At the same blade, a rounded tip is 7–11 dB quieter than a flat one (ℓ/c = 0.008α against about 0.1). It costs nothing in BEMT terms, though it slightly reduces effective radius in practice. Specify rounded or swept tips for either layout.
+- **Ranking unchanged:**
+  - noise parity with rounded tips costs the tri ≈ 2.15 kg (2.47 kg at the nearest computed point);
+  - with flat tips, parity is unreachable.
+  - At free speed with the 303 Wh/kg pack the layouts are tied under a hex-level noise limit; everywhere else the hex leads.
+- **What would help:** treating the trailing edge itself (queue item 40, serrations), or a planform optimised for low α* outboard (item 41). Both act on the term that now sets the dBA.
+
+**Hand checks.**
+- **c × C_l is fixed.** At 0.9R, halving the chord from 188 to 94 mm (same W within 0.4 %) should double C_l. With a lift slope near 0.1/deg that is roughly α* 4.0° → 8°. BEMT gives 7.0°: part of the load moves inboard, where the chord bound does not bite, and the induced inflow changes slightly. ✓ (direction and magnitude)
+- **ℓ² scaling of tip noise** (flat tip, cap 0.45, free → ≤ 65 mm):
+  - ℓ = c(0.0378 + 0.0095 α′): 0.1103 × 0.1135 = **12.5 mm** against 0.065 × 0.1222 = **7.94 mm** (code: 12.52 and 7.94 mm) ✓;
+  - level: 20 log₁₀(12.52/7.94) = −3.95 dB from ℓ², plus 30 log₁₀(1.320/1.287) = +0.33 dB from the higher α′ in M_max³: **−3.6 dB** unweighted;
+  - peak frequency f = 0.5 U_max/ℓ rises 5.9 → 9.6 kHz, where A-weighting goes from −0.1 dB to about −1.6 dB (interpolated; −2.5 dB at 10 kHz);
+  - by hand ≈ **−5.1 dBA**; the model gives 46.5 → 41.2 = **−5.3 dBA** ✓.
+
+**Lesson.** For a fixed thrust, a blade's lift has to be carried by chord × lift coefficient at each radius. Shrinking one factor raises the other. Noise sources that scale with one of them (tip noise with chord, trailing-edge noise with angle) trade against each other, so a constraint on one rarely reduces the total. The quieting has to come from a mechanism that lowers a source *without* moving load: tip shape, edge treatment, or lower tip speed.
+
+**Next.**
+- Item 40: trailing-edge serrations.
+- Item 41: low-α* planform.
+- Item 38: ingested turbulence.
 - Item 33: laminar section.
 - Still waiting on the user: speed requirement, battery chemistry, noise metric and distance.
