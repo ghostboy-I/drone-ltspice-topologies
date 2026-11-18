@@ -25,9 +25,9 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 11. ~~Check the cruise wake-overlap model with a prescribed-wake (Biot–Savart) calculation~~ (entry 07: the lens model was optimistic; use the vortex-wake / biplane σ from now on)
 12. Mast structure at h/D 0.4–0.5: bending under motor-out and gust loads, first bending mode against 1P/2P, gyroscopic moments
 13. Re-state the coaxial case (CONFIG_STUDY headline, entries 01–06 payloads) with the vortex-wake cruise term: at h/D 0.2 the coax is −12 % energy and −2.4 kg payload, not −22 % and +0.1 kg
+14. ~~Stagger: offset the lower rotor forward along the flight path (tilted mast)~~ (entry 08: modest gain; large stagger turns into the planar layout, item 7)
 15. Faired (aerofoil) arms and masts: entry 09's arm cross-flow drag is 0.15–0.7 kW at Cd 1.2
 16. Motor and fitting mass: entry 09's payload ranking is set by the half-size motor penalty (×1.15) and 0.6 kg per arm fitting; find real catalogue numbers
-14. ~~Stagger: offset the lower rotor forward along the flight path (tilted mast)~~ (entry 08: modest gain; large stagger turns into the planar layout, item 7)
 
 ## Entries
 
