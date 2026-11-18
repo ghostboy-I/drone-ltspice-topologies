@@ -29,8 +29,10 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 15. Faired (aerofoil) arms and masts: entry 09's arm cross-flow drag is 0.15–0.7 kW at Cd 1.2
 16. ~~Motor and fitting mass: find real catalogue numbers~~ (entry 10: motors sized by torque; hex ties the tri, y6 −3.3 kg)
 17. ~~Re-optimise the blade with motor mass ∝ peak torque in the objective~~ (entry 11: hex blade 1780 rpm, payload +2.3 kg vs tri)
-18. U15XL torque margin: the tri needs 55.8 N·m at T/W 2 on a hot day, against 50.4 N·m in the vendor's 96 V test (T/W ≈ 1.8 on that motor)
+18. ~~U15XL torque margin~~ (entry 13: the tri blade re-optimised with the motor gains +1.9 kg and fits the U15XL at T/W 1.99; the hex's lead falls to +0.4 kg)
 19. ~~Y6 blade with the motor in the objective~~ (entry 12: y6 −0.4 kg vs tri; the hex leads by 2.7 kg and 19 % energy)
+20. Tip-Mach sensitivity of the tri: its optimum sits on the 0.60 cap, so d(payload)/d(M_cap) prices the noise limit (pairs with item 10)
+21. Re-run entry 09's layout ranking with all three re-optimised blades and real motors (uncertainty band from the ±0.9 kg motor fit)
 
 ## Entries
 
@@ -720,4 +722,66 @@ At T/W 2 on the start blade: 1.157 × (1941 + 2206)/(2 × 1786) = **1.343**, aga
 - Coaxial designs must check the **lower** rotor's tip Mach at T/W 2, not the isolated one.
 
 **Next.** Queue item 18 (U15XL torque margin): the tri's hot-day T/W 2 needs 55.8 N·m against 50.4 N·m tested. The tri is the reference for every payload number, so its motor must be sized consistently with the hex's (by torque, from the same fit) before item 8 (cruise speed per configuration).
+
+## 13 — The tricopter reference re-optimised with torque-sized motors; the U15XL torque margin (2026-11-18)
+
+**Question.** Every payload figure in entries 09–12 is measured against the tricopter with its Phase 2 blade. Entries 11–12 let the hex and y6 blades re-optimise with motor mass ∝ peak torque in the objective, but the tri did not. Two linked questions:
+- (a) The Phase 2 tri needs 55.8 N·m per rotor at T/W 2 on the hot day, but the U15XL's 96 V test delivers 50.4 N·m. What T/W does the real motor give?
+- (b) If the tri blade is re-optimised the same way, how much of the hex's +2.3 kg lead is left?
+
+**Method** (`src/explore/e13_tri_torque_margin.py`). Entry 11's model for 3 rotors at W/3:
+- pack from 3 isolated rotors in hover and 3 edgewise rotors in cruise, plus entry 09's tri interference (−37 W) and arm drag (147 W);
+- hardware 3 × (motor + ESC + 2 blades + hub) + tilt servo + arms, with the motor from the entry 10 fit at Q_max and the spar blade-mass model;
+- constraints: stall margin, flex test, and T/W ≥ 2 reachable below the 0.60 tip-Mach rpm.
+
+Payload is reported as the change against the Phase 2 blade scored with this same model, so model offsets cancel. The model reproduces the reference exactly: pack **7528 Wh** and Q_max **55.8 N·m**, both as in entries 09–10. Two starts: the Phase 2 blade, and entry 11's hex optimum.
+
+**Results.**
+
+| Start | | Hover rpm | σ | Q_max [N·m] | Motor (fit) [kg] | Pack [Wh] | Tip M at T/W 2 | U15XL T/W | Δpayload [kg] |
+|---|---|---|---|---|---|---|---|---|---|
+| Phase 2 blade | start | 1932 | 0.104 | 55.8 | 4.99 | 7528 | 0.54 | 1.81 | 0 |
+| Phase 2 blade | optimum | 2142 | 0.127 | 50.8 | 4.54 | 7476 | **0.600** | 1.99 | +1.82 |
+| e11 hex optimum | start | 2497 | 0.128 | 45.5 | 4.07 | 7819 | 0.70 ✗ | 2.22 | (+2.02, infeasible: T/W 1.45 at the Mach cap) |
+| e11 hex optimum | **optimum** | **2141** | 0.140 | **50.6** | 4.53 | **7422** | **0.601** | **1.99** | **+1.89** |
+
+**Finding.**
+- **(a) The real motor gives T/W 1.81 with the Phase 2 blade.** That meets the 1.5 requirement but misses the 2.0 target.
+- **(b) The tri blade gains +1.9 kg**, nearly as much as the hex blade gained in entry 11 (+2.7 kg), for the same reason: a faster blade needs less torque, and torque is motor mass. Both starts converge to the same point, about 2140 rpm hover with Q_max 50.7 N·m, within 0.07 kg.
+- **The tri's optimum sits on the tip-Mach cap.** The tri rotor carries twice the hex rotor's thrust, so at T/W 2 it reaches M 0.60 before the motor and battery terms balance. That was not true for the hex (entry 11, M 0.52 at its optimum). The cap is now what limits the tri, and queue item 20 prices it.
+- **A coincidence that matters:** the optimum needs 50.6 N·m, and the U15XL is tested at 50.4 N·m. So with the re-optimised blade, **the existing U15XL reaches T/W 1.99**, and item 18's torque shortfall disappears. The catalogue motor (4.41 kg) is also 0.12 kg lighter than the fit at that torque (4.51 kg); that is within the fit's scatter and not counted.
+- **The layout ranking narrows sharply.** Against the re-optimised tri (the re-optimisation is a constant shift of the reference, so entries 11–12's optima stand):
+
+| Layout (all blades re-optimised with the motor) | Payload vs tri [kg] | Pack [Wh] | Energy vs tri |
+|---|---|---|---|
+| tri | 0 | 7422 | — |
+| **hex** | **+0.39** | **5113** | **−31 %** |
+| y6 | −2.32 | 6306 | −15 % |
+
+  - The hex's payload lead (+0.4 kg) is now **smaller than the motor-fit uncertainty** (±0.9 kg, entry 10). On payload, **the hex and the tri tie**.
+  - The hex still has **31 % less energy, i.e. 1.45× the range** at equal payload. That margin is large and robust.
+  - The y6 is clearly third on payload.
+- **Lesson.** A comparison is only as fair as its reference. Entry 11 optimised one side of the comparison and reported a +2.3 kg lead. Most of that lead (1.9 kg) came from not optimising the other side.
+
+**Hand check 1: T/W at a torque limit.** For a fixed-pitch rotor, T = C_T·ρA(ΩR)² and Q = C_Q·ρA(ΩR)²R. When C_T and C_Q barely change with rpm, T ∝ Q, so
+
+  T/W at Q_lim = 2 × Q_lim / Q(T/W 2).
+
+- Phase 2 blade: 2 × 50.4 / 55.8 = **1.807**, against BEMT (root-solved for Q = 50.4 N·m) **1.811** ✓.
+- Optimum: 2 × 50.4 / 50.64 = **1.991**, against BEMT **1.991** ✓.
+
+The 0.2 % gap on the Phase 2 blade is the slow rise of C_T/C_Q with Reynolds number as rpm goes up. The same effect gives Q_max = 55.8 against 2·Q_hover = 55.2 N·m.
+
+**Hand check 2: why 50.7 N·m is the floor at the Mach cap.** At the cap, the rotor's maximum speed is fixed: Ω_cap = M·a/R = 0.60 × 357.6 / 0.686 = **312.8 rad/s** (2987 rpm). The torque needed at T/W 2 is the power divided by that speed, and momentum theory gives the power through the figure of merit:
+
+  P = T^1.5 / (FM·√(2ρA)),  T = 2W/3 = 830 N, ρ = 1.109 kg/m³ (45 °C), A = 1.478 m²
+  P_ideal = 830^1.5 / √(2 × 1.109 × 1.478) = **13.21 kW**.
+
+With the BEMT power of 15.86 kW at that point, FM = 13.21 / 15.86 = **0.83**, a well-loaded rotor. Then Q = 15.86 kW / 312.8 = **50.7 N·m**, against 50.6 from BEMT ✓.
+
+So once the speed is capped, the only remaining way to reduce torque is a better figure of merit. Each +0.01 of FM is about −0.6 N·m, or −0.05 kg of motor per rotor. That is why the optimiser stops here, and why the cap (item 20) is now the tri's most valuable lever.
+
+**Next.**
+- **Queue item 15, faired arms.** The hex's six bare arms cost 700 W of cruise drag against the tri's 147 W. Fairing them at Cd ≈ 0.2 is worth about 0.9 kg (entry 09). With the payload ranking now within the uncertainty, that is the term that can decide it.
+- Then item 20 (the tri's tip-Mach sensitivity), and item 21 (re-rank all layouts with consistent blades and an uncertainty band).
 
