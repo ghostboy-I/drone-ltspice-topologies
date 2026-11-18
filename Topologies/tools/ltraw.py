@@ -1,9 +1,11 @@
 """Minimal LTspice binary .raw reader (transient). Usage: d = read_raw(path); d['time'], d['V(sw)'] ..."""
+import os
 import numpy as np
 
 def read_raw(path):
+    big = os.path.getsize(path) > 200e6          # big runs: read only the header, map the data below
     with open(path, 'rb') as f:
-        data = f.read()
+        data = f.read(4 << 20) if big else f.read()
     marker = 'Binary:\n'.encode('utf-16le')
     hdr_end = data.index(marker) + len(marker)
     hdr = data[:hdr_end].decode('utf-16le')
@@ -23,6 +25,11 @@ def read_raw(path):
         dt = np.dtype([(n, '<f8') for n in names])
     else:   # time is double, all other traces float32
         dt = np.dtype([(names[0], '<f8')] + [(n, '<f4') for n in names[1:]])
+    if big:   # float32 views into the mapped file: only the traces that are used get loaded
+        arr = np.memmap(path, dtype=dt, mode='r', shape=(npts,), offset=hdr_end)
+        out = {n: arr[n] for n in names}
+        out[names[0]] = np.abs(np.asarray(arr[names[0]], dtype=float))
+        return out
     arr = np.frombuffer(data, dtype=dt, count=npts, offset=hdr_end)
     out = {n: arr[n].astype(float) for n in names}
     out[names[0]] = np.abs(out[names[0]])   # LTspice marks compressed points with a negative time
