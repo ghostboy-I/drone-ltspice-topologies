@@ -67,7 +67,7 @@ R71 R73,2,"ADC scaling (2/3), bottom",20k,"1 %, thick film",Resistor_SMD:R_0603_
 R74,1,BOOT0 pull-down,10k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
 R75,1,LED series,1k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
 R76,1,Signal input series (DShot / PWM),100,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
-U1,1,150 V synchronous buck controller,LTC7801,LTC7801EUFD (QFN-24 4x5),Package_DFN_QFN:QFN-24-1EP_4x5mm_P0.5mm_EP2.65x3.65mm,150 V
+U1,1,150 V synchronous buck controller,LTC7801,LTC7801EFE (TSSOP-24 with exposed pad),Package_SO:HTSSOP-24-1EP_4.4x7.8mm_P0.65mm_EP3.2x5mm (check EP size vs ADI FE24 drawing),150 V
 U2,1,"500 mA low-noise LDO, 5 V",LT1763-5,LT1763CS8-5 (SO-8),Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,20 V
 U3,1,"500 mA low-noise LDO, 3.3 V",LT1763-3.3,LT1763CS8-3.3 (SO-8),Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,20 V
 U4 U5 U6,3,"150 V half-bridge gate driver, floating grounds",LTC7063,LTC7063EMSE (MSOP-12),Package_SO:MSOP-12-1EP_3x4.039mm_P0.65mm_EP1.651x2.845mm,150 V

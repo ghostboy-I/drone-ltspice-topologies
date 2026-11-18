@@ -33,7 +33,15 @@ wine "$HOME/.wine/drive_c/Program Files/ADI/LTspice/LTspice.exe" -b ESC_Board.as
 
 Parts named `V_…`, `B_…`, `L_HARN`, `R_CS…`, `R_BW…`, `C_BW…`, `La/Lb/Lc`, `C_J`, `C_TH`, `R_LK…`, `R_VBF`, `C_VBF`, `C_VTX` are simulation stimulus or models: the packs, the loads, the motor, and the STM32's FOC firmware as a behavioural block. Everything else is a board part with its real reference designator.
 
-## Porting to KiCad
+## KiCad project (ESC board)
+`kicad/ESC_Board/` is a generated KiCad 9 project (`python3 kicad_export.py esc`): 189 parts with stock KiCad symbols and footprints
+wherever they exist. The LTC7801 (FE TSSOP-24), LTC7063 (MSE-12) and LT1763 (S8) symbols are generated from ADI's
+pin-configuration drawings and live in `ESC_Board_custom.kicad_sym`. Wiring uses the same net labels as the LTspice schematic.
+Checked: ERC 0 violations, and KiCad's exported net list matches the parts table pin for pin (`expected_nets.json`).
+J1 (AS150) has no stock footprint. Open `ESC_Board.kicad_pro`, then **Tools → Update PCB from Schematic** to start layout.
+The avionics board can be generated the same way (`python3 kicad_export.py avionics`; not yet checked).
+
+## Porting to KiCad by hand
 1. **One schematic per board**, with one hierarchical sheet per numbered block (the framed areas in the `.asc`): e.g. ESC = 1 power input, 2 aux supply, 3 logic supplies, 4–6 legs A/B/C, 7 current sense, 8 MCU and connectors. Use global labels for the nets that cross sheets (`VBUS`, `+12V`, `+5V`, `+3V3`, `PWM_A`…).
 2. **Symbols.** KiCad's stock library has the STM32G431CBTx, the ACS770 family, the LT3045 and the AS5047. The **LTC7801, LTC7063, LT8641 and LT1763 are not in KiCad's library**: download them from ADI's product pages or SnapEDA / Ultra Librarian. Pin names in the net list are LTspice's names (`SENSE+`, `BGRTN`, `_FLT` = FLT-bar, `_SHDN` = SHDN-bar); match them to the datasheet pin names, not to pin numbers.
 3. **Wire from `*_Netlist.csv`**: each row is one net and every pin on it. Parts listed with a quantity (e.g. `Q4 Q5 Q6 Q7`) are parallel copies with identical connections.

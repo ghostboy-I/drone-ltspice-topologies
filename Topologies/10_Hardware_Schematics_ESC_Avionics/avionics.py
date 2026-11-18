@@ -64,7 +64,7 @@ def build(loop_test=False):
         "ITH": "ITH12", "MODE": "INTVCC12", "CPUMP_EN": "INTVCC12", "PLLIN": "0", "PGOOD": "PG12", "FREQ": "FREQ12",
         "DRVSET": "DRVSET12", "DRVUV": "0", "TG": "TG12", "SW": "SW12", "BOOST": "BST12", "BG": "BG12", "DRVCC": "DRVCC12",
         "NDRV": "NDRV12", "EXTVCC": "+12V", "INTVCC": "INTVCC12", "GND": "0"},
-        desc="150 V synchronous buck controller", pn="LTC7801EUFD (QFN-24 4x5)", fp="Package_DFN_QFN:QFN-24-1EP_4x5mm_P0.5mm_EP2.65x3.65mm",
+        desc="150 V synchronous buck controller", pn="LTC7801EFE (TSSOP-24 with exposed pad)", fp="Package_SO:HTSSOP-24-1EP_4.4x7.8mm_P0.65mm_EP3.2x5mm (check EP size vs ADI FE24 drawing)",
         rating="150 V", note="no KiCad library symbol: use ADI/SnapEDA"), dx=260)
     B.add(b, Part("Q1", "nmos", "BSC520N15NS3", {"D": vin12, "G": "TG12", "S": "SW12"}, desc="N-MOSFET 150 V 52 mΩ (top)",
                   pn="Infineon BSC520N15NS3", fp="Package_TO_SOT_SMD:TDSON-8-1", rating="150 V 21 A"))
