@@ -24,9 +24,12 @@ OpenFOAM cannot run in a path with spaces, so its cases live under the `cfd.run_
 
 The `coarse` run (600 iterations) over-predicts torque: about 83.5 N·m against roughly 62 N·m expected from the hand calculation. The
 diagnosis is lost leading-edge suction: its 3.1 mm leading-edge cells span a 3.0 mm nose radius. The `coarse_le` mesh adds a level-9
-tube (0.78 mm cells) along each leading edge. Its run was paused at iteration 466 of 1500: CT 0.00451, torque 74.5 N·m and still
-rising about 3 % per 100 iterations (converged means below 0.5 %). The case and its saved iteration live under `cfd.run_root`, and
-copies of the setup and logs are in `cfd/00_validation_caradonna_tung/coarse_le/`.
+tube (0.78 mm cells) along each leading edge. It ran to 1500 iterations and converged (CQ drift -0.13 % per 100
+iterations). Torque fell to 75.8 N·m (-9 %) with thrust unchanged (CT 0.00443, -3.5 % vs. experiment), and the figure of merit
+rose from 0.318 to 0.353. The torque split puts about another 11 N·m in still-missing leading-edge suction, so the next step is
+a finer blade surface. Summaries of both meshes are in `CFD_Results/01_54x18_Composite/` at the repository root (written by
+`python3 src/ct_export.py coarse coarse_le`). The full case lives under `cfd.run_root`, and copies of its setup and logs are in
+`cfd/00_validation_caradonna_tung/coarse_le/`.
 
 ```bash
 python3 src/ct_validation.py resume coarse_le    # continue from the last saved iteration (10 cores, about 12 s per iteration)

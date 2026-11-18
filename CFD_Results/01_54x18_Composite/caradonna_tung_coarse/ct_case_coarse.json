@@ -1,0 +1,14 @@
+{
+ "case": "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/prop54x18/ct_validation/coarse",
+ "base_cell": 0.4,
+ "core_cells": 14,
+ "nz": 86,
+ "nr": 9,
+ "z0": -22.8,
+ "z1": 11.600000000000001,
+ "radius": 11.43,
+ "background_cells": 60200,
+ "surface_cell_mm": 3.125,
+ "edge_cell_mm": 1.5625,
+ "disk_cell_mm": 25.0
+}
