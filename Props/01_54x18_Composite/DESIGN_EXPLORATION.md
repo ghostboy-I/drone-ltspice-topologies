@@ -31,7 +31,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 17. ~~Re-optimise the blade with motor mass ∝ peak torque in the objective~~ (entry 11: hex blade 1780 rpm, payload +2.3 kg vs tri)
 18. ~~U15XL torque margin~~ (entry 13: the tri blade re-optimised with the motor gains +1.9 kg and fits the U15XL at T/W 1.99; the hex's lead falls to +0.4 kg)
 19. ~~Y6 blade with the motor in the objective~~ (entry 12: y6 −0.4 kg vs tri; the hex leads by 2.7 kg and 19 % energy)
-20. Tip-Mach sensitivity of the tri: its optimum sits on the 0.60 cap, so d(payload)/d(M_cap) prices the noise limit (pairs with item 10)
+20. ~~Tip-Mach sensitivity of the tri~~ (entry 15: 0.71 kg per 0.05 of cap below 0.60; the hex is insensitive down to 0.50, so a stricter cap favours the hex)
 22. Lighter fairing construction (skin < 0.39 kg/m² is the break-even) and thicker sections (t/c 0.5 won at the edge of the sweep)
 21. Re-run entry 09's layout ranking with all three re-optimised blades and real motors (uncertainty band from the ±0.9 kg motor fit)
 
@@ -863,4 +863,61 @@ The asymmetry (0.49 against 0.08 Wh/W) is why a fairing that triples the hover d
 - **Skin weight.** The payload gain scales as 0.76 − 0.69 × (skin / 0.35), so the break-even is **0.39 kg/m²**. At 0.2 kg/m² (one ply of 100 g/m² fabric with film adhesive) the faired hex gains +0.37 kg (queue item 22).
 
 **Next.** Queue item 20: the tri's tip-Mach sensitivity. Its optimum sits on the 0.60 cap (entry 13), so d(payload)/d(M_cap) says what the noise limit costs. That is the tri's remaining lever in a payload race now within a kilogram.
+
+## 15 — What the tip-Mach cap costs (2026-11-18)
+
+**Question.** Entry 13 found the re-optimised tri sitting on the 0.60 tip-Mach cap at T/W 2 (hot day), while the hex's optimum sits at M 0.52, below it. How much payload does the cap cost each layout, and is 0.60 the right number?
+
+**Method** (`src/explore/e15_tip_mach_cap.py`). The entry 13 (tri) and entry 11 (hex) optimisers are re-run with the cap at 0.50, 0.55, 0.60, 0.65 and 0.70, each starting from its own optimum; the motor and battery are in the objective throughout. Payload is measured against the Phase 2 tri, as in entries 10–13. **Caveat:** the XFOIL polar grid stops at M 0.60 and the lookup clips above it. Above 0.60 the tip keeps its M 0.60 drag, with no drag rise, so those rows are optimistic.
+
+**Results.**
+
+| Cap | Tri payload [kg] | Tri hover rpm | Tri σ | Tri Q_max [N·m] | Tri motor [kg] | Tri pack [Wh] | Hex payload [kg] | **Hex − tri [kg]** |
+|---|---|---|---|---|---|---|---|---|
+| 0.50 | −0.10 | 1783 | 0.160 | 60.3 | 5.39 | 7230 | +2.28 (M 0.50) | **+2.38** |
+| 0.55 | +1.18 | 1962 | 0.150 | 54.7 | 4.89 | 7308 | +2.28 (M 0.50) | **+1.10** |
+| 0.60 | +1.89 | 2141 | 0.143 | 50.6 | 4.52 | 7410 | +2.28 (M 0.52) | **+0.39** |
+| 0.65* | +2.21 | 2327 | 0.138 | 47.0 | 4.21 | 7520 | (unchanged) | +0.07 |
+| 0.70* | +2.25 (M 0.68, unbound) | 2443 | 0.135 | 45.4 | 4.07 | 7625 | (unchanged) | +0.03 |
+
+\* polar clipped above M 0.60: optimistic.
+
+**Finding.**
+- **The cap is the tri's biggest lever, and the hex barely feels it.**
+  - Tri: 0.71 kg of payload per 0.05 of cap between 0.55 and 0.60, and 1.3 kg between 0.50 and 0.55.
+  - Hex: it carries half the thrust per rotor, so its optimum is set by the motor–battery balance, not by the cap. It loses nothing down to 0.50.
+- **So the noise limit decides the payload ranking.** At 0.60 the hex leads by 0.4 kg, a tie within the ±0.9 kg uncertainty. At **0.55 it leads by 1.1 kg, and at 0.50 by 2.4 kg.** Above 0.60 the tri catches up, but only in the clipped-polar region (see the next point). Its own optimum unbinds near M 0.68.
+- **0.60 is about where the physics stops the tri anyway.** The critical Mach of the tip section, from hand check 2, is 0.58–0.62 for the suction peaks it sees at T/W 2. Beyond that, shocks and drag rise would erode the +0.3 kg the clipped model shows at 0.65–0.70. **Keep 0.60 as the hard cap.** The real question (item 10) is whether noise wants a lower one, and every step down costs the tri, not the hex.
+- **Hover tip speed (what people hear most):** tri 0.60 × 2141/2987 = **M 0.43**, hex 0.60 × 1784/2987 = **M 0.36**. The hex's rotors run 17 % slower in hover.
+
+**Hand check 1: torque on the cap.** On the cap the top speed is fixed, Ω_cap = M·a/R, so Q_max = P_max/Ω_cap. If the figure of merit (and so P_max) stays put, Q_max ∝ 1/M:
+- Q(0.55)/Q(0.60): hand 0.60/0.55 = **1.091**, model 54.7/50.6 = **1.082** ✓. The model's ratio is slightly lower because the optimiser widens the blade (σ 0.143 → 0.150), which raises FM a little at the lower tip speed.
+- Motor mass m ∝ Q ∝ 1/M, so d(3m)/dM = −3m/M = −3 × 4.52/0.60 = **−22.6 kg per unit Mach**, against **−22.2** by finite difference ✓.
+- **The payload budget per 0.05 of cap (0.55 → 0.60):** motors +1.11 kg, battery −(7410 − 7308)/303 = −0.34 kg (a faster rotor has more profile power), blades and ESCs −0.06 kg; net **+0.71 kg** ✓ (the model's slope is 14.2 kg/M). The same motor–battery trade as entry 11, but here the cap stops it before the two terms balance.
+
+**Hand check 2: the critical Mach number of the tip section.** A section first goes sonic where its suction peak, corrected for compressibility, reaches the sonic pressure coefficient.
+- **Kármán–Tsien correction** of the incompressible peak Cp₀: Cp = Cp₀ / [√(1−M²) + M²/(1+√(1−M²))·Cp₀/2].
+- **Sonic Cp** from the isentropic relations: Cp* = 2/(γM²)·[((2 + (γ−1)M²)/(γ+1))^(γ/(γ−1)) − 1].
+- Setting the two equal and solving for M:
+
+| Cp₀,min (incompressible) | −0.6 | −0.8 | −1.0 | −1.2 |
+|---|---|---|---|---|
+| M_crit | 0.671 | 0.623 | 0.585 | 0.553 |
+
+A 9 % thick cambered tip section at the high lift of T/W 2 has Cp₀,min of about −0.8 to −1.0, so **M_crit ≈ 0.58–0.62**. Drag divergence follows slightly above M_crit. That is why 0.60 is a sound hard cap, and why the polar grid stops there.
+
+**Hand check 3: noise rule of thumb.** Rotational loading noise scales roughly as V_tip⁶ at constant thrust, so ΔSPL = 60·log₁₀(M₂/M₁):
+
+| Cap | ΔSPL vs 0.60 |
+|---|---|
+| 0.50 | −4.8 dB |
+| 0.55 | −2.3 dB |
+| 0.65 | +2.1 dB |
+| 0.70 | +4.0 dB |
+
+For the tri, each 2.3 dB of quiet costs 0.71 kg of payload.
+
+**Next.**
+- **Queue item 8: cruise speed per configuration.** All layouts so far cruise at 15 m/s. The hex's low disk loading should move its best-range speed, and with it the energy lead.
+- Then **item 21**, the consistent re-ranking with an uncertainty band. It should now include the cap as a scenario (0.55 / 0.60).
 
