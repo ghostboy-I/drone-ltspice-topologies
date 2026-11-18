@@ -53,7 +53,9 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 40. ~~Trailing-edge serrations~~ (entry 33: at a hex-level noise limit, serrations cut the tri's noise cost from 2.15 kg to 0.16–0.95 kg, so the tri regains a 1.2–2.0 kg free-speed lead at 303 Wh/kg; under tighter limits both layouts need them and the hex quiets more cheaply)
 42. Serration effectiveness for this rotor: the bracket D = 2–6 dB spans the payload answer. A BPM-compatible serration model calibrated on published rotor data (Lyu–Azarpeyvand theory or a measured propeller test) would narrow it
 41. ~~Wider blade for low α*~~ (entry 34: at the same tip speed, a 15–50 % wider chord cuts the tri's total by only 0.3–0.7 dBA at 0.6–2.7 kg/dB, and the hex's by at most 0.3 dBA. The angle term falls, but the thicker boundary layer raises the suction- and pressure-side terms. Not worth it next to serrations at about 0.1 kg/dB)
-33. A laminar-flow section from coordinates (NACA 63-2xx / 64-2xx, or an XFOIL-designed section): needs coordinate generation, since XFOIL's NACA command only builds 4- and 5-digit sections
+33. ~~Laminar-flow section from coordinates~~ (entry 35: NACA 24xx-64 gains the hex 0.34 kg and the tri 0.06 kg; 24xx-65 loses 0.4–0.6 kg. Aft thickness pays above Re ≈ 7 × 10⁵ and costs below it, and this rotor sits at that crossover)
+43. Section by Reynolds number along the span: an aft-thick section (-64/-65) where Re > 10⁶, and the ordinary 4-digit near the narrow tip and in the low-Re hover strips. A spanwise blend like the 44/24 hybrid, but keyed on Re. A true NACA 6-series (Theodorsen mapping) is the next step if this pays
+44. Absolute-level caveat from the toroid session's CFD (2026-11-18): on its rotor, BEMT predicted 620 N against 436 N in CFD (30 % high), in line with the earlier Caradonna–Tung check. The tri–hex comparisons here are relative, but absolute payloads and the motor sizing at T/W 2 should be re-based when its 2-blade reference solve (same mesh) reports
 
 ## Entries
 
@@ -2051,4 +2053,111 @@ Stall margin rises with s (tri 8.3 → 9.7°) and T/W at the cap is held (1.99�
 - Item 38: ingested turbulence.
 - Item 33: laminar section.
 - Items 13 and 22 (coaxial restatement, lighter fairing).
+- Still waiting on the user: speed requirement, battery chemistry, noise metric and limit.
+
+
+## 35 — Max thickness moved aft: NACA 4-digit-modified sections 24xx-64 and 24xx-65 (2026-11-18)
+
+**Question** (queue item 33). A "laminar" section keeps the pressure falling (a favourable gradient) further back along the chord, so the boundary layer stays laminar longer and skin friction drops. The cheapest way to try this here is to move the maximum thickness aft. Do NACA 24xx-64 and 24xx-65 sections (max thickness at 40 % and 50 % chord) beat the ordinary 24xx (30 %)?
+- **Files:**
+  - `src/explore/naca_mod4.py`: section coordinates;
+  - `src/explore/xfoil_coords.py`: XFOIL polars from coordinates, with the same recipe and cache format as `airfoils.run_xfoil`;
+  - `src/explore/e35_mod4_laminar.py`: the study;
+  - `results/explore/e35_mod4_laminar.json` / `.png`;
+  - 160 new polars in `results/polars/naca24tt-6[45]_*.json`.
+
+**Generating the sections.** XFOIL's NACA command builds only 4- and 5-digit sections, so the coordinates are generated here. The NACA 4-digit-modified thickness (Abbott & von Doenhoff, §6.4), written for t = 0.20 and scaled by t/0.20:
+- ahead of the max-thickness station m: y = a₀√x + a₁x + a₂x² + a₃x³;
+- behind it: y = d₀ + d₁(1−x) + d₂(1−x)² + d₃(1−x)³;
+- d₀ = 0.002 (trailing-edge half thickness); d₁ is the trailing-edge slope, tabulated against m (0.234 at m = 0.3, 0.315 at 0.4, 0.465 at 0.5);
+- d₂ = (0.294 − 2(1−m)d₁)/(1−m)², d₃ = (−0.196 + (1−m)d₁)/(1−m)³. These make y(m) = 0.1 and y′(m) = 0 automatically (expanded below);
+- a₀ = 0.296904 × I/6 sets the leading-edge radius (I = 6 is the normal radius);
+- a₁, a₂, a₃ come from a 3 × 3 linear solve: y(m) = 0.1, y′(m) = 0, and y″(m) matching the aft polynomial (smooth curvature).
+
+Camber is the ordinary 4-digit mean line (2 % at 40 %).
+
+**Checks on the generator and on the coordinate route:**
+- **-63 reproduces the 4-digit thickness:** the maximum difference is 0.31 % chord (at x = 0.63), with the maximum exactly at 30 %. That is the definition: the -63 section is the ordinary 4-digit section in modified form.
+- **The aft polynomial meets the conditions at m** (with q = 1 − m):
+  - value: 0.002 + d₁q + (0.294 − 2qd₁) + (−0.196 + qd₁) = **0.100** ✓;
+  - slope: −d₁ − (0.588 − 4qd₁)/q − (−0.588 + 3qd₁)/q = −d₁ + d₁ = **0** ✓.
+- **XFOIL from coordinates against XFOIL's built-in 2412** (Re 1.2 × 10⁶, M 0.3): the 2412-63 gives C_l 0.258 / C_d 0.00563 at α = 0, against 0.251 / 0.00586 built-in; at α = 4°, 0.744 / 0.00740 against 0.756 / 0.00702. The two routes agree within the small geometric difference ✓.
+
+**Section results: aft thickness pays at high Reynolds number and costs at low.** C_d at C_l = 0.3, M 0.30, with transition x/c (upper/lower):
+
+| t/c | Re | 24xx | 24xx-64 | 24xx-65 |
+|---|---|---|---|---|
+| 0.09 | 3 × 10⁵ | 0.00704 (0.85/1.00) | 0.00878 (0.92/1.00) | 0.01321 (0.94/1.00) |
+| 0.09 | 6 × 10⁵ | **0.00530** (0.75/0.98) | 0.00560 | 0.00728 |
+| 0.09 | 1.2 × 10⁶ | 0.00456 (0.65/0.88) | **0.00404** (0.79/0.93) | 0.00422 (0.87/0.94) |
+| 0.09 | 2.4 × 10⁶ | 0.00481 (0.56/0.59) | 0.00367 (0.72/0.78) | **0.00314** (0.82/0.88) |
+| 0.12 | 3 × 10⁵ | **0.00822** | 0.01032 | 0.01766 |
+| 0.12 | 6 × 10⁵ | 0.00632 | **0.00624** | 0.00850 |
+| 0.12 | 1.2 × 10⁶ | 0.00576 (0.58/0.68) | **0.00464** (0.75/0.85) | 0.00472 (0.85/0.91) |
+| 0.12 | 2.4 × 10⁶ | 0.00556 | 0.00421 | **0.00351** (0.80/0.86) |
+
+- **At high Re** the aft-thick sections hold laminar flow 15–30 % of chord longer: 37 % less drag for the -65 at 2.4 × 10⁶.
+- **At low Re** the same steep recovery behind the thick point makes the laminar layer *separate* before it transitions (a laminar separation bubble). Its pressure drag more than doubles the -65's drag at 3 × 10⁵.
+- **The crossover** is near Re ≈ 6–8 × 10⁵ for the -64 and about 10⁶ for the -65.
+- **The rotor straddles it:** Re ≈ 7–10 × 10⁵ at 0.75R, and lower at the narrow tip and inboard.
+- **The aft sections also lose maximum lift:** C_l,max 1.26 for the 24xx, 1.15 for -64, 1.08 for -65 (t/c 0.108, Re 8 × 10⁵). Their drag rises sooner above C_l 0.6: the "laminar bucket" in the figure's middle panel.
+
+**Blade results** (entry 28 setup, tip-Mach cap 0.60, each layout's optimiser re-run from its best-camber blade):
+
+| Layout | Section | Payload [kg] | Δ vs 24xx | Pack [Wh] | Hardware [kg] | Hover rpm | Solidity | C_l / C_d at 0.75R |
+|---|---|---|---|---|---|---|---|---|
+| hex | 24xx | +3.31 | 0 | 5140 | 29.09 | 1973 | 0.131 | 0.335 / 0.00579 |
+| hex | **24xx-64** | **+3.65** | **+0.34** | 5199 | 28.55 | 2052 | 0.129 | 0.301 / 0.00535 |
+| hex | 24xx-65 | +2.89 | −0.42 | 5407 | 28.62 | 2108 | 0.132 | 0.279 / 0.00618 |
+| tri | 24xx | +2.14 | 0 | 7365 | 23.13 | 2135 | 0.151 | 0.495 / 0.00605 |
+| tri | 24xx-64 | +2.20 | +0.06 | 7359 | 23.08 | 2132 | 0.156 | 0.446 / 0.00523 |
+| tri | 24xx-65 | +1.56 | −0.58 | 7511 | 23.23 | 2113 | 0.163 | 0.430 / 0.00536 |
+
+The tri uses its 44xx/new-section hybrid, with the new section outboard of t/c 0.12.
+
+**Is the hex gain the section or the optimiser?** Evaluating each geometry with each set of polars (hex payload, kg):
+
+| Geometry ↓ / polars → | 24xx | 24xx-64 | 24xx-65 |
+|---|---|---|---|
+| 24xx optimum | **+3.31** | +3.53 | +2.13 |
+| 24xx-64 optimum | +3.18 | **+3.65** | +2.64 |
+| 24xx-65 optimum | +2.80 | +3.53 | **+2.89** |
+
+- **On the unchanged 24xx blade, the -64 section alone adds +0.22 kg.** Re-optimising for it adds 0.12 kg more. The optimiser trades the lower drag for a higher rpm (1973 → 2052) and a lighter motor (less torque at T/W 2). So the gain is real and mostly the section.
+- **Each optimum is best with its own polars:** the 24xx geometry scores 3.31 with 24xx polars against 3.18 for the -64 geometry. So the 24xx baseline had converged.
+- **-65 loses on any geometry,** because the hover strips inboard and at the tip run below its Re crossover.
+- **The tri gains only 0.06 kg** because it works at C_l ≈ 0.45–0.50, on the upper edge of the -64's low-drag range. It also uses the -64 only outboard, where the hybrid puts the 24-family sections.
+- **Caveat:** the -65's stall-margin routine returns NaN (its lift curve flattens before C_l,max), so the optimiser's stall constraint was not enforced for the -65. It still lost, so the conclusion stands, but the -65 numbers are not constrained optima.
+
+**Ranking effect.** The +0.34 kg for the hex (+0.06 kg for the tri) moves every hex − tri margin by +0.28 kg:
+- 15 m/s with the 303 Wh/kg pack: +1.73 → about +2.0 kg (hex);
+- free speed, constant body, 303 Wh/kg: −2.19 → −1.9 kg (tri still ahead).
+
+This is assuming the -64 gain carries over to the free-speed blades, which are optimised at their best-range speed (entries 17 and 24); the cruise sections run at lower C_l, where the -64 low-drag range applies, so it plausibly does.
+
+**Hand check: drag from the transition location** (Re 1.2 × 10⁶, t/c 0.12, C_l 0.3). Mixed laminar/turbulent flat-plate friction for transition at x_t (entry 26):
+- C_F(x_t) = 0.074 Re^(−0.2) − x_t [0.074 (x_t Re)^(−0.2) − 1.328 (x_t Re)^(−0.5)];
+- C_d ≈ FF × (C_F,upper + C_F,lower), with FF = 1 + 2t/c + 60(t/c)⁴ = 1.252.
+
+| Section | x_t upper / lower | C_F upper | C_F lower | Hand C_d | XFOIL C_d |
+|---|---|---|---|---|---|
+| 2412 | 0.58 / 0.68 | 0.00251 | 0.00219 | **0.00590** | 0.00576 ✓ (2.4 %) |
+| 2412-64 | 0.75 / 0.85 | 0.00198 | 0.00167 | **0.00456** | 0.00464 ✓ (1.7 %) |
+| 2412-65 | 0.85 / 0.91 | 0.00167 | 0.00148 | 0.00395 | 0.00472 ✗ |
+
+- The 2412 and the -64 are friction-dominated, and the hand formula gets them within 2.5 %.
+- For the -65, friction alone falls a further 0.0006, but XFOIL's drag does not follow. The 0.0008 gap is **pressure drag** from the steep aft recovery. FF = 1 + 2t/c + 60(t/c)⁴ was fitted to ordinary sections with max thickness near 30 % and does not see an aft-loaded thickness. This is the same physics that hurts the -65 at low Re: the closer the max thickness gets to the trailing edge, the harder the recovery.
+
+**Lesson.**
+- A "laminar" section is a bet on Reynolds number. Its low-drag range is real above the crossover Re and a liability below it, where laminar separation turns friction savings into pressure drag.
+- A 1.37 m rotor in hover straddles that crossover, so the moderate change (-64) wins and the aggressive one (-65) loses.
+- The swap test (old geometry, new polars) separates a section's own gain from the optimiser's re-tuning. Run it whenever a re-optimised result looks better for reasons that don't match the physics.
+
+**Absolute-level caveat** (new queue item 44). The toroid session's CFD reports its rotor at 436 N against BEMT's 620 N. The same 30 % BEMT optimism showed in the earlier Caradonna–Tung check. Every comparison in this log is relative and is less exposed, but absolute payloads and the motor sizing at T/W 2 should be re-based on a CFD-corrected thrust once the toroid session's 2-blade reference solve (same mesh) reports.
+
+**Next.**
+- Item 43: section chosen by spanwise Reynolds number.
+- Item 42: serration calibration.
+- Item 38: ingested turbulence.
+- Items 13 and 22.
 - Still waiting on the user: speed requirement, battery chemistry, noise metric and limit.
