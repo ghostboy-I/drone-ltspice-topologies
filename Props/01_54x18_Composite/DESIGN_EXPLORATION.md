@@ -19,7 +19,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 5. ~~Coaxial spacing in cruise: the wake-overlap fraction against h/D, against the hover mast and its mass~~ (entry 06: h/D 0.4 if the overlap model holds)
 6. 3-blade coaxial: vibration (3P against 2P hub loads) and solidity per blade
 7. ~~Planar hexacopter against Y6: six isolated disks need a bigger frame, but they have no interference~~ (entry 09: hex best on energy, all three tie on payload)
-8. Cruise speed per configuration: the coaxial pair's lower induced power moves the minimum-energy speed
+8. ~~Cruise speed per configuration~~ (entry 16: best-range speeds 21–25 m/s for all layouts; at its best speed the tri wins payload by 3.4 kg, the hex still wins energy by 25 %)
 9. Camber (64xx) for the coaxial blade: the blade trade study found camber pays mostly in cruise
 10. Tip-speed limit: is 0.60 Mach still the right cap for the slower coaxial rotors (noise)?
 11. ~~Check the cruise wake-overlap model with a prescribed-wake (Biot–Savart) calculation~~ (entry 07: the lens model was optimistic; use the vortex-wake / biplane σ from now on)
@@ -33,6 +33,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 19. ~~Y6 blade with the motor in the objective~~ (entry 12: y6 −0.4 kg vs tri; the hex leads by 2.7 kg and 19 % energy)
 20. ~~Tip-Mach sensitivity of the tri~~ (entry 15: 0.71 kg per 0.05 of cap below 0.60; the hex is insensitive down to 0.50, so a stricter cap favours the hex)
 22. Lighter fairing construction (skin < 0.39 kg/m² is the break-even) and thicker sections (t/c 0.5 won at the edge of the sweep)
+23. Re-optimise each layout's blade at its own best-range speed (motor in the objective), and re-state the 15 m/s requirement as a minimum
+24. Fuselage drag against pitch attitude: at 24 m/s the shaft tilts 13°; CdA 0.60 m² is held fixed here
 21. Re-run entry 09's layout ranking with all three re-optimised blades and real motors (uncertainty band from the ±0.9 kg motor fit)
 
 ## Entries
@@ -920,4 +922,75 @@ For the tri, each 2.3 dB of quiet costs 0.71 kg of payload.
 **Next.**
 - **Queue item 8: cruise speed per configuration.** All layouts so far cruise at 15 m/s. The hex's low disk loading should move its best-range speed, and with it the energy lead.
 - Then **item 21**, the consistent re-ranking with an uncertainty band. It should now include the cap as a scenario (0.55 / 0.60).
+
+## 16 — Cruise speed per configuration (2026-11-18)
+
+**Question.** Entries 01–15 all cruised at the 15 m/s design point. The mission is a fixed 10 nmi, so what matters is energy per metre, (P + P_avionics)/V, not power. Where is each layout's best-range speed, and does it change the ranking?
+
+**Method** (`src/explore/e16_cruise_speed.py`). Each layout keeps its best design so far (blades from entries 11–13, arm option from entry 14). At each speed from 10 to 30 m/s:
+- the trim is re-solved as in Phase 2: body drag (CdA 0.60 m²) plus rotor H-forces plus arm and mast drag set the shaft tilt;
+- BEMT edgewise gives the power at that thrust and tilt;
+- the y6's inter-rotor interference is scaled as 15/V, because induced power goes as T·v_i and v_i ∝ 1/V;
+- the mission model gives the pack, with hover and climb from entry 14 and hardware unchanged (hover sizes the motors).
+
+The advancing-tip Mach stays ≤ 0.53 and the largest section angle ≤ 8.4°, so there is no compressibility or retreating-side stall problem anywhere in the sweep. At 15 m/s the model is within 1 % of entry 14's packs: 7508 against 7436 Wh for the tri, 4903 against 4852 for the hex. The small difference is that arm drag now enters the trim instead of being added as D·V/0.8.
+
+**Results** (10 nmi pack energy [Wh]):
+
+| V [m/s] | 10 | 12 | 15 | 18 | 20 | 22 | 24 | 26 | 30 | **Best V** | **Best pack** | Gain vs 15 m/s |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tri | 11905 | 9606 | 7508 | 6371 | 5944 | 5702 | 5603 | 5621 | 5951 | **24.7** | **5596** | −25 %, +6.30 kg |
+| hex | 7678 | 6142 | 4903 | 4357 | 4223 | 4220 | 4329 | 4540 | 5286 | **21.0** | **4207** | −14 %, +2.29 kg |
+| y6 | 10393 | 8138 | 6313 | 5451 | 5181 | 5079 | 5114 | 5270 | 5929 | **22.5** | **5075** | −20 %, +4.08 kg |
+
+**Finding.**
+- **15 m/s is far below the best-range speed of every layout.** All three are best at 21–25 m/s. Flying there saves 14–25 % of the pack and also cuts the trip time by 30–40 %.
+- **It reverses the payload ranking.** Each layout at its own best speed, with hardware from entries 11–14:
+
+| Layout | Best V [m/s] | Pack [Wh] | Energy vs tri | Payload vs tri [kg] |
+|---|---|---|---|---|
+| **tri** | 24.7 | 5596 | — | **0** |
+| hex | 21.0 | 4207 | **−25 %** | **−3.4** |
+| y6 | 22.5 | 5075 | −9 % | −4.4 |
+
+  - The tri gains the most from speed because its penalty is **induced power**, which falls with speed. With half the disk area, its induced velocity at 15 m/s is about twice the hex's (7.5 against 4.1 m/s).
+  - The hex's penalties are **profile power** (twice the blade area: P₀ ≈ 1.6 against 1.0 kW) and **arm drag**, and both rise with speed.
+  - At 15 m/s the hex's battery is 2584 Wh (8.5 kg) lighter, which more than pays for its 7.9 kg of extra frame, arms and motors (8.5 − 7.9 = +0.6 kg, entry 14). At best-range speed its battery saving shrinks to 1389 Wh = 4.6 kg, and the 7.9 kg hardware penalty wins.
+- **What to take from it:**
+  - **On payload at a free cruise speed, the tri leads by about 3.4 kg.** That is well outside the ±0.9 kg motor-fit band.
+  - **On energy or range at equal payload, the hex still leads by 25 %.**
+  - **If the 15 m/s design point is a hard requirement, entry 14's ranking stands.**
+  - **The choice is now a requirements question, not an aerodynamics one** (queue item 23).
+- **Caveats:**
+  - The blades were optimised at 15 m/s. Re-optimising at each layout's own speed (item 23) will move all three, the tri most.
+  - At 24 m/s the tri flies with 13° of shaft tilt, and CdA 0.60 m² is held fixed. A real fuselage's drag rises with pitch attitude (item 24).
+
+**Hand check 1: the power-required curve.** Build it from three terms:
+
+  P(V) = κ·W·v_i(V) + P₀·(1 + 4.65μ²) + ½·ρ·V³·f
+
+- **Induced**, from the full Glauert inflow v_i = v_h²/√(V² + v_i²), with v_h = √(W/(2ρA_tot)) the hover value. **Lesson:** at 15 m/s these rotors are *not* in the high-speed limit v_i ≈ v_h²/V. The tri has v_h = 11.25 m/s, and the full solution gives v_i = 7.54 against 8.44 m/s from the limit formula. Using the limit, as the first version of this script did, overstates induced power by 12 %.
+- **Profile:** P₀ = P_hover − κW^1.5/√(2ρA_tot), the hover power that is not induced, with the standard 1 + 4.65μ² growth (μ = V/ΩR).
+- **Parasite:** f = CdA_body + arm-drag area.
+
+| V [m/s] | 10 | 15 | 20 | 24 | 30 |
+|---|---|---|---|---|---|
+| tri, hand [kW] | 14.7 | 13.1 | 12.7 | 13.5 | 17.0 |
+| tri, BEMT [kW] | 14.2 | 12.4 | 12.2 | 13.6 | 18.5 |
+| hex, hand [kW] | 10.0 | 8.8 | 9.2 | 10.6 | 14.8 |
+| hex, BEMT [kW] | 8.9 | 7.7 | 8.5 | 10.5 | 17.1 |
+
+- **Agreement:** the hand curve tracks BEMT within 6 % for the tri up to 24 m/s, and within 13 % for the hex.
+- **Where it drifts:** at low speed P₀ also carries the hover download and non-uniform inflow, so it is too high. At high speed the 4.65μ² term under-predicts the advancing-side drag growth.
+- **Best speed:** minimising (P + P_av)/V by hand gives V* = 26.8 m/s for the tri and 23.4 for the hex, against 24.7 and 21.0 from BEMT. The ordering and the ≈ 3.5 m/s gap between the layouts are reproduced.
+- **Why the hex is slower:** with only induced and parasite terms, d/dV[a/V² + ½ρfV²] = 0 gives V*⁴ = 2a/(ρf), where a = κW²/(2ρA_tot). Doubling the disk area halves a, so V* falls by 2^(1/4) = 1.19. That is the hex's lower best-range speed (22.5 against 26.6 m/s in that limit).
+- **The y6 hand curve does not fit** (13.4 against 9.9 kW at 15 m/s). Its "profile" P₀ = 5.7 kW is really its coaxial hover interference, which does not grow with speed. The two-term split is only valid for isolated rotors.
+
+**Hand check 2: the tri's 1.9 kWh saving.**
+- Cruise time: 18 520 m / 15 m/s = 1235 s, against 18 520 / 24 m/s = 772 s.
+- Cruise shaft energy: 12 355 W × 1235 s = 4239 Wh at 15 m/s, against 13 608 W × 772 s = 2918 Wh at 24 m/s.
+- To electrical: 1321 Wh / (0.905 × 0.97) = 1505 Wh. Avionics: 150 W × 463 s = 19 Wh. Total 1524 Wh.
+- To pack with the 20 % reserve: 1524 / 0.8 = **1905 Wh**, against 7508 − 5603 = **1905 Wh** from the model ✓.
+
+**Next.** Queue item 23: re-optimise each layout's blade at its own best-range speed, with the motor in the objective. Hover sizing stays the same, so the hover blade trade from entries 11–13 now competes with a faster cruise point, and the tri's lead should be re-checked there. Then item 24: fuselage drag against pitch attitude, which caps how fast the tri can usefully go.
 
