@@ -59,6 +59,8 @@ doc.table(["Operating point", "iq (A peak)", "Vbus (V)", "DC-link ripple (A rms)
 ], widths=[0.22, 0.15, 0.13, 0.24, 0.26])
 
 doc.h("2. Summary: what to change, in order")
+doc.p("Status: the first three items are fixed in the topology 10/11 boards (24 DC-link capacitors, ACS772ECB-250B, "
+      "LTC4366 surge stopper verified by Avionics_SurgeTest.asc). The rest are options, not applied.", size=9.5)
 doc.bullets([
     f"DC-link capacitors are under-rated (section 5). The 16 hybrid-polymer caps carry {LH['per']:.2f} A rms each at "
     f"hover ({LH['ratio']:.2f}× the 3.5 A spec) and {LP['per']:.2f} A at punch. Use about {LH['need']} caps, or a "

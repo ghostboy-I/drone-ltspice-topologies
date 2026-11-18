@@ -69,7 +69,7 @@ doc.p("Open Power_System.asc in LTspice: it shows the whole system, and each boa
 doc.bullets([
     "Every part on the drawn sheets is a board part with its PCB reference, one symbol per part: all 24 inverter FETs, each with "
     "its own gate resistor and 10 kOhm pull-down (gate nets GAH1-GAH4, GAL1-GAL4, ... in the tables below).",
-    "Three ESC parts have no maker SPICE model, so in LTspice they are blocks with an equivalent circuit inside: U7/U8 ACS770 "
+    "Three ESC parts have no maker SPICE model, so in LTspice they are blocks with an equivalent circuit inside: U7/U8 ACS772 "
     "(the Hall sensor) and U9 STM32G431 (its inside is the FOC firmware). On the PCB they are the real chips, wired by the pins "
     "listed below. The connectors (J..) are drawn as boxes because they have no SPICE model either.",
     "Simulation-only items to ignore: the packs (V_PACK), harness (L_HARN), the load sources (B_VTX, B_FC, B_SENS, B_ENC, C_VTX) "
@@ -90,15 +90,17 @@ doc.table(["Part", "KiCad symbol", "Pin numbering (must match the footprint)"], 
     ["IPB065N15N3 (TO-263-2)", "Transistor_FET:Q_NMOS_GDS", "G = 1, D = 2 (tab), S = 3"],
     ["BSC520N15NS3 / BSC360…", "Transistor_FET:BSC026N08NS5", "S = 1, 2, 3; G = 4; D = 5 (tab)"],
     ["BSP89 (SOT-223)", "Transistor_FET:BSP89", "G = 1, D = 2 (tab), S = 3"],
-    ["ACS770LCB-200B", "Sensor_Current:ACS770xCB-200B-PFF", "VCC 1, GND 2, VIOUT 3, IP+ 4, IP− 5"],
+    ["ACS772ECB-250B", "Sensor_Current:ACS770xCB-200B-PFF", "VCC 1, GND 2, VIOUT 3, IP+ 4, IP− 5"],
     ["STM32G431CBT6", "MCU_ST_STM32G4:STM32G431CBTx", "by pin name (PA8, PB12, VDD, ...)"],
     ["LT3045 (avionics)", "Regulator_Linear:LT3045xDD", "by pin name; pad 11 = GND"],
     ["SMBJ110A TVS, fuses", "Device:D_Zener, Device:Fuse", "K = 1, A = 2; 1, 2"],
-    ["LTC7801, LTC7063, LT1763, LT8641", "generated: <Board>_custom.kicad_sym", "tables below"],
+    ["FDB33N25 (TO-263-2)", "Transistor_FET:Q_NMOS_GDS", "G = 1, D = 2 (tab), S = 3"],
+    ["LTC7801, LTC7063 ...", "<Board>_custom.kicad_sym", "tables below (also LT1763, LT8641, LTC4366)"],
 ], widths=[0.30, 0.37, 0.33])
 for name, title in (("LTC7801", "LTC7801EFE (TSSOP-24 with exposed pad, pad 25 = GND)"), ("LTC7063", "LTC7063EMSE (MSOP-12 with exposed pad, pad 13 = SGND)"),
                     ("LT1763-5", "LT1763CS8-5 / -3.3 (SO-8)"),
-                    ("LT8641", "LT8641EUDC (UDC 20(18)-lead QFN 3x4 mm: pads 5 and 12 removed, 21 and 22 = exposed SW pads)")):
+                    ("LT8641", "LT8641EUDC (UDC 20(18)-lead QFN 3x4 mm: pads 5 and 12 removed, 21 and 22 = exposed SW pads)"),
+                    ("LTC4366-2", "LTC4366CTS8-2 (TSOT-23-8; BASE, pad 5, unused)")):
     pins = sorted(((int(n), nm) for nm, ns in CUSTOM[name]["pins"].items() for n in ns))
     doc.p(f"{title}. Read from ADI's pin-configuration drawings:", size=9.5)
     half = (len(pins) + 1) // 2

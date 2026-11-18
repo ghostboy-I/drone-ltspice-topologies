@@ -5,7 +5,7 @@ Rebuild with `python3 make_flowchart.py`. The script fails if any text spills ou
 
 What it shows:
 - **Power path, one channel in full detail:** 24S pack → PDB → 8 AWG harness → ESC board 1 (AS150 input → DC link →
-  3-phase inverter of 24 × IPB065N15N3 → ACS770 current sensors) → U15XL motor. Channels 2 and 3 are the same circuit.
+  3-phase inverter of 24 × IPB065N15N3 → ACS772 current sensors) → U15XL motor. Channels 2 and 3 are the same circuit.
 - **Inside the ESC board:** LTC7801 aux buck → +12 V → LTC7063 gate drivers and LT1763-5 → LT1763-3.3 → STM32G431 MCU;
   PWM / enable / fault between the MCU and the drivers; current, bus-voltage and temperature sensing into the MCU's ADC pins;
   the AS5047P encoder over SPI.

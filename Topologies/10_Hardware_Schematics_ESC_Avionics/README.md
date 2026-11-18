@@ -4,8 +4,8 @@
 
 | Board | Qty per aircraft | What it does |
 |---|---|---|
-| **ESC board** (`ESC_Board.asc`) | 3 (one per motor) | 24S DC link → 3 × LTC7063 gate drivers → 24 × IPB065N15N3 (4 in parallel per switch) → U15XL. It has its own LTC7801 12 V aux supply, LT1763 5 V / 3.3 V, two ACS770 ±200 A current sensors and an STM32G431 running FOC. |
-| **Avionics power board** (`Avionics_Board.asc`) | 1 | Three 24S packs → fuses + diode-OR → LTC7801 12 V / 5 A (transmitter) → LT8641 5 V / 3 A (flight controller + receiver) → LT3045 3.3 V / 0.3 A (sensors). |
+| **ESC board** (`ESC_Board.asc`) | 3 (one per motor) | 24S DC link → 3 × LTC7063 gate drivers → 24 × IPB065N15N3 (4 in parallel per switch) → U15XL. It has its own LTC7801 12 V aux supply, LT1763 5 V / 3.3 V, two ACS772 ±250 A current sensors and an STM32G431 running FOC. |
+| **Avionics power board** (`Avionics_Board.asc`) | 1 | Three 24S packs → fuses + diode-OR → TVS + LTC4366 surge stopper (115 V) → LTC7801 12 V / 5 A (transmitter) → LT8641 5 V / 3 A (flight controller + receiver) → LT3045 3.3 V / 0.3 A (sensors). |
 
 **Builds on:** [09](../09_24S_FOC_Drive_Low-Voltage_Rails/README.md) (the design these boards implement), [03](../03_Three-Phase_FOC_PMSM/README.md) (FOC), [06](../06_BEC_Synchronous_Buck_5V/README.md) (buck design), [08](../08_Redundant_Avionics_Power/README.md) (avionics fed from all three packs).
 **Design document (with all the math):** `10_Hardware_Schematics_ESC_Avionics_Design.pdf`
@@ -30,9 +30,21 @@ wine "$HOME/.wine/drive_c/Program Files/ADI/LTspice/LTspice.exe" -b ESC_Board.as
 |---|---|---|
 | `Avionics_Board.asc` (8 ms) | Cold start and sequencing, transmitter switch-on, controller load step, pack 1 pulled | ~10 min |
 | `Avionics_LoopTest.asc` | 12 V loop gain at 3 / 6 / 12 / 24 kHz by injection, on the switching circuit | ~5 min |
+| `Avionics_SurgeTest.asc` (300 ms) | LTC4366 start-up, then pack 1 at 200 V behind 4 Ω for 20 ms: VIN_PROT must stay at 115 V | ~2 s |
 | `ESC_Board.asc` (13 ms) | Cold start of the ESC electronics with the rotor at hover, flying start, throttle punch | ~7 min |
 
-Parts named `V_…`, `B_…`, `L_HARN`, `R_CS…`, `R_BW…`, `C_BW…`, `La/Lb/Lc`, `C_J`, `C_TH`, `R_LK…`, `R_VBF`, `C_VBF`, `C_VTX` are simulation stimulus or models: the packs, the loads, the motor, and the STM32's FOC firmware as a behavioural block. Everything else is a board part with its real reference designator.
+Parts named `V_…`, `B_…`, `L_HARN`, `R_CS…`, `R_BW…`, `C_BW…`, `La/Lb/Lc`, `C_J`, `C_TH`, `R_LK…`, `R_VBF`, `C_VBF`, `C_VTX`, `R_SSRUN`, `R_LOAD_SS` are simulation stimulus or models: the packs, the loads, the motor, and the STM32's FOC firmware as a behavioural block. Everything else is a board part with its real reference designator.
+
+## Fixes from the parts-alternatives study
+[Alternatives_Study](../Alternatives_Study/README.md) checked each section against datasheet ratings. Three problems are fixed here:
+| Problem | Fix | Check |
+|---|---|---|
+| DC-link ripple 61.7 A rms at hover over 16 caps = 3.86 A each, above the 3.5 A rating | C65–C72: 8 more 150 µF 125 V hybrid polymer, 24 in all → 2.57 A each (3.48 A at punch, seconds only) | `python3 hand_calc.py changes`; ESC run `Icap_bulk` |
+| Punch needs iq = 210 A; ACS770LCB-200B is specified to ±200 A | U7, U8 → ACS772ECB-250B: ±250 A, 8 mV/A, 200 kHz, same CB package and pinout. ADC still fits ±306 A, 151 mA/LSB | ESC run (firmware block uses 8 mV/A) |
+| SMBJ110A clamps to 177 V at 3.4 A; the LTC7801 is rated to 150 V | U4 LTC4366-2 surge stopper + Q4 FDB33N25 (250 V): VIN_PROT held at VREG = 1.23 V (1 + R24/R23) = 115.3 V, 51 ms timer, 9 s cool-down | `Avionics_SurgeTest.asc`: 179 V in → 115.5 V out (hand 115.3 V) |
+
+The LTC4366 takes ~0.1 s to turn Q4 on, so the 8 ms board run models Q4 already on (sim-only `R_SSRUN`, 94 mΩ), and its packs
+ramp up from 0 V in 0.2 ms (the LTC4366 model has no DC operating point with the packs already at 88.8 V).
 
 ## Whole power system
 The whole system, with both boards drawn part by part and wired to three packs and three motors, is now topology
@@ -46,9 +58,9 @@ python3 kicad_check.py          # ERC, net list vs parts table, footprints, sche
 ```
 | Folder | What it is |
 |---|---|
-| `kicad/Drone_Power.pretty/` | **Every footprint both boards use (38).** 34 are KiCad 9 stock footprints, copied in under their KiCad names (`kicad_footprints.py`). 4 are not in KiCad's library and are generated from the manufacturers' drawings (table below) |
-| `kicad/ESC_Board/` | Schematic (189 parts), `ESC_Board.kicad_pcb` with all 189 footprints loaded and every pad on its net, `fp-lib-table` / `sym-lib-table` |
-| `kicad/Avionics_Board/` | The same for the avionics board (67 parts) |
+| `kicad/Drone_Power.pretty/` | **Every footprint both boards use (39).** 35 are KiCad 9 stock footprints, copied in under their KiCad names (`kicad_footprints.py`). 4 are not in KiCad's library and are generated from the manufacturers' drawings (table below) |
+| `kicad/ESC_Board/` | Schematic (197 parts), `ESC_Board.kicad_pcb` with all 197 footprints loaded and every pad on its net, `fp-lib-table` / `sym-lib-table` |
+| `kicad/Avionics_Board/` | The same for the avionics board (77 parts) |
 | `kicad/*_footprints.png` | KiCad's plot of each imported PCB: footprints parked by schematic block, ready for placement |
 
 The PCBs are what **Tools → Update PCB from Schematic** would give: each footprint is linked to its symbol (same UUID path),
@@ -78,7 +90,7 @@ mounting tabs. Re-running the export gives identical files (UUIDs are derived fr
 
 ## Porting to KiCad by hand
 1. **One schematic per board**, with one hierarchical sheet per numbered block (the framed areas in the `.asc`): e.g. ESC = 1 power input, 2 aux supply, 3 logic supplies, 4–6 legs A/B/C, 7 current sense, 8 MCU and connectors. Use global labels for the nets that cross sheets (`VBUS`, `+12V`, `+5V`, `+3V3`, `PWM_A`…).
-2. **Symbols.** KiCad's stock library has the STM32G431CBTx, the ACS770 family, the LT3045 and the AS5047. The **LTC7801, LTC7063, LT8641 and LT1763 are not in KiCad's library**: use the generated ones in `kicad/<Board>/<Board>_custom.kicad_sym`. Pin names in the net list are LTspice's names (`SENSE+`, `BGRTN`, `_FLT` = FLT-bar, `_SHDN` = SHDN-bar); match them to the datasheet pin names, not to pin numbers.
+2. **Symbols.** KiCad's stock library has the STM32G431CBTx, the ACS770/ACS772 CB-package symbol, the LT3045 and the AS5047. The **LTC7801, LTC7063, LT8641, LT1763 and LTC4366 are not in KiCad's library**: use the generated ones in `kicad/<Board>/<Board>_custom.kicad_sym`. Pin names in the net list are LTspice's names (`SENSE+`, `BGRTN`, `_FLT` = FLT-bar, `_SHDN` = SHDN-bar); match them to the datasheet pin names, not to pin numbers.
 3. **Wire from `*_Netlist.csv`**: each row is one net and every pin on it. Parts listed with a quantity (e.g. `Q4 Q5 Q6 Q7`) are parallel copies with identical connections.
 4. **Footprints** are all in `kicad/Drone_Power.pretty` (add it to your footprint library table). The BOM gives each one by its KiCad library name; the four `Drone_Power:` ones are generated from the manufacturers' drawings.
 5. **The MCU pin map is a proposal.** TIM1 CH1–3 on PA8–PA10 for the gate drivers, ADC1 on PA0–PA3, SPI1 on PA4–PA7 for the encoder, SWD on PA13/PA14. Check every alternate function in STM32CubeMX before you route.
@@ -88,7 +100,7 @@ mounting tabs. Re-running the export gives identical files (UUIDs are derived fr
 - **Current.** 110 A punch, 74 A hover: use 3 oz copper or bus bars on VBUS, GND and the phases. The motor leads need about 6–8 AWG.
 - **100 V spacing.** Keep at least 0.6 mm clearance between 100 V nets and logic. Keep the bootstrap nodes (`BST_x`, `PH_x`) away from the MCU.
 - **Gate drive.** Each LTC7063 goes next to its leg. Route TG with its return SW (and BG with BGRTN) as tight pairs, put one gate resistor at each FET, and place the bootstrap diode and capacitor at the driver.
-- **Grounds.** Power ground (FET sources, DC link) and signal ground (MCU, ADC dividers, LDOs) join at one point near the DC-link negative. The ACS770 is isolated, so its output side belongs to signal ground.
+- **Grounds.** Power ground (FET sources, DC link) and signal ground (MCU, ADC dividers, LDOs) join at one point near the DC-link negative. The ACS772 is isolated, so its output side belongs to signal ground.
 - **Sense lines.** Use a Kelvin connection on R1 / R7 (current sense) to SENSE+ / SENSE−, and route the ADC lines (ISNS_x, VBUS_SNS) as guarded traces away from the switch nodes.
 - **Thermal.** About 70 W of FET loss at hover, so the 24 D2PAKs need a heatsink. The NTC (R6) goes on it.
 
@@ -96,12 +108,12 @@ mounting tabs. Re-running the export gives identical files (UUIDs are derived fr
 **Avionics board**
 | | Hand | LTspice |
 |---|---|---|
-| +12V / +5V / +3V3 (V) | 12.000 / 4.988 / 3.320 | 11.995 / 5.046 / 3.286 |
+| +12V / +5V / +3V3 (V) | 12.000 / 4.988 / 3.320 | 11.995 / 5.046 / 3.282 |
 | 12 V loop: crossover / phase margin | 11.57 kHz / 49.8° | 10.59 kHz / 53.0° (transient injection) |
-| Current per pack, all three connected (A) | 0.112 | 0.113 |
-| Packs 2 and 3 after pack 1 is pulled (A) | 0.167 | 0.169 (12 V moves 17 mV) |
-| Transmitter switch-on: 12 V dip (mV) | 198 | 219 |
-| 12 V stage / whole board efficiency | 97.9 % / 93.8 % | 95.6 % / 91.8 % |
+| Current per pack, all three connected (A) | 0.112 | 0.114 |
+| Packs 2 and 3 after pack 1 is pulled (A) | 0.167 | 0.170 (12 V moves 20 mV) |
+| Transmitter switch-on: 12 V dip (mV) | 198 | 222 |
+| 12 V stage / whole board efficiency | 97.9 % / 93.8 % | 95.2 % / 91.2 % (input now includes the LTC4366 stage, ≈ 45 mW in its resistors) |
 
 **ESC board** (hand evaluated at the operating point LTspice reached: iq = 160.4 A, ω = 190.7 rad/s)
 | | Hand | LTspice |
@@ -132,4 +144,4 @@ mounting tabs. Re-running the export gives identical files (UUIDs are derived fr
 11. **`ltraw.read_meas`** returned the threshold of WHEN measurements instead of the time. Fixed for every topology.
 
 ## Assumptions to replace with measurements
-Inherited from 09: motor Lph 25 µH, 21 pole pairs, rotor inertia 0.15 kg·m², pack resistance 30 mΩ, and the avionics currents. New here: the LTC7801's ITH gain (assumed 1/12, measured ≈ 1/13), the supply currents of the STM32 / ACS770 / AS5047, and the derated capacitances of the ceramics at their bias voltage.
+Inherited from 09: motor Lph 25 µH, 21 pole pairs, rotor inertia 0.15 kg·m², pack resistance 30 mΩ, and the avionics currents. New here: the LTC7801's ITH gain (assumed 1/12, measured ≈ 1/13), the supply currents of the STM32 / ACS772 / AS5047, and the derated capacitances of the ceramics at their bias voltage.

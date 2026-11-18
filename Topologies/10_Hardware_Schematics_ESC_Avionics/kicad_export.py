@@ -4,7 +4,7 @@
   kicad/Drone_Power.pretty    every footprint of both boards (python3 kicad_footprints.py; run first, done by "all")
 
 * KiCad library symbols are used wherever they exist, so symbol pin numbers match the footprint pads.
-* The LTC7801 (FE TSSOP-24), LTC7063 (MSE-12), LT1763 (S8) and LT8641 (UDC QFN) have no stock symbol. They are generated from
+* The LTC7801 (FE TSSOP-24), LTC7063 (MSE-12), LT1763 (S8), LT8641 (UDC QFN) and LTC4366 (TS8) have no stock symbol. They are generated from
   the datasheet pin tables below (read from ADI's pin-configuration drawings). The LT3045 uses KiCad's LT3045xDD.
 * Footprints come from the project library Drone_Power.pretty (stock KiCad footprints copied in, plus the ones generated
   from ADI/AMASS drawings), so the projects are self-contained.
@@ -46,8 +46,13 @@ CUSTOM = {
                    desc="65 V 3.5 A synchronous buck, UDC 20(18)-lead QFN 3x4 mm (pins 21, 22 = exposed pads, SW)",
                    left=["4", "13", "14", "15", "16", "17", "1", "2", "6", "7", "10", "11", "18"],
                    right=["3", "8", "9", "21", "22", "19", "20"]),
+    # LTC4366 datasheet Rev B, TS8 (TSOT-23-8) pin configuration; BASE (external-PNP option) is not used here
+    "LTC4366-2": dict(pins={"VDD": ["1"], "_SD": ["2"], "TIMER": ["3"], "VSS": ["4"], "BASE": ["5"], "FB": ["6"], "OUT": ["7"],
+                            "GATE": ["8"]},
+                      desc="High-voltage surge stopper, floating, auto-retry, TSOT-23-8",
+                      left=["1", "2", "3", "4"], right=["8", "7", "6", "5"]),
 }
-PIN_LABEL = {"_FLT": "~{FLT}", "_SHDN": "~{SHDN}"}           # KiCad overbar syntax
+PIN_LABEL = {"_FLT": "~{FLT}", "_SHDN": "~{SHDN}", "_SD": "~{SD}"}           # KiCad overbar syntax
 
 
 def flatten(lib, name, newname):
@@ -157,7 +162,7 @@ class Resolver:
             if p.value == "BSP89":
                 key, sym = self.get("Transistor_FET", "BSP89"); return key, sym, {"G": ["1"], "D": ["2"], "S": ["3"]}
             key, sym = self.get("Transistor_FET", "Q_NMOS_GDS"); return key, sym, {"G": ["1"], "D": ["2"], "S": ["3"]}
-        if p.sym is None and "ACS770" in p.pn:
+        if p.sym is None and ("ACS770" in p.pn or "ACS772" in p.pn):   # same CB package and pinout
             key, sym = self.get("Sensor_Current", "ACS770xCB-200B-PFF")
             return key, sym, {n: [num for nm, num, *_ in pin_list(sym) if nm == n] for n in names}
         if p.sym is None and "STM32G431" in p.pn:
@@ -297,7 +302,7 @@ def export(B, name, outdir):
            [Sym("uuid"), root_uuid], [Sym("paper"), "User", round(page_w + 2 * X0 + 20, 1), round(page_h + 10, 1)],
            [Sym("title_block"), [Sym("title"), B.title], [Sym("rev"), "A"],
             [Sym("comment"), 1, "Generated from the topology 10 parts table (board.py) - LTspice net names"],
-            [Sym("comment"), 2, "Custom symbols: LTC7801 FE, LTC7063 MSE, LT1763 S8, LT8641 UDC pinouts from ADI pin-configuration drawings"],
+            [Sym("comment"), 2, "Custom symbols: LTC7801 FE, LTC7063 MSE, LT1763 S8, LT8641 UDC, LTC4366 TS8 pinouts from ADI pin-configuration drawings"],
             [Sym("comment"), 3, "Footprints: project library Drone_Power.pretty (../Drone_Power.pretty)"]],
            [Sym("lib_symbols")] + list(R.cache.values())] + items + [
            [Sym("sheet_instances"), [Sym("path"), "/", [Sym("page"), "1"]]], [Sym("embedded_fonts"), Sym("no")]]

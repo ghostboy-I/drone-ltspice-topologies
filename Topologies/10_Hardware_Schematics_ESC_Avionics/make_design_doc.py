@@ -17,13 +17,13 @@ nparts = lambda f: sum(int(r[1]) for r in list(csv.reader(open(os.path.join(here
 nlines = lambda f: len(list(csv.reader(open(os.path.join(here, f))))) - 1
 
 doc = Doc("10  Hardware Schematics: ESC + Avionics Boards",
-          "topology 09 with real parts  |  LTC7801, LT8641, LT3045, LTC7063, LT1763, IPB065N15N3, ACS770, STM32G431  |  LTspice + KiCad hand-off")
+          "topology 09 with real parts  |  LTC7801, LT8641, LT3045, LTC7063, LT1763, IPB065N15N3, ACS772, STM32G431, LTC4366  |  LTspice + KiCad hand-off")
 
 doc.h("1. From a simulation to two boards")
 doc.p("Topology 09 proved the power tree with behavioural controllers. A PCB needs real parts, reference designators, footprints "
       "and a net list. This topology splits the aircraft's electronics into the two boards it would actually have:")
 doc.table(["Board", "Qty", "Parts", "Main parts"], [
-    ["ESC board", "3", f"{nparts('ESC_BOM.csv')}", "LTC7801, 2×LT1763, 3×LTC7063, 24×IPB065N15N3, 2×ACS770, STM32G431"],
+    ["ESC board", "3", f"{nparts('ESC_BOM.csv')}", "LTC7801, 2×LT1763, 3×LTC7063, 24×IPB065N15N3, 2×ACS772, STM32G431"],
     ["Avionics board", "1", f"{nparts('Avionics_BOM.csv')}", "diode-OR (3×ES1D), LTC7801 12 V, LT8641 5 V, LT3045 3.3 V"],
 ], widths=[0.17, 0.06, 0.08, 0.69])
 doc.p("Each board is described once, as a Python parts table (board.py). Every part carries its simulation value and its PCB data "
@@ -100,7 +100,7 @@ doc.table(["Block", "Design point", "Result"], [
     ["Dead time", "DT resistor 150 kΩ", f"{ex['esc']['dead_bg_tg']:.0f} / {ex['esc']['dead_tg_bg']:.0f} ns at Vgs = 3 V"],
     ["Aux 12 V (U1 LTC7801)", "440 kHz, 150 µH, 0.1 Ω, 32 µF", f"{h.I_12V*1e3:.0f} mA, ton {12/100.8/A.fsw*1e9:.0f} ns at 100.8 V"],
     ["Logic", "LT1763-5 → LT1763-3.3", f"{h.I_5V*1e3:.0f} / {h.I_3V3*1e3:.0f} mA, {h.P_LDO5:.2f} W in U2"],
-    ["Current sense", "ACS770 ±200 A, 2/3 divider", f"±{h.I_RANGE:.0f} A in range, {h.ADC_A_PER_LSB*1e3:.0f} mA/LSB"],
+    ["Current sense", "ACS772 ±250 A, 2/3 divider", f"±{h.I_RANGE:.0f} A in range, {h.ADC_A_PER_LSB*1e3:.0f} mA/LSB"],
     ["Bus sense", "3 × 330 kΩ (200 V each) + 33 kΩ", f"100.8 V → {h.VBUS_ADC_FULL:.2f} V"],
 ], widths=[0.25, 0.37, 0.38])
 doc.p("Four D2PAKs per position give 1.4 mΩ against 09's assumed 1.05 mΩ, so conduction loss rises by a third. With 6.5 mΩ-max parts "
@@ -138,6 +138,8 @@ doc.table(["Quantity (4–7 ms)", "Hand at LTspice's iq, ω", "LTspice", "Δ"], 
      f"{me['pshaft']:.0f} + {p_drag:.0f} + {es['p_kin']:.0f}", ""],
     ["ESC input power (W)", f"{p_in_hand:.0f}", f"{me['pin_esc']:.0f}", pct(p_in_hand, me["pin_esc"])],
     ["DC-link capacitor RMS (A)", f"{h09.kolar(iq_h, mp['vd'], mp['vq'], me['vbus_h']):.1f}", f"{me['icap_rms']:.1f}", ""],
+    ["Per bulk capacitor RMS (A; rating 3.5 A, 24 caps)", f"{h09.kolar(iq_h, mp['vd'], mp['vq'], me['vbus_h'])/h.N_BULK:.2f}",
+     f"{me['icap_bulk']/h.N_BULK:.2f}", ""],
     ["Bootstrap current, 3 legs (mA)", f"{iboot_hand*1e3:.1f}", f"{me['iboot']*1e3:.1f}", pct(iboot_hand, me["iboot"])],
     ["Bootstrap voltage min–max (V)", "12 − Vf − Qg/C", f"{me['vboot_min']:.2f}–{me['vboot_max']:.2f}", ""],
     ["Aux 12 V ripple / punch min (V)", "—", f"{me['v12_pp']:.3f} / {me['v12_min_p']:.3f}", ""],
@@ -151,7 +153,44 @@ doc.p("The rotor is still speeding up in this window (%.2f → %.2f rad/s in 3 m
       "transform by ωe·τ." % (es["omega0"], es["omega1"], es["p_kin"], i_rgs * 1e3))
 doc.img(os.path.join(here, "ESC_results.png"), width=6.6)
 
-doc.h("7. What went wrong first (and what each taught)")
+doc.pagebreak()
+doc.h("7. Fixes from the alternatives study")
+doc.p("Topologies/Alternatives_Study checked every section against datasheet ratings and found three real problems. "
+      "All three are fixed in the parts tables, so the schematics, BOMs, KiCad projects and topology 11 follow.", size=9.5)
+dl = h.dc_link(); su = h.surge()
+ms = {k: v[0] for k, v in read_meas(os.path.join(here, "Avionics_SurgeTest.log")).items()}
+doc.p("DC link. The inverter's DC-link ripple (Kolar and Round) flows almost entirely in the polymer bank. Divided over "
+      f"16 capacitors it was {dl['icap_h']/16:.2f} A rms each at hover, over the 3.5 A rating. C65-C72 add 8 more:", size=9.5)
+doc.eq(r"I_{cap} = \frac{I_{C,rms}}{N} = \frac{%.1f\ \mathrm{A}}{24} = %.2f\ \mathrm{A\ (hover)}, \quad "
+       r"\frac{%.1f\ \mathrm{A}}{24} = %.2f\ \mathrm{A\ (punch,\ seconds)}" % (dl["icap_h"], dl["per_h"], dl["icap_p"], dl["per_p"]), size=12)
+doc.p(f"Phase current. Punch needs iq = {h09.Imax:.0f} A, outside the ACS770-200B's ±200 A. The ACS772ECB-250B (±250 A, "
+      f"8 mV/A, 200 kHz, same CB package and pinout) replaces it. With the same 2/3 divider, ±{h.I_RANGE:.0f} A fits the ADC at "
+      f"{h.ADC_A_PER_LSB*1e3:.0f} mA/LSB; the firmware conversion uses the new 8 mV/A.", size=9.5)
+doc.p("Avionics surge. The SMBJ110A clamps to 177 V at 3.4 A, and the LTC7801 is rated to 150 V. U4 LTC4366-2 floats on the "
+      "supply (RIN, RSS) and drives Q4 FDB33N25 (250 V) so that VIN_PROT stays at VREG while Q4 drops the rest. "
+      "Equations from the LTC4366 datasheet:", size=9.5)
+doc.eq(r"V_{REG} = 1.23\,\mathrm{V}\left(1+\frac{R_{24}}{R_{23}}\right) = 1.23\left(1+\frac{1.15\,\mathrm{M}}{12.4\,\mathrm{k}}\right) = %.1f\ \mathrm{V}" % su["vreg"], size=12)
+doc.eq(r"R_{SS} \leq \frac{V_{IN,min}-V_{Z(OUT)}}{I_{VSS(CP)}} = \frac{71.25-6.0}{230\,\mu A} = %.0f\,\mathrm{k}\Omega \qquad "
+       r"R_{IN} \leq \frac{V_{IN,min}-4.9-0.58-V_{TH}-72\,\mu A\,R_{SS}}{13\,\mu A} = %.2f\,\mathrm{M}\Omega" % (su["rss_max"] / 1e3, su["rin_max"] / 1e6), size=11)
+doc.eq(r"t_{OV} = \frac{2.8\,\mathrm{V}\; C_T}{9\,\mu A} = %.0f\ \mathrm{ms} \qquad P_{Q4} = (V_{IN\_AV}-V_{REG})\,I_{load} = %.1f\ \mathrm{W}" % (su["t_tmr"] * 1e3, su["p_fet"]), size=12)
+doc.p("RSS = 274 kΩ and RIN = 2.49 MΩ meet both limits; the start-up limit RSS ≤ RIN(VREG − 7)/(VIN,max − 5 − VREG) is "
+      f"{su['rss_max_hi']/1e3:.0f} kΩ at a 200 V start. Avionics_SurgeTest.asc steps pack 1 to 200 V behind 4 Ω for 20 ms "
+      "(an ISO 7637-2 pulse-5a-like source) with the 12 V stage modelled as its 0.35 A input current:", size=9.5)
+doc.table(["Quantity", "Hand", "LTspice", "Error"], [
+    ["VIN_PROT in regulation (V)", f"{su['vreg']:.1f}", f"{ms['vprot_reg']:.1f}", pct(su["vreg"], ms["vprot_reg"])],
+    ["VIN_PROT peak during the surge (V)", f"{su['vreg']:.1f}", f"{ms['vprot_max']:.1f}", pct(su["vreg"], ms["vprot_max"])],
+    ["VIN_AV at the TVS (V)", f"{su['v_av']:.0f}", f"{ms['vav_surge']:.1f}", pct(su["v_av"], ms["vav_surge"])],
+    ["Q4 dissipation while regulating (W)", f"{su['p_fet']:.1f}", f"{ms['pq4']:.1f}", pct(su["p_fet"], ms["pq4"])],
+    ["TIMER after 20 ms (V; fault at 2.8 V)", f"{9e-6*20e-3/h.SURGE['ct']:.2f}", f"{ms['vtmr_max']:.2f}", pct(9e-6*20e-3/h.SURGE['ct'], ms["vtmr_max"])],
+    ["Start-up: VIN_PROT reaches 80 V (ms)", "~ 100 (7.5 µA into CG)", f"{ms['t_on']*1e3:.0f}", "—"],
+], widths=[0.42, 0.2, 0.18, 0.2])
+doc.img(os.path.join(here, "Avionics_surge.png"), width=6.4)
+doc.p("The LTC4366 needs about 0.1 s to ramp Q4's gate, far longer than the 8 ms board run. Avionics_Board.asc therefore starts "
+      "with Q4 already on (sim-only R_SSRUN, 94 mΩ, across it); the stopper itself is verified here. The 1.56 J in Q4 over the "
+      "51 ms timer is well inside a D2PAK's transient rating. A surge longer than the timer turns Q4 off for the 9 s cool-down, "
+      "so the flight controller would brown out; size CT for the longest surge the airframe can produce.", size=9)
+
+doc.h("8. What went wrong first (and what each taught)")
 doc.bullets([
     "Units: the .asc files were first written as UTF-8 with 'µ'. LTspice read it as two Latin-1 characters and dropped the unit, so 47µ became 47 H and 0.1µ became 0.1 F, and nothing started. Write 'u', or write the file in Latin-1.",
     "Library models: a test from a bare .cir file said the vendor FETs were missing. From a schematic they load, because LTspice adds its standard libraries only for .asc files. Confirm a model by measuring it (here: Ron with 1 V / 1 mΩ), not by the absence of an error.",
@@ -166,7 +205,7 @@ doc.bullets([
     "The first 'drive efficiency' read 76.6 %. It was not an efficiency: the rotor was still speeding up after the coast, so ½Jω² was absorbing about 0.9 kW. Write the energy balance before you trust a ratio.",
 ])
 
-doc.h("8. Takeaways")
+doc.h("9. Takeaways")
 doc.bullets([
     "Describe the board once (a parts table) and generate the simulation, BOM and net list from it. That way what you simulated is what you build.",
     "A current-mode buck is a Type II loop on a single pole, plus about one switching period of delay. The delay costs ~25° of phase at fc ≈ fsw/13.",

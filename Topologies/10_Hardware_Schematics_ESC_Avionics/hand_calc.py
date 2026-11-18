@@ -146,12 +146,12 @@ I_GATE = 6 * QG_SWITCH * FSW_INV                 # 36 mA: every switch position 
 RG_EACH = 10.0                                   # gate resistor per FET; 4 in parallel -> 2.5 Ohm per position
 
 # loads on the ESC's 5 V and 3.3 V (typical datasheet supply currents)
-I_ACS770 = 10e-3                                 # Allegro ACS770, 5 V, typ.
+I_ACS = 10e-3                                    # Allegro ACS772, 5 V, typ. (ICC 10 mA, datasheet)
 I_ENC = 12e-3                                    # ams AS5047P at 5 V, typ.
 I_MCU = 50e-3                                    # STM32G431 at 170 MHz with peripherals, typ. order of magnitude
 I_LED, I_DRV_Q = 2e-3, 3 * 1e-3                  # status LED; LTC7063 quiescent, 3 drivers
 I_3V3 = I_MCU + I_LED
-I_5V = 2 * I_ACS770 + I_ENC + I_3V3
+I_5V = 2 * I_ACS + I_ENC + I_3V3
 I_12V = I_GATE + I_DRV_Q + I_5V
 
 AUX = LTC7801(vout=12.0, iout=0.3, iout_typ=I_12V, rfreq=65e3, L=150e-6, dcr=0.4, rsense=0.1,
@@ -161,8 +161,11 @@ AUX = LTC7801(vout=12.0, iout=0.3, iout_typ=I_12V, rfreq=65e3, L=150e-6, dcr=0.4
               qg_top=9e-9, qg_bot=11e-9)
 P_LDO5 = (12 - 5) * I_5V; P_LDO33 = (5 - 3.3) * I_3V3
 
-# current sense: ACS770LCB-200B, 10 mV/A at 5 V supply, 2.5 V zero, 120 kHz bandwidth; 2/3 divider into the 3.3 V ADC
-ACS_GAIN, ACS_ZERO, ACS_BW, K_DIV = 10e-3, 2.5, 120e3, 2 / 3
+# current sense: ACS772ECB-250B, +/-250 A, 8 mV/A at 5 V supply (ratiometric), 2.5 V zero, 200 kHz; 2/3 divider into
+# the 3.3 V ADC. Replaced the ACS770LCB-200B (+/-200 A): the 210 A punch current was outside its specified range
+# (Alternatives_Study). Same CB package and pinout (1 VCC, 2 GND, 3 VIOUT, 4 IP+, 5 IP-).
+ACS_GAIN, ACS_ZERO, ACS_BW, K_DIV = 8e-3, 2.5, 200e3, 2 / 3
+ACS_RATED = 250.0
 I_RANGE = (3.3 / K_DIV - ACS_ZERO) / ACS_GAIN          # +/- current that still fits the ADC
 ADC_A_PER_LSB = 3.3 / 4096 / (ACS_GAIN * K_DIV)
 
@@ -184,4 +187,63 @@ if __name__ == "__main__" and "esc" in sys.argv:
           f"Ilim min {AUX.ilim()['min']:.2f} A  RITH {AUX.rith:.4g} CITH {AUX.cith*1e9:.3g}n CITHB {AUX.cithb*1e12:.3g}p  tss {AUX.tss*1e3:.2f} ms")
     fc, pm = AUX.margins(12 / I_12V); print(f"   loop at {I_12V*1e3:.0f} mA: fc {fc/1e3:.1f} kHz PM {pm:.1f}")
     e = esc(); print(f"   eff {e['l_aux']['eff']*100:.1f} %  Pin {e['p_aux_in']:.2f} W   LDO5 {P_LDO5:.2f} W  LDO3.3 {P_LDO33:.3f} W")
-    print(f"ACS770: +/-{I_RANGE:.0f} A fits the ADC, {ADC_A_PER_LSB*1e3:.0f} mA/LSB;  Vbus ADC at 100.8 V = {VBUS_ADC_FULL:.3f} V")
+    print(f"ACS772-250B: rated +/-{ACS_RATED:.0f} A, +/-{I_RANGE:.0f} A fits the ADC, {ADC_A_PER_LSB*1e3:.0f} mA/LSB;  Vbus ADC at 100.8 V = {VBUS_ADC_FULL:.3f} V")
+
+
+# ======================================================================================================
+# CHANGES FROM THE ALTERNATIVES STUDY (Topologies/Alternatives_Study)
+# ======================================================================================================
+# ESC DC link: 16 -> 24 x 150 uF 125 V hybrid polymer. The Kolar ripple current (61.7 A rms at hover, 83.5 A at punch)
+# was 3.86 A per capacitor, over the 3.5 A rating; with 24 it is 2.57 A (hover) and 3.48 A (punch, seconds only).
+N_BULK, I_RIPPLE_CAP = 24, 3.5
+
+
+def dc_link():
+    hv, pu = h09.hover(), h09.punch()
+    return dict(icap_h=hv["icap"], icap_p=pu["icap"], per_h=hv["icap"] / N_BULK, per_p=pu["icap"] / N_BULK,
+                c_bulk=N_BULK * 150e-6)
+
+
+# Avionics input: LTC4366-2 surge stopper (floating, auto-retry) ahead of the LTC7801, so a surge that drives the
+# SMBJ110A towards its 177 V clamp (3.4 A) never reaches the LTC7801's 150 V VIN. LTC4366 datasheet (Rev B) equations:
+#   VREG = 1.23 V (1 + RFB2/RFB1)                      regulation point, below the LTC7801 OVLO (118.8 V)
+#   RSS(max) = (VIN(min) - VZ(OUT)max) / IVSS(CP)max   VZ(OUT) 6.0 V, IVSS(CP) 230 uA (worst case)
+#   RIN(max) = (VIN(min) - VUVLO2 - VD - VTH - IVSS(AMP) RSS) / IVDD(STHI)   4.9 V, 0.58 V, Vth, 72 uA, 13 uA
+#   RSS(max, start at VIN(max)) = RIN (VREG - 7 V) / (VIN(max) - 5 V - VREG)
+#   CT = 3.5 nF/ms * t                                 overvoltage time allowed before the 9 s cool-down
+SURGE = dict(vin_min=h09.V_EMPTY - VF_OR, vin_max=200.0, vth=4.0, rfb1=12.4e3, rfb2=1.15e6, rss=274e3, rin=2.49e6,
+             ct=180e-9, cg=10e-9, c1=0.47e-6, i_load=0.35)
+
+
+def surge():
+    s = SURGE
+    vreg = 1.23 * (1 + s["rfb2"] / s["rfb1"])
+    rss_max = (s["vin_min"] - 6.0) / 230e-6
+    rin_max = (s["vin_min"] - 4.9 - 0.58 - s["vth"] - 72e-6 * s["rss"]) / 13e-6
+    rss_max_hi = s["rin"] * (vreg - 7) / (s["vin_max"] - 5 - vreg)
+    t_ov = s["ct"] / 1e-9 / 3.5 * 1e-3                       # seconds
+    i_reg = s["i_load"] * vreg / V_NOM                          # the test load is a resistor: 0.35 A at 88.8 V
+    v_av = TVS_BV + (SURGE_V - TVS_BV) * TVS_RS / (TVS_RS + SURGE_R)   # TVS clamp fed from the surge source
+    p_fet = (v_av - vreg) * i_reg                               # Q4 dissipation while regulating
+    t_tmr = 2.8 * s["ct"] / 9e-6                                # TIMER: 9 uA up to 2.8 V (the 3.5 nF/ms rule rounds this)
+    p_rss = (V_FULL - 5.7) ** 2 / s["rss"]; p_rin = (V_FULL - 12) ** 2 / s["rin"]
+    p_rfb = V_FULL ** 2 / (s["rfb1"] + s["rfb2"])
+    return dict(vreg=vreg, v_av=v_av, i_reg=i_reg, t_tmr=t_tmr, rss_max=rss_max, rin_max=rin_max, rss_max_hi=rss_max_hi, t_ov=t_ov, p_fet=p_fet,
+                e_fet=p_fet * t_ov, p_rss=p_rss, p_rin=p_rin, p_rfb=p_rfb, c1_ratio=s["c1"] / s["cg"])
+
+
+TVS_VC = 177.0                                   # SMBJ110A clamp at 3.4 A (Littelfuse)
+TVS_BV, TVS_RS = 128.0, 12.0                     # its model: nominal breakdown + slope that gives ~177 V at 3.4-4 A
+SURGE_V, SURGE_R = 200.0, 4.0                    # surge test: 200 V behind 4 ohm on one pack input
+FET_SURGE = "FDB33N25"                           # onsemi 250 V 94 mOhm D2PAK, the FET in ADI's LTC4366 application
+
+
+if __name__ == "__main__" and "changes" in sys.argv:
+    d = dc_link()
+    print(f"DC link: {N_BULK} caps, {d['icap_h']:.1f} A rms hover -> {d['per_h']:.2f} A each "
+          f"({d['per_h']/I_RIPPLE_CAP*100:.0f} % of rating); punch {d['icap_p']:.1f} A -> {d['per_p']:.2f} A each")
+    u = surge()
+    print(f"LTC4366: VREG {u['vreg']:.1f} V  RSS 274k <= {u['rss_max']/1e3:.0f}k (min supply) and {u['rss_max_hi']/1e3:.0f}k "
+          f"(start at {SURGE['vin_max']:.0f} V)  RIN 2.49M <= {u['rin_max']/1e6:.2f}M  timer {u["t_ov"]*1e3:.0f} ms  "
+          f"VIN_AV {u['v_av']:.1f} V  timer(9uA) {u['t_tmr']*1e3:.0f} ms  FET {u['p_fet']:.1f} W -> {u['e_fet']:.2f} J  RSS {u['p_rss']*1e3:.0f} mW RIN {u['p_rin']*1e3:.1f} mW "
+          f"RFB {u['p_rfb']*1e3:.1f} mW  C1/CG {u['c1_ratio']:.0f}")

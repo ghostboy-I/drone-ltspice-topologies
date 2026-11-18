@@ -12,6 +12,9 @@ method applied to every part.
 | `make_design_doc.py` | Builds the PDF and `inverter_losses.png` |
 
 ## Findings, in order of importance
+Findings 1–3 are now **fixed in the boards** (24 DC-link caps, ACS772ECB-250B, LTC4366 surge stopper): see
+[topology 10](../10_Hardware_Schematics_ESC_Avionics/README.md#fixes-from-the-parts-alternatives-study). Findings 4–7 are options, not applied.
+
 1. **DC-link capacitors are under-rated.** 61.7 A rms of ripple at hover across 16 caps is 3.86 A each, 1.10× the 3.5 A spec (5.22 A at punch). Use about 23 caps at a derated 2.8 A, a higher-ripple 125 V series, or add film / MLCC.
 2. **ACS770LCB-200B is out of range at punch** (210 A against ±200 A). ACS772ECB-250B uses the same CB footprint and covers ±250 A at 8 mV/A.
 3. **Avionics TVS:** SMBJ110A clamps at 177 V (3.4 A), above the LTC7801's 150 V. Use an LTC4366 surge stopper or a clamp sized to stay under 150 V.
