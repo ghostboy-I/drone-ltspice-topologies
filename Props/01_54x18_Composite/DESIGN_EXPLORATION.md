@@ -56,6 +56,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 33. ~~Laminar-flow section from coordinates~~ (entry 35: NACA 24xx-64 gains the hex 0.34 kg and the tri 0.06 kg; 24xx-65 loses 0.4–0.6 kg. Aft thickness pays above Re ≈ 7 × 10⁵ and costs below it, and this rotor sits at that crossover)
 43. ~~Section by spanwise Reynolds number~~ (entry 36: banding the -64 to 0.45–0.93R changes nothing, −0.03 kg; the -65 band still loses. The -64's gain comes from lower drag at T/W 2, where Re is higher, through a lighter torque-sized motor, and not from mission energy)
 45. A section designed for the T/W-2 point: entry 36 shows the motor-sizing condition, at about 1.4 × hover rpm and Re ≈ 1.1 × 10⁶, is where section drag pays on the hex. A true 6-series (63-2xx/64-2xx, Theodorsen mapping) or an XFOIL inverse design centred on C_l ≈ 0.35 at Re 1.1 × 10⁶ could push this further; worth it only if the motor model's torque exponent (≈ 1) holds
+46. **Motors between 18 and 50 N·m** (entry 37): the hex's ranking now depends on whether a 20–25 N·m, ≈ 2 kg motor exists, or whether the U15II can run above its 18 N·m test point (needs its peak current at 24S: ≈ 163 A for 20.5 N·m). Survey other vendors' 20–30 N·m motors and their masses, then re-score the hex. This is the single most decisive open input for the layout choice, along with the user's questions
 44. Absolute-level caveat from the toroid session's CFD (2026-11-18): on its rotor, BEMT predicted 620 N against 436 N in CFD (30 % high), in line with the earlier Caradonna–Tung check. The tri–hex comparisons here are relative, but absolute payloads and the motor sizing at T/W 2 should be re-based when its 2-blade reference solve (same mesh) reports
 
 ## Entries
@@ -2233,3 +2234,75 @@ Profile power is 384 W of 2145 W per rotor (17.9 %).
 - Item 38: ingested turbulence.
 - Items 13 and 22.
 - Still waiting on the user: speed requirement, battery chemistry, noise metric and limit.
+
+
+## 37 — Catalogue motors instead of the continuous mass fit: the ranking flips at 15 m/s (2026-11-18)
+
+**Question** (raised by entry 36). Since entry 10, every optimiser has sized its motor continuously, m = 0.0909 τ^0.996 kg, fitted through three T-Motor units: U13II 0.975 kg / 11.4 N·m, U15II 1.740 kg / 18.0 N·m, U15XL 4.408 kg / 50.4 N·m (100 %-throttle test torques).
+- The tri's optimum needs 50.6 N·m and lands on the U15XL (entry 13).
+- The hex's optimum needs 20.5 N·m, between the U15II and the U15XL, so **its fitted 1.84 kg motor does not exist in this list.**
+
+What happens with motors you can actually pick?
+- **Method:**
+  - re-score the cap-0.60 optima with the lightest listed motor whose test torque covers Q_max at T/W 2 (1 % tolerance);
+  - re-optimise the hex to fit the U15II: motor mass fixed at 1.740 kg, a penalty on Q_max > 18.0 N·m, tip-Mach caps 0.60, 0.65 and 0.70;
+  - a second pass with a 20× penalty, so the limit binds;
+  - the tri likewise to the U15XL;
+  - ESC mass keeps its P^0.7 scaling, and noise is scored as in entry 34.
+  - 2 cores at nice 19, beside the toroid session's CFD.
+- **Files:** `src/explore/e37_catalogue_motor.py`, `results/explore/e37_catalogue_motor.json`.
+
+**Re-scoring the existing optima with catalogue motors:**
+
+| Optimum | Q_max at T/W 2 | Fitted motor | Catalogue motor | Payload, fit | **Payload, catalogue** |
+|---|---|---|---|---|---|
+| tri, cap 0.60 (entry 28) | 50.6 N·m | 4.53 kg | U15XL 4.41 kg | +2.14 | **+2.50** |
+| hex, cap 0.60 (entry 28) | 20.5 N·m | 1.84 kg | U15XL 4.41 kg (nothing between) | +3.31 | **−12.09** |
+
+**Re-optimised to fit a catalogue motor:**
+
+| Case | Penalty | Q_max [N·m] | Fits? | Payload [kg] | Hover / max rpm | Tip Mach at T/W 2 | T/W at cap | Solidity | Total dBA |
+|---|---|---|---|---|---|---|---|---|---|
+| hex → U15II, cap 0.60 | soft | 18.94 | no (+5 %) | +2.42 | 2148 / 3001 | 0.603 | 1.98 | 0.121 | 51.2 |
+| hex → U15II, cap 0.60 | hard | 18.24 | no | +0.04 | 2259 / 3152 | — | **1.79** | 0.109 | 51.9 |
+| hex → U15II, cap 0.65 | soft | 18.27 | no (+1.5 %) | +1.81 | 2325 / 3237 | — | 2.00 | 0.123 | 52.1 |
+| **hex → U15II, cap 0.65** | **hard** | **18.00** | **yes** | **+0.86** | 2342 / 3264 | 0.656 | 1.96 | 0.115 | **52.4** |
+| hex → U15II, cap 0.70 | soft | 18.22 | no (+1.2 %) | +1.73 | 2347 / 3266 | — | 2.30 | 0.123 | 52.2 |
+| **tri → U15XL, cap 0.60** | soft | **50.49** | **yes** | **+2.47** | 2138 / 2995 | 0.602 | 1.99 | 0.149 | **52.1** |
+
+(Hex payloads are in entry 11's frame and tri payloads in entry 13's; compare each layout's *change* against its own continuous-fit optimum, as below.)
+
+**Findings.**
+- **With catalogue motors, the hex fits the U15II only by spinning faster, at cap 0.65.** Torque is Q = P/Ω. At about 6 kW peak, 18 N·m needs Ω ≥ 331 rad/s (3160 rpm), a tip Mach of 0.63, above the 0.60 cap. At cap 0.60 the hex can only fit by cutting peak power: it gives up T/W (1.79) and still misses.
+- **The cost is 2.45 kg for the hex** (+3.31 → +0.86): faster rotors draw more profile power (pack 5140 → 5462 Wh), the blades grow heavier for the flex test at higher rpm (hardware +1.4 kg), and the noise rises to 52.4 dBA.
+- **The tri gains 0.33 kg** (+2.14 → +2.47), because the real U15XL is 0.12 kg lighter per arm than the fitted one at the same torque.
+- **The hex − tri margin moves by −2.78 kg:**
+
+  | Scenario | Continuous fit (entries 24/35) | **Catalogue motors** |
+  |---|---|---|
+  | 15 m/s, 303 Wh/kg | hex +1.73 | **tri +1.05** |
+  | free speed, constant body, 303 | tri +2.19 | **tri +4.97** |
+  | free speed, constant body, 200 | hex +0.11 | **tri +2.67** |
+
+  The free-speed rows are shifted by the same hover-sized hardware change; the cruise-optimised blades would need a re-run for exact numbers.
+- **The hex's noise advantage disappears too:** 52.4 dBA (hex at cap 0.65) against 52.1 (tri at 0.60). Entries 27–34 found the hex 2.2 dBA quieter at the same cap. Fitting the motor costs it that margin.
+- **This is the largest single swing in the log:** larger than camber, sections, noise limits or body drag. It comes from a gap in a three-motor list, not from aerodynamics. **The layout choice now hinges on whether a ≈ 20–25 N·m, ≈ 2 kg motor exists** (queue item 46).
+  - The U15II's 18.0 N·m is a 60 V *test point*, not a rated ceiling. Torque scales with current, so 20.5 N·m needs ≈ 143 A × 20.5/18.0 ≈ **163 A**. If its peak current at 24S allows that, the hex keeps its continuous-fit result (+3.31 kg), and with it the lead at 15 m/s.
+
+**Hand checks.**
+- **Torque from power and speed,** Q = P/Ω:
+  - hex continuous fit: 5932 W at 2762 rpm (289.2 rad/s) gives **20.51 N·m** ✓;
+  - hex at cap 0.65, hard penalty: 6152 W at 3264 rpm (341.8 rad/s) gives **18.00 N·m** ✓, tip Mach 341.8 × 0.6858 / 357.6 = 0.656;
+  - tri: 15835 W at 2995 rpm gives **50.49 N·m** ✓.
+- **Why cap 0.60 cannot fit:** Ω_needed = P/Q = 5950/18.0 = 330.6 rad/s, so tip Mach 330.6 × 0.6858/357.6 = **0.634 > 0.60** ✓. That matches the optimiser: at cap 0.60 it either violates torque (soft) or gives up T/W (hard).
+- **Current for 20.5 N·m on the U15II:**
+  - ideal motor constant K_t = 60/(2π·KV) = 0.1194 N·m/A, so the test point's 143 A gives 17.1 N·m by K_t against 18.0 measured (5 % above ideal, typical);
+  - scaling the measured point: I ≈ 143 × 20.51/18.0 = **163 A**.
+  - For the U15XL, the same check gives 175 A × 0.2513 = 44.0 N·m against 50.4 measured (+15 %): K_t from KV understates the larger motor more. So the measured test points, not K_t, are the reference.
+
+**Lesson.** A smooth sizing law is a model of a *continuous* market. Before trusting an optimum built on one, check where it lands between real products. Here the hex landed in a 18–50 N·m gap, and the cost of falling back to a real motor (2.5 kg) outweighs everything the aerodynamic refinements of entries 20–36 found. The tri, by luck of entry 13, already sits on a real motor.
+
+**Next.**
+- **Item 46: survey 18–30 N·m motors** (other vendors) and the U15II's peak current. This decides the layout.
+- The user's open questions (speed requirement, battery chemistry, noise limit) remain the other deciders.
+- After that: items 45, 42, 38, 13, 22.
