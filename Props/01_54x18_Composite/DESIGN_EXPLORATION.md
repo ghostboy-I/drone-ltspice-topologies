@@ -54,7 +54,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 42. Serration effectiveness for this rotor: the bracket D = 2–6 dB spans the payload answer. A BPM-compatible serration model calibrated on published rotor data (Lyu–Azarpeyvand theory or a measured propeller test) would narrow it
 41. ~~Wider blade for low α*~~ (entry 34: at the same tip speed, a 15–50 % wider chord cuts the tri's total by only 0.3–0.7 dBA at 0.6–2.7 kg/dB, and the hex's by at most 0.3 dBA. The angle term falls, but the thicker boundary layer raises the suction- and pressure-side terms. Not worth it next to serrations at about 0.1 kg/dB)
 33. ~~Laminar-flow section from coordinates~~ (entry 35: NACA 24xx-64 gains the hex 0.34 kg and the tri 0.06 kg; 24xx-65 loses 0.4–0.6 kg. Aft thickness pays above Re ≈ 7 × 10⁵ and costs below it, and this rotor sits at that crossover)
-43. Section by Reynolds number along the span: an aft-thick section (-64/-65) where Re > 10⁶, and the ordinary 4-digit near the narrow tip and in the low-Re hover strips. A spanwise blend like the 44/24 hybrid, but keyed on Re. A true NACA 6-series (Theodorsen mapping) is the next step if this pays
+43. ~~Section by spanwise Reynolds number~~ (entry 36: banding the -64 to 0.45–0.93R changes nothing, −0.03 kg; the -65 band still loses. The -64's gain comes from lower drag at T/W 2, where Re is higher, through a lighter torque-sized motor, and not from mission energy)
+45. A section designed for the T/W-2 point: entry 36 shows the motor-sizing condition, at about 1.4 × hover rpm and Re ≈ 1.1 × 10⁶, is where section drag pays on the hex. A true 6-series (63-2xx/64-2xx, Theodorsen mapping) or an XFOIL inverse design centred on C_l ≈ 0.35 at Re 1.1 × 10⁶ could push this further; worth it only if the motor model's torque exponent (≈ 1) holds
 44. Absolute-level caveat from the toroid session's CFD (2026-11-18): on its rotor, BEMT predicted 620 N against 436 N in CFD (30 % high), in line with the earlier Caradonna–Tung check. The tri–hex comparisons here are relative, but absolute payloads and the motor sizing at T/W 2 should be re-based when its 2-blade reference solve (same mesh) reports
 
 ## Entries
@@ -2115,6 +2116,8 @@ Camber is the ordinary 4-digit mean line (2 % at 40 %).
 
 The tri uses its 44xx/new-section hybrid, with the new section outboard of t/c 0.12.
 
+*(Entry 36 refines this: the -64's gain comes through motor sizing at T/W 2, not mission energy.)*
+
 **Is the hex gain the section or the optimiser?** Evaluating each geometry with each set of polars (hex payload, kg):
 
 | Geometry ↓ / polars → | 24xx | 24xx-64 | 24xx-65 |
@@ -2157,6 +2160,75 @@ This is assuming the -64 gain carries over to the free-speed blades, which are o
 
 **Next.**
 - Item 43: section chosen by spanwise Reynolds number.
+- Item 42: serration calibration.
+- Item 38: ingested turbulence.
+- Items 13 and 22.
+- Still waiting on the user: speed requirement, battery chemistry, noise metric and limit.
+
+
+## 36 — The aft-thick section only where Re is high; where the -64's gain actually comes from (2026-11-18)
+
+**Question** (queue item 43). Entry 35's sections beat the 24xx above Re ≈ 7 × 10⁵ to 10⁶ and lose below it. Along the hover blade, Re peaks at 0.7–0.9R (hex 8 × 10⁵, tri 10⁶) and falls toward the narrow tip (4.7–6 × 10⁵) and the root. So: use the aft-thick section only in the high-Re band.
+- **Method:** the BEMT polar lookup sees (t/c, Re, M, α) but not radius. t/c falls monotonically from root to tip (0.18 → 0.09), so the band is keyed on t/c:
+  - ordinary 24xx at the tip (t/c < 0.097, r ≳ 0.93R);
+  - the -64 or -65 in the band 0.097 ≤ t/c ≤ 0.15 (about 0.45–0.93R);
+  - 24xx inboard on the hex, 44xx on the tri (through its existing hybrid);
+  - linear ramps 0.005 wide in t/c between them.
+- **Runs:** blades re-optimised at cap 0.60 as in entry 35, on 2 cores at nice 19 while the toroid session's CFD used 10.
+- **Files:** `src/explore/e36_re_band.py`, `results/explore/e36_re_band.json`.
+
+**Results** (payload, kg):
+
+| Layout | Section layout | Payload | vs all-24xx | vs the same section uniform |
+|---|---|---|---|---|
+| hex | all 24xx (entry 35) | +3.31 | 0 | — |
+| hex | 24xx tip + **-64 band** | +3.63 | +0.32 | **−0.03** |
+| hex | all -64 (entry 35) | +3.65 | +0.34 | 0 |
+| hex | 24xx tip + -65 band | +3.18 | −0.13 | +0.29 |
+| tri | all 24xx outboard (entry 35) | +2.14 | 0 | — |
+| tri | 24xx tip + -64 band | +2.14 | 0.00 | −0.06 |
+| tri | 24xx tip + -65 band | +1.63 | −0.51 | +0.07 |
+
+The stall margin now evaluates for the -65 cases (9.4° hex, 8.8° tri). Entry 35's NaN came from the -65 at the tip.
+
+**Finding 1: the tip section does not matter, because little of the profile power is there.** Hex -64 blade in hover, BEMT strip sums (P_profile = B Σ ½ρW³ c C_d dr, power-weighted C_d):
+
+| Span | Share of profile power | Re | C_d 24xx | C_d -64 | C_d -65 |
+|---|---|---|---|---|---|
+| 0–0.45R | 10.4 % | 0.6–6.3 × 10⁵ | 0.00800 | 0.00795 | 0.01174 |
+| **0.45–0.93R** | **73.5 %** | 6.5–8.1 × 10⁵ | 0.00582 | **0.00552** (−5.2 %) | 0.00692 |
+| 0.93R–tip | 16.1 % | 4.6–6.6 × 10⁵ | 0.00583 | 0.00614 (+5.3 %) | 0.00829 |
+
+Profile power is 384 W of 2145 W per rotor (17.9 %).
+
+*Hand estimate:*
+- the -64 in the band saves 0.735 × 0.052 × 384 = **14.7 W** per rotor;
+- the -64 at the tip costs 0.161 × 0.053 × 384 = **3.3 W**;
+- banding (24xx tip) therefore saves 3.3 W × 6 = 20 W of hover, 0.16 % of the 12.7 kW hover power. That is about 8 Wh of pack, or **0.03 kg**. The optimiser gives −0.03 kg: the difference between "band" and "uniform" is at the noise level either way ✓.
+- **The -65 loses even in the band.** At Re 6.5–8 × 10⁵ the band itself is below its crossover (entry 35: about 10⁶), so its power-weighted C_d there is 19 % *above* the 24xx.
+
+**Finding 2: the -64's gain does not come from mission energy at all.** Entry 35's swap test (24xx geometry, -64 polars) left the pack unchanged (5140 Wh) and cut the hardware by 0.22 kg. The breakdown:
+
+| Hex, 24xx geometry | Hover [W] | Cruise [W] | Pack [Wh] | P_max at T/W 2 [W] | Q_max [Nm] | Motor [kg] | ESC [kg] | Payload |
+|---|---|---|---|---|---|---|---|---|
+| 24xx polars | 12678 | 8250 | 5140 | 5932 | 20.51 | 1.841 | 0.440 | +3.31 |
+| -64 polars | 12640 (−39) | 8258 (+8) | 5140 | 5826 (−1.8 %) | 20.16 (−1.7 %) | 1.810 | 0.434 | +3.53 |
+
+- **The motors are sized at T/W 2.** There the rotor turns 2762 rpm, 1.40 × hover, so the outboard Re is about 1.1 × 10⁶. That is above the -64's crossover, and its drag advantage at 0.75R is **13 %** (C_d 0.00496 against 0.00571, C_l ≈ 0.34). In hover at Re 8 × 10⁵ it is only 5 %.
+- Lower drag at full thrust means lower maximum power and torque, so a lighter torque-sized motor and ESC: 6 × (0.031 + 0.006) = **0.22 kg** ✓.
+- **In the mission the section is a wash.** Hover saves 39 W, but cruise costs 8 W more, because the cruise sections run at lower C_l, where the -64 is draggier (it is worse below C_l ≈ 0.2: see the polar). The two cancel in the pack.
+
+*Hand check, motor scaling:* the motor fit is m ∝ Q^n. With Q 20.51 → 20.16 Nm (ratio 0.9832) and motor 1.841 → 1.810 kg (ratio 0.9833), **n ≈ 1.0**. The payload gain is therefore directly proportional to the max-torque drop.
+
+**What this means.**
+- The -64's +0.34 kg on the hex is real, but it hangs on the motor model. It is the T/W-2 sizing condition, not the mission, that rewards low drag at Re ≈ 10⁶. If motors were chosen from a catalogue in steps, a 1.7 % torque drop might not move the choice at all, and the gain would vanish.
+- **Ranking:** it adds to the hex's lead by up to about 0.3 kg, with that caveat.
+- **Design rule:** choose sections at the condition that sizes the hardware, not only at the condition that uses the energy. For this vehicle those are T/W 2 (motors) and hover/cruise (pack), at different Reynolds numbers.
+
+**Lesson.** A spanwise refinement only pays where the quantity it changes is concentrated. Three-quarters of the profile power sits at 0.45–0.93R, so the tip section hardly matters. And before crediting a gain to "lower drag", trace which term of the objective actually moved. Here it was the motor, not the battery.
+
+**Next.**
+- Item 45: a section designed for the T/W-2 point, only if catalogue motor steps don't swallow it.
 - Item 42: serration calibration.
 - Item 38: ingested turbulence.
 - Items 13 and 22.
