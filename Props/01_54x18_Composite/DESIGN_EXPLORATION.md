@@ -35,7 +35,9 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 22. Lighter fairing construction (skin < 0.39 kg/m² is the break-even) and thicker sections (t/c 0.5 won at the edge of the sweep)
 23. ~~Re-optimise each layout's blade at its own best-range speed~~ (entry 17: −0.14 kg tri, −0.07 kg hex; the blades are set by hover sizing; tri leads by 3.2 kg at free speed). Still open: re-state the 15 m/s requirement as a minimum
 24. ~~Fuselage drag against pitch attitude~~ (entry 18: a bluff body costs the tri 2.5 kg and the hex 1.5 kg at free speed; a body built nose-down at the cruise attitude recovers it; the tri still leads by 2.2–3.4 kg)
-21. Re-run entry 09's layout ranking with all three re-optimised blades and real motors (uncertainty band from the ±0.9 kg motor fit)
+21. ~~Consolidated layout ranking with uncertainty bands~~ (entry 19: the speed requirement decides it; hex wins at 15 m/s for any pack below 338 Wh/kg, tri wins at free speed for any pack above 177 Wh/kg)
+25. Pack specific energy as a design input: which cell (semi-solid 303 vs LiPo 200 Wh/kg) is planned? It swings the 15 m/s result by 4.4 kg
+26. Camber (item 9) and 3-blade (item 6) for the tri blade, now that the tri leads at free speed
 
 ## Entries
 
@@ -1093,4 +1095,68 @@ The trim is iterated with f(α), since more drag means more tilt and more tilt m
 - **Lesson:** in a trimmed vehicle, drag and attitude are coupled, and a fixed-CdA analysis overstates the best cruise speed of any bluff multirotor.
 
 **Next.** Queue item 21: the consolidated layout ranking, with the uncertainty bands collected from entries 10–18 (motor fit ±0.9 kg, body model, tip-Mach cap, speed requirement) in one table and plot. Then items 9 (camber) and 6 (3-blade), the two blade ideas still untried.
+
+## 19 — Consolidated tri vs hex ranking, with the uncertainty bands (2026-11-18)
+
+**Question.** Entries 10–18 each moved the tri–hex payload comparison by a kilogram or more. Which way does it fall across the open requirements and assumptions, and what single number would settle it?
+
+**Method** (`src/explore/e19_ranking.py`). No new aerodynamics. Entry 18 already holds, for both layouts and all four body models, the hardware mass and the pack energy at every cruise speed from 14 to 30 m/s. Those rows include entry 17's blades, entry 14's arms and fairings, hover download, and torque-sized motors. The payload difference is
+
+  Δpayload (hex − tri) = −(Δhw + Δpack / e_b),  e_b = pack specific energy [Wh/kg].
+
+It is evaluated over four axes:
+- **speed:** 15 m/s, or free (each layout at its own best speed);
+- **body:** constant, streamlined, bluff, or bluff pre-tilted (entry 18);
+- **battery:** 303.3 Wh/kg (the vendor's semi-solid pack) or 200 Wh/kg (conventional LiPo, from params);
+- **tip-Mach cap:** 0.60, or 0.55 (entry 15: +0.71 kg against the tri).
+
+The band is the motor-mass fit from entry 10, −0.89 / +0.21 kg on the hex.
+
+**Results** (hex payload minus tri payload [kg]; motor-fit band in brackets; cap 0.60 unless noted):
+
+| Speed | Body | 303 Wh/kg | 200 Wh/kg | Energy hex vs tri | Break-even e_b |
+|---|---|---|---|---|---|
+| 15 m/s | (any, ±0.06) | **+0.86** [−0.02, +1.07] | **+5.27** [+4.38, +5.48] | −34 % | **338 Wh/kg** |
+| 15 m/s, cap 0.55 | | **+1.57** [+0.69, +1.78] | +5.98 | −34 % | 372 |
+| free | constant | **−3.19** [−4.08, −2.98] | **−0.88** [−1.77, −0.67] | −24 % | **177** |
+| free | streamlined | −3.09 | −0.73 | −25 % | 181 |
+| free | bluff | −2.16 [−3.05, −1.95] | **+0.68** [−0.21, +0.89] | −26 % | 217 |
+| free | bluff pre-tilted | −3.45 | −1.27 | −23 % | 167 |
+| free, cap 0.55 | constant | −2.48 | −0.17 [−1.06, +0.04] | −24 % | 195 |
+
+**Finding.**
+- **The speed requirement decides it.**
+  - **At the 15 m/s design point, the hex wins** for any pack below **338 Wh/kg**. That covers every pack available today, though at the vendor's 303 Wh/kg only by +0.9 kg, inside the band.
+  - **With cruise speed free, the tri wins** for any pack above **177 Wh/kg**, by 2–3.5 kg at 303 Wh/kg.
+  - Every realistic pack sits between those two break-evens. So for 180–330 Wh/kg packs, **the answer is set by the speed requirement alone**.
+- **The battery is the second lever.**
+  - At 200 Wh/kg the hex's 34 % energy saving is worth 4.4 kg more than at 303 Wh/kg. At 15 m/s that makes the hex **+5.3 kg**, outside every band.
+  - Even at free speed it brings the race back to within a kilogram. With a bluff body the hex then wins by +0.7 kg.
+  - **The planned cell chemistry is now a first-order input** (queue item 25).
+- **The noise cap and the body shape each move the result by about 1 kg.** Each can flip a near-tie but not a clear result. Every margin above 2 kg survives the motor-fit band.
+- **The hex always uses 23–34 % less energy.** If the requirement is range at fixed payload, the hex wins under every assumption.
+
+**Hand check 1: the break-even specific energy.** The hex carries heavier hardware (Δhw = +7.66 kg: six motors, ESCs and longer arms, against the tri's three motors and tilt servo) and a smaller pack (Δpack < 0). The two tie when the battery saved weighs exactly the extra hardware, Δpack/e_b = −Δhw, so
+
+  e_b* = −Δpack / Δhw.
+
+- **15 m/s:** 2586 / 7.66 = **337.6 Wh/kg** ✓ (the curve's zero crossing is at 337.6).
+- **Free speed:** 1357 / 7.66 = **177.2 Wh/kg** ✓ (177.1).
+- **Reading it:** below e_b* each Wh is heavy, so the layout that saves energy (the hex) wins; above it, the layout with lighter hardware (the tri) wins.
+- **Cap 0.55:** the tri's hardware grows by 0.71 kg, so Δhw = 6.95 kg and e_b* = 2586 / 6.95 = 372 Wh/kg ✓.
+
+**Hand check 2: why the best speed does not depend on the battery.** The objective is hw + pack(V)/e_b. Hardware is sized by hover and does not depend on V, so
+
+  d/dV[hw + pack/e_b] = (1/e_b)·d(pack)/dV = 0  ⇔  d(pack)/dV = 0,
+
+and the best-range speed is the minimum-pack speed for any e_b. The 200 Wh/kg runs land on the same 24.8 and 21.1 m/s ✓. That would change only if hardware depended on speed, for example motors sized by a fast-cruise power instead of by hover torque.
+
+**Recommendation.**
+- **The two inputs that settle the layout are the 15 m/s requirement (a design point, or a minimum?) and the planned pack chemistry.** Both are for the project owner.
+- Until they are fixed, the hex is the safer choice. It wins or ties at the stated design point for every pack, and it always has the range.
+- The tri is the payload choice only if the vehicle is allowed to cruise at 21–25 m/s and the body is pre-tilted or streamlined.
+
+**Next.**
+- Queue item 9: camber for the blades. The blade trade study found camber pays mostly in cruise, and entry 17 showed cruise is the weak lever, so this is a quick check.
+- Then item 6 (3-blade rotors), the last blade idea still untried. Both now get run for the tri as well (item 26).
 
