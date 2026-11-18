@@ -20,7 +20,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 6. 3-blade coaxial: vibration (3P against 2P hub loads) and solidity per blade
 7. ~~Planar hexacopter against Y6: six isolated disks need a bigger frame, but they have no interference~~ (entry 09: hex best on energy, all three tie on payload)
 8. ~~Cruise speed per configuration~~ (entry 16: best-range speeds 21–25 m/s for all layouts; at its best speed the tri wins payload by 3.4 kg, the hex still wins energy by 25 %)
-9. Camber (64xx) for the coaxial blade: the blade trade study found camber pays mostly in cruise
+9. ~~Camber (64xx)~~ (entry 20: loses with torque-sized motors: hybrid −0.14/−0.18 kg, full 64xx −0.9/−1.1 kg for tri/hex; keep 44xx)
 10. Tip-speed limit: is 0.60 Mach still the right cap for the slower coaxial rotors (noise)?
 11. ~~Check the cruise wake-overlap model with a prescribed-wake (Biot–Savart) calculation~~ (entry 07: the lens model was optimistic; use the vortex-wake / biplane σ from now on)
 12. Mast structure at h/D 0.4–0.5: bending under motor-out and gust loads, first bending mode against 1P/2P, gyroscopic moments
@@ -37,7 +37,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 24. ~~Fuselage drag against pitch attitude~~ (entry 18: a bluff body costs the tri 2.5 kg and the hex 1.5 kg at free speed; a body built nose-down at the cruise attitude recovers it; the tri still leads by 2.2–3.4 kg)
 21. ~~Consolidated layout ranking with uncertainty bands~~ (entry 19: the speed requirement decides it; hex wins at 15 m/s for any pack below 338 Wh/kg, tri wins at free speed for any pack above 177 Wh/kg)
 25. Pack specific energy as a design input: which cell (semi-solid 303 vs LiPo 200 Wh/kg) is planned? It swings the 15 m/s result by 4.4 kg
-26. Camber (item 9) and 3-blade (item 6) for the tri blade, now that the tri leads at free speed
+26. 3-blade (item 6) for the tri and hex blades (camber done in entry 20)
+27. A less-cambered section (24xx) for the outboard blade: entry 20 shows the optimum runs at Cl 0.6–0.9, below 44xx's drag bucket
 
 ## Entries
 
@@ -1159,4 +1160,62 @@ and the best-range speed is the minimum-pack speed for any e_b. The 200 Wh/kg ru
 **Next.**
 - Queue item 9: camber for the blades. The blade trade study found camber pays mostly in cruise, and entry 17 showed cruise is the weak lever, so this is a quick check.
 - Then item 6 (3-blade rotors), the last blade idea still untried. Both now get run for the tri as well (item 26).
+
+## 20 — Camber with torque-sized motors (2026-11-18)
+
+**Question.** The Phase 2 blade uses NACA 44xx (4 % camber at 40 % chord). The blade trade study found that more camber (64xx) pays mostly in cruise. With the motor now in the objective (entries 11 and 13), does a more cambered section still help, for the tri or the hex?
+
+**Method** (`src/explore/e20_camber.py`). Entries 11 (hex) and 13 (tri) are re-run with two other section families, starting from their 44xx optima, at the 15 m/s design point:
+- **64/44 hybrid:** 6 % camber where t/c ≥ 15 % (inboard), 4 % where t/c ≤ 12 %, blended between, as in the blade trade study.
+- **64xx:** 6 % camber over the whole span.
+
+The XFOIL 64xx polars come from the blade trade study's cache, on the same Re/Mach grid. Seven of the 80 cases are only partly converged (9–31 points), and the interpolant bridges them. Payload is scored on the same absolute bookkeeping as entries 11 and 13: the tri against its 44xx reference, the hex against the Phase 2 tri.
+
+**Results** (payload change against each layout's 44xx optimum):
+
+| Layout | Section | Hover rpm | σ | Q_max [N·m] | Motor [kg] | Blade [kg] | Pack [Wh] | **Δ payload [kg]** |
+|---|---|---|---|---|---|---|---|---|
+| tri | 44xx (entry 13) | 2141 | 0.140 | 50.6 | 4.53 | 0.475 | 7422 | 0 |
+| tri | 64/44 hybrid | 2142 | 0.135 | 50.9 | 4.55 | 0.471 | 7453 | **−0.14** |
+| tri | 64xx | 2146 | 0.142 | 51.2 | 4.58 | 0.529 | 7554 | **−0.93** |
+| hex | 44xx (entry 11) | 1783 | 0.128 | 22.6 | 2.03 | 0.451 | 5113 | 0 |
+| hex | 64/44 hybrid | 1774 | 0.128 | 22.8 | 2.05 | 0.451 | 5131 | **−0.18** |
+| hex | 64xx | 1646 | 0.130 | 24.3 | 2.18 | 0.454 | 5177 | **−1.14** |
+
+**Finding.**
+- **Camber loses on both layouts. Keep 44xx.** The hybrid costs about 0.15 kg. Full-span 64xx costs about 1 kg, through both a larger pack and a heavier motor.
+- **Why, in one line:** a cambered section is best at a high lift coefficient, but **torque-sized motors push the rotor to spin fast at a low lift coefficient**.
+  - At the optimum, the sections run at Cl ≈ 0.6–0.9. There the 64xx has **13–36 % more drag** than the 44xx (hand check 2).
+  - The alternative is to let the 64xx run at its own best Cl, which slows the rotor. On the hex 64xx that drops hover to 1646 rpm, and the torque and motor mass rise (+0.15 kg per rotor).
+- **This reverses the blade trade study's lean towards camber.** That study held the motor fixed, which is the same "what the objective holds fixed is free" lesson as entries 03 and 11.
+- **The opposite direction may pay:** a *less* cambered outboard section (24xx) whose drag bucket sits at Cl 0.6–0.8 (queue item 27).
+
+**Hand check 1: thin-airfoil zero-lift angle.** For the NACA 4-digit camber line (maximum camber m at chord position p), dz/dx = (2m/p²)(p − x) forward of p and (2m/(1−p)²)(p − x) aft of it. With x = ½(1 − cos θ),
+
+  α_L0 = −(1/π) ∫₀^π (dz/dx)(cos θ − 1) dθ.
+
+- **44xx:** α_L0 = **−4.15°** (the published NACA 4412 value is about −4.0°).
+- **64xx:** α_L0 = **−6.23°**.
+
+α_L0 is linear in m, so the extra 2 % of camber is equivalent to **2.08° more pitch** at the same geometric twist.
+
+**Hand check 2: the drag at the lift where the rotor runs.** From the polars at Re 6×10⁵, M 0.30:
+
+| Cl | 44xx t/c 9 % | 64xx t/c 9 % | 44xx t/c 12 % | 64xx t/c 12 % |
+|---|---|---|---|---|
+| 0.6 | 0.00620 | 0.00843 (+36 %) | 0.00706 | 0.00929 (+32 %) |
+| 0.8 | 0.00727 | 0.00811 (+12 %) | 0.00799 | 0.00942 (+18 %) |
+| 1.0 | 0.00853 | 0.00821 (−4 %) | 0.00914 | 0.00940 (+3 %) |
+| best Cl^1.5/Cd | 122.7 at Cl 1.11 | **150.6** at Cl 1.44 | 124.4 at Cl 1.22 | **142.5** at Cl 1.49 |
+
+- **Where 64xx wins:** at its own best point, by about 20 % on Glauert's hover section figure Cl^1.5/Cd. That figure is the right one when the rpm is free and nothing else costs. Profile power at fixed thrust goes as σ·Cd with σ ∝ 1/Cl (C_T = σ·Cl/6), and induced power is fixed.
+- **Where it loses:** only above Cl ≈ 1.0. Running a blade at Cl 1.4 means a slower rotor and more torque, which the motor term forbids.
+
+**Hand check 3: the torque cost of the extra camber at fixed geometry.** At fixed thrust, the 64xx start blade (the 44xx optimum's geometry) behaves as if pitched up 2.08°, so it trims at lower rpm. Shaft power is mostly induced and barely changes, so
+
+  Q = P/Ω ∝ 1/Ω,  hand Q₆₄/Q₄₄ = 1783/1574 = **1.13**, model 25.07/22.62 = **1.11** ✓.
+
+The optimiser then strips the extra pitch back out (hover 1574 → 1646 rpm). That puts the sections at low Cl, where the 64xx section drags more, and leaves the blade worse than the 44xx at either end.
+
+**Next.** Queue item 6 / 26: 3-blade rotors for the tri and hex. A third blade at the same solidity lowers the tip-loss factor and the hub vibration (3P), at the cost of a heavier hub and narrower chords, which are harder on the spar model.
 
