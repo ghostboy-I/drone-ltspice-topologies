@@ -1,4 +1,4 @@
-"""Builds 10_KiCad_Entry_Guide.pdf: everything needed to enter the two boards into KiCad by hand, block by block,
+"""Builds 11_KiCad_Entry_Guide.pdf: everything needed to enter the two boards into KiCad by hand, block by block,
 cross-referenced to the LTspice schematics (same reference designators, same block numbers, same net names)."""
 import os, sys, textwrap, re
 here = os.path.dirname(os.path.abspath(__file__))
@@ -7,7 +7,7 @@ import paths  # noqa: F401  (topology 10 parts tables + tools)
 from designdoc import Doc
 from board import eng
 import esc, avionics
-from kicad_export import Resolver, CUSTOM, fp_ok
+from kicad_export import Resolver, CUSTOM
 
 ROWS = 26                                   # table rows per chunk (a table must fit on one page)
 
@@ -76,8 +76,11 @@ doc.bullets([
     "and the MOTOR blocks.",
     "Pins are written NAME(pad) when the name differs from the pad number, e.g. G(1) D(2) S(3), or SENSE+(24). Use the pad "
     "number when you draw the symbol; it must match the footprint.",
-    "Footprints are KiCad 9 library names (checked to exist). 'custom' means there is no stock footprint: make it from the "
-    "manufacturer's drawing.",
+    "Footprints: every one is in the project library 10_Hardware_Schematics_ESC_Avionics/kicad/Drone_Power.pretty. Stock KiCad "
+    "footprints are copied in under their KiCad names; four were made from the manufacturers' drawings: LT8641 UDC QFN "
+    "(Linear_UDC-18-2EP), LTC7801 FE24 (Linear_HTSSOP-24-1EP..._EP2.74x3.25mm), the AS150 pigtail pads and the 8 AWG phase pads.",
+    "The generated KiCad projects (kicad/ESC_Board, kicad/Avionics_Board) already contain all of this: schematic, symbols, and a "
+    "PCB with every footprint loaded and on its net. Use this guide to check them, or to enter the boards by hand.",
 ])
 
 doc.h("2. Symbols and pin numbers")
@@ -89,11 +92,13 @@ doc.table(["Part", "KiCad symbol", "Pin numbering (must match the footprint)"], 
     ["BSP89 (SOT-223)", "Transistor_FET:BSP89", "G = 1, D = 2 (tab), S = 3"],
     ["ACS770LCB-200B", "Sensor_Current:ACS770xCB-200B-PFF", "VCC 1, GND 2, VIOUT 3, IP+ 4, IP− 5"],
     ["STM32G431CBT6", "MCU_ST_STM32G4:STM32G431CBTx", "by pin name (PA8, PB12, VDD, ...)"],
-    ["LT3045 (avionics)", "Regulator_Linear:LT3045xDD", "by pin name"],
-    ["LTC7801, LTC7063, LT1763…", "none: make it (tables below)", "or ADI / SnapEDA symbol"],
+    ["LT3045 (avionics)", "Regulator_Linear:LT3045xDD", "by pin name; pad 11 = GND"],
+    ["SMBJ110A TVS, fuses", "Device:D_Zener, Device:Fuse", "K = 1, A = 2; 1, 2"],
+    ["LTC7801, LTC7063, LT1763, LT8641", "generated: <Board>_custom.kicad_sym", "tables below"],
 ], widths=[0.30, 0.37, 0.33])
 for name, title in (("LTC7801", "LTC7801EFE (TSSOP-24 with exposed pad, pad 25 = GND)"), ("LTC7063", "LTC7063EMSE (MSOP-12 with exposed pad, pad 13 = SGND)"),
-                    ("LT1763-5", "LT1763CS8-5 / -3.3 (SO-8)")):
+                    ("LT1763-5", "LT1763CS8-5 / -3.3 (SO-8)"),
+                    ("LT8641", "LT8641EUDC (UDC 20(18)-lead QFN 3x4 mm: pads 5 and 12 removed, 21 and 22 = exposed SW pads)")):
     pins = sorted(((int(n), nm) for nm, ns in CUSTOM[name]["pins"].items() for n in ns))
     doc.p(f"{title}. Read from ADI's pin-configuration drawings:", size=9.5)
     half = (len(pins) + 1) // 2
@@ -102,8 +107,6 @@ for name, title in (("LTC7801", "LTC7801EFE (TSSOP-24 with exposed pad, pad 25 =
         a = pins[i]; b = pins[i + half] if i + half < len(pins) else None
         rows.append([str(a[0]), a[1].replace("_", "~"), str(b[0]) if b else "", (b[1].replace("_", "~") if b else "")])
     doc.table(["Pad", "Name", "Pad", "Name"], rows, widths=[0.12, 0.38, 0.12, 0.38])
-doc.p("LT8641 (avionics U2, LQFN-18): its pinout is not reproduced here. Take the symbol and footprint from ADI's LT8641 page or "
-      "SnapEDA, and connect it by pin name as listed in its wiring table.", size=9.5)
 
 for B, prefix, name in ((esc.build(), "ESC", "ESC board (one per motor)"), (avionics.build(), "Avionics", "Avionics power board")):
     doc.pagebreak()

@@ -19,6 +19,7 @@
 | `*_BOM.csv` | Reference, quantity, description, value, part number / specification, **KiCad footprint**, rating |
 | `*_Netlist.csv` | Every net with every `REF.pin` on it, the wiring list for KiCad (simulation-only parts removed) |
 | `plot_results.py`, `make_design_doc.py` | Plots and the design PDF |
+| `kicad_footprints.py`, `kicad_export.py`, `kicad_check.py` | KiCad: footprint library, both projects with PCBs, and the checks (see below) |
 
 ## Running the simulations
 Open the `.asc` in LTspice and press Run, or in batch:
@@ -38,19 +39,48 @@ The whole system, with both boards drawn part by part and wired to three packs a
 [11](../11_Whole_System_Schematic/README.md) (`Power_System.asc`, the drawn board sheets and the KiCad entry guide).
 The block diagram of everything, with part numbers, is in [System_Flowchart](../System_Flowchart/README.md).
 
-## KiCad project (ESC board)
-`kicad/ESC_Board/` is a generated KiCad 9 project (`python3 kicad_export.py esc`): 189 parts with stock KiCad symbols and footprints
-wherever they exist. The LTC7801 (FE TSSOP-24), LTC7063 (MSE-12) and LT1763 (S8) symbols are generated from ADI's
-pin-configuration drawings and live in `ESC_Board_custom.kicad_sym`. Wiring uses the same net labels as the LTspice schematic.
-Checked: ERC 0 violations, and KiCad's exported net list matches the parts table pin for pin (`expected_nets.json`, 92 nets including the per-FET gate nets).
-J1 (AS150) has no stock footprint. Open `ESC_Board.kicad_pro`, then **Tools → Update PCB from Schematic** to start layout.
-The avionics board can be generated the same way (`python3 kicad_export.py avionics`; not yet checked).
+## KiCad projects (both boards): schematic, footprints and PCB
+```bash
+python3 kicad_export.py all     # footprint library + both projects + overview plots
+python3 kicad_check.py          # ERC, net list vs parts table, footprints, schematic-PCB parity (KiCad itself)
+```
+| Folder | What it is |
+|---|---|
+| `kicad/Drone_Power.pretty/` | **Every footprint both boards use (38).** 34 are KiCad 9 stock footprints, copied in under their KiCad names (`kicad_footprints.py`). 4 are not in KiCad's library and are generated from the manufacturers' drawings (table below) |
+| `kicad/ESC_Board/` | Schematic (189 parts), `ESC_Board.kicad_pcb` with all 189 footprints loaded and every pad on its net, `fp-lib-table` / `sym-lib-table` |
+| `kicad/Avionics_Board/` | The same for the avionics board (67 parts) |
+| `kicad/*_footprints.png` | KiCad's plot of each imported PCB: footprints parked by schematic block, ready for placement |
+
+The PCBs are what **Tools → Update PCB from Schematic** would give: each footprint is linked to its symbol (same UUID path),
+the nets come from KiCad's own net list of the schematic, and attributes (DNP, BOM) follow the symbols. There is no board
+outline yet; draw it on Edge.Cuts, then place and route. The only DRC error today is that missing outline.
+
+| Generated footprint | Part | Source |
+|---|---|---|
+| `Linear_UDC-18-2EP_3x4mm_P0.5mm` | LT8641 (avionics U2) | LT8641 datasheet Rev B: UDC 20(18)-lead QFN 3 × 4 mm, DWG 05-08-1956 Rev C. 0.25 × 0.70 mm lands at 0.5 mm, pins 5 and 12 removed, two exposed SW pads (21: 0.22 × 0.40 mm, 22: 0.22 × 0.356 mm) |
+| `Linear_HTSSOP-24-1EP_4.4x7.8mm_P0.65mm_EP2.74x3.25mm` | LTC7801 (U1, both boards) | LTC DWG 05-08-1771 Rev B, FE24 exposed pad variation AA: 0.45 × 1.05 mm lands, exposed pad 2.74 × 3.25 mm = GND, 2 × 2 paste windows |
+| `AMASS_AS150_Pigtail_2x8AWG_P15mm` | J1, ESC battery input | The AS150's two 8 AWG pigtail leads: 5.1 mm drill, 8.4 mm pads, 15 mm pitch (6.6 mm copper gap on the 100 V bus). Pad 1 = +, pad 2 = − |
+| `SolderWire-8AWG_1x01_D4.2mm_OD7mm` | J2–J4, motor phase leads | 8 AWG silicone lead (4.2 mm conductor): KiCad's wire-pad rule, drill = conductor + 0.9 mm |
+
+**Checked** (`kicad_check.py`): ERC 0 errors / 0 warnings on both boards; KiCad's net list equals the parts table on all
+92 + 40 nets; every symbol pin has a pad of the same number; schematic-PCB parity 0 issues; polarised capacitors have pad 1
+(+) off ground. Pads without a net are only unused MCU pins, the LTC7063 NC pins, TC2030 pad 6 (SWO) and connector
+mounting tabs. Re-running the export gives identical files (UUIDs are derived from the board name).
+
+**Corrected while importing the footprints**
+- The LTC7801 had been given an HTSSOP-24 footprint whose 3.2 × 5 mm exposed pad comes from an ST drawing; ADI's FE24 pad is
+  2.74 × 3.25 mm, so that land would have printed about 1.8× too much solder paste under the chip.
+- The LT8641 is in ADI's UDC QFN (LT8641EUDC#PBF), not an LQFN: the BOM part number and package are fixed.
+- J7 (Tag-Connect TC2030) had SWCLK and NRST swapped against the TC2030-CTX cable (pads 1 VCC, 2 SWDIO, 3 nRESET, 4 SWCLK,
+  5 GND): now NRST is pad 3 and SWCLK pad 4.
+- The motor phase pads were KiCad's 2.5 mm² wire pad, far too small for the 6–8 AWG phase leads; now 8 AWG pads.
+- SMBJ110A is unidirectional, so it uses `Device:D_Zener` (K = 1, A = 2) instead of the bidirectional `D_TVS`; fuses use `Device:Fuse`.
 
 ## Porting to KiCad by hand
 1. **One schematic per board**, with one hierarchical sheet per numbered block (the framed areas in the `.asc`): e.g. ESC = 1 power input, 2 aux supply, 3 logic supplies, 4–6 legs A/B/C, 7 current sense, 8 MCU and connectors. Use global labels for the nets that cross sheets (`VBUS`, `+12V`, `+5V`, `+3V3`, `PWM_A`…).
-2. **Symbols.** KiCad's stock library has the STM32G431CBTx, the ACS770 family, the LT3045 and the AS5047. The **LTC7801, LTC7063, LT8641 and LT1763 are not in KiCad's library**: download them from ADI's product pages or SnapEDA / Ultra Librarian. Pin names in the net list are LTspice's names (`SENSE+`, `BGRTN`, `_FLT` = FLT-bar, `_SHDN` = SHDN-bar); match them to the datasheet pin names, not to pin numbers.
+2. **Symbols.** KiCad's stock library has the STM32G431CBTx, the ACS770 family, the LT3045 and the AS5047. The **LTC7801, LTC7063, LT8641 and LT1763 are not in KiCad's library**: use the generated ones in `kicad/<Board>/<Board>_custom.kicad_sym`. Pin names in the net list are LTspice's names (`SENSE+`, `BGRTN`, `_FLT` = FLT-bar, `_SHDN` = SHDN-bar); match them to the datasheet pin names, not to pin numbers.
 3. **Wire from `*_Netlist.csv`**: each row is one net and every pin on it. Parts listed with a quantity (e.g. `Q4 Q5 Q6 Q7`) are parallel copies with identical connections.
-4. **Footprints** are in the BOM, by their KiCad library names (checked to exist in KiCad 9). Two are marked *custom*: the LT8641's LQFN-18 and the AS150 battery connector.
+4. **Footprints** are all in `kicad/Drone_Power.pretty` (add it to your footprint library table). The BOM gives each one by its KiCad library name; the four `Drone_Power:` ones are generated from the manufacturers' drawings.
 5. **The MCU pin map is a proposal.** TIM1 CH1–3 on PA8–PA10 for the gate drivers, ADC1 on PA0–PA3, SPI1 on PA4–PA7 for the encoder, SWD on PA13/PA14. Check every alternate function in STM32CubeMX before you route.
 
 ## Layout rules that the schematic can't show

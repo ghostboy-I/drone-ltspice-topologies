@@ -1,0 +1,4 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "Drone_Power")(type "KiCad")(uri "${KIPRJMOD}/../Drone_Power.pretty")(options "")(descr "every footprint of the ESC and avionics boards: KiCad stock copies + generated from ADI/AMASS drawings"))
+)

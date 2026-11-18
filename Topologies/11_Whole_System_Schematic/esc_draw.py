@@ -322,7 +322,7 @@ def esc_sheet():
     cx = 6500
     s.conn(cx + 300, 3000, "J5", "JST GH 3: 1 SIG_EXT (DShot in), 2 TLM_TX, 3 GND", w=420, side="R")
     s.conn(cx + 300, 3160, "J6", "JST GH 6 to AS5047P encoder: +5V GND ENC_CS SCK MISO MOSI", w=420, side="R")
-    s.conn(cx + 300, 3320, "J7", "Tag-Connect SWD: +3V3 SWDIO SWCLK NRST GND", w=420, side="R")
+    s.conn(cx + 300, 3320, "J7", "TC2030 SWD: 1 +3V3, 2 SWDIO, 3 NRST, 4 SWCLK, 5 GND", w=420, side="R")
     s.text(mx + 700, my + 300, ";ENC_THETA / ENC_OMEGA: the encoder's angle and speed (SPI data on the real board), from the motor block", 2)
     s.flag((mx - 1100, my + 360), "NRST"); _, c = s.two(crst, (mx - 1100, my + 360), "D"); s.gnd(c)
     s.text(mx - 1240, my + 520, ";reset cap", 2)

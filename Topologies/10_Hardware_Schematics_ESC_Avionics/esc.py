@@ -22,8 +22,8 @@ def build(block=False):
     if not block:
         B.add(b, Part("V_PACK", "voltage", g(h.V_NOM), {"+": "VP", "-": "0"}, sim=True, spice=f"Rser={g(h09.Rpk)}"))
         B.add(b, Part("L_HARN", "ind", g(h09.Lh), {"1": "VP", "2": "VBUS"}, sim=True, spice=f"Rser={g(h09.Rh)}"))
-    B.add(b, Part("J1", None, "", {"+": "VBUS", "-": "0"}, desc="Battery input, anti-spark", pn="AMASS AS150 (male, PCB) or pads for AS150 leads",
-                  fp="custom: AS150 (no stock KiCad footprint) or two large solder pads for AS150 pigtail leads", rating="150 A, 24S", note="anti-spark contact limits plug-in current"))
+    B.add(b, Part("J1", None, "", {"+": "VBUS", "-": "0"}, desc="Battery input, anti-spark", pn="AMASS AS150 with factory 8 AWG pigtail (male)",
+                  fp="Drone_Power:AMASS_AS150_Pigtail_2x8AWG_P15mm", rating="150 A, 24S", note="anti-spark contact limits plug-in current"))
     B.add(b, Part("C1", "cap", "150µ", {"1": "VBUS", "2": "0"}, spice="Rser=20m", mult=16, desc="DC-link bulk, hybrid polymer",
                   pn="150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ", fp="Capacitor_SMD:CP_Elec_10x12.5 (check the can size of the chosen part)", rating="125 V"))
     B.add(b, Part("C17", "cap", "1.1µ", {"1": "VBUS", "2": "0"}, spice="Rser=5m", mult=10, bomval="2.2µ", desc="DC-link ceramic, at the FETs",
@@ -45,7 +45,7 @@ def build(block=False):
         "ITH": "ITH_AUX", "MODE": "0", "CPUMP_EN": "INTVCC_AUX", "PLLIN": "0", "PGOOD": "PG_AUX", "FREQ": "FREQ_AUX",
         "DRVSET": "DRVSET_AUX", "DRVUV": "0", "TG": "TG_AUX", "SW": "SW_AUX", "BOOST": "BST_AUX", "BG": "BG_AUX", "DRVCC": "DRVCC_AUX",
         "NDRV": "NDRV_AUX", "EXTVCC": "+12V", "INTVCC": "INTVCC_AUX", "GND": "0"},
-        desc="150 V synchronous buck controller", pn="LTC7801EFE (TSSOP-24 with exposed pad)", fp="Package_SO:HTSSOP-24-1EP_4.4x7.8mm_P0.65mm_EP3.2x5mm (check EP size vs ADI FE24 drawing)",
+        desc="150 V synchronous buck controller", pn="LTC7801EFE (TSSOP-24 with exposed pad)", fp="Drone_Power:Linear_HTSSOP-24-1EP_4.4x7.8mm_P0.65mm_EP2.74x3.25mm",
         rating="150 V"), dx=260)
     B.add(b, Part("Q1", "nmos", "BSC520N15NS3", {"D": "VBUS", "G": "TG_AUX", "S": "SW_AUX"}, desc="N-MOSFET 150 V 52 mΩ (top)",
                   pn="Infineon BSC520N15NS3", fp="Package_TO_SOT_SMD:TDSON-8-1", rating="150 V 21 A"))
@@ -159,14 +159,15 @@ def build(block=False):
     B.add(b, Part(f"D{take('D')}", "diode", "QTLP690C", {"A": "+3V3", "K": "LED_K"}, desc="Status LED (green, 0603)", pn="any 0603 green LED",
                   fp="LED_SMD:LED_0603_1608Metric", spice=""))
     B.add(b, R(f"R{take('R')}", "100", "SIG_EXT", "SIG_IN", desc="Signal input series (DShot / PWM)"))
-    B.add(b, Part("J2", None, "", {"1": "MOT_A"}, desc="Motor phase A (8 mm bullet or solder pad)", pn="8 mm bullet / pad", fp="Connector_Wire:SolderWire-2.5sqmm_1x01_D2.4mm_OD3.6mm"))
-    B.add(b, Part("J3", None, "", {"1": "MOT_B"}, desc="Motor phase B", pn="8 mm bullet / pad", fp="Connector_Wire:SolderWire-2.5sqmm_1x01_D2.4mm_OD3.6mm"))
-    B.add(b, Part("J4", None, "", {"1": "PH_C"}, desc="Motor phase C", pn="8 mm bullet / pad", fp="Connector_Wire:SolderWire-2.5sqmm_1x01_D2.4mm_OD3.6mm"))
+    B.add(b, Part("J2", None, "", {"1": "MOT_A"}, desc="Motor phase A (8 mm bullet or solder pad)", pn="8 AWG lead pad (8 mm bullet on the lead)", fp="Drone_Power:SolderWire-8AWG_1x01_D4.2mm_OD7mm"))
+    B.add(b, Part("J3", None, "", {"1": "MOT_B"}, desc="Motor phase B", pn="8 AWG lead pad (8 mm bullet on the lead)", fp="Drone_Power:SolderWire-8AWG_1x01_D4.2mm_OD7mm"))
+    B.add(b, Part("J4", None, "", {"1": "PH_C"}, desc="Motor phase C", pn="8 AWG lead pad (8 mm bullet on the lead)", fp="Drone_Power:SolderWire-8AWG_1x01_D4.2mm_OD7mm"))
     B.add(b, Part("J5", None, "", {"1": "SIG_EXT", "2": "TLM_TX", "3": "0"}, desc="Signal from flight controller (DShot in, telemetry out)",
                   pn="JST GH 3 pin", fp="Connector_JST:JST_GH_BM03B-GHS-TBT_1x03-1MP_P1.25mm_Vertical"))
     B.add(b, Part("J6", None, "", {"1": "+5V", "2": "0", "3": "ENC_CS", "4": "ENC_SCK", "5": "ENC_MISO", "6": "ENC_MOSI"},
                   desc="Rotor encoder (AS5047P on the motor, SPI)", pn="JST GH 6 pin", fp="Connector_JST:JST_GH_BM06B-GHS-TBT_1x06-1MP_P1.25mm_Vertical"))
-    B.add(b, Part("J7", None, "", {"1": "+3V3", "2": "SWDIO", "3": "SWCLK", "4": "NRST", "5": "0"}, desc="SWD programming",
+    B.add(b, Part("J7", None, "", {"1": "+3V3", "2": "SWDIO", "3": "NRST", "4": "SWCLK", "5": "0"},
+                  desc="SWD programming, Tag-Connect TC2030 pad order (6 = SWO, unused)",
                   pn="Tag-Connect TC2030-NL", fp="Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical"))
     B.add(b, Part("B_MCU", "bi", f"I={h.I_MCU}*limit(V(+3V3)/3,0,1)", {"+": "+3V3", "-": "0"}, sim=True))
     B.add(b, Part("B_ENC", "bi", f"I={h.I_ENC}*limit(V(+5V)/4.5,0,1)", {"+": "+5V", "-": "0"}, sim=True))

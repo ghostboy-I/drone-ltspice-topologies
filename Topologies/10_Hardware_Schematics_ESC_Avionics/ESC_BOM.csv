@@ -30,13 +30,13 @@ C64,1,12 V bulk: absorbs the bootstrap charge (3 x 1 µF) when the drivers enabl
 D1 D2 D3,3,"Bootstrap diode, ultrafast 200 V",ES1D,ES1D,Diode_SMD:D_SMA,200 V 1 A
 D4,1,"Status LED (green, 0603)",QTLP690C,any 0603 green LED,LED_SMD:LED_0603_1608Metric,
 FB1,1,Ferrite bead 600 Ω @ 100 MHz,600R@100MHz,Murata BLM18PG601SN1,Inductor_SMD:L_0603_1608Metric,
-J1,1,"Battery input, anti-spark",,"AMASS AS150 (male, PCB) or pads for AS150 leads",custom: AS150 (no stock KiCad footprint) or two large solder pads for AS150 pigtail leads,"150 A, 24S"
-J2,1,Motor phase A (8 mm bullet or solder pad),,8 mm bullet / pad,Connector_Wire:SolderWire-2.5sqmm_1x01_D2.4mm_OD3.6mm,
-J3,1,Motor phase B,,8 mm bullet / pad,Connector_Wire:SolderWire-2.5sqmm_1x01_D2.4mm_OD3.6mm,
-J4,1,Motor phase C,,8 mm bullet / pad,Connector_Wire:SolderWire-2.5sqmm_1x01_D2.4mm_OD3.6mm,
+J1,1,"Battery input, anti-spark",,AMASS AS150 with factory 8 AWG pigtail (male),Drone_Power:AMASS_AS150_Pigtail_2x8AWG_P15mm,"150 A, 24S"
+J2,1,Motor phase A (8 mm bullet or solder pad),,8 AWG lead pad (8 mm bullet on the lead),Drone_Power:SolderWire-8AWG_1x01_D4.2mm_OD7mm,
+J3,1,Motor phase B,,8 AWG lead pad (8 mm bullet on the lead),Drone_Power:SolderWire-8AWG_1x01_D4.2mm_OD7mm,
+J4,1,Motor phase C,,8 AWG lead pad (8 mm bullet on the lead),Drone_Power:SolderWire-8AWG_1x01_D4.2mm_OD7mm,
 J5,1,"Signal from flight controller (DShot in, telemetry out)",,JST GH 3 pin,Connector_JST:JST_GH_BM03B-GHS-TBT_1x03-1MP_P1.25mm_Vertical,
 J6,1,"Rotor encoder (AS5047P on the motor, SPI)",,JST GH 6 pin,Connector_JST:JST_GH_BM06B-GHS-TBT_1x06-1MP_P1.25mm_Vertical,
-J7,1,SWD programming,,Tag-Connect TC2030-NL,Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical,
+J7,1,"SWD programming, Tag-Connect TC2030 pad order (6 = SWO, unused)",,Tag-Connect TC2030-NL,Connector:Tag-Connect_TC2030-IDC-NL_2x03_P1.27mm_Vertical,
 L1,1,Power inductor 150 µH,150µ,"shielded, Isat ≥ 1 A, DCR ≤ 0.4 Ω",Inductor_SMD:L_Bourns_SRR1260,Isat 1 A
 Q1,1,N-MOSFET 150 V 52 mΩ (top),BSC520N15NS3,Infineon BSC520N15NS3,Package_TO_SOT_SMD:TDSON-8-1,150 V 21 A
 Q2,1,N-MOSFET 150 V 36 mΩ (bottom),BSC360N15NS3,Infineon BSC360N15NS3,Package_TO_SOT_SMD:TDSON-8-1,150 V 30 A
@@ -67,7 +67,7 @@ R71 R73,2,"ADC scaling (2/3), bottom",20k,"1 %, thick film",Resistor_SMD:R_0603_
 R74,1,BOOT0 pull-down,10k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
 R75,1,LED series,1k,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
 R76,1,Signal input series (DShot / PWM),100,"1 %, thick film",Resistor_SMD:R_0603_1608Metric,
-U1,1,150 V synchronous buck controller,LTC7801,LTC7801EFE (TSSOP-24 with exposed pad),Package_SO:HTSSOP-24-1EP_4.4x7.8mm_P0.65mm_EP3.2x5mm (check EP size vs ADI FE24 drawing),150 V
+U1,1,150 V synchronous buck controller,LTC7801,LTC7801EFE (TSSOP-24 with exposed pad),Drone_Power:Linear_HTSSOP-24-1EP_4.4x7.8mm_P0.65mm_EP2.74x3.25mm,150 V
 U2,1,"500 mA low-noise LDO, 5 V",LT1763-5,LT1763CS8-5 (SO-8),Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,20 V
 U3,1,"500 mA low-noise LDO, 3.3 V",LT1763-3.3,LT1763CS8-3.3 (SO-8),Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,20 V
 U4 U5 U6,3,"150 V half-bridge gate driver, floating grounds",LTC7063,LTC7063EMSE (MSOP-12),Package_SO:MSOP-12-1EP_3x4.039mm_P0.65mm_EP1.651x2.845mm,150 V

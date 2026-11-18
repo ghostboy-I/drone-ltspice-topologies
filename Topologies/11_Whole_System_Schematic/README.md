@@ -29,6 +29,7 @@ same parts tables as the topology 10 BOM, so the drawing and the BOM cannot disa
 | `esc_draw.py`, `avionics_draw.py`, `circuits.py` | The drawn board sheets (the LTC7801 buck layout is shared) |
 | `draw.py`, `tablesheet.py` | Drawing library: symbols, rotation, wires, lint, and the LTspice-netlist check |
 | `make_kicad_guide.py` → `11_KiCad_Entry_Guide.pdf` | Every part, pin, pad and net, for entering the boards into KiCad by hand |
+| KiCad projects | Both boards as KiCad 9 projects with every footprint imported onto the PCB: `../10_Hardware_Schematics_ESC_Avionics/kicad/` (`kicad_export.py all`, checked by `kicad_check.py`) |
 | `make_design_doc.py` → `11_Whole_System_Schematic_Design.pdf` | The math, hand vs. LTspice, plots |
 | `paths.py` | Lets the scripts import topology 10's parts tables and `../tools` |
 
