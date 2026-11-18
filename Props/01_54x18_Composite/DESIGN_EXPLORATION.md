@@ -42,7 +42,9 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 27. ~~A less-cambered section (24xx)~~ (entry 22: hex +1.0 kg with 24xx full span, tri +0.25 kg with the 44/24 hybrid)
 29. ~~Camber sweep below 2 % (14xx, 00xx outboard)~~ (entry 23: 2 % is the optimum; 14xx −0.11 kg, 00xx −0.94 kg on the hex vs 24xx; tri prefers 44/24)
 30. ~~Re-run the entry 14–19 chain with the best-camber blades~~ (entry 24: hex leads by +1.73 kg at 15 m/s, now outside the motor-fit band; tri leads by 2.2 kg at free speed; break-even batteries 382 / 204 Wh/kg)
-31. A custom outboard section with its drag bucket centred on Cl ≈ 0.3 (e.g. a thinner 2 % section, t/c 7–8 %, or a laminar 63-2xx): the remaining camber lever once the NACA 4-digit family is exhausted
+31. ~~A section designed for Cl ≈ 0.3 (NACA 230xx)~~ (entry 25: −1.1 kg hex, −0.9 kg tri vs 24xx; its forward camber peak moves transition from 76 % to 37 % chord. 24xx's bucket is already at Cl 0.25–0.30)
+32. Camber further aft at 2 % (NACA 25xx, 26xx): a longer favourable pressure gradient on the upper surface should hold transition further back; the lever entry 25 points to
+33. A laminar-flow section from coordinates (NACA 63-2xx / 64-2xx, or an XFOIL-designed section): needs coordinate generation, since XFOIL's NACA command only builds 4- and 5-digit sections
 
 ## Entries
 
@@ -1422,3 +1424,49 @@ Change in (hex − tri) payload = −(6.653 − 7.662) − (−2544 + 2586)/303.
 - Queue item 31: a custom outboard section with its drag bucket at Cl ≈ 0.3 (thinner 2 % section, or a laminar 6-series section). This is the remaining aerofoil lever, and from this entry it is worth more to the hex than to the tri.
 - Queue item 10: tip speed against noise. The hex now runs faster (1973 rpm hover), which raises its tip Mach and noise. That should be in the ranking if noise is a requirement.
 - Still waiting on the user: the 15 m/s requirement and the battery chemistry. With the new break-evens, a LiPo pack would make the hex the choice in nearly every scenario.
+
+
+## 25 — NACA 230xx: a section designed for Cl 0.3 (2026-11-18)
+
+**Question.** Entry 23 found that the hex rotor runs its sections at Cl ≈ 0.3 and the tri at ≈ 0.4, and queue item 31 asked for a section "with its drag bucket at Cl ≈ 0.3". The NACA 5-digit family is specified by exactly that: the first digit L sets the design lift coefficient Cl_i = 0.15 L, so **230xx is designed for Cl_i = 0.30**, with its camber peak forward at 15 % chord. New XFOIL polars for 230xx, t/c 9–18 %, same grid (80 cases, all converged, 684 s). Same optimisers as entries 20–23 (motor in the objective, 15 m/s), started from the 44xx optima. Script `src/explore/e25_naca230.py`, results `results/explore/e25_naca230.json` / `.png`.
+
+| Layout | Section | Hover rpm | σ | Q_max [N·m] | Motor [kg] | Pack [Wh] | Hover stall margin | Δ payload vs 44xx | **vs best 2 % (24xx / 44-24)** |
+|---|---|---|---|---|---|---|---|---|---|
+| hex | 24xx (entry 22) | 1973 | 0.131 | 20.5 | 1.84 | 5139 | 9.4° | +1.03 | 0 |
+| hex | 230xx | 1944 | 0.134 | 21.5 | 1.93 | 5304 | 9.5° | −0.09 | **−1.13** |
+| hex | 24/230 hybrid | 1956 | 0.133 | 21.3 | 1.91 | 5286 | 9.4° | +0.06 | **−0.97** |
+| tri | 44/24 hybrid (entry 22) | 2135 | 0.151 | 50.6 | 4.53 | 7367 | 8.3° | +0.25 | 0 |
+| tri | 230xx | 2128 | 0.158 | 51.9 | 4.64 | 7505 | 8.4° | −0.69 | **−0.94** |
+| tri | 44/230 hybrid | 2131 | 0.153 | 51.8 | 4.63 | 7489 | 8.3° | −0.54 | **−0.79** |
+
+**Finding.**
+- **The 230xx loses about 1 kg on both layouts** against the 2 % 4-digit sections. Its section drag at Cl 0.3 is **36 % higher** at t/c 9 % (0.00717 against 0.00529) and **27 % higher** at 12 %. Hover power rises 544 W on the hex. The motors also get heavier, because the higher drag torque slows the rotor slightly (1973 → 1944 rpm).
+- **"Design Cl" is not where the drag bucket is.** The 5-digit design (ideal) lift coefficient is a thin-airfoil, inviscid idea: the angle at which the flow meets the leading edge smoothly, with no leading-edge suction spike. At Reynolds numbers of a few hundred thousand, section drag is set mostly by **how far back the boundary layer stays laminar**, and that depends on how long the upper-surface pressure keeps falling. The 230's camber peak at 15 % chord puts the suction peak forward and starts the adverse gradient early. XFOIL's transition point at Cl ≈ 0.3 is:
+
+  | Section (Re 6×10⁵, M 0.3) | Cl | Upper transition x/c | Lower transition x/c | Cd |
+  |---|---|---|---|---|
+  | 2409 | 0.24 / 0.33 | **0.78 / 0.74** | 0.95 / 1.00 | 0.0052 / 0.0054 |
+  | 23009 | 0.26 / 0.36 | **0.41 / 0.33** | 0.98 / 1.00 | 0.0069 / 0.0076 |
+
+- **The 24xx already has its bucket where the hex works.** Its minimum-drag Cl is 0.24 at t/c 9 % and 0.30 at 12 %. The premise of queue item 31, that the 4-digit sections have their bucket too high, was wrong for the 2 % section. Entry 23 had already shown this indirectly: less camber didn't help.
+- **The stall margins are fine** (8.3–9.5°), so the 230's known abrupt leading-edge stall isn't what decides it here; drag is.
+- **No change to the ranking** of entry 24. The lever left is pressure distribution, not design Cl: camber further aft (queue item 32), or a true laminar section (item 33).
+
+**Hand check 1: the 5-digit mean line (thin-airfoil theory).** The 230 mean line is y = (k₁/6)(x³ − 3m x² + m²(3 − m)x) for x < m, and (k₁m³/6)(1 − x) behind it, with m = 0.2025 and k₁ = 15.957. Substituting x = ½(1 − cos θ) and integrating numerically:
+- maximum camber **1.84 % at x = 0.15** (as the name says: "3" → 0.05 × 3);
+- zero-lift angle α_L0 = −(1/π)∫(dz/dx)(cos θ − 1)dθ = **−1.09°**. XFOIL gives −1.33° (9 %) and −1.25° (12 %);
+- ideal angle (where the Fourier coefficient A₀ = 0, i.e. no leading-edge singularity) α_i = (1/π)∫(dz/dx)dθ = **+1.64°**;
+- design lift Cl_i = 2π(α_i − α_L0) = 2π × (1.64° + 1.09°) in radians = **0.300** ✓. So the mean line is right, and the section really is "designed for Cl 0.3". The loss comes from the viscous behaviour.
+
+**Hand check 2: drag from the transition point (flat-plate friction with a laminar run).** A surface laminar up to x_t and turbulent behind it has the mixed friction coefficient (Prandtl–Schlichting):
+
+  C_F(x_t) = 0.074 Re^(−1/5) − x_t·[0.074 (x_t Re)^(−1/5) − 1.328 (x_t Re)^(−1/2)]
+
+This is the all-turbulent plate, with the turbulent friction of the first x_t replaced by Blasius laminar friction. At Re = 6×10⁵: C_F(0.757) = 0.00252, C_F(0.975) = 0.00180, C_F(0.37) = 0.00388, C_F(0.99) = 0.00175. Section drag ≈ form factor × (upper + lower), with Hoerner's FF = 1 + 2t/c + 60(t/c)⁴ = 1.184 at t/c 9 %:
+- **2409:** 1.184 × (0.00252 + 0.00180) = **0.00512** (XFOIL 0.0052–0.0054) ✓
+- **23009:** 1.184 × (0.00388 + 0.00175) = **0.00667** (XFOIL 0.0069–0.0072) ✓
+- Ratio: hand **+30 %**, XFOIL **+30–36 %**. Moving upper-surface transition from 76 % to 37 % chord accounts for almost the whole penalty.
+
+**Lesson.** At this Reynolds number, choose a section by where its pressure keeps falling (its laminar run), not by its inviscid design lift coefficient. Forward camber (5-digit) shortens the laminar run; aft camber should lengthen it.
+
+**Next.** Queue item 32: 2 % camber further aft (25xx, 26xx). These are cheap 4-digit XFOIL cases and test the transition argument directly: transition should move further back at Cl 0.3–0.4, and the tri, at Cl 0.4, might gain too. Then item 10 (tip speed and noise).
