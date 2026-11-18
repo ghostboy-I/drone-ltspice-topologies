@@ -43,7 +43,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 29. ~~Camber sweep below 2 % (14xx, 00xx outboard)~~ (entry 23: 2 % is the optimum; 14xx −0.11 kg, 00xx −0.94 kg on the hex vs 24xx; tri prefers 44/24)
 30. ~~Re-run the entry 14–19 chain with the best-camber blades~~ (entry 24: hex leads by +1.73 kg at 15 m/s, now outside the motor-fit band; tri leads by 2.2 kg at free speed; break-even batteries 382 / 204 Wh/kg)
 31. ~~A section designed for Cl ≈ 0.3 (NACA 230xx)~~ (entry 25: −1.1 kg hex, −0.9 kg tri vs 24xx; its forward camber peak moves transition from 76 % to 37 % chord. 24xx's bucket is already at Cl 0.25–0.30)
-32. Camber further aft at 2 % (NACA 25xx, 26xx): a longer favourable pressure gradient on the upper surface should hold transition further back; the lever entry 25 points to
+32. ~~Camber further aft at 2 % (NACA 25xx, 26xx)~~ (entry 26: 25xx ties 24xx (−0.04 / −0.00 kg), 26xx −0.2 kg; upper-surface transition moves aft but the lower surface's moves forward and cancels it)
 33. A laminar-flow section from coordinates (NACA 63-2xx / 64-2xx, or an XFOIL-designed section): needs coordinate generation, since XFOIL's NACA command only builds 4- and 5-digit sections
 
 ## Entries
@@ -1470,3 +1470,53 @@ This is the all-turbulent plate, with the turbulent friction of the first x_t re
 **Lesson.** At this Reynolds number, choose a section by where its pressure keeps falling (its laminar run), not by its inviscid design lift coefficient. Forward camber (5-digit) shortens the laminar run; aft camber should lengthen it.
 
 **Next.** Queue item 32: 2 % camber further aft (25xx, 26xx). These are cheap 4-digit XFOIL cases and test the transition argument directly: transition should move further back at Cl 0.3–0.4, and the tri, at Cl 0.4, might gain too. Then item 10 (tip speed and noise).
+
+
+## 26 — 2 % camber moved aft: NACA 25xx and 26xx (2026-11-18)
+
+**Question.** Entry 25 found that drag at Re ≈ 6×10⁵ is set by how far back the boundary layer stays laminar, and that forward camber (230xx) cut the laminar run short. Does the converse work? Keep 2 % camber and move its peak from 40 % chord (24xx) to 50 % (25xx) and 60 % (26xx). New XFOIL polars (160 cases, all converged, 936 s). Same optimisers as entries 20–25. Script `src/explore/e26_aft_camber.py`, results `results/explore/e26_aft_camber.json` / `.png`.
+
+| Layout | Section | Hover rpm | σ | Q_max [N·m] | Motor [kg] | Pack [Wh] | Hover [W] | Hover stall margin | Δ vs 44xx | **vs best 2 %** |
+|---|---|---|---|---|---|---|---|---|---|---|
+| hex | 24xx (entry 22) | 1973 | 0.131 | 20.5 | 1.84 | 5139 | 12678 | 9.4° | +1.03 | 0 |
+| hex | 25xx | 1957 | 0.130 | 20.6 | 1.85 | 5138 | 12596 | 9.4° | +0.99 | **−0.04** |
+| hex | 26xx | 1967 | 0.130 | 20.6 | 1.85 | 5212 | 12734 | 9.5° | +0.81 | **−0.22** |
+| tri | 44/24 hybrid (entry 22) | 2135 | 0.151 | 50.6 | 4.53 | 7367 | 16924 | 8.3° | +0.25 | 0 |
+| tri | 44/25 hybrid | 2138 | 0.151 | 50.5 | 4.51 | 7378 | 16839 | 8.1° | +0.25 | **−0.00** |
+| tri | 44/26 hybrid | 2144 | 0.150 | 50.6 | 4.53 | 7413 | 16883 | 8.3° | +0.10 | **−0.15** |
+
+**Finding.**
+- **Moving the camber aft doesn't pay.** 25xx ties 24xx on both layouts (within 0.04 kg, below the optimiser's resolution), and 26xx loses 0.15–0.22 kg. The 2 % camber optimum is flat from 40 to 50 % chord and falls off by 60 %.
+- **The transition argument holds, but it works on both surfaces.** Moving the camber aft does push the upper-surface transition back, as entry 25 predicted. But it also makes the aft lower surface concave, which starts the lower-surface adverse gradient earlier, so the lower transition moves *forward*. The two nearly cancel:
+
+  | Section (t/c 9 %, Re 6×10⁵, M 0.3) | Cl | Upper x_tr | Lower x_tr | Cd | Cm (XFOIL) |
+  |---|---|---|---|---|---|
+  | 2409 | 0.33 | 0.74 | **1.00** | 0.0054 | −0.059 |
+  | 2509 | 0.27 | 0.83 | 0.87 | 0.0052 | −0.065 |
+  | 2609 | 0.31 | **0.88** | 0.72 | 0.0057 | −0.081 |
+
+  At Cl 0.4 (where the tri works) aft camber does a little better: 26xx at t/c 9 % has Cd 0.00524 against 0.00560. But the thick 12 % sections, which carry the mid-span, don't improve, and the optimum is unchanged.
+- **Aft camber costs in pitching moment**, which loads the blade in torsion and the pitch link and grip. It is 10 % more nose-down for 25xx and 37 % for 26xx (XFOIL). With no drag gain, that settles it: **keep 24xx**.
+- **The NACA 4- and 5-digit families are exhausted** for this rotor: 0–6 % camber (entries 20, 22, 23), camber position 15–60 % (entries 25, 26). The best is 2 % at 40–50 %, flat to within 0.05 kg. Further section gains need a true laminar-flow section (queue item 33), with its thickness peak further aft so that both surfaces see a favourable gradient. That needs section coordinates generated outside XFOIL's NACA command.
+
+**Hand check 1: thin-airfoil zero-lift angle and pitching moment (NACA 4-digit mean line, m = 0.02).** The Fourier coefficients A_n = (2/π)∫(dz/dx) cos(nθ) dθ give α_L0 = −(1/π)∫(dz/dx)(cos θ − 1)dθ and Cm_c/4 = (π/4)(A₂ − A₁):
+
+| Section | p | α_L0 thin | α_L0 effect | Cm_c/4 thin | Cm XFOIL (t/c 9 %, Cl ≈ 0.3) |
+|---|---|---|---|---|---|
+| 24xx | 0.4 | −2.08° | | −0.053 | −0.059 |
+| 25xx | 0.5 | −2.29° | +0.21° effective pitch | **−0.063** (exactly −πm, for p = ½) | −0.065 |
+| 26xx | 0.6 | −2.59° | +0.51° | −0.075 | −0.081 |
+
+Thin-airfoil theory gets the moment trend right to within 0.006. Aft camber weights the camber slope toward the trailing edge, where the cos θ terms in A₁ and A₂ are most negative, so the moment grows. For p = ½ the mean line is symmetric about mid-chord, and the integrals give exactly Cm = −πm.
+
+**Hand check 2: drag from both transition points (entry 25's mixed-plate model).** C_F(x_t) = 0.074 Re^(−1/5) − x_t[0.074 (x_t Re)^(−1/5) − 1.328 (x_t Re)^(−1/2)], with Cd ≈ (1 + 2t/c + 60(t/c)⁴)(C_F,upper + C_F,lower) = 1.184 × (…) at t/c 9 %:
+
+| Section | C_F upper | C_F lower | Cd hand | Cd XFOIL |
+|---|---|---|---|---|
+| 2409 | 0.00260 (x_t 0.74) | 0.00173 (x_t 1.00) | **0.00512** | 0.0054 |
+| 2509 | 0.00228 (0.83) | 0.00213 (0.87) | **0.00522** | 0.0052 |
+| 2609 | 0.00210 (0.88) | 0.00264 (0.72) | **0.00561** | 0.0057 |
+
+The hand model reproduces the 26xx penalty: +0.0005, against XFOIL's +0.0003 to +0.0005. It ranks 24xx and 25xx within 0.0001 of each other, the same tie the optimiser finds. The upper surface saves 0.0005 in C_F, the lower loses 0.0009: **friction is roughly linear in the turbulent length, so moving transition by the same distance on the other surface simply moves the drag there.** (The XFOIL points sit at slightly different Cl, 0.27–0.33, which is the main scatter in this check.)
+
+**Next.** Queue item 10: tip speed and noise. The 2 % blades raise the hex's hover speed to 1973 rpm (tip Mach 0.40 in hover, about 0.56 at T/W 2 since rpm ∝ √T), so a noise requirement is the next thing that could move the ranking. Item 33 (a laminar section from coordinates) stays open as the last aerofoil lever.
