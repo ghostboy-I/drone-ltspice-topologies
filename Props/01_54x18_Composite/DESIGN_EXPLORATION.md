@@ -39,7 +39,9 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 25. Pack specific energy as a design input: which cell (semi-solid 303 vs LiPo 200 Wh/kg) is planned? It swings the 15 m/s result by 4.4 kg
 26. ~~3-blade for the tri and hex~~ (entry 21)
 28. Is the 50 N / 1.2 mm flex test a per-blade handling spec, or should it scale with blade load? It alone decides the 3-blade case
-27. A less-cambered section (24xx) for the outboard blade: entry 20 shows the optimum runs at Cl 0.6–0.9, below 44xx's drag bucket
+27. ~~A less-cambered section (24xx)~~ (entry 22: hex +1.0 kg with 24xx full span, tri +0.25 kg with the 44/24 hybrid)
+29. Camber sweep below 2 % (14xx, 00xx outboard) for the hex: the trend in entries 20–22 points to still less camber
+30. Re-run the entry 14–19 chain (arms, speed, body, ranking) with the 24xx blades
 
 ## Entries
 
@@ -1260,4 +1262,56 @@ The script also prints the cruise hub-load ripple with blade_trade_study's `hub_
 **Hand check 2: why the ripple collapses.** One blade's loads in forward flight vary around the azimuth as a Fourier series in ψ. With N equally spaced blades, the hub sum Σₖ f(ψ + 2πk/N) cancels every harmonic except multiples of N. So a 2-blade rotor passes 2P, 4P, …, a 3-blade rotor passes 3P, 6P, …, and a blade's load harmonics fall off quickly with order (roughly as μⁿ). The model's 2P → 3P drop of about 9× in roll ripple and 18× in thrust ripple is that fall-off.
 
 **Next.** Queue item 27: a less-cambered outboard section (24xx). Entry 20 found the motor-sized optimum runs at Cl 0.6–0.9, below the 44xx drag bucket, so the next airfoil to try goes the other way from 64xx. That needs new XFOIL polars, which are light runs but must wait if a foamRun is active.
+
+## 22 — Less camber outboard: NACA 24xx (2026-11-18)
+
+**Question.** Entry 20 found that torque-sized motors push the blade to spin fast at low lift (Cl ≈ 0.6–0.9), where the more cambered 64xx drags more than the baseline 44xx. Does a *less* cambered section, whose low-drag range sits lower, pay?
+
+**Method** (`src/explore/e22_less_camber.py`).
+- **New polars:** XFOIL for NACA 24xx (2 % camber at 40 % chord), t/c 9–18 %, on the 44xx Re/Mach grid. All 80 cases converged in 5 min on 4 cores; no foamRun was active. They are cached in `results/polars`.
+- **Same optimisers and bookkeeping as entry 20** (motor in the objective, 15 m/s design point, start from the 44xx optima). Two families:
+  - **44/24 hybrid:** 4 % camber where t/c ≥ 15 % (the thick inboard part), 2 % where t/c ≤ 12 %.
+  - **24xx:** 2 % camber over the whole span.
+- **Extra check:** the retreating-side stall margin in cruise, because 24xx stalls earlier (Cl_max 1.21 against 1.39 at t/c 9 %).
+
+**Results** (payload change against each layout's 44xx optimum):
+
+| Layout | Section | Hover rpm | σ | Q_max [N·m] | Motor [kg] | Pack [Wh] | Hover stall margin | Cruise stall margin (15 / 21 m/s) | **Δ payload [kg]** |
+|---|---|---|---|---|---|---|---|---|---|
+| tri | 44xx (entry 13) | 2141 | 0.140 | 50.6 | 4.53 | 7422 | 10.3° | 6.5° / 6.2° | 0 |
+| tri | **44/24 hybrid** | 2135 | 0.151 | 50.6 | 4.53 | 7367 | 8.3° | 5.7° / 5.8° | **+0.25** |
+| tri | 24xx | 2136 | 0.156 | 50.7 | 4.53 | 7375 | 8.3° | 5.8° / 6.2° | +0.16 |
+| hex | 44xx (entry 11) | 1783 | 0.128 | 22.6 | 2.03 | 5113 | 12.6° | 7.4° / 7.9° | 0 |
+| hex | 44/24 hybrid | 1926 | 0.129 | 20.9 | 1.88 | 5119 | 9.4° | 7.1° / 8.0° | +0.94 |
+| hex | **24xx** | 1973 | 0.131 | 20.5 | 1.84 | 5139 | 9.4° | 7.1° / 8.0° | **+1.03** |
+
+**Finding.**
+- **Less camber pays, on the hex in particular: +1.0 kg** with 24xx over the whole span. The hex rotor spins 11 % faster in hover (1783 → 1973 rpm) and needs 9 % less peak torque. That makes each of its six motors 0.19 kg lighter (−1.15 kg), for only +26 Wh of pack (+0.09 kg).
+- **The tri gains only +0.25 kg** (44/24 hybrid). It is already on the tip-Mach cap (entry 13), so it cannot spin faster. Its gain is in the pack (−55 Wh), from lower profile drag at its operating Cl, not in the motor.
+- **This reverses entry 20's "keep 44xx".** Within the families tried (2, 4 and 6 % camber), the motor-sized optimum wants the **least** camber. The rule is: **pick the section whose drag bucket sits at the Cl the motor-sized rotor wants to run at**, and with torque-sized motors that Cl is low.
+- **Stall margins stay healthy.** The lowest is 5.7° on the retreating side in cruise (tri hybrid) and 8.3° in hover. The lower Cl_max of 24xx costs about 2° of hover margin, which the faster rotor doesn't need.
+- **Effect on the ranking** (estimate; the speed/body chain of entries 16–19 is not re-run, queue item 30):
+  - At 15 m/s the hex lead grows by 1.03 − 0.25 = +0.78 kg, to about **+1.6 kg**. That is now outside the motor-fit band (lower edge ≈ +0.8 kg).
+  - At free speed the tri's lead shrinks from 3.2 to about 2.4 kg.
+
+**Hand check 1: zero-lift angle and effective pitch.** Thin-airfoil theory (entry 20's integral) for the 24xx line gives α_L0 = **−2.08°**, against −4.15° for 44xx. At the same geometric twist, the 24xx blade has **2.08° less effective pitch**, so it trims faster at the same thrust. The model's start blades show it: the hex start (44xx geometry, 24xx sections) already gained +0.74 kg, at higher rpm, before the optimiser moved anything.
+
+**Hand check 2: where the motor saving comes from.** At fixed thrust and roughly fixed power (induced-dominated), Q = P/Ω ∝ 1/Ω:
+- hand Q₂₄/Q₄₄ = 1783/1973 = **0.904**, so Q = 22.6 × 0.904 = **20.4 N·m**, against the model's **20.5** ✓;
+- motor mass at 0.0909 kg/(N·m) (entry 10): 6 × 0.0909 × (22.6 − 20.5) = **1.15 kg** ✓, as in the table.
+
+**Hand check 3: why 44xx couldn't just spin faster.** At the same section drag table (Re 6×10⁵, M 0.30):
+
+| Cl | 44xx t/c 9 % | 24xx t/c 9 % | 44xx t/c 12 % | 24xx t/c 12 % |
+|---|---|---|---|---|
+| 0.4 | 0.00632 | **0.00560** (−11 %) | 0.00821 | **0.00666** (−19 %) |
+| 0.6 | **0.00620** | 0.00682 (+10 %) | **0.00706** | 0.00743 (+5 %) |
+| 0.8 | **0.00727** | 0.00941 (+29 %) | **0.00799** | 0.00869 (+9 %) |
+| Cl_max | 1.39 | 1.21 | 1.46 | 1.31 |
+
+- **Below Cl ≈ 0.5, the 44xx's drag climbs** (it leaves its low-drag range on the low side), while the 24xx's is lowest there.
+- So a 44xx rotor that spins faster pays in profile drag, and the optimiser stopped at 1783 rpm. The 24xx moves the low-drag range to Cl ≈ 0.4, and the faster, lighter-motor rotor then costs almost nothing in drag.
+- This is the same logic as entry 20, in the other direction.
+
+**Next.** Queue item 29: does still less camber (14xx, or a symmetric 00xx outboard) keep paying on the hex? The trend says the hex wants Cl ≈ 0.4 sections. Then item 30: re-run the arms, speed, body and ranking chain (entries 14–19) with the 24xx blades, so the layout table uses the best blades.
 
