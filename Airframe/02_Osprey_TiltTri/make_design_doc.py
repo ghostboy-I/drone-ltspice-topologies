@@ -9,6 +9,7 @@ R = os.path.join(here, "results")
 J = lambda n: json.load(open(os.path.join(R, n)))
 S, F, G = J("sizing.json"), J("final.json"), J("geometry.json")
 CFD = J("cfd_airfoil2d.json") if os.path.exists(os.path.join(R, "cfd_airfoil2d.json")) else None
+FS = J("fuselage_shell_model.json") if os.path.exists(os.path.join(R, "fuselage_shell_model.json")) else None
 img = lambda n: os.path.join(R, n)
 f0 = lambda x: f"{x:.0f}"; f1 = lambda x: f"{x:.1f}"; f2 = lambda x: f"{x:.2f}"; f3 = lambda x: f"{x:.3f}"
 w, L, st, dr, cr, dl = S["wing"], S["layout"], S["stability"], S["drag"], S["cruise"], S["download"]
@@ -181,29 +182,94 @@ doc.p(f"Airframe {F['mass_airframe_kg']:.1f} kg (wing {F['mass_breakdown'].get('
       "The wing was sized to the 280 lb requirement, as specified.")
 
 # ------------------------------------------------------------------------------------------------------------------
-doc.h("9. CFD and FEM still to run")
+if FS:
+    doc.h("9. Fuselage shell FEM (CalculiX)")
+    ne = FS["elements"]; m_ = FS["mass_kg"]
+    doc.p("The beam screen treats the fuselage as one beam, the keel box, and the skin as a fairing. A shell model asks what a "
+          "beam cannot: does a skin bonded to the keel and frames pick up load, and does its one woven ply survive that; what happens "
+          "where the wing, gear and boom put their loads in; and how the keel turns up the tail ramp to the boom.")
+    doc.bullets([
+        f"Mesh: the STL's outer mould line (one shared function), {ne['ESKIN']} skin, {ne['EFLANGE']} keel-flange, {ne['EWEB']} keel-web "
+        f"and {ne['EFLOOR']} floor S8R shells, {len(FS['frames_x'])} frames as {ne['EFRAME']} shells; {FS['nodes']} nodes. Each face is homogenised by "
+        "CLT and written transversely isotropic about x (Airframe/01's method).",
+        "Keel inside the mould line, following the belly, so it climbs the tail ramp to the boom; its bottom flange replaces the belly skin. "
+        "ASSUMED: frames 4 mm x 40 mm quasi-isotropic carbon, at most 0.30 m apart.",
+        "Support: the top of the two wing-attach frames is fixed. Loads: for each case the beam model's own inertia-relief solution, cut at "
+        "the wing carry-through. Every fuselage-side node load L = F_ext + M Phi (g - a) is spread over a patch of shell nodes as the "
+        "least-norm force set with the same resultant force and moment (a distributing coupling). Ultimate = 1.5 x limit.",
+    ])
+    doc.eq(r"\min_{f}\ \sum_i |f_i|^2\quad \mathrm{s.t.}\quad \sum_i f_i = F,\quad \sum_i (r_i - r_0)\times f_i = M"
+           r"\ \ \Rightarrow\ \ f = A^T (A A^T)^{-1} \{F;\,M\}", note="the patch load; A stacks the identity and the cross-product rows of every node")
+    doc.img(img("fig_fuselage_shell.png"), width=6.6)
+    cs = FS["cases"]
+    rows = []
+    for n_, o in cs.items():
+        st_ = o["strain"]; b_ = FS["skin_buckling"][n_]
+        rows.append([n_.split()[0], f2(st_["ESKIN"]["MS"]), f2(st_["EFLANGE"]["MS"]), f2(st_["EWEB"]["MS"]), f2(st_["EFLOOR"]["MS"]),
+                     f2(st_["EFRAME"]["MS"]), f2(min(c["MS"] for c in o["core"].values())), f"{b_['lam_min_clear']:.2f}"])
+    doc.table(["Case", "skin", "keel flange", "keel web", "floor", "frames", "core shear", "skin buckling factor"], rows,
+              widths=[0.08, 0.1, 0.13, 0.12, 0.1, 0.1, 0.13, 0.24])
+    doc.p(f"Strain margins against eps_allow = {FS['eps_allow']*1e6:.0f} ue (CAI/OHC, Airframe/01), at ultimate. The buckling column is the "
+          "hand check on every skin element's FE membrane loads (axial: curved panel with the SP-8007 knockdown or wide column between "
+          "frames; shear: Donnell with 0.67; R_c + R_s^2 = 1). A factor below 1 means that skin panel buckles before ultimate.")
+    h1 = cs["LC1 hover pull-up n=2"]; q = h1["hand_F2_bays"][0]["resultants"]; hb = h1["hand_F2_bays"][0]
+    doc.table(["Hand check", "Hand", "FE", "Diff"], [
+        ["F1 wing reactions = - sum of loads, LC1 z [N]", f1(-h1["applied_N"][2]), f1(h1["reaction_N"][2]), f"{100*(h1['reaction_N'][2]/-h1['applied_N'][2]-1):+.3f} %"],
+        [f"F2 pitch moment at the cut x = {hb['x_s']:.2f} m, LC1 [N m]", f1(q["M_pitch_statics"]), f1(q["M_pitch_fe"]), f"{100*(q['M_pitch_fe']/q['M_pitch_statics']-1):+.1f} %"],
+        [f"F2 yaw moment at the same cut, LC1 [N m]", f1(q["M_yaw_statics"]), f1(q["M_yaw_fe"]), f"{100*(q['M_yaw_fe']/q['M_yaw_statics']-1):+.1f} %"],
+        ["F3 crown strain, plane-sections beam theory, LC1 [ue]", f0(hb["crown"]["beam"]*1e6), f0(hb["crown"]["fe"]*1e6), f"{100*hb['crown']['diff']:+.0f} %"],
+    ], widths=[0.55, 0.15, 0.15, 0.15])
+    doc.eq(r"N=\sum_i Q_{11,i}\,t_i\,\Delta s_i\,(\varepsilon_x+\nu_{21}\varepsilon_s)_i ,\qquad M_{pitch}=\sum_i Q_{11,i}\,t_i\,\Delta s_i\,(\varepsilon_x+\nu_{21}\varepsilon_s)_i\,(z_i-z_c)",
+           note="F2: the FE stress resultants over one row of elements must equal the statics of the loads aft of the cut")
+    doc.p("F1 and F2 hold the model to statics: the reactions close to rounding, and the FE stresses at the prismatic cabin cut carry the moment "
+          "of every load behind it to within a few %. F3 is the instructive failure: plane-sections theory says the stiff keel at the bottom "
+          f"carries the bending and the crown sees {hb['crown']['beam']*1e6:.0f} ue; the FE crown sees {hb['crown']['fe']*1e6:.0f} ue. The "
+          "section does not stay plane. The wing holds the fuselage by the crown of two frames, so the crown skin is a direct load path to the "
+          "support, and the thin, soft skin shear-lags behind the keel. A one-beam model cannot show this.")
+    doc.bullets([
+        "Found 1, the skin is structural whether intended or not, and it buckles. Bonded to the frames and keel, the one woven ply picks up crown "
+        f"compression and buckles at {min(b['lam_min_clear'] for b in FS['skin_buckling'].values()):.2f}-{max(b['lam_min_clear'] for b in FS['skin_buckling'].values()):.2f} "
+        "of ultimate, i.e. it would wrinkle in ordinary flight. Decision needed: float the fairing (slotted or elastomeric attachments, so the "
+        "keel-only beam model holds), or make the skin structural (foam-core sandwich or stringers, heavier).",
+        f"Found 2, the boom joint. Spreading the boom root load over the last two rings over-strains the skin there (LC5 skin MS "
+        f"{cs['LC5 airplane gust n=2.78']['strain']['ESKIN']['MS']:+.2f}). The beam model's rigid tail-cone link hides this; the boom needs a "
+        "fitting that takes its moment into the keel and the end frame.",
+        f"Found 3, the keel web next to the wing attach is marginal in the one-wheel landing (LC4 MS {cs['LC4 hard landing one main']['strain']['EWEB']['MS']:+.2f}). "
+        "The support is idealised as fixed frame crowns; a real carry-through fitting spreads that load.",
+        f"Shell structure {sum(m_.values()):.1f} kg (skin {m_['ESKIN']:.2f}, keel webs, floor and flange {m_['EWEB']+m_['EFLOOR']+m_['EFLANGE']:.2f}, "
+        f"frames {m_['EFRAME']:.2f}) against {FS['beam_model_mass_kg']['keel']:.2f} kg keel + {FS['beam_model_mass_kg']['fuselage_fairing']:.2f} kg "
+        "fairing in the beam model: the frames are new mass the screen did not carry.",
+        "CalculiX *BUCKLE could not be used: it expands every shell into a brick layer, and a 0.218 mm ply on 25 mm elements is too thin for that. "
+        "It returned 0.995-1.003 for every case, with loads scaled x10 and for an isotropic skin-only model; with a 3 mm skin it gave 68.",
+        "Beam-model inconsistency found: tiltframe.py hangs the keel under the floor, 0.09 m below the mould line's belly; the shell model puts "
+        "it inside, as the fuselage height (payload stack + floor + keel + skin) was derived. It moves the CG and the gear length slightly.",
+    ])
+
+doc.h("10. CFD, and what is still to run")
 if CFD:
     for code, blk in CFD.items():
         rows = [[f"{r_['alpha']:+d}", f3(r_.get('cl', float('nan'))) if 'cl' in r_ else r_.get("status", ""), f"{r_['cd']:.5f}" if 'cd' in r_ else "",
                  f"{r_.get('diff_cl_pct'):+.1f} %" if r_.get('diff_cl_pct') is not None else "", f"{r_.get('diff_cd_pct'):+.0f} %" if 'diff_cd_pct' in r_ else ""] for r_ in blk["rows"]]
         doc.table([f"NACA {code} alpha", "cl (CFD)", "cd (CFD)", "cl vs XFOIL", "cd vs XFOIL"], rows, widths=[0.2, 0.2, 0.2, 0.2, 0.2])
 pl = json.load(open(os.path.join(here, "cfd", "airfoil2d", "plan.json")))
-doc.p(f"2-D airfoil RANS (OpenFOAM 13, foamRun incompressibleFluid, k-omega SST), set up and meshed. The NACA {w['airfoil']} wing case runs at "
+doc.p(f"2-D airfoil RANS (OpenFOAM 13, foamRun incompressibleFluid, Spalart-Allmaras), set up and meshed. The NACA {w['airfoil']} wing case runs at "
       f"Re {pl[w['airfoil']]['Re']:.2e} with alpha {pl[w['airfoil']]['alphas'][0]} to {pl[w['airfoil']]['alphas'][-1]} deg; the NACA 0012 tail at "
       f"Re {pl['0012']['Re']:.2e}. Each uses a six-block C-grid with {pl[w['airfoil']]['cells']} cells and first cell "
-      f"{pl[w['airfoil']]['dy1_m']*1e6:.0f} um (y+ ~ 1), and checkMesh passes. Run with cfd/airfoil2d/run_all.sh, which waits while another "
-      "session's foamRun holds the machine. Stated before running: fully turbulent SST should give cd above XFOIL's free-transition value "
-      "and an earlier stall, with cl in the linear range within a few %.")
+      f"{pl[w['airfoil']]['dy1_m']*1e6:.0f} um (y+ ~ 1), and checkMesh passes. Getting there took three fixes (module docstring of "
+      "cfd_airfoil2d.py): wake cells at the wall spacing to the outlet (45,000:1), far-field corners that put 50:1 volume jumps between "
+      "neighbours, and a start-up that diverged with k-omega SST even from a laminar run; Spalart-Allmaras with a viscous start-up field "
+      "converges. Stated before running: fully turbulent SA should give cd above XFOIL's free-transition value and an earlier stall, with "
+      "cl in the linear range within a few %.")
 doc.bullets([
     "3-D CFD next: geometry/airframe_hover.stl and rotor_disks_hover.stl (named solids, metres, FE axes) are ready for snappyHexMesh "
     "with actuator disks. They give the real wing and boom download (sec. 4) and the fuselage interference.",
-    "Fuselage FEM next: the beam screen above sizes the keel; a CalculiX shell model of the fuselage skin, frames and the wing "
-    "carry-through (as Airframe/01's ccx_verify.py does for its arm) is the follow-up.",
+    "Fuselage FEM: done (sec. 9) for the skin, keel, floor and frames. Next: the fairing decision (float it or make it structural), a "
+    "boom fitting and a wing carry-through fitting, then rerun with the keel position fixed in the beam model.",
     "Whirl flutter of the wing + pod + rotor (the defining tiltrotor aeroelastic check) is not in any model yet.",
 ])
 
 # ------------------------------------------------------------------------------------------------------------------
-doc.h("10. Takeaways")
+doc.h("11. Takeaways")
 doc.bullets([
     f"A true V-22 scale-down can't fly wing-borne on fixed-pitch 54 in props: its wing needs {S['v22_scaled']['speed_for_CL1_ms']:.0f} m/s and "
     f"the props stop pulling at {S['prop_airplane']['v_zero_thrust_at_rpm_max']:.0f} m/s. The Osprey look survives with a longer wing.",
@@ -212,6 +278,8 @@ doc.bullets([
     "Equal thrust on three equal rotors fixes the hover CG at the hub centroid, which pushes the front heads ahead of the wing (V-280 "
     "style) so the airplane mode can have a normal tail.",
     f"Gusts, not manoeuvres, size the wing: n = {g['n_gust']:.2f} at 25 m/s, because the wing loading is light ({w['wing_loading_n_m2']:.0f} N/m^2).",
+    "The fuselage shell FEM shows the one-ply skin is loaded by the keel and frames it is bonded to and buckles far below ultimate: "
+    "float it or make it structural. Equilibrium checks close; plane-sections beam theory does not hold in this short fuselage.",
     f"Modal rule: nominal operating-point bands (user, 2026-11-18). Open decisions: the tail-boom download ({100*S['download_tail']['frac']:.0f} % of the tail rotor), the real mass against the 280 lb sizing weight, "
     f"and the tilt actuator ({S['tilt_actuator']['hold_torque_nm']:.0f} N m hold torque against an assumed 0.85 kg actuator).",
 ])

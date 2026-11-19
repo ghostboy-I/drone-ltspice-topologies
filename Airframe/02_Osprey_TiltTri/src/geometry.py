@@ -99,6 +99,24 @@ def write_stl(path, solids):
             f.write(f"endsolid {name}\n")
 
 
+SUPER_N = 2.6      # super-ellipse exponent of the fuselage sections
+
+
+def fuselage_station(s, fu, z_top, nfr, nt):
+    """Fuselage section at fraction s of the length (0 = nose): x, half-width, half-height, centre z.
+    Shared by the STL loft and the shell FE model (fuselage_shell.py), so both use one outer mould line."""
+    H, Wd, Lf = fu["H"], fu["W"], fu["L"]
+    x = fu["x_nose"] - s * Lf
+    if s < nfr:
+        k = math.sqrt(max(1 - ((nfr - s) / nfr) ** 2, 0)) * 0.95 + 0.05     # ogive-like nose
+        return x, Wd / 2 * k, H / 2 * (0.55 + 0.45 * k), z_top - H / 2 - (1 - k) * 0.12 * H
+    if s > 1 - nt:
+        k = (s - (1 - nt)) / nt                                              # 0 -> 1 along the ramp
+        hh = H / 2 * (1 - 0.80 * k)
+        return x, Wd / 2 * (1 - 0.65 * k), hh, z_top - hh
+    return x, Wd / 2, H / 2, z_top - H / 2
+
+
 # ------------------------------------------------------------------ the vehicle -------------------------------------
 def build(mode="hover"):
     p, a1 = params(), af01_params()
@@ -115,19 +133,11 @@ def build(mode="hover"):
     z_top = -(c * tc / 2); H, Wd, Lf = fu["H"], fu["W"], fu["L"]
     x0, x1 = fu["x_nose"], fu["x_tail"]
     nfr, nt = p["fuselage"]["nose_frac"], p["fuselage"]["tail_frac"]
-    ne = 2.6; th = np.linspace(0, 2 * math.pi, 48, endpoint=False)
+    ne = SUPER_N; th = np.linspace(0, 2 * math.pi, 48, endpoint=False)
     se = lambda a_, b_: np.c_[a_ * np.sign(np.cos(th)) * np.abs(np.cos(th)) ** (2 / ne), b_ * np.sign(np.sin(th)) * np.abs(np.sin(th)) ** (2 / ne)]
     rings = []
     for s in np.linspace(0, 1, 40):
-        x = x0 - s * Lf
-        if s < nfr:
-            k = math.sqrt(max(1 - ((nfr - s) / nfr) ** 2, 0)) * 0.95 + 0.05     # ogive-like nose
-            hw, hh, zc = Wd / 2 * k, H / 2 * (0.55 + 0.45 * k), z_top - H / 2 - (1 - k) * 0.12 * H
-        elif s > 1 - nt:
-            k = (s - (1 - nt)) / nt                                          # 0 -> 1 along the ramp
-            hh = H / 2 * (1 - 0.80 * k); hw = Wd / 2 * (1 - 0.65 * k); zc = z_top - hh
-        else:
-            hw, hh, zc = Wd / 2, H / 2, z_top - H / 2
+        x, hw, hh, zc = fuselage_station(s, fu, z_top, nfr, nt)
         ring = se(hw, hh)
         rings.append(np.c_[np.full(len(th), x), ring[:, 0], zc + ring[:, 1]])
     S["fuselage"] = loft(rings)

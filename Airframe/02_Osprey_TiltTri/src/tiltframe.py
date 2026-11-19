@@ -367,6 +367,7 @@ def run(ctx, design=None, want_modes=True, n_modes=16):
     for name, (mode, F) in cases.items():
         Mm, inf = models[mode]
         u, acc, resid = Mm.static_inertia_relief(F, hold_node=Mm.tags["centre"])
+        out.setdefault("_loads", {})[name] = (mode, F, acc)          # fuselage_shell.py cuts the fuselage free body
         g = margins(Mm, u, uf, allow)
         c0 = 6 * Mm.tags["centre"]
         tilt = [math.degrees(np.linalg.norm(u[6 * r["node"] + 3:6 * r["node"] + 6] - u[c0 + 3:c0 + 6])) for r in inf["rotors"]]

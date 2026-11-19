@@ -25,6 +25,7 @@ python3 src/screen.py check designs/selected.json   # one design, PASS/FAIL in ~
 python3 src/geometry.py               # STL (hover + airplane), rotor disks, 3-view and iso figures
 python3 src/make_results.py           # final.json, hand checks of the FE model, figures
 python3 src/cfd_airfoil2d.py setup    # 2-D OpenFOAM airfoil cases (wing NACA 4415 + tail NACA 0012)
+python3 src/fuselage_shell.py         # CalculiX shell model of the fuselage, five load cases (~6 min, 1 thread, nice 19)
 python3 make_design_doc.py
 ```
 
@@ -47,6 +48,7 @@ python3 src/cfd_airfoil2d.py post                         # CFD vs XFOIL -> resu
 | `src/screen.py` | The instant check and the design sweep |
 | `src/geometry.py` | Outer-mould-line STL + figures |
 | `src/make_results.py` | Selected design, hand checks (H1-H3), figures, `results/final.json` |
+| `src/fuselage_shell.py` | Fuselage shell FEM (CalculiX): skin, keel, floor, frames; loads cut from the beam model; hand checks F1-F3 |
 | `src/cfd_airfoil2d.py` | 2-D RANS airfoil cases: C-grid blockMesh, k-omega SST, post-processing against XFOIL |
 | `geometry/` | `airframe_hover.stl`, `airframe_airplane.stl`, `rotor_disks_hover.stl`, `wing_section.dat` |
 | `cfd/airfoil2d/` | Case plan; logs and force histories copied back after the runs |
@@ -63,4 +65,8 @@ python3 src/cfd_airfoil2d.py post                         # CFD vs XFOIL -> resu
 - Tail-boom + aft-cone download, 8.6 % of the tail rotor's thrust: an airfoil-section boom is the fix.
 - Real vehicle mass (~185 kg) against the 280 lb (127 kg) sizing weight: the wing stalls at ~25 m/s at the real mass.
 - Whirl flutter, prop normal force in airplane mode, transition corridor: not modelled yet.
-- Fuselage shell FEM (CalculiX) and 3-D download CFD: inputs ready, not run.
+- Fuselage shell FEM (done 2026-11-19, `results/fuselage_shell_model.json`): the bonded one-ply skin buckles at 0.01-0.15 of
+  ultimate. Decide: float the fairing, or make the skin structural. The boom joint and the wing carry-through need fittings
+  (skin MS -0.61 at the boom, keel web MS -0.04 at the wing attach).
+- tiltframe.py hangs the keel 0.09 m below the mould line's belly; the shell model puts it inside. Fix and re-sweep.
+- 3-D download CFD: inputs ready, not run.
