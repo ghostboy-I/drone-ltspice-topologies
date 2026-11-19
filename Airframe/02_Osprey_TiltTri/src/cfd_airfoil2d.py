@@ -1,4 +1,4 @@
-"""2-D RANS cases (OpenFOAM 13, foamRun / incompressibleFluid, k-omega SST) for the wing and tail sections.
+"""2-D RANS cases (OpenFOAM 13, foamRun / incompressibleFluid, Spalart-Allmaras) for the wing and tail sections.
 
     python3 src/cfd_airfoil2d.py setup [4415|0012 ...]   write cfd/airfoil2d/<code>/a<alpha>/ cases + a run script
     python3 src/cfd_airfoil2d.py mesh 4415               blockMesh + checkMesh on one case (light, single core)
@@ -9,14 +9,28 @@ speed, the cruise cd and the pitching moment the tail must trim. Those were take
 is the independent check (rule: hand calc / lower-order first, then simulation, then compare, explain > 10 %).
 
 Expected differences, stated before the run:
-  * k-omega SST is fully turbulent; XFOIL (Ncrit 9) has free transition with laminar runs. Expect CFD cd above XFOIL
-    by roughly the laminar-run saving (often 20-40 % at this Re) and cl_max lower, since SST separates earlier.
+  * Spalart-Allmaras is fully turbulent; XFOIL (Ncrit 9) has free transition with laminar runs. Expect CFD cd above
+    XFOIL by roughly the laminar-run saving (often 20-40 % at this Re) and cl_max lower, since a fully turbulent
+    boundary layer is thicker at the trailing edge.
   * The cruise lift slope and cl at a given alpha should agree within a few %.
 
 Mesh: a six-block C-grid (blockMesh). Wall-normal first cell sized for y+ ~ 1 from the flat-plate skin friction
     C_f = 0.026 / Re_x^(1/7),  u_tau = U sqrt(C_f / 2),  dy_1 = y+ nu / u_tau,
 geometric growth to a far field 15 chords out, wake 20 chords long, one cell thick in z (empty front/back).
 Angle of attack is set by rotating the freestream (geometry fixed), so one mesh serves all alphas.
+
+What it took to get a converged run (kept here because each was a real failure):
+  1. Wake cells at the wall spacing all the way to the outlet (45,000:1 aspect ratio): k went negative, every case
+     diverged. Fix: edgeGrading relaxes the wake-normal spacing to 0.01 c at the outlet (max aspect ratio ~600).
+  2. Far-field vertices directly above the split station and the TE: 90 cells packed into 0.56 m of far field next
+     to 0.44 m cells on the arc, a 50:1 neighbour volume jump (checkMesh -allGeometry: volume ratio 0.02). Fix: the
+     far-field vertices split the far boundary in proportion to each block's cell count, far edges uniform (0.27).
+  3. Model and start-up: k-omega SST (Tu 0.1 %, nut/nu 1) and even a laminar first-order run blew up within ~40
+     iterations from a uniform start, while the OpenFOAM airFoil2D tutorial settings converged on the same mesh. The
+     bisection pinned it on the start: a near-inviscid initial field at Re 1e6 separates and SIMPLE diverges before a
+     boundary layer forms. Fix: Spalart-Allmaras (the airfoil-calibrated one-equation model) with the physical
+     freestream nuTilda = 3 nu (NASA TMR) at the far field but a viscous start (nuTilda = 0.007 U c) inside; the
+     start is convected out and the converged answer does not depend on it.
 """
 import json, math, os, shutil, subprocess, sys
 import numpy as np
@@ -69,8 +83,26 @@ def block_mesh_dict(code, c, U, nu, dz, Ro=15.0, Lw=20.0, nf=70, na=90, nn=120, 
     g_n = ratio_for(dy1, R, nn) ** (nn - 1)                         # last / first cell, wall-normal
     ds_te = (1 - xs) * c / na * 0.5                                 # TE cell along the surface (graded 0.5 toward TE)
     g_w = ratio_for(ds_te, L - c, nw) ** (nw - 1)
+    # Wake blocks: the wall-normal spacing must NOT run at dy1 all the way to the outlet (first attempt: 45,000:1 cells
+    # there, k went negative at iteration 1 and every run diverged). edgeGrading relaxes it to dy_out at the outlet.
+    dy_out = 0.01 * c
+    g_out = ratio_for(dy_out, R, nn) ** (nn - 1)
     P = lambda q: q * c
-    v = [(0, 0), P(up[iu]), (c, 0), P(lo[il]), (xs * c - R, 0), (xs * c, R), (c, R), (L, R), (L, 0), (L, -R), (c, -R), (xs * c, -R)]
+    # Far field: a quarter arc (centre (xs*c, 0), radius R) then a straight line to the outlet, top and bottom. The far
+    # vertices 5/6 (and 11/10) are placed so each block gets its share of the far-field length in proportion to its cell
+    # count, and the far edges are uniform. Second attempt: with 5/6 above the split station and the TE, block 1's 90
+    # cells were packed into 0.56 m of far field next to 0.44 m cells on the arc -> 50:1 neighbour volume jumps there,
+    # and even a laminar first-order run diverged.
+    cx = xs * c
+    S_arc, S_tot = 0.5 * math.pi * R, 0.5 * math.pi * R + (L - cx)
+    def far(sv, sgn):                                            # point at arc length sv from the front stagnation vertex
+        if sv <= S_arc:
+            th = sv / R
+            return (cx - R * math.cos(th), sgn * R * math.sin(th))
+        return (cx + (sv - S_arc), sgn * R)
+    ntot = nf + na + nw
+    s5, s6 = S_tot * nf / ntot, S_tot * (nf + na) / ntot
+    v = [(0, 0), P(up[iu]), (c, 0), P(lo[il]), (cx - R, 0), far(s5, 1), far(s6, 1), (L, R), (L, 0), (L, -R), far(s6, -1), far(s5, -1)]
     v[0] = tuple(P(up[0])); v[2] = tuple(P(up[-1])); v[8] = (L, v[2][1])
     verts = "".join(f"    ({x:.8f} {y:.8f} 0)\n" for x, y in v) + "".join(f"    ({x:.8f} {y:.8f} {dz})\n" for x, y in v)
     def pl(a, b, pts):
@@ -79,18 +111,19 @@ def block_mesh_dict(code, c, U, nu, dz, Ro=15.0, Lw=20.0, nf=70, na=90, nn=120, 
             s += f"    polyLine {a+o} {b+o} (" + " ".join(f"({x:.8f} {y:.8f} {0 if o == 0 else dz})" for x, y in pts) + ")\n"
         return s
     edges = pl(0, 1, P(up[1:iu])) + pl(1, 2, P(up[iu + 1:-1])) + pl(0, 3, P(lo[1:il])) + pl(3, 2, P(lo[il + 1:-1]))
-    cx = xs * c
-    for o in (0, 12):
-        z = 0 if o == 0 else dz
-        edges += f"    arc {4+o} {5+o} ({cx - R*math.cos(math.pi/4):.6f} {R*math.sin(math.pi/4):.6f} {z})\n"
-        edges += f"    arc {4+o} {11+o} ({cx - R*math.cos(math.pi/4):.6f} {-R*math.sin(math.pi/4):.6f} {z})\n"
+    fs = lambda a, b, sgn: [far(t, sgn) for t in np.linspace(a, b, 40)[1:-1]]
+    edges += pl(4, 5, fs(0, s5, 1)) + pl(5, 6, fs(s5, s6, 1)) + pl(4, 11, fs(0, s5, -1)) + pl(11, 10, fs(s5, s6, -1))
     h = lambda a, b, c_, d: f"({a} {b} {c_} {d} {a+12} {b+12} {c_+12} {d+12})"
-    blocks = (f"    hex {h(0,1,5,4)} ({nf} {nn} 1) simpleGrading (3 {g_n:.6g} 1)\n"
-              f"    hex {h(1,2,6,5)} ({na} {nn} 1) simpleGrading (0.5 {g_n:.6g} 1)\n"
-              f"    hex {h(2,8,7,6)} ({nw} {nn} 1) simpleGrading ({g_w:.6g} {g_n:.6g} 1)\n"
-              f"    hex {h(3,0,4,11)} ({nf} {nn} 1) simpleGrading ({1/3:.6g} {g_n:.6g} 1)\n"
-              f"    hex {h(2,3,11,10)} ({na} {nn} 1) simpleGrading (2 {g_n:.6g} 1)\n"
-              f"    hex {h(10,9,8,2)} ({nw} {nn} 1) simpleGrading ({g_w:.6g} {1/g_n:.6g} 1)\n")
+    gn, gw, go = f"{g_n:.6g}", f"{g_w:.6g}", f"{g_out:.6g}"
+    rn, ro = f"{1/g_n:.6g}", f"{1/g_out:.6g}"
+    eg = lambda x1, x2: "edgeGrading (" + " ".join(x1 + x2) + " 1 1 1 1)"
+    # x1 edges in blockMesh order (0-1, 3-2, 7-6, 4-5): inner surface/wake-cut edges graded, far-field edges uniform
+    blocks = (f"    hex {h(0,1,5,4)} ({nf} {nn} 1) {eg(['3', '1', '1', '3'], [gn] * 4)}\n"
+              f"    hex {h(1,2,6,5)} ({na} {nn} 1) {eg(['0.5', '1', '1', '0.5'], [gn] * 4)}\n"
+              f"    hex {h(2,8,7,6)} ({nw} {nn} 1) {eg([gw, '1', '1', gw], [gn, go, go, gn])}\n"
+              f"    hex {h(3,0,4,11)} ({nf} {nn} 1) {eg(['0.333333', '1', '1', '0.333333'], [gn] * 4)}\n"
+              f"    hex {h(2,3,11,10)} ({na} {nn} 1) {eg(['2', '1', '1', '2'], [gn] * 4)}\n"
+              f"    hex {h(10,9,8,2)} ({nw} {nn} 1) {eg(['1', gw, gw, '1'], [rn, ro, ro, rn])}\n")
     f2 = lambda a, b: f"({a} {b} {b+12} {a+12})"
     bnd = ("    airfoil { type wall; faces (" + " ".join(f2(a, b) for a, b in ((0, 1), (1, 2), (3, 0), (2, 3))) + "); }\n"
            "    farfield { type patch; faces (" + " ".join(f2(a, b) for a, b in ((4, 5), (5, 6), (6, 7), (7, 8), (8, 9), (9, 10), (10, 11), (11, 4))) + "); }\n"
@@ -98,7 +131,7 @@ def block_mesh_dict(code, c, U, nu, dz, Ro=15.0, Lw=20.0, nf=70, na=90, nn=120, 
            " " + " ".join(f"({a+12} {b+12} {c_+12} {d+12})" for a, b, c_, d in ((0, 1, 5, 4), (1, 2, 6, 5), (2, 8, 7, 6), (3, 0, 4, 11), (2, 3, 11, 10), (10, 9, 8, 2))) + "); }\n")
     txt = (HDR.format(cls="dictionary", loc="", obj="blockMeshDict") + "convertToMeters 1;\nvertices\n(\n" + verts + ");\nblocks\n(\n" + blocks +
            ");\nedges\n(\n" + edges + ");\nboundary\n(\n" + bnd + ");\n")
-    info = {"Re": re, "dy1_m": dy1, "grading_normal": g_n, "grading_wake": g_w, "cells": (2 * (nf + na + nw)) * nn,
+    info = {"Re": re, "dy1_m": dy1, "grading_normal": g_n, "grading_wake": g_w, "dy_wake_outlet_m": dy_out, "cells": (2 * (nf + na + nw)) * nn,
             "far_field_chords": Ro, "wake_chords": Lw}
     return txt, info
 
@@ -106,15 +139,16 @@ def block_mesh_dict(code, c, U, nu, dz, Ro=15.0, Lw=20.0, nf=70, na=90, nn=120, 
 def case_files(code, alpha, c, U, nu, dz):
     a = math.radians(alpha)
     Ux, Uy = U * math.cos(a), U * math.sin(a)
-    I = 0.001; k = 1.5 * (I * U) ** 2; om = k / (nu * 1.0)              # Tu 0.1 %, nut/nu = 1 in the far field
+    nt_inf = 3.0 * nu                                                   # NASA TMR freestream nuTilda for SA
+    nt_0 = 0.007 * U * c                                                # viscous start-up field (convected out)
     files = {}
     files["constant/physicalProperties"] = HDR.format(cls="dictionary", loc='location "constant"; ', obj="physicalProperties") + \
         f"viscosityModel constant;\nnu [0 2 -1 0 0 0 0] {nu:.6e};\n"
     files["constant/momentumTransport"] = HDR.format(cls="dictionary", loc='location "constant"; ', obj="momentumTransport") + \
-        "simulationType RAS;\nRAS { model kOmegaSST; turbulence on; printCoeffs on; }\n"
+        "simulationType RAS;\nRAS { model SpalartAllmaras; turbulence on; printCoeffs on; }\n"
     files["system/controlDict"] = HDR.format(cls="dictionary", loc="", obj="controlDict") + f"""
 solver incompressibleFluid;
-startFrom latestTime; startTime 0; stopAt endTime; endTime 3000; deltaT 1;
+startFrom latestTime; startTime 0; stopAt endTime; endTime 5000; deltaT 1;
 writeControl timeStep; writeInterval 500; purgeWrite 1; writeFormat binary; writePrecision 8;
 timeFormat general; timePrecision 6; runTimeModifiable true;
 functions
@@ -127,18 +161,17 @@ functions
         writeControl timeStep; writeInterval 1; log no;
     }}
     yPlus {{ type yPlus; libs ("libfieldFunctionObjects.so"); writeControl writeTime; }}
-    residuals {{ type residuals; libs ("libutilityFunctionObjects.so"); fields (p U k omega); }}
+    residuals {{ type residuals; libs ("libutilityFunctionObjects.so"); fields (p U nuTilda); }}
 }}
 """
     files["system/fvSchemes"] = HDR.format(cls="dictionary", loc="", obj="fvSchemes") + """
 ddtSchemes { default steadyState; }
-gradSchemes { default Gauss linear; grad(U) cellLimited Gauss linear 1; grad(k) cellLimited Gauss linear 1; grad(omega) cellLimited Gauss linear 1; }
+gradSchemes { default Gauss linear; }
 divSchemes
 {
     default none;
-    div(phi,U) bounded Gauss linearUpwindV grad(U);
-    div(phi,k) bounded Gauss linearUpwind grad(k);
-    div(phi,omega) bounded Gauss linearUpwind grad(omega);
+    div(phi,U) bounded Gauss linearUpwind grad(U);
+    div(phi,nuTilda) bounded Gauss linearUpwind grad(nuTilda);
     div((nuEff*dev2(T(grad(U))))) Gauss linear;
 }
 laplacianSchemes { default Gauss linear corrected; }
@@ -149,20 +182,19 @@ wallDist { method meshWave; }
     files["system/fvSolution"] = HDR.format(cls="dictionary", loc="", obj="fvSolution") + """
 solvers
 {
-    p { solver GAMG; smoother GaussSeidel; tolerance 1e-9; relTol 0.01; }
-    "(U|k|omega)" { solver smoothSolver; smoother GaussSeidel; tolerance 1e-10; relTol 0.1; nSweeps 1; }
+    p { solver GAMG; smoother GaussSeidel; tolerance 1e-7; relTol 0.1; }
+    "(U|nuTilda)" { solver smoothSolver; smoother GaussSeidel; tolerance 1e-9; relTol 0.1; nSweeps 2; }
 }
-SIMPLE { nNonOrthogonalCorrectors 0; consistent yes; residualControl { p 1e-6; U 1e-7; "(k|omega)" 1e-7; } }
-relaxationFactors { equations { U 0.9; k 0.7; omega 0.7; } }
+SIMPLE { nNonOrthogonalCorrectors 1; residualControl { p 1e-5; U 1e-6; nuTilda 1e-6; } }
+relaxationFactors { fields { p 0.3; } equations { U 0.7; nuTilda 0.7; } }
 """
     bc = lambda name, cls, dim, internal, far, wall: HDR.format(cls=cls, loc='location "0"; ', obj=name) + \
         f"dimensions {dim};\ninternalField uniform {internal};\nboundaryField\n{{\n    farfield {{ {far} }}\n    airfoil {{ {wall} }}\n    frontAndBack {{ type empty; }}\n}}\n"
     Uv = f"({Ux:.8f} {Uy:.8f} 0)"
     files["0/U"] = bc("U", "volVectorField", "[0 1 -1 0 0 0 0]", Uv, f"type freestreamVelocity; freestreamValue uniform {Uv}; value uniform {Uv};", "type noSlip;")
     files["0/p"] = bc("p", "volScalarField", "[0 2 -2 0 0 0 0]", "0", "type freestreamPressure; freestreamValue uniform 0; value uniform 0;", "type zeroGradient;")
-    files["0/k"] = bc("k", "volScalarField", "[0 2 -2 0 0 0 0]", f"{k:.6e}", f"type inletOutlet; inletValue uniform {k:.6e}; value uniform {k:.6e};", f"type kLowReWallFunction; value uniform {k:.6e};")
-    files["0/omega"] = bc("omega", "volScalarField", "[0 0 -1 0 0 0 0]", f"{om:.6e}", f"type inletOutlet; inletValue uniform {om:.6e}; value uniform {om:.6e};", f"type omegaWallFunction; value uniform {om:.6e};")
-    files["0/nut"] = bc("nut", "volScalarField", "[0 2 -1 0 0 0 0]", "0", "type calculated; value uniform 0;", "type nutLowReWallFunction; value uniform 0;")
+    files["0/nuTilda"] = bc("nuTilda", "volScalarField", "[0 2 -1 0 0 0 0]", f"{nt_0:.6e}", f"type freestream; freestreamValue uniform {nt_inf:.6e};", "type fixedValue; value uniform 0;")
+    files["0/nut"] = bc("nut", "volScalarField", "[0 2 -1 0 0 0 0]", f"{nt_0:.6e}", f"type freestream; freestreamValue uniform {nt_inf:.6e};", "type nutUSpaldingWallFunction; value uniform 0;")
     return files
 
 
