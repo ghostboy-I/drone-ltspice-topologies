@@ -67,7 +67,9 @@ def build(loop_test=False, block=False, surge_test=False):
         B.add(b, R("R23", g(S["rfb1"]), "VIN_PROT", "FB_SS", desc="RFB1 (1.23 V across it at regulation)"))
         B.add(b, R("R24", g(S["rfb2"]), "FB_SS", "0", fp=R1206, rating="200 V", desc="RFB2: VREG = 1.23 V (1 + RFB2/RFB1) = 115 V"))
         B.add(b, R("R25", "10", "GATE_SSD", "GATE_SS", desc="Gate resistor (stops Q4 oscillating; at the FET)"))
-        B.add(b, C("C26", g(S["cg"]), "GATE_SS", "0", fp=C0805, rating="25 V", desc="CG: gate ramp; bypasses Q4's Cgd during a surge"))
+        # CG sits between Q4's gate and ground: ~100 V in normal running (gate = VIN_PROT + ~12 V), 121 V peak in the surge test
+        B.add(b, C("C26", g(S["cg"]), "GATE_SS", "0", fp=C1206, pn="X7R 1206 250 V (e.g. Murata GRM31BR72E103KW01)", rating="250 V",
+                   desc="CG: gate ramp; bypasses Q4's Cgd during a surge"))
         B.add(b, C("C27", g(S["ct"]), "TMR_SS", "VSS_SS", desc="CT: 51 ms overvoltage time (3.5 nF/ms)"))
         B.add(b, C("C28", g(S["c1"]), "VIN_PROT", "VSS_SS", fp=C0805, rating="25 V", desc="C1: OUT-VSS supply of the LTC4366 (5.7 V)"))
         B.add(b, C("C1", "33µ", "VIN_PROT", "0", fp="Capacitor_THT:CP_Radial_D10.0mm_P5.00mm", pn="Aluminium electrolytic, low ESR",

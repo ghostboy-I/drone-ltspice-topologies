@@ -1,0 +1,19 @@
+{
+ "tracks": 512,
+ "vias": 114,
+ "length_mm": {
+  "F.Cu": 497.7,
+  "B.Cu": 225.4
+ },
+ "routed_by_router": 556,
+ "failed": [],
+ "hidden_refs": [
+  "C10",
+  "C23"
+ ],
+ "unconnected": 0,
+ "drc": {},
+ "schematic_parity": 0,
+ "parts": 77,
+ "pinfield_audit": []
+}

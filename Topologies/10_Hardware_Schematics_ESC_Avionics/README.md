@@ -20,6 +20,8 @@
 | `*_Netlist.csv` | Every net with every `REF.pin` on it, the wiring list for KiCad (simulation-only parts removed) |
 | `plot_results.py`, `make_design_doc.py` | Plots and the design PDF |
 | `kicad_footprints.py`, `kicad_export.py`, `kicad_check.py` | KiCad: footprint library, both projects with PCBs, and the checks (see below) |
+| `kicad_draw.py`, `kicad_avionics.py`, `sexpr.py` | The avionics board as a drawn, hierarchical KiCad schematic (five sheets), checked against the parts table |
+| `pcb_avionics.py`, `kicad_route.py` | The avionics PCB layout for JLCPCB: placement, pours, a grid router, DRC, Gerbers / BOM / CPL (see below) |
 
 ## Running the simulations
 Open the `.asc` in LTspice and press Run, or in batch:
@@ -60,12 +62,12 @@ python3 kicad_check.py          # ERC, net list vs parts table, footprints, sche
 |---|---|
 | `kicad/Drone_Power.pretty/` | **Every footprint both boards use (39).** 35 are KiCad 9 stock footprints, copied in under their KiCad names (`kicad_footprints.py`). 4 are not in KiCad's library and are generated from the manufacturers' drawings (table below) |
 | `kicad/ESC_Board/` | Schematic (197 parts), `ESC_Board.kicad_pcb` with all 197 footprints loaded and every pad on its net, `fp-lib-table` / `sym-lib-table` |
-| `kicad/Avionics_Board/` | The same for the avionics board (77 parts) |
+| `kicad/Avionics_Board/` | The avionics board (77 parts): drawn schematic on five sheets, and the **laid-out, routed PCB** (next section) |
 | `kicad/*_footprints.png` | KiCad's plot of each imported PCB: footprints parked by schematic block, ready for placement |
 
 The PCBs are what **Tools → Update PCB from Schematic** would give: each footprint is linked to its symbol (same UUID path),
-the nets come from KiCad's own net list of the schematic, and attributes (DNP, BOM) follow the symbols. There is no board
-outline yet; draw it on Edge.Cuts, then place and route. The only DRC error today is that missing outline.
+the nets come from KiCad's own net list of the schematic, and attributes (DNP, BOM) follow the symbols. The ESC board has no
+outline yet (draw it on Edge.Cuts, then place and route); the avionics board is laid out by `pcb_avionics.py`.
 
 | Generated footprint | Part | Source |
 |---|---|---|
@@ -87,6 +89,54 @@ mounting tabs. Re-running the export gives identical files (UUIDs are derived fr
   5 GND): now NRST is pad 3 and SWCLK pad 4.
 - The motor phase pads were KiCad's 2.5 mm² wire pad, far too small for the 6–8 AWG phase leads; now 8 AWG pads.
 - SMBJ110A is unidirectional, so it uses `Device:D_Zener` (K = 1, A = 2) instead of the bidirectional `D_TVS`; fuses use `Device:Fuse`.
+
+## Avionics PCB layout (JLCPCB, 4 layers)
+```bash
+python3 pcb_avionics.py         # schematic -> placed, poured, routed, filled board + DRC + layout_routed.png (a few minutes)
+python3 pcb_avionics.py place   # placement only, with layout_place.png
+python3 pcb_avionics.py fab     # kicad/Avionics_Board/jlcpcb/: Gerber zip, BOM and CPL for JLC
+```
+The layout is a script, so a schematic change is one re-run. **Board:** 100 × 62 mm, 4 layers, 1.6 mm, 2 oz outer / 1 oz
+inner (JLC04161H-7628 stackup), four M3 holes. In1 and In2 are solid ground planes; F.Cu carries the power pours; B.Cu has a
+ground pour and the signal crossings. Power flows left to right: inputs → surge stopper → 12 V → 5 V → 3.3 V.
+
+**Clearance rules** (`Avionics_Board.kicad_dru`, IPC-2221B table 6-1, B2 = external, uncoated). The spacing between two
+conductors depends on the voltage *between* them, so nets are grouped by their peak voltage from the surge simulation:
+
+| Group (net class) | Nets | Peak | Outer-layer clearance |
+|---|---|---|---|
+| HVIN | PACK1–3+, PACK1–3_F, VIN_AV | 200 V (pack surge) | 1.25 mm to LV and HVSW, 0.6 mm to HVF |
+| HVF | VIN_PROT and the floating LTC4366 nets | ≤ 122 V | 0.6 mm |
+| HVSW | SW12, BST12, TG12 | 0–126 V | 0.6 mm |
+| LV (PWR, DRV, signal) | +12V, +5V, +3V3, GND, gate drive, control | ≤ 13 V | 0.2 mm |
+
+Inner layers use 0.5 mm (B1 asks only 0.2 mm). Inside a group the spacing is 0.2 mm. The LTC7801's own pinout puts VIN 0.65 mm
+from low-voltage pins, so its pin field (`U1_PINS` rule area, F.Cu) allows 0.2 mm. **Conformal-coat the board** (IPC B4).
+
+**How it is checked**
+- KiCad's DRC (`kicad-cli pcb drc` with schematic parity): `Avionics_Board_drc.json`, summary in `layout_stats.json`.
+- `pinfield_audit()`: the U1 exemption must not reach copper outside the pin field. Every exempt item is cut back to the
+  copper outside the area and the gaps that are left must meet the full rule.
+- Before trusting a DRC of 0, make sure it loaded the rules. pcbnew's `LoadBoard` skips the `.kicad_dru`, so the zone filler
+  needs the rules loaded first (`WriteDRCReport`). A reload in the same process also reuses a cached project, net classes and all.
+  The script handles both (`fill()`, `load()`), and `load()` asserts that the HV classes are present.
+
+**Results** (from `layout_stats.json`): 77 parts + 4 M3 holes; 512 tracks (F.Cu 498 mm, B.Cu 225 mm) and 114 vias; **0 unrouted, KiCad DRC 0 errors / 0 warnings with the HV rules loaded, schematic parity 0, pin-field audit 0.** Measured independently (KiCad's shape collision test), the ground pours sit ≥ 1.25 mm from HVIN copper and ≥ 0.6 mm from HVF / HVSW on the outer layers, and ≥ 0.5 mm on the inner planes. C10 and C23 have their references on F.Fab only (no silkscreen room).
+
+![layout](kicad/Avionics_Board/layout_routed.png)
+![3D](kicad/Avionics_Board/board_3d_top.png)
+
+`board_3d_top.png` is `kicad-cli pcb render --side top`. U1, U2 and the input connectors have no 3D model, so you see their pads.
+
+**Ordering at JLCPCB** (`kicad/Avionics_Board/jlcpcb/`): upload `Avionics_Board_gerbers.zip`, choose 4 layers, 1.6 mm,
+outer copper 2 oz, inner 1 oz, impedance control off (stackup JLC04161H-7628). For assembly, add `Avionics_Board_BOM_JLC.csv`
+and `Avionics_Board_CPL_JLC.csv`. The LCSC column is empty, so pick each part in JLC's matcher, and **check every rotation
+in JLC's 3D preview**: zero orientations differ between KiCad and JLC for SOT-23s, diodes and polarised parts.
+
+Open items before ordering:
+- F1–F3 are rated 125 V DC, but the surge test drives a pack input to 200 V. The fuse only has to survive it, not break
+  it (the TVS and LTC4366 clamp downstream), but a 250 V DC-rated fuse in the same footprint removes the question.
+- C26 is the 250 V 1206 part (it sits on the 100–121 V node).
 
 ## Porting to KiCad by hand
 1. **One schematic per board**, with one hierarchical sheet per numbered block (the framed areas in the `.asc`): e.g. ESC = 1 power input, 2 aux supply, 3 logic supplies, 4–6 legs A/B/C, 7 current sense, 8 MCU and connectors. Use global labels for the nets that cross sheets (`VBUS`, `+12V`, `+5V`, `+3V3`, `PWM_A`…).
