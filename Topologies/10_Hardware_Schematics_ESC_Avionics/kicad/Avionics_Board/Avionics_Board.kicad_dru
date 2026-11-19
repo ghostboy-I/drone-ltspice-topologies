@@ -52,5 +52,5 @@
 
 (rule "U1 pin field: the IC's own pin pitch (0.2 mm between VIN / BST and their neighbours)"
   (layer "F.Cu")
-  (condition "A.intersectsArea('U1_PINS') && B.intersectsArea('U1_PINS')")
+  (condition "A.intersectsArea('U1_PINS') && B.intersectsArea('U1_PINS') && A.Type != 'Zone' && B.Type != 'Zone'")
   (constraint clearance (min 0.2mm)))

@@ -9,8 +9,11 @@ The layout is a script, so it can be re-run after any schematic change. Steps (e
   3. place()      every part at a hand-chosen spot (PLACE): power flows left to right, input -> surge stopper -> 12 V -> 5 V -> 3.3 V
   4. pours()      copper areas for the power nets on F.Cu, GND planes on In1 / In2 and a GND pour on B.Cu
   5. fanout()     a via next to every ground pad, into the inner planes
-  6. route()      the rest with kicad_route.Router (A* on a 0.1 mm grid, F.Cu + B.Cu)
-  7. fill + DRC   zones filled by KiCad, then kicad-cli DRC; the report is written next to the board
+  6. route()      the rest with kicad_route.Router (A* on a 0.05 mm grid, F.Cu + B.Cu); rip-up and retry: if a net
+                  fails, the whole layout is run again with the failed nets first (up to 5 passes, the best is kept)
+  7. fill + DRC   zones filled by KiCad with the HV rules loaded, kicad-cli DRC (report next to the board), and
+                  pinfield_audit(): the U1 pin-field exemption must not reach copper outside the pin field
+    python3 pcb_avionics.py fab        Gerbers, drill, BOM and CPL for JLCPCB in kicad/Avionics_Board/jlcpcb/
 """
 import os, sys, json, math, subprocess, re
 import pcbnew
@@ -47,6 +50,7 @@ HV = ("HVIN", "HVF", "HVSW")
 INNER_HV = 0.5                           # inner layers (IPC B1 asks 0.2 mm up to 300 V; 0.5 mm for margin)
 MIN_CLEAR, MIN_TRACK, VIA = 0.2, 0.2, (0.6, 0.3)   # JLC 2 oz outer copper: 0.2 / 0.2 mm is comfortable
 EXEMPT = ["U1"]                          # fine-pitch IC whose own pinout puts VIN next to low-voltage pins
+EXEMPT_EDGE = 0.25                       # rule area = router's exempt region + half the widest pin-field track + 1 cell
 
 
 def netclass_of(name):
@@ -91,7 +95,7 @@ def write_rules():
     for ref in EXEMPT:
         r += [f"(rule \"{ref} pin field: the IC's own pin pitch (0.2 mm between VIN / BST and their neighbours)\"",
               "  (layer \"F.Cu\")",
-              f"  (condition \"A.intersectsArea('{ref}_PINS') && B.intersectsArea('{ref}_PINS')\")",
+              f"  (condition \"A.intersectsArea('{ref}_PINS') && B.intersectsArea('{ref}_PINS') && A.Type != 'Zone' && B.Type != 'Zone'\")",
               f"  (constraint clearance (min {MIN_CLEAR}mm)))", ""]
     open(os.path.join(OUT, NAME + ".kicad_dru"), "w").write("\n".join(r))
 
@@ -141,7 +145,8 @@ PLACE = {
     "U1": (85.0, 10.0, 180),
     "C5": (71.0, 10.6, 270),                                   # bootstrap cap at the switch-node pour (pad 2 sits in it)
     "Q3": (79.6, 21.0, 0), "C6": (74.1, 22.4, 90),            # DRVCC pass FET (VIN_PROT -> ~10 V) and its output cap
-    "R2": (88.6, 20.0, 0), "R3": (92.6, 20.0, 0), "R4": (88.6, 23.0, 0), "R5": (92.6, 23.0, 0),
+    # OVLO divider above the RUN divider: OVLO (pin 23) leaves U1 inside RUN (pin 21), so it takes the upper row
+    "R4": (88.6, 20.0, 0), "R5": (92.6, 20.0, 0), "R2": (88.6, 23.0, 0), "R3": (92.6, 23.0, 0),
     "C4": (85.0, 15.6, 0),
     "R20": (91.0, 6.4, 0), "R6": (91.0, 8.1, 0), "C7": (91.0, 9.8, 0), "C10": (91.0, 11.5, 0), "C8": (91.0, 13.2, 0),
     "R8": (91.0, 14.9, 0), "R7": (91.0, 16.6, 180),
@@ -153,8 +158,9 @@ PLACE = {
     # 4  5 V buck (LT8641): input caps either side of the IC, SW out of the bottom into L2, +5V out to the right
     "U2": (85.0, 46.0, 0), "C15": (81.9, 47.0, 270), "C16": (88.1, 46.9, 270),
     "L2": (85.0, 51.6, 0), "C21": (90.6, 50.3, 0), "C22": (90.6, 53.6, 0),
-    "C17": (81.2, 51.6, 270), "C18": (79.6, 44.4, 0), "C19": (91.0, 45.0, 0), "R11": (91.0, 46.9, 0),
-    "C20": (82.6, 41.6, 90), "R12": (84.3, 41.6, 90), "R13": (86.0, 41.6, 90), "R14": (87.8, 41.6, 90),
+    "C17": (81.2, 51.6, 270), "C18": (79.6, 44.4, 180), "C19": (91.0, 45.0, 0), "R11": (91.0, 46.9, 0),
+    # feedback / PG pull-up row 2.5 mm above U2's top pins: room for the vias of the four nets leaving U2's corner
+    "C20": (82.6, 40.0, 90), "R12": (84.3, 40.0, 90), "R13": (86.0, 40.0, 90), "R14": (87.8, 40.0, 90),
     "J5": (84.5, 58.6, 180),
     # 5  3.3 V LDO (LT3045)
     "U3": (73.0, 50.5, 0), "C24": (69.0, 49.8, 90), "C25": (77.0, 49.8, 90),
@@ -166,7 +172,17 @@ HOLES = [(4.0, 4.0), (W - 4.0, 4.0), (4.0, H - 4.0), (W - 4.0, H - 4.0)]
 
 
 def load():
-    return pcbnew.LoadBoard(PCB)
+    """Load the board with the net classes from the .kicad_pro on disk. pcbnew keeps a project in memory once one of its
+    boards is loaded (here: by the schematic export), and a later LoadBoard reuses that copy, even after write_project()
+    changed the file. Without the classes no HV rule in the .kicad_dru matches (they test A.NetClass) and the pours are
+    filled at 0.2 mm everywhere. So unload the cached project first, and check the classes arrived."""
+    sm = pcbnew.GetSettingsManager()
+    pro = sm.GetProject(os.path.abspath(os.path.join(OUT, NAME + ".kicad_pro")))
+    if pro: sm.UnloadProject(pro, False)
+    b = pcbnew.LoadBoard(PCB)
+    got = {str(k) for k in b.GetDesignSettings().m_NetSettings.GetNetclasses()}
+    assert set(CLASSES) <= got, f"net classes missing after load: {set(CLASSES) - got}"
+    return b
 
 
 def setup(b):
@@ -343,6 +359,10 @@ def pours(b):
     zone(b, "GND", [F], [(70.2, 13.75), (72.6, 13.75), (72.6, 17.7), (70.2, 17.7)], 10, name="Q2_SOURCE")
     for ref in EXEMPT:                                         # rule area for the IC pin-field exemption (.kicad_dru)
         x0, y0, x1, y1 = exempt_rect(b, ref)
+        # The router exempts a track by its centreline; the copper reaches half a width (0.2 mm) further, plus one grid
+        # cell. The rule area is the router's region grown by that much, so every bit of copper the router spaced at
+        # 0.2 mm lies inside it, and everything outside it has the full spacing (pinfield_audit checks this).
+        g = EXEMPT_EDGE; x0, y0, x1, y1 = x0 - g, y0 - g, x1 + g, y1 + g
         ra = pcbnew.ZONE(b); ls = pcbnew.LSET(); ls.AddLayer(F); ra.SetLayerSet(ls)          # F.Cu: where the pins are
         ra.SetIsRuleArea(True); ra.SetDoNotAllowTracks(False); ra.SetDoNotAllowVias(False); ra.SetDoNotAllowPads(False)
         ra.SetDoNotAllowCopperPour(False); ra.SetDoNotAllowFootprints(False); ra.SetZoneName(f"{ref}_PINS")
@@ -421,6 +441,12 @@ def fresh():
 
 
 def fill(b):
+    """Pour the zones. pcbnew.LoadBoard does not load the .kicad_dru into the board's DRC engine, and the zone filler asks
+    that engine for each clearance, so a bare fill uses the net-class clearance (0.2 mm) everywhere and ignores the
+    HV rules. WriteDRCReport loads the rules file into the engine (and runs a DRC we throw away); the filler then
+    knocks the pours back by the right amount."""
+    import tempfile
+    pcbnew.WriteDRCReport(b, os.path.join(tempfile.gettempdir(), "avionics_prime_drc.rpt"), pcbnew.EDA_UNITS_MM, False)
     b.BuildConnectivity()
     pcbnew.ZONE_FILLER(b).Fill(b.Zones())
     b.BuildConnectivity()
@@ -547,8 +573,13 @@ def route(b, kelvin, prio=()):
     kelvin_pads = {pad(r, n).m_Uuid.AsString() for r, n in (("U1", 1), ("U1", 24), ("C4", 1), ("C4", 2))}
     failed = []
     # explicit connections around U1: (net, from pad, to pad or to a point in a pour)
-    steps = [("+12V", ("U1", 20), (80.0, 30.5)),                       # EXTVCC into the +12V pour, not onto the Kelvin line
-             ("VIN_PROT", ("U1", 19), ("R2", 1)), ("/Buck_12V/INTVCC12", ("U1", 22), ("U1", 5)),
+    # U1's left pins 19-23 all leave to the left and turn down. In this order nothing has to cross: INTVCC (22) dives
+    # to B.Cu at the pin, OVLO (23) then RUN (21) wrap around to their dividers below the IC, EXTVCC (20) goes down
+    # outside them to the +12V pour, and VIN (19) runs on B.Cu under the IC to the VIN_PROT end of the OVLO divider.
+    steps = [("/Buck_12V/INTVCC12", ("U1", 22), ("U1", 5)), ("/Buck_12V/OVLO12", ("U1", 23), ("R4", 2)),
+             ("/Buck_12V/RUN12", ("U1", 21), ("R2", 2)),
+             ("+12V", ("U1", 20), (80.0, 30.5)),                       # EXTVCC into the +12V pour, not onto the Kelvin line
+             ("VIN_PROT", ("U1", 19), ("R4", 1)),
              ("/Buck_12V/TG12", ("U1", 13), ("Q1", 4)), ("/Buck_12V/SW12", ("U1", 14), (68.4, 11.9)),
              ("/Buck_12V/BST12", ("U1", 15), ("C5", 1)), ("/Buck_12V/BG12", ("U1", 16), ("Q2", 4)),
              ("/Buck_12V/DRVCC12", ("U1", 17), ("Q3", 3)), ("/Buck_12V/NDRV12", ("U1", 18), ("Q3", 1)),
@@ -569,9 +600,12 @@ def route(b, kelvin, prio=()):
         todo, bad = 0, []
         for net in nets:
             isl = islands(b, net)
-            while len(isl) > 1:
+            stuck = set()                                      # pads of islands that could not be joined this round
+            while True:
+                main = max(isl, key=len)
+                rest = [p for g in isl if g is not main for p in g if p.m_Uuid.AsString() not in stuck]
+                if not rest: break
                 todo += 1
-                main = max(isl, key=len); rest = [p for g in isl if g is not main for p in g]
                 d2 = lambda xy: (abs_pt(xy[0])[0] - abs_pt(xy[1])[0]) ** 2 + (abs_pt(xy[0])[1] - abs_pt(xy[1])[1]) ** 2
                 pairs = sorted(((x, y) for x in main for y in rest), key=d2)
                 seen, cand = set(), []
@@ -586,8 +620,11 @@ def route(b, kelvin, prio=()):
                     items, w = route_pads(R, net, pb, pa, widths_for(net))
                     if items is not None: break
                 tag = f"{net} {pb.GetParentFootprint().GetReference()}.{pb.GetNumber()} -> {pa.GetParentFootprint().GetReference()}.{pa.GetNumber()}"
-                if items is None:
-                    bad.append((net, tag)); log("  FAILED", tag); break
+                if items is None:                               # give up on this island only; try the net's others
+                    bad.append((net, tag)); log("  FAILED", tag)
+                    g = next(g for g in isl if any(p.m_Uuid.AsString() == pb.m_Uuid.AsString() for p in g))
+                    stuck |= {p.m_Uuid.AsString() for p in g}
+                    continue
                 log(f"  {tag}: w {w}")
                 b.BuildConnectivity()
                 n0 = len(isl); isl = islands(b, net)
@@ -674,6 +711,37 @@ def drc(b):
     return d, cnt
 
 
+def pinfield_audit(b):
+    """Check the exemption is not being abused. The DRC rule lets two items 0.2 mm apart when both *touch* the pin-field
+    area, so a long track that leaves the area keeps the 0.2 mm allowance along its whole length. Here every pair of
+    such items (different nets, groups that need more than 0.2 mm) is cut back to the copper outside the area, and
+    the gap between what is left is measured by bisection on KiCad's own shape collision test.
+    Returns [(net A, net B, gap mm, needed mm)] for pairs closer than they should be outside the pin field."""
+    group = lambda n: c if (c := netclass_of(n)) in HV else "LV"
+    need = lambda a, b_: CLEAR.get((a, b_)) or CLEAR.get((b_, a)) or MIN_CLEAR
+    bad = []
+    for ref in EXEMPT:
+        area = next(z for z in b.Zones() if z.GetZoneName() == f"{ref}_PINS").Outline()
+        items = [t for t in b.GetTracks() if t.IsOnLayer(F)] + [p for fp in b.GetFootprints() for p in fp.Pads() if p.IsOnLayer(F)]
+        out = []
+        for it in items:
+            if not it.GetEffectiveShape(F).Collide(area.Outline(0), 0) and not area.Contains(it.GetPosition()): continue
+            ps = pcbnew.SHAPE_POLY_SET()
+            it.TransformShapeToPolygon(ps, F, 0, int(0.005 * MM), pcbnew.ERROR_OUTSIDE)
+            ps.BooleanSubtract(area)
+            if ps.OutlineCount(): out.append((it.GetNetname(), group(it.GetNetname()), ps))
+        for i, (na, ga, pa) in enumerate(out):
+            for nb, gb, pb in out[i + 1:]:
+                r = need(ga, gb)
+                if na == nb or r <= MIN_CLEAR or not pa.Collide(pb, int(r * MM) - 1000): continue
+                lo, hi = 0.0, r                   # the item pair touches inside r: find the actual gap
+                for _ in range(12):
+                    m = (lo + hi) / 2
+                    lo, hi = (lo, m) if pa.Collide(pb, int(m * MM)) else (m, hi)
+                bad.append((na, nb, round(hi, 3), r))
+    return bad
+
+
 def fab():
     """JLCPCB files in kicad/Avionics_Board/jlcpcb/: Gerbers + Excellon drill (zipped), BOM and CPL in JLC's column format.
     The LCSC column is left empty: JLC matches on the manufacturer part number in 'Comment' or you pick parts there."""
@@ -698,6 +766,7 @@ def fab():
         if fp.GetAttributes() & pcbnew.FP_EXCLUDE_FROM_BOM: continue
         ref = fp.GetReference(); pn, rating = spec.get(ref, ("", ""))
         comment = " ".join(x for x in (fp.GetValue(), pn, rating) if x)
+        for a, c in (("µ", "u"), ("Ω", "R"), ("≤", "<="), ("≥", ">=")): comment = comment.replace(a, c)   # JLC's matcher
         key = (comment, fp.GetFPID().GetLibItemName().wx_str())
         groups.setdefault(key, []).append(ref)
     nat = lambda r: (re.sub(r"\d", "", r), int(re.sub(r"\D", "", r) or 0))
@@ -728,7 +797,7 @@ if __name__ == "__main__":
         b = start()
         log("courtyard overlaps:", courtyard_overlaps(b))
         render(b, os.path.join(OUT, "layout_place.png"), "placement")
-        pcbnew.SaveBoard(PCB, b); sys.exit()
+        pcbnew.SaveBoard(PCB, b); write_project(); write_rules(); sys.exit()
     # rip-up and retry: lay the board out again with the nets that failed routed first, keep the best pass
     best, prio = None, []
     for n in range(1, 6):
@@ -750,16 +819,19 @@ if __name__ == "__main__":
     fill(b)
     hidden = silk(b)
     log("references kept on F.Fab only (no room on the silkscreen):", " ".join(hidden))
-    pcbnew.SaveBoard(PCB, b)
+    pcbnew.SaveBoard(PCB, b); write_project(); write_rules()   # SaveBoard rewrites the .kicad_pro: put the classes back
     render(b, os.path.join(OUT, "layout_routed.png"), "routed")
     d, cnt = drc(b)
     nunc = len(d.get("unconnected_items", []))
     log("unrouted:", nunc, "failed routes:", len(failed))
+    audit = pinfield_audit(b)
+    log("pin-field audit, pairs short of full spacing outside the exempt area:", audit)
     for k, n in sorted(cnt.items()): log(f"  {k[0]:8s} {k[1]:28s} {n}")
     tr = [t for t in b.GetTracks() if t.GetClass() == "PCB_TRACK"]
     stats = dict(tracks=len(tr), vias=sum(1 for t in b.GetTracks() if t.GetClass() == "PCB_VIA"),
                  length_mm={b.GetLayerName(L): round(sum(t.GetLength() for t in tr if t.GetLayer() == L) / MM, 1) for L in (F, B_)},
                  routed_by_router=len(R.added), failed=failed, hidden_refs=hidden, unconnected=nunc,
                  drc={f"{k[0]}:{k[1]}": n for k, n in sorted(cnt.items())}, schematic_parity=len(d.get("schematic_parity", [])),
-                 parts=sum(1 for fp in b.GetFootprints() if not fp.GetReference().startswith("H")))
+                 parts=sum(1 for fp in b.GetFootprints() if not fp.GetReference().startswith("H")),
+                 pinfield_audit=audit)
     json.dump(stats, open(os.path.join(OUT, "layout_stats.json"), "w"), indent=1)

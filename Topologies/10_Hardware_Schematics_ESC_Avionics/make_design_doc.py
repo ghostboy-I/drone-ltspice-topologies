@@ -200,33 +200,38 @@ doc.p("pcb_avionics.py turns the netted KiCad board into a manufacturable one: 4
       "In2 are solid ground planes; F.Cu carries the power pours and B.Cu a ground pour plus the signal crossings. The layout is a "
       "script, so a schematic change is one re-run: export → place → pour → route → fill → DRC → Gerbers.", size=9.5)
 # --- clearances
-pk = {"HVIN": "200 (pack surge)", "HVF": f"{ms['vprot_max']:.0f}–122", "HVSW": "0–126 (SW + BST)", "PWR / DRV / signal": "≤ 13"}
+pk = {"HVIN": "200 (surge)", "HVF": f"{ms['vprot_max']:.0f}–122", "HVSW": "0–126", "PWR / DRV / signal": "≤ 13"}
 doc.p("Clearance. IPC-2221B table 6-1, column B2 (external, uncoated, below 3050 m), gives the minimum spacing for the peak "
       "voltage between two conductors: 31–150 V → 0.6 mm, 151–300 V → 1.25 mm. Inner layers (B1) need only 0.2 mm up to 300 V; 0.5 mm "
       "is used. The peak voltages are from Avionics_SurgeTest (pack 1 stepped to 200 V behind 4 Ω). Nets are grouped by voltage, and "
       "the rule applies to the difference between the two groups' peaks:", size=9.5)
-doc.table(["Net class (group)", "Nets", "Peak (V)", "Outer clearance to LV"], [
-    ["HVIN", "PACK1-3+, PACK1-3_F, VIN_AV", pk["HVIN"], "1.25 mm (0.6 to HVF, 1.25 to HVSW)"],
-    ["HVF", "VIN_PROT and the floating LTC4366 nets", pk["HVF"], "0.6 mm"],
+doc.table(["Group", "Nets", "Peak (V)", "Outer clearance to LV"], [
+    ["HVIN", "PACK1-3+, PACK1-3_F, VIN_AV", pk["HVIN"], "1.25 mm (0.6 to HVF)"],
+    ["HVF", "VIN_PROT, LTC4366 floating nets", pk["HVF"], "0.6 mm"],
     ["HVSW", "SW12, BST12, TG12", pk["HVSW"], "0.6 mm (0.6 to HVF)"],
-    ["PWR / DRV / signal", "+12V, +5V, +3V3, GND, drivers, control", pk["PWR / DRV / signal"], "0.2 mm (JLC 2 oz minimum)"],
-], widths=[0.17, 0.37, 0.16, 0.3])
+    ["LV", "+12V/+5V/+3V3, GND, drivers, control", pk["PWR / DRV / signal"], "0.2 mm (JLC 2 oz minimum)"],
+], widths=[0.11, 0.38, 0.17, 0.34])
 doc.p("Inside one group the spacing is 0.2 mm: the floating LTC4366 nets all sit within 13 V of each other, and BST12 is SW12 + "
       "12 V. One exception: the LTC7801's own pinout puts VIN (pin 19) 0.65 mm from low-voltage pins, so the IC's pin field is a "
       "KiCad rule area where 0.2 mm applies. Its HTSSOP-24 pitch cannot meet B2, which is why the datasheet derates. Conformal "
-      "coating (IPC B4: 0.13 mm up to 150 V) covers this; coat the board.", size=9.5)
+      "coating (IPC B4: 0.13 mm up to 150 V) covers this; coat the board. The rule applies when both items touch the area, so a "
+      "long track that leaves it would keep 0.2 mm along its whole length, and a ground pour (which covers the area) would get "
+      "0.2 mm to every HV pin. So zones are excluded from the exemption, and pinfield_audit() cuts every exempt item back to the "
+      "copper outside the area and measures the gaps that are left: all must meet the full rule. The router exempts a track by its "
+      "centreline, while the copper reaches half a width further, so the rule area is the router's region grown by 0.25 mm "
+      "(0.2 mm half-width + one 0.05 mm cell); without that margin the audit found BG12 0.56 mm from BST12 right at the edge.", size=9.5)
 # --- trace width
 ipc = lambda w_mm, oz=2, dT=10: 0.048 * dT ** 0.44 * ((w_mm / 0.0254) * oz * 1.378) ** 0.725
 i_in = av["i_in"]; i_in_max = U1.vset * U1.iout / 0.93 / 71.25
 doc.p("Track width. IPC-2221 (external): I = 0.048 ΔT^0.44 A^0.725, with A the cross-section in mil² (2 oz = 2.76 mil) and ΔT "
-      "the allowed rise. At ΔT = 10 °C:", size=9.5)
+      "the allowed rise. At ΔT = 10 °C (the input maximum is 5 A out of the 12 V stage from the lowest pack, 71 V, at 93 %):", size=9.5)
 doc.eq(r"I_{1.0\,mm} = 0.048\cdot 10^{0.44}\,(39.4\cdot 2.76)^{0.725} = %.1f\ \mathrm{A} \qquad I_{0.5\,mm} = %.1f\ \mathrm{A} \qquad I_{0.2\,mm} = %.1f\ \mathrm{A}" % (ipc(1.0), ipc(0.5), ipc(0.2)), size=11)
 doc.table(["Path", "Current", "Copper", "Capacity (ΔT 10 °C)"], [
-    ["Pack inputs → diodes → Q4 (HVIN)", f"{i_in:.2f} A typ, {i_in_max:.2f} A at 5 A out, 71 V", "1.0 mm tracks + pours", f"{ipc(1.0):.1f} A"],
-    ["12 V stage: SW → L1 → R1 → +12V", f"{U1.iout:.0f} A max", "pours ≥ 4 mm wide", f"{ipc(4.0):.0f} A"],
-    ["+5V / +3V3 taps to ICs", "< 0.5 A", "0.5 mm (0.2 at fine-pitch pins)", f"{ipc(0.5):.1f} A / {ipc(0.2):.1f} A"],
-    ["Signals, feedback, gate drive", "mA (gate peaks ~1 A for ns)", "0.2–0.4 mm", f"{ipc(0.2):.1f}–{ipc(0.4):.1f} A"],
-], widths=[0.33, 0.29, 0.2, 0.18])
+    ["Pack inputs → Q4 (HVIN)", f"{i_in:.2f} A typ, {i_in_max:.2f} A max", "1.0 mm + pours", f"{ipc(1.0):.1f} A"],
+    ["12 V: SW → L1 → R1 → +12V", f"{U1.iout:.0f} A max", "pours ≥ 4 mm", f"{ipc(4.0):.0f} A"],
+    ["+5V / +3V3 taps to ICs", "< 0.5 A", "0.5 mm (0.2 at pins)", f"{ipc(0.5):.1f} A / {ipc(0.2):.1f} A"],
+    ["Signals, gate drive", "mA (gate ~1 A for ns)", "0.2–0.4 mm", f"{ipc(0.2):.1f}–{ipc(0.4):.1f} A"],
+], widths=[0.3, 0.27, 0.22, 0.21])
 # --- hot loop and Kelvin
 mu0 = 4e-7 * math.pi; h_pp = 0.21e-3; l_loop = (71.9 - 51.35) * 1e-3; w_loop = 5e-3
 L_loop = mu0 * h_pp * l_loop / w_loop; didt = U1.iout / 10e-9
@@ -252,6 +257,15 @@ doc.p("The first version used a 0.1 mm grid and no margin; KiCad's DRC found 51 
       "error. Order matters too: the gate drive and the Kelvin pair go first, then a ground via beside every ground pad, then the "
       "small-signal nets (they need the short paths between IC pins), then the power taps, ground last. A track wider than a "
       "fine-pitch pin cannot reach it, so each connection retries at 0.4, 0.3, 0.25 and 0.2 mm.", size=9.5)
+doc.p("Checking the checker. The first full run reported 0 DRC errors, and that was wrong. The rules were correct in the files, "
+      "but two things kept them from the zone filler. (1) pcbnew.LoadBoard does not load the .kicad_dru into the board's DRC "
+      "engine, and the filler asks that engine for every clearance, so it used the net-class value, 0.2 mm, everywhere. Calling "
+      "WriteDRCReport first loads the rules file into the engine. (2) pcbnew keeps a project in memory after the first board is "
+      "loaded and reuses it, so a reload missed the net classes written to the .kicad_pro afterwards. With no HV classes, no rule "
+      "in the .kicad_dru matches (they all test A.NetClass), and the DRC agreed with a fill that was wrong. Re-checking with the "
+      "classes in place gave 240 violations: pours 0.2 mm from 100–200 V copper. The fix unloads the cached project before every "
+      "load and asserts that the classes arrived. The layout's clearances were then measured independently with KiCad's shape "
+      "collision test: GND pour to HVIN ≥ 1.25 mm and to HVF/HVSW ≥ 0.6 mm on F.Cu/B.Cu, and ≥ 0.5 mm on the inner planes.", size=9.5)
 drc = ls["drc"]
 err = sum(v for k, v in drc.items() if k.startswith("error")); warn = {k.split(":")[1]: v for k, v in drc.items() if k.startswith("warning")}
 doc.table(["Result", "Value"], [
@@ -261,9 +275,11 @@ doc.table(["Result", "Value"], [
     ["DRC errors", f"{err}" + ("" if not err else "  (" + ", ".join(f"{k.split(':')[1]} {v}" for k, v in drc.items() if k.startswith('error')) + ")")],
     ["DRC warnings", ", ".join(f"{k} {v}" for k, v in warn.items()) or "0"],
     ["Schematic ↔ PCB parity issues", f"{ls['schematic_parity']}"],
+    ["Pin-field audit failures (outside U1 area)", f"{len(ls['pinfield_audit'])}"],
     ["References on F.Fab only (no silkscreen room)", f"{len(ls['hidden_refs'])} of {ls['parts']}"],
 ], widths=[0.45, 0.55])
 doc.img(os.path.join(kd, "layout_routed.png"), width=6.6)
+doc.img(os.path.join(kd, "board_3d_top.png"), width=5.2)
 doc.p("Fabrication files (python3 pcb_avionics.py fab → kicad/Avionics_Board/jlcpcb/): Gerbers for the 4 copper layers, mask, "
       "paste, silkscreen and outline, Excellon drill (plated and non-plated), all in one zip for upload; the BOM and the CPL "
       "(placement) in JLC's column format. Check each part's rotation in JLC's preview before ordering: footprint zero "
@@ -278,6 +294,7 @@ doc.bullets([
     "Behavioural loads that draw a constant current even at 0 V drag a rail negative at start-up and break the IC models. Scale every load by limit(V/Vnom, 0, 1).",
     "Encrypted IC models and .ic: forcing a soft-start pin or a rail at the operating point can leave a model in a state a real chip never reaches. Let the controllers start from cold, and give .ic only what is physically fixed (rotor speed).",
     "Missing parts the simulation found: gate-source pull-downs (without them the high-side FETs drift on through Cgd while the drivers are unpowered), and the LT1763 bypass capacitors (10 nF slows start-up to several ms; now 'do not fit').",
+    "A DRC that passes is only as good as the rules it was given. The first full layout run reported 0 errors because the rules never reached the zone filler: pcbnew.LoadBoard skips the .kicad_dru, and a reload reused a cached project without the HV net classes. With the classes in place the same board had 240 violations (pours 0.2 mm from 100–200 V copper). Check that the rules are loaded (assert the classes) and measure a few clearances by an independent method.",
     "Burst Mode on the avionics 12 V gave a 90 mV, 25 kHz sawtooth at light load, which a radio does not want. MODE is tied to INTVCC (forced continuous).",
     "Driver enable dipped the first ESC's +12V to 7.4 V: all three bootstrap capacitors (3 × 1 µF) charge from the rail at once, and it had only ~10 µF. A 47 µF X7R (≈22 µF at 12 V) brings the minimum to 9.9 V. Charge sharing, ΔV ≈ 3·Cboot·12 V / C12, predicts 11.0 V; the rest is the drivers' own start-up current before the loop responds.",
     "A sensor model can lie too: the first ACS770 model got its 120 kHz bandwidth from 1 kΩ + 1.3 nF, and that 1 kΩ, loaded by the 30 kΩ ADC divider, lost 3 % of the signal. The real part's output impedance is a few ohms, so the model now uses 10 Ω + 133 nF.",
@@ -289,6 +306,7 @@ doc.bullets([
     "Clearance is set by the voltage between two conductors, not by the voltage of either one. Group the nets by peak voltage (from the surge simulation) and give KiCad one rule per pair of groups.",
     "Close the hot loop through the plane directly underneath it: L ≈ µ0·h·l/w with h = 0.21 mm is about 1 nH, a tenth of a loop drawn side by side.",
     "A grid router must add the grid's own error (half a cell diagonal) to every clearance, or the real copper ends up closer than the rule. KiCad's DRC is the check that catches it.",
+    "Test the checker as well as the board: a DRC that reports 0 errors may simply not have loaded the rules. A deliberately bad case, or an independent clearance measurement, shows whether it is working.",
     "Describe the board once (a parts table) and generate the simulation, BOM and net list from it. That way what you simulated is what you build.",
     "A current-mode buck is a Type II loop on a single pole, plus about one switching period of delay. The delay costs ~25° of phase at fc ≈ fsw/13.",
     "You can measure a loop gain on a switching model with a series sine injection and a correlation at the injection frequency, which works even when the controller model is encrypted.",

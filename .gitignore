@@ -27,3 +27,6 @@ orchestrator/logs/
 *-backups/
 fp-info-cache
 *.kicad_prl
+
+# Loose Gerbers next to the zip (pcb_avionics.py fab); the zip, BOM and CPL are tracked
+**/jlcpcb/gerbers/
