@@ -3483,7 +3483,7 @@ Entry 05's diameter splits are the exception, because they change the disc areas
 **Hand checks.**
 - **The constant.** 1539 W × 0.4884 Wh/W = 752 Wh, and 752/303.3 = **2.48 kg** ✓.
   - Independently: the cruise segment is 18.52 km at 15 m/s, which is 1235 s. Then 1539 W × 1235 s / 3600 / (1 − 0.20) = 660 Wh.
-  - The mission model's 752 Wh is 14 % more. That is the drivetrain and ESC efficiency (≈ 0.88) the mission model applies between shaft and pack: 660/0.88 = 750 ✓.
+  - The mission model's 752 Wh is 14 % more. That is the efficiency the mission model applies between shaft and pack (params.yaml: η_motor·ESC 0.905 × η_battery·wiring 0.97 = 0.878): 660/0.878 = **752 Wh** ✓.
 - **Entry 06 row against entry 07.** +0.11 − 2.48 = **−2.37 kg**, exactly entry 07's own h/D 0.2 figure ✓. That confirms the constant is additive.
 - **Entry 05, 54/62.1.**
   - G/b = 10.8/58.05 = 0.186, so σ = (1 − 0.123)/(1.055 + 0.688) = 0.503. At G/b 0.2, σ = 0.868/1.795 = 0.484.
