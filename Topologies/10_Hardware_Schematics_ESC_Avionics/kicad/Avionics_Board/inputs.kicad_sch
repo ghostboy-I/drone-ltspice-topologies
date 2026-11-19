@@ -2848,7 +2848,7 @@
         (justify left)
       )
     )
-    (property "Footprint" "Drone_Power:C_0805_2012Metric"
+    (property "Footprint" "Drone_Power:C_1206_3216Metric"
       (at 119.38 59.69 0)
       (effects
         (font
@@ -2875,7 +2875,7 @@
         (hide yes)
       )
     )
-    (property "MPN/Spec" "X7R"
+    (property "MPN/Spec" "X7R 1206 250 V (e.g. Murata GRM31BR72E103KW01)"
       (at 119.38 59.69 0)
       (effects
         (font
@@ -2884,7 +2884,7 @@
         (hide yes)
       )
     )
-    (property "Rating" "25 V"
+    (property "Rating" "250 V"
       (at 119.38 59.69 0)
       (effects
         (font

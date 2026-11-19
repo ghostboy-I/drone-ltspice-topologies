@@ -19,7 +19,7 @@ C21 C22,2,Output ceramic,47µ,X7R 1210 (~30 µF at 5 V),Capacitor_SMD:C_1210_322
 C23,1,CSET (noise filter / soft-start),47n,X7R,Capacitor_SMD:C_0603_1608Metric,
 C24,1,U3 input,4.7µ,X7R,Capacitor_SMD:C_0805_2012Metric,10 V
 C25,1,U3 output,4.7µ,X7R,Capacitor_SMD:C_0805_2012Metric,10 V
-C26,1,CG: gate ramp; bypasses Q4's Cgd during a surge,10n,X7R,Capacitor_SMD:C_0805_2012Metric,25 V
+C26,1,CG: gate ramp; bypasses Q4's Cgd during a surge,10n,X7R 1206 250 V (e.g. Murata GRM31BR72E103KW01),Capacitor_SMD:C_1206_3216Metric,250 V
 C27,1,CT: 51 ms overvoltage time (3.5 nF/ms),180n,X7R,Capacitor_SMD:C_0603_1608Metric,
 C28,1,C1: OUT-VSS supply of the LTC4366 (5.7 V),470n,X7R,Capacitor_SMD:C_0805_2012Metric,25 V
 D1 D2 D3,3,"Diode-OR, ultrafast 200 V 1 A",ES1D,ES1D,Diode_SMD:D_SMA,200 V 1 A
