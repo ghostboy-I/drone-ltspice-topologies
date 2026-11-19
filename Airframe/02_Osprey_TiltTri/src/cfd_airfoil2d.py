@@ -31,6 +31,24 @@ What it took to get a converged run (kept here because each was a real failure):
      boundary layer forms. Fix: Spalart-Allmaras (the airfoil-calibrated one-equation model) with the physical
      freestream nuTilda = 3 nu (NASA TMR) at the far field but a viscous start (nuTilda = 0.007 U c) inside; the
      start is convected out and the converged answer does not depend on it.
+  4. The start leaked into the wall: the first 14-case run converged to cl ~40 % low and cd 5-7x high (NACA 4415,
+     alpha 4: cl 0.52 vs XFOIL 0.93, cd 0.056 vs 0.0074). nuTilda on the airfoil was ~0.0175 m^2/s (1000 nu) at the
+     end, under a "fixedValue 0" BC. OpenFOAM 13's bound() (finiteVolume/.../bound.C), called whenever nuTilda goes
+     negative somewhere, also does  bsf == max(bsf, patchInternalField * pos0(-bsf))  on every patch: a patch value
+     <= 0 is overwritten (forced, ==) by the adjacent cell's value. In iteration 2-3 that was the viscous start-up
+     field; the wall was then positive, pos0 = 0, and the value froze for the whole run (it scaled exactly with the
+     start value: 0.0087 for half of it). A turbulent source on the wall thickened the boundary layer 2-3x and put
+     friction drag at 3.6x the flat-plate value. Fix: wall value 1e-30 (physically zero, but > 0 so bound() leaves it).
+  5. Wall distance. With item 4 fixed the 4415 at alpha 4 gave cl 0.738, cd 0.0272, and the 0012 at alpha 0 cd 0.0217
+     against XFOIL tripped at the LE (0.850 / 0.0140 and 0.0120). Near the wall nuTilda followed kappa u_tau y at y+ 1
+     but ran 1.3-1.45x above it by y+ ~20, the signature of an overestimated wall distance d (SA's destruction term goes
+     as (nuTilda/d)^2). meshWave on these 5 mm x 0.02 mm wall cells is the suspect; Poisson gave cl 0.791, cd 0.0205
+     and 0012 cd 0.0153 (friction 0.0126, pressure 0.0027), and advectionDiffusion gave the same as Poisson to 4 digits
+     (and crashed on the 0012), so Poisson is used. What remains is the usual SA vs. XFOIL-integral-BL spread: a
+     tripped turbulent flat plate gives friction 2 x 0.074 Re^-0.2 = 0.0101, x ~1.15 for a 12 % section's
+     supervelocities = 0.0116 against CFD 0.0126.
+Reference: SA is fully turbulent, so post() compares against XFOIL both free (ncrit 9, what sizing used) and tripped
+at 1 % chord (the like-for-like turbulence state).
 """
 import json, math, os, shutil, subprocess, sys
 import numpy as np
@@ -177,11 +195,12 @@ divSchemes
 laplacianSchemes { default Gauss linear corrected; }
 interpolationSchemes { default linear; }
 snGradSchemes { default corrected; }
-wallDist { method meshWave; }
+wallDist { method Poisson; }                                     // see docstring item 5
 """
     files["system/fvSolution"] = HDR.format(cls="dictionary", loc="", obj="fvSolution") + """
 solvers
 {
+    yPsi { solver GAMG; smoother GaussSeidel; tolerance 1e-8; relTol 0; }
     p { solver GAMG; smoother GaussSeidel; tolerance 1e-7; relTol 0.1; }
     "(U|nuTilda)" { solver smoothSolver; smoother GaussSeidel; tolerance 1e-9; relTol 0.1; nSweeps 2; }
 }
@@ -193,7 +212,7 @@ relaxationFactors { fields { p 0.3; } equations { U 0.7; nuTilda 0.7; } }
     Uv = f"({Ux:.8f} {Uy:.8f} 0)"
     files["0/U"] = bc("U", "volVectorField", "[0 1 -1 0 0 0 0]", Uv, f"type freestreamVelocity; freestreamValue uniform {Uv}; value uniform {Uv};", "type noSlip;")
     files["0/p"] = bc("p", "volScalarField", "[0 2 -2 0 0 0 0]", "0", "type freestreamPressure; freestreamValue uniform 0; value uniform 0;", "type zeroGradient;")
-    files["0/nuTilda"] = bc("nuTilda", "volScalarField", "[0 2 -1 0 0 0 0]", f"{nt_0:.6e}", f"type freestream; freestreamValue uniform {nt_inf:.6e};", "type fixedValue; value uniform 0;")
+    files["0/nuTilda"] = bc("nuTilda", "volScalarField", "[0 2 -1 0 0 0 0]", f"{nt_0:.6e}", f"type freestream; freestreamValue uniform {nt_inf:.6e};", "type fixedValue; value uniform 1e-30;")   # > 0: see docstring item 4
     files["0/nut"] = bc("nut", "volScalarField", "[0 2 -1 0 0 0 0]", f"{nt_0:.6e}", f"type freestream; freestreamValue uniform {nt_inf:.6e};", "type nutUSpaldingWallFunction; value uniform 0;")
     return files
 
@@ -209,6 +228,11 @@ def setup(codes=("4415", "0012")):
         bmd, info = block_mesh_dict(code, c, U, nu, dz)
         for a in alphas:
             d = os.path.join(CFD, code, f"a{a:+03d}")
+            if os.path.isdir(d):                                  # clear the previous run so run_all.sh re-runs it
+                for e in os.listdir(d):
+                    if e == "postProcessing" or e.startswith("log.") or (e not in ("0", "constant", "system") and e.replace(".", "").isdigit()):
+                        pth = os.path.join(d, e); shutil.rmtree(pth) if os.path.isdir(pth) else os.remove(pth)
+                shutil.rmtree(os.path.join(d, "0"), ignore_errors=True)
             for sub in ("system", "constant", "0"): os.makedirs(os.path.join(d, sub), exist_ok=True)
             with open(os.path.join(d, "system", "blockMeshDict"), "w") as f: f.write(bmd)
             for k_, txt in case_files(code, a, c, U, nu, dz).items():
@@ -245,9 +269,27 @@ def mesh(code):
     print(subprocess.run(["bash", "-c", cmd], capture_output=True, text=True).stdout)
 
 
+def xfoil_polar(naca, re, mach, xtr=1.0, ncrit=9.0):
+    """XFOIL polar at one Re, free transition (xtr 1) or tripped (xtr 0.01). Rows (alpha, cl, cd, cdp, cm)."""
+    import tempfile, airfoils
+    with tempfile.TemporaryDirectory() as td:
+        cmds = (f"PLOP\nG F\n\nNACA {naca}\nPPAR\nN 200\n\n\nOPER\nVISC {re:.0f}\nMACH {mach:.3f}\nVPAR\nN {ncrit}\n"
+                f"XTR {xtr} {xtr}\n\nITER 300\nPACC\np.txt\n\nASEQ 0 18 1\nINIT\nASEQ -1 -6 -1\nPACC\n\nQUIT\n")
+        env = dict(os.environ); env.pop("DISPLAY", None)
+        if os.path.exists(airfoils.SHIM):
+            shutil.copy(airfoils.SHIM, os.path.join(td, "nofpe_shim.so")); env["LD_PRELOAD"] = "./nofpe_shim.so"
+        subprocess.run([airfoils.xfoil_version_and_path()], input=cmds, text=True, capture_output=True, cwd=td, env=env,
+                       timeout=300, errors="replace")
+        rows = []
+        for ln in open(os.path.join(td, "p.txt"), errors="replace"):
+            try: v = [float(x) for x in ln.split()[:5]]
+            except ValueError: continue
+            if len(v) == 5: rows.append(v)
+    return np.array(sorted(rows))
+
+
 def post():
     plan = jload(os.path.join(CFD, "plan.json"))
-    pol = jload(os.path.join(RESULTS, "wing_polars.json"))
     os.makedirs(SUMMARY, exist_ok=True)
     out = {}
     for code, pl in plan.items():
@@ -268,14 +310,15 @@ def post():
             log = open(os.path.join(d, "log.foamRun")).read() if os.path.exists(os.path.join(d, "log.foamRun")) else ""
             rows.append({"alpha": a, "cl": cl, "cd": cd, "cm": cm, "cl_std_last200": osc, "iterations": int(data[-1, 0]),
                          "converged": "SIMPLE solution converged" in log})
-        key = next((k for k in pol if k.startswith(code + "@")), None)
-        if key:
-            P = np.array(pol[key])
+        sz = jload(os.path.join(RESULTS, "sizing.json"))
+        mach = pl["U"] / sz["air"]["a"]
+        for tag, xtr in (("", 1.0), ("_trip", 0.01)):             # free transition (as sizing) and tripped at 1 % c
+            P = xfoil_polar(code, pl["Re"], mach, xtr)
             for r in rows:
-                if "cl" in r:
-                    r["xfoil_cl"] = float(np.interp(r["alpha"], P[:, 0], P[:, 1])); r["xfoil_cd"] = float(np.interp(r["alpha"], P[:, 0], P[:, 2]))
-                    r["diff_cl_pct"] = 100 * (r["cl"] / r["xfoil_cl"] - 1) if abs(r["xfoil_cl"]) > 0.05 else None
-                    r["diff_cd_pct"] = 100 * (r["cd"] / r["xfoil_cd"] - 1)
+                if "cl" not in r or not (P[0, 0] <= r["alpha"] <= P[-1, 0]): continue
+                r[f"xfoil{tag}_cl"] = float(np.interp(r["alpha"], P[:, 0], P[:, 1])); r[f"xfoil{tag}_cd"] = float(np.interp(r["alpha"], P[:, 0], P[:, 2]))
+                r[f"diff{tag}_cl_pct"] = 100 * (r["cl"] / r[f"xfoil{tag}_cl"] - 1) if abs(r[f"xfoil{tag}_cl"]) > 0.05 else None
+                r[f"diff{tag}_cd_pct"] = 100 * (r["cd"] / r[f"xfoil{tag}_cd"] - 1)
         out[code] = {"plan": pl, "rows": rows}
         for a in pl["alphas"]:                                     # keep logs + force histories in the repo
             src = os.path.join(CFD, code, f"a{a:+03d}"); dst = os.path.join(REPO_CFD, code, f"a{a:+03d}")
