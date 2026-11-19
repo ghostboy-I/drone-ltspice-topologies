@@ -2861,7 +2861,7 @@ The chain gives the full-vehicle comparison: hex MN1320 (12 % reserve) against t
 - **Both layouts lose about 4.3 kg, and the cause is mostly hardware, not battery.**
   - Hex: +5.06 → +0.79 kg. Its hardware rises 4.05 kg: six MN1320s at +0.645 kg each = 3.87 kg, plus ESCs sized for 8.2 kW instead of 6.1. The pack rises only 68 Wh.
   - Tri: +1.68 → −2.64 kg. Its hardware rises 2.17 kg (ESCs for 22.8 kW instead of 16.2) and its pack 653 Wh.
-- **Correction to entry 43.** Entry 43 estimated the pack would grow by ≈ 40 % (+7 to +10 kg) because hover power grows 1.42 ×. That was wrong. The mission has only about 1.5 min of hover (as entry 16 recorded), so a 42 % rise in hover power adds only ≈ 130 Wh to the hex's pack at 15 m/s (5056 → 5185 Wh, +2.5 %). The CFD's cost is in the **torque- and power-sized hardware**: motors, ESCs and blade structure. Cruise energy dominates the pack and was not corrected.
+- **Correction to entry 43.** Entry 43 estimated the pack would grow by ≈ 40 % (+7 to +10 kg) because hover power grows 1.42 ×. That was wrong. The mission flies at hover power for only 204 s (params: 15 + 120 + 15 s of hover, a 24 s climb and a 30 s descent flown at hover power), against about 22 min of cruise at 15 m/s. So the pack moves little: the hex's goes 5056 → 5185 Wh at 15 m/s (+2.5 %). The CFD's cost is in the **torque- and power-sized hardware**: motors, ESCs and blade structure. Cruise energy dominates the pack and was not corrected.
 - **The hex keeps its 12 % reserve on the MN1320 at 48.0 dBA.**
   - It is torque-bound at T/W 2 (28.51 N·m), so caps 0.60 and 0.65 give the same design.
   - Moving up again to the V13828 costs 2.1 kg more for 1.7 dB less noise, which is not worth it.
@@ -2885,14 +2885,16 @@ The chain gives the full-vehicle comparison: hex MN1320 (12 % reserve) against t
   - motors: 6 × (2.070 − 1.425) = **3.87 kg**;
   - ESCs: mass ∝ P^0.7, so the ratio is (8160/6099)^0.7 = 1.226, about +23 % on the ESC mass. With entry 10's ESC mass this adds ≈ 0.2 kg over six arms.
   - Total ≈ 4.07 kg, against **4.05** from the optimiser ✓.
-- **The pack, hover only:**
-  - ΔE_pack ≈ (K_P − 1) × P_hover × t_hover / η_batt. Hex: 0.421 × 13.5 kW = +5.7 kW. The 129 Wh rise corresponds to about 81 s of hover-equivalent energy (5.7 kW × 81 s / 3600 = 128 Wh).
-  - That is consistent with the mission's hover-and-climb phases. Cruise at 15 m/s is uncorrected and holds the rest of the ≈ 5 kWh.
+- **The pack, hover-like segments only:**
+  - The chain's hover power for the hex rises 13.5 → 18.1 kW (+4.6 kW, 1.34 ×: K_P = 1.42 on a re-optimised, slightly different blade).
+  - Over 204 s that is 4.6 kW × 204 s / 3600 = **260 Wh** of shaft energy. Through the drive efficiency and the 20 % landing reserve that becomes ≈ 350–400 Wh of pack.
+  - The observed rise is only **129 Wh**. The re-optimised MN1320 blade must cruise ≈ 250 Wh more cheaply than entry 39's MN1123 blade, but that is not separated here.
+  - Either way, the hover correction is worth < 0.4 kWh (< 1.3 kg at 303 Wh/kg), far less than entry 43's estimate.
 - **Payload comparison from mass sums:** hex − tri = sum_tri − sum_hex.
   - 15 m/s, 303: 52.11 − 48.72 = **+3.39** ✓.
   - Free, 303: 45.42 − 46.47 = **−1.05** ✓.
 
-**Lesson.** Before propagating a correction, ask where it enters the objective. A 42 % hover-power penalty sounds catastrophic, but this mission spends 1.5 min in hover and 30+ min in cruise. The correction mostly acts through the *peak* sizing (motor torque, ESC power, tip speed at T/W 2), not through energy. That sizing is exactly where a layout already at the top of its motor range (the tri) breaks.
+**Lesson.** Before propagating a correction, ask where it enters the objective. A 42 % hover-power penalty sounds catastrophic, but this mission spends 3.4 min at hover power and about 22 min in cruise. The correction mostly acts through the *peak* sizing (motor torque, ESC power, tip speed at T/W 2), not through energy. That sizing is exactly where a layout already at the top of its motor range (the tri) breaks.
 
 **Next.**
 - Item 55, the deciding input: a refined-nose or second-loading CFD of the 2-blade reference, to tell whether the 23 % torque excess is real. This needs the CFD machine, so it is the user's and the toroid session's call; the toroid chain runs until about 23:00.
