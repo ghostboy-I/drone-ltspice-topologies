@@ -69,7 +69,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 59. **Measure the pack** (entry 50): a capacity test of the real 24S 55 Ah pack at 1C and at the hover current (about 2.7C), plus its DC resistance. Two numbers decide the 15 m/s case: whether the nameplate holds within 5 %, and the resistance; the model assumed 1.2 mΩ per cell.
 58. ~~Pack model from cells~~ (entry 50: the usable e_b is 223–299 Wh/kg for semi-solid and 147–197 for LiPo, which is below both 15 m/s break-evens, so the hex wins 15 m/s in every pack state, by +0.3 to +4.4 kg on semi-solid. Free speed stays with the tri on semi-solid, while on LiPo it is a tie within ±2 kg.) Original: (entry 49): the 15 m/s ranking moves 0.03 kg per Wh/kg near 300, so a ±20 Wh/kg uncertainty (±0.8 kg) exceeds the margin. Build the pack's usable specific energy up from cell energy, packaging fraction, hot-day usable fraction and end-of-life fade, for both chemistries.
 57. ~~Full chain on the 10 % designs~~ (entry 48: the frame-shift estimates held to within 0.36 kg. At 15 m/s and 303 Wh/kg it is a tie: hex +0.54 kg with 24xx, tri +0.31 with -64. Break-even batteries at 15 m/s are 322 / 294 Wh/kg, and at free speed 171 / 156 Wh/kg.) Original: (entry 47): replace the frame-shift estimate with an exact hex − tri across speed and battery.
-56. **A hex with mixed motors**, MN1123 on some arms and MN1320 on others: yaw and roll authority need a symmetric layout, so it would be three and three in alternation. This fills the payload–noise curve between 46.3 and 50.3 dBA (entry 46), but the unequal rotors complicate control.
+60. **Thrust shifted to the quiet rotors in a mixed hex** (entry 51): the MN1320 rotors have 8 % torque headroom (26.8 of 29.2 N·m). Fly them harder and the MN1123 rotors lighter: the MN1123s get quieter, and the T/W-2 ceiling still holds because the MN1320 pair can supply the difference. This needs off-design BEMT and noise at unequal rpm.
+56. ~~A hex with mixed motors~~ (entry 51: alternating 3 + 3 cannot trim yaw at T/W 2. The ceiling is 1.74, because the MN1320 rotors need 34 % more torque per newton. Opposite pairs work. 2 × MN1123 + 4 × MN1320 gives +3.79 kg at 48.1 dBA, and 4 + 2 gives +4.63 kg at 49.3 dBA, both 0.2–0.3 kg below the straight line between the end points because the louder rotors dominate the sum.) Original: MN1123 on some arms and MN1320 on others: yaw and roll authority need a symmetric layout, so it would be three and three in alternation. This fills the payload–noise curve between 46.3 and 50.3 dBA (entry 46), but the unequal rotors complicate control.
 55. **A second CFD point to separate thrust and torque error** (needs the CFD machine time, so it is the user's and the toroid session's call): a refined leading-edge mesh of the 2-blade reference (the CT validation found coarse noses inflate torque), or the same mesh at a second rpm or loading, to show whether the 23 % torque excess is physical (3-D, root and tip losses) or a mesh artefact.
 
 ## Entries
@@ -3297,4 +3298,74 @@ This is a layout-dependent effect, which a single e_b hides.
 - Item 59: measure the real pack (capacity at 1C and at about 2.7C, plus its DC resistance). That one test settles whether the 15 m/s margin is +0.3 kg or +1.7 kg when new.
 - Item 45 proper (a T/W-2 section with transonic polars), item 42 (serration effectiveness) and item 56 (a mixed-motor hex) remain in the queue.
 - The deciders are still the user's three questions: is 15 m/s fixed, which battery, and what noise limit.
+
+## 51 — A hex with mixed motors: only opposite pairs can trim, and the mix sits just below the straight line (2026-11-18)
+
+**Question.** Entry 46 found the hex's payload–noise curve has only two points: the MN1123 rotor (+5.46 kg, 50.3 dBA, torque-bound) and the MN1320 rotor (+2.95 kg, 46.3 dBA, free torque). The catalogue has nothing in between, at roughly 20–29 N·m. Can putting both motors on one hex fill the gap? And can the vehicle still trim?
+
+**Method.** src/explore/e51_mixed_hex.py, with no new BEMT. Both rotors were optimised in entry 46 in the same hex frame, for the same rotor thrust (W/6) and the same T/W 2, so they can be mixed on one frame directly.
+
+**Trim (the technique).** A hex has its six rotors at 60° spacing, alternating CW and CCW. Hover needs three balances:
+- **Thrust:** the sum is W.
+- **Roll and pitch:** the thrust moments about the centre cancel.
+- **Yaw:** the reaction torques of the CW and CCW sets cancel, ΣQ_CW = ΣQ_CCW.
+
+For a fixed-pitch rotor in hover, thrust and torque both scale with rpm², so **Q = k·T, with k = Q_max/T_max a property of the blade**. Both rotors reach T_max = 2W/6 at their own Q_max, so
+
+k_B/k_A = Q_max,B/Q_max,A = 26.83/19.97 = **1.344**.
+
+The slow, high-torque MN1320 blade needs 34 % more torque per newton of thrust.
+
+**Arrangement 1: alternating 3 + 3** (MN1123 on arms 0°, 120° and 240°, MN1320 on the others).
+- All three MN1123s then spin one way and all three MN1320s the other.
+- Roll and pitch are fine: each set of three has its thrust centroid at the centre.
+- Yaw needs k_A·T_A = k_B·T_B with T_A + T_B = 2W/6. Hence T_A = (2W/6)·k_B/(k_A + k_B) = **1.147 × W/6** and T_B = **0.853 × W/6**. The light-motor rotors must carry 15 % more than their design load.
+- At full throttle the MN1123s hit their torque limit at 2W/6, and yaw trim holds the MN1320s to (2W/6)·k_A/k_B. The ceiling is
+
+  T/W = 3 × (2W/6) × (1 + k_A/k_B)/W = 1 + 1/1.344 = **1.74**.
+
+- This misses the required 2, and fixing it would need 15 % more torque from the MN1123s, which they do not have. **The alternating layout does not work.** It is a yaw problem, not a thrust problem.
+
+**Arrangement 2: opposite pairs** (each type on diametrically opposite arms, for example MN1123 on 0° and 180°).
+- Opposite arms in a hex spin in opposite directions, so each spin direction holds one rotor of each pair. That gives an equal motor mix per direction, and yaw trims at equal thrust per type.
+- Opposite rotors at equal thrust also cancel in roll and pitch.
+- So every rotor runs at its own design point, and the payload, hardware and pack are **linear in the motor counts**. Only 2 + 4 and 4 + 2 exist.
+
+**Noise of a mix.** The rotors are incoherent sources at nearly the same distance, so mean-square pressures add:
+
+L = 10 log₁₀[(Σ nᵢ 10^(Lᵢ/10))/6].
+
+| Mix (MN1123 + MN1320) | Payload [kg] | Straight line at that dBA | Hardware [kg] | Pack [Wh] | Total [dBA] |
+|---|---|---|---|---|---|
+| 0 + 6 | +2.95 | — | 30.28 | 4886 | 46.3 |
+| **2 + 4** | **+3.79** | +4.07 | 29.09 | 4991 | **48.1** |
+| **4 + 2** | **+4.63** | +4.85 | 27.91 | 5097 | **49.3** |
+| 6 + 0 | +5.46 | — | 26.73 | 5202 | 50.3 |
+
+(The straight line runs between the two end points, 0.63 kg/dB.)
+
+**Findings.**
+- **Mixed opposite pairs fill the gap with two usable points:** 48.1 dBA at +3.79 kg and 49.3 dBA at +4.63 kg. Each stays inside one motor's torque limit and trims without help.
+- **Both mixes sit 0.22–0.28 kg below the straight line.** Payload is linear in the counts, but noise is not: the decibel sum is dominated by the louder rotors. Two MN1123s out of six already raise the level 1.8 dB of the 4.0 dB span, while delivering only a third of the payload gain.
+  - Read the other way, mixing is a poor way to buy quietness. Going from 6 + 0 to 4 + 2 costs 0.83 kg for 1.0 dB. The average slope is 0.63 kg/dB, but the first dB is the most expensive.
+- **Practical cost.** Two motor and ESC part numbers, and asymmetric yaw control authority. Each spin direction still has the same mix, so the yaw authority is symmetric, but the MN1123 pair saturates first. The flight controller's mixer must also know the two thrust and torque coefficients.
+- **Recommendation.** If the noise limit is 48–49 dBA, the 2 + 4 or 4 + 2 hex is the best this catalogue offers. Otherwise use the pure MN1123 hex (50.3 dBA) or the pure MN1320 hex (46.3 dBA). This makes the user's noise-limit question sharper.
+
+**Hand checks.**
+- **Torque per thrust.** From entry 46's speeds: the MN1123 hovers at 2059 rpm, with T/W 2 at 2876 rpm. (2059/2876)² = 0.513, so hover thrust = 0.513 × 2W/6 = 1.03 × W/6 ✓. The rpm² scaling is consistent with T/W ≈ 2. The ratio k_B/k_A = 26.83/19.97 = 1.3435 ✓.
+- **Alternating ceiling.** 1 + 1/1.3435 = 1 + 0.744 = **1.744** ✓.
+- **2 + 4 payload.** (2 × 5.46 + 4 × 2.95)/6 = (10.92 + 11.80)/6 = **3.79 kg** ✓.
+- **2 + 4 noise.** 10^5.031 = 107,400 and 10^4.627 = 42,360. Then (2 × 107,400 + 4 × 42,360)/6 = 64,040, and 10 log₁₀ 64,040 = **48.07 dBA** ✓.
+
+**Caveats.**
+- Q = kT assumes constant C_T and C_Q with rpm. Reynolds and Mach effects shift them by a few percent between hover and T/W 2.
+- The noise sum treats all rotors as equidistant. At 50 m and 30° below the disc, the 1.5 m spread of the arms changes the distances by under 3 %, which is about 0.2 dB.
+- The rotors are not re-optimised for the mix. A blade designed for the MN1123 with a quiet partner could be loaded differently: item 60.
+
+**Lesson.** On a multirotor, rotor choices are coupled by yaw trim, because the reaction torques must cancel, and the mixing law for torque is Q = kT. Two rotors that each meet the thrust requirement can fail together if they share a spin direction. Mixed designs belong on symmetric pairs, with the same rotor mix on each spin direction.
+
+**Next.**
+- Item 60: unequal thrust in the opposite-pair mix. Load the MN1320s harder, since they have 8 % torque headroom, and the MN1123s lighter.
+- Items 45 (T/W-2 section), 42 (serrations) and 13 (coax re-statement) remain in the queue.
+- The deciders are still the user's questions: is 15 m/s fixed, which battery, what noise limit, and whether to run the refined-nose CFD (item 55).
 
