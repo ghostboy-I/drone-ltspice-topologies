@@ -63,7 +63,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 51. **Hex payload against noise between the MN1123 and the MN1320** (entry 40): MN1123 with the reserve, +5.06 kg at 50.8 dBA; MN1320, +2.95 kg at 46.3 dBA (0.47 kg/dB). Try the MN1123 at a lower cap and the V13823 (34.4 N·m, 2.16 kg).
 50. ~~Free-speed and 200 Wh/kg scenarios with the catalogue motors~~ (entry 41: at 15 m/s the hex wins every case, +0.7 to +8.1 kg. At free speed with 303 Wh/kg the V13828 tri wins by 2.8–4.1 kg, but at 61.4 dBA; held to a ≈ 55 dBA limit (U15XL tri) it is a tie, −0.7 to +0.6 kg. Break-even batteries: 15 m/s 328 Wh/kg (V13828) or none (U15XL); free speed 174 / 277 Wh/kg.)
 52. ~~Free-speed break-even noise limit~~ (entry 42: with a 12 % reserve the tri's noise is set by its motor, not its cap. The U15XL designs at caps 0.65–0.80 all land at 55.2–55.6 dBA (torque-limited at tip Mach 0.70), and the V13828 at 61.4. At free speed with 303 Wh/kg the hex wins below ≈ 55.5 dBA, it is a tie at 55.2–55.6 (−0.42 to +0.14 kg), and only the V13828's 61.4 dBA gives the tri a clear win.)
-53. **Reserve as the tri's noise knob:** between 0 % reserve (V13828 at 55.9 dBA, +6.87 kg, entry 38) and 12 % (61.4 dBA, +4.37 kg) the reserve moves the tri's noise by 5.5 dB. Sweep the reserve (0–15 %) for both layouts on the free-speed/303 case, and decide on a reserve from a gust/sag requirement rather than a round number.
+53. ~~Reserve sweep~~ (entry 45: per 1 % of torque reserve the hex loses ≈ 0.11 kg and 0.19 dB, the tri ≈ 0.21 kg and 0.45 dB. Hex − tri at 15 m/s and 303 Wh/kg crosses zero at a ≈ 9 % reserve. At free speed the V13828 tri wins at every reserve, by 3.8–4.8 kg (303 Wh/kg) or 1.1–2.2 kg (200), at 7.4–10.6 dB more noise. Magnet heating alone justifies ≈ 10 %.) Original: between 0 % reserve (V13828 at 55.9 dBA, +6.87 kg, entry 38) and 12 % (61.4 dBA, +4.37 kg) the reserve moves the tri's noise by 5.5 dB. Sweep the reserve (0–15 %) for both layouts on the free-speed/303 case, and decide on a reserve from a gust/sag requirement rather than a round number.
 44. ~~BEMT calibration on CFD~~ (entry 43: on the toroid session's 2-blade reference, CFD at equal thrust needs 1.16 × the rpm, 1.23 × the torque and 1.42 × the power of plain BEMT. If the CFD torque holds, the hex moves from the MN1123 to the MN1320 and the tri has no 24S motor that holds T/W 2 with a reserve. The additive Δc_d fit, 0.033, does not transfer to other loadings: it doubles the hex's hover power.)
 54. ~~Re-optimise under the CFD factors~~ (entry 44: the hex on the MN1320 keeps its 12 % reserve at 48.0 dBA, losing ≈ 4.3 kg; the tri flies only on the U15XL with no reserve, at tip Mach 0.86 and 57.5 dBA, also losing ≈ 4.3 kg. Hex − tri: +3.4 kg at 15 m/s and 303 Wh/kg, −1.1 at free speed and 303, +1.9 to +8.6 with 200 Wh/kg.) Original: the torque and power factors at equal thrust (×1.23, ×1.42) or a loading-dependent correction. The hex would be on the MN1320 or V13828; the tri on the U15XL with no reserve, or not feasible. This gives new absolute payloads; the old ones are 5–10 kg optimistic.
 55. **A second CFD point to separate thrust and torque error** (needs the CFD machine time, so it is the user's and the toroid session's call): a refined leading-edge mesh of the 2-blade reference (the CT validation found coarse noses inflate torque), or the same mesh at a second rpm or loading, to show whether the 23 % torque excess is physical (3-D, root and tip losses) or a mesh artefact.
@@ -2900,3 +2900,84 @@ The chain gives the full-vehicle comparison: hex MN1320 (12 % reserve) against t
 - Item 55, the deciding input: a refined-nose or second-loading CFD of the 2-blade reference, to tell whether the 23 % torque excess is real. This needs the CFD machine, so it is the user's and the toroid session's call; the toroid chain runs until about 23:00.
 - A cruise (edgewise) correction is unknown and would move the free-speed rows. A forward-flight CFD point would be needed.
 - Item 53: sweep the reserve. Item 51: the hex's payload–noise curve on the MN1320.
+
+## 45 — The torque reserve as a design variable: about 9 % is the 15 m/s break-even, and magnet heating argues for 10 % (2026-11-18)
+
+**Question.** Entries 38–42 showed that the torque reserve held back on each motor is as important as the motor itself. With no reserve the V13828 tri was 55.9 dBA; with 12 % it was 61.4 dBA. How do payload, noise and the ranking change between 0 and 12 %, and what reserve is physically justified?
+
+**Method.** src/explore/e45_reserve_sweep.py:
+- re-optimises the hex MN1123 and the tri V13828 at 5 % and 8 % reserve (e37 job(), hard penalty, torque limit = test torque × (1 − reserve));
+- adds the 0 % designs (entry 38) and the 12 % designs (entry 39);
+- runs all eight through entry 41's chain (constant body, 14–30 m/s, best speed at each battery).
+
+It uses plain BEMT; the CFD torque question of entries 43–44 is left open. It ran on 2 cores at nice 19.
+
+| Reserve | Hex: Q_max / payload / dBA | Hex rpm hover / max, σ | Tri: Q_max / payload / dBA | Tri rpm hover / max, σ |
+|---|---|---|---|---|
+| 0 % | 22.19 / **+6.37** / 48.5 | 1768 / 2489, 0.141 | 43.10 / **+6.87** / 55.9 | 2535 / 3530, 0.115 |
+| 5 % | 21.08 / +6.06 / 49.3 | 1905 / 2670, 0.135 | 40.95 / +6.41 / 57.7 | 2710 / 3764, 0.114 |
+| 8 % | 20.42 / +5.71 / 50.1 | 1989 / 2783, 0.126 | 39.65 / +5.89 / 59.7 | 2854 / 3963, 0.105 |
+| 12 % | 19.53 / +5.06 / 50.8 | 2139 / 2982, 0.130 | 38.07 / +4.37 / 61.4 | 2993 / 4159, 0.102 |
+
+(Q_max in N·m, payload in kg. The hex payload is in entry 11's frame, the tri's in entry 13's.)
+
+Full-chain comparison, hex payload minus tri payload in kg, constant body:
+
+| Reserve | 15 m/s, 303 Wh/kg | free, 303 | 15 m/s, 200 | free, 200 | Noise gap (tri − hex) [dB] |
+|---|---|---|---|---|---|
+| 0 % | −0.43 | −4.78 | +4.39 | −2.20 | 7.4 |
+| 5 % | −0.26 | −4.62 | +4.58 | −2.04 | 8.4 |
+| 8 % | −0.08 | −4.48 | +4.90 | −1.78 | 9.6 |
+| 12 % | **+0.73** | −3.77 | +5.68 | −1.15 | 10.6 |
+
+**Findings.**
+- **The reserve costs the tri twice as much as the hex, in both payload and noise:**
+
+  | Layout | Payload per 1 % of reserve | Noise per 1 % of reserve | Over 0 → 12 % |
+  |---|---|---|---|
+  | Hex | ≈ 0.11 kg | ≈ 0.19 dB | 1.3 kg, 2.3 dB |
+  | Tri | ≈ 0.21 kg | ≈ 0.45 dB | 2.5 kg, 5.4 dB |
+
+  The tri's cost accelerates between 8 % and 12 %, where its T/W-2 point passes tip Mach 0.8.
+  - The mechanism is the same as in entries 39–40: less torque means more rpm for the same power (Ω = P/Q), and tonal noise rises steeply with tip Mach.
+  - The hex sits at low tip Mach (0.50–0.60), where the extra rpm costs little.
+- **At 15 m/s with the 303 Wh/kg pack, the ranking flips at ≈ 9 % reserve:** below it the light V13828 tri wins narrowly (by ≤ 0.43 kg), above it the hex.
+  - With the 200 Wh/kg pack at 15 m/s the hex wins at every reserve (+4.4 to +5.7 kg).
+- **At free speed the V13828 tri wins at every reserve:** by 3.8–4.8 kg with 303 Wh/kg and 1.1–2.2 kg with 200 Wh/kg. The price is 7.4–10.6 dB more hover noise.
+  - Entries 41–42 found that the quieter U15XL tri (55.5 dBA) only ties the hex at free speed with 303 Wh/kg, and loses with 200.
+  - So at free speed the layout choice is really **a noise choice**: the tri buys 1–5 kg for 7–11 dB.
+- **What reserve is justified? Magnet heating sets a floor of about 10 %.**
+  - Torque at a given current is Q = K_t I, and K_t is proportional to the rotor magnets' flux. NdFeB magnets lose remanence at about 0.11–0.12 % per kelvin (standard materials data for sintered NdFeB).
+  - Vendor test torques are measured on a cool bench motor. A heavy-lift motor at the end of a hot-day mission can run 70–90 K hotter at the magnets, so K_t falls by ≈ 0.12 % × 80 K = **9.6 %**.
+  - Holding T/W 2 at that point needs about 10 % more current, which the ESC and motor ratings must cover. Equivalently, the design should keep ≈ 10 % torque in hand.
+  - Battery sag does not enter here: it limits *voltage*, and therefore top rpm, not torque.
+  - Gust and control margins come on top. They are usually carried by the T/W-2 requirement itself.
+- **At a 10 % reserve:**
+  - 15 m/s, 303 Wh/kg: hex +0.3 kg, interpolated between −0.08 at 8 % and +0.73 at 12 %, so a tie;
+  - free, 303: tri +4.1 kg;
+  - 15 m/s, 200: hex +5.3 kg;
+  - free, 200: tri +1.5 kg;
+  - noise: hex 50.4 dBA, tri ≈ 60.5 dBA.
+
+**Hand checks.**
+- **Torque limits:** 0.95 × 43.1 = 40.945 N·m, matching the tri's Q_max of 40.945 at 5 % ✓. And 0.92 × 22.19 = 20.41 N·m, against the hex's 20.415 at 8 % ✓.
+- **Q = P/Ω:**
+  - tri at 5 %: 16139 W / (3764 × π/30 = 394.2 rad/s) = **40.94 N·m** ✓;
+  - hex at 8 %: 5950 / (2783 × π/30 = 291.4) = **20.42 N·m** ✓.
+- **The rpm–torque trade:**
+  - From 0 % to 12 % the tri's top speed rises 3530 → 4159 rpm (× 1.178), while Q falls 43.10 → 38.07 (× 0.883) and P rises × 1.041.
+  - Ω ∝ P/Q predicts 1.041/0.883 = **1.179** ✓.
+- **The tonal rise:**
+  - From hover tip speed alone, 40 log₁₀(2993/2535) = **2.9 dB**, against the printed 53.2 → 60.7 = 7.5 dB.
+  - The rest comes from lower solidity (0.115 → 0.102) and higher blade loading, as in entry 42.
+- **Magnet-temperature floor:** ΔK_t/K_t = α_Br × ΔT = −0.0012/K × 80 K = **−9.6 %**. Holding the same torque needs I × 1/(1 − 0.096) = **1.106 ×** the current.
+
+**Lesson.** A margin that looks like a safety detail (12 %, a round number) moved the 15 m/s ranking by 1.2 kg and the tri's noise by 5.4 dB. Margins should come from physics: here, magnet-temperature derating gives ≈ 10 %. They should also be applied *before* comparing options, because the option nearest its limit pays the most for them. At a 10 % reserve the layout question reduces to:
+- 15 m/s: hex, or a tie with the 303 Wh/kg pack;
+- free speed: the tri, if 60 dBA in hover is acceptable; otherwise the hex.
+
+**Next.**
+- Item 55, a refined CFD of the 2-blade reference, is still the deciding input on the absolute torque. It needs the CFD machine (user's call), and the toroid chain runs until about 23:00.
+- Item 51: the hex's payload–noise curve.
+- Item 45: a section designed for the T/W-2 point.
+- The user's open questions (cruise speed, battery, noise limit) now map onto the 10 % row above.
