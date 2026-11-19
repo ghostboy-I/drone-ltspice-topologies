@@ -1,7 +1,7 @@
 """2-D RANS cases (OpenFOAM 13, foamRun / incompressibleFluid, Spalart-Allmaras) for the wing and tail sections.
 
     python3 src/cfd_airfoil2d.py setup [4415|0012 ...]   write cfd/airfoil2d/<code>/a<alpha>/ cases + a run script
-    python3 src/cfd_airfoil2d.py mesh 4415               blockMesh + checkMesh on one case (light, single core)
+    python3 src/cfd_airfoil2d.py mesh 4415               checkMesh on one case (light, single core)
     python3 src/cfd_airfoil2d.py post                    collect cl, cd, cm vs XFOIL -> results/ and CFD_Results/
 
 Why 2-D first. The wing is straight (6 deg sweep), AR 5.5 and runs at Re ~1.1e6, so its section polar sets the stall
@@ -14,10 +14,12 @@ Expected differences, stated before the run:
     boundary layer is thicker at the trailing edge.
   * The cruise lift slope and cl at a given alpha should agree within a few %.
 
-Mesh: a six-block C-grid (blockMesh). Wall-normal first cell sized for y+ ~ 1 from the flat-plate skin friction
+Mesh: a single-block C-grid written directly as an OpenFOAM polyMesh by c_grid() (540 x 120 = 64,800 cells). The
+wall-normal first cell is sized for y+ ~ 1 from the flat-plate skin friction
     C_f = 0.026 / Re_x^(1/7),  u_tau = U sqrt(C_f / 2),  dy_1 = y+ nu / u_tau,
-geometric growth to a far field 15 chords out, wake 20 chords long, one cell thick in z (empty front/back).
-Angle of attack is set by rotating the freestream (geometry fixed), so one mesh serves all alphas.
+then grows geometrically along each grid line to a far field 15 chords out, with a wake 20 chords long and one cell
+thick in z (empty front/back). Each grid line is a cubic Hermite curve that leaves the wall along the surface normal
+(item 6). The angle of attack is set by rotating the freestream with the geometry fixed, so one mesh serves all alphas.
 
 What it took to get a converged run (kept here because each was a real failure):
   1. Wake cells at the wall spacing all the way to the outlet (45,000:1 aspect ratio): k went negative, every case
@@ -47,8 +49,30 @@ What it took to get a converged run (kept here because each was a real failure):
      (and crashed on the 0012), so Poisson is used. What remains is the usual SA vs. XFOIL-integral-BL spread: a
      tripped turbulent flat plate gives friction 2 x 0.074 Re^-0.2 = 0.0101, x ~1.15 for a 12 % section's
      supervelocities = 0.0116 against CFD 0.0126.
+  6. Mesh and start-up, redone. The blockMesh C-grid's wall cells were sheared 40-60 deg from the surface normal over
+     the forward upper surface, because blockMesh pairs wall and offset points by arc length and the offset curve is
+     shorter at the LE. c_grid() instead builds each grid line as a cubic Hermite curve
+         P(t) = h00 W + h10 (k_wall L) N + h01 F + h11 dF,   h00 = 2t^3-3t^2+1, h10 = t^3-2t^2+t, ...
+     from the wall point W along the unit normal N to the far-field point F. At the wall it is tangent to N, which keeps
+     wall non-orthogonality at 0.7 deg mean and 8 deg max. k_wall = 0.2 (0.5 folded the 4415 grid near the TE). On this
+     mesh the viscous start (item 3) got trapped in the wake (nuTilda 0.17 m^2/s at 1.5 c), so the start is now
+     physical: nuTilda = nut = 3 nu everywhere, with U from potentialFoam -initialiseUBCs, so an attached potential
+     flow replaces the near-inviscid uniform field that blew up in item 3.
+  7. OpenFOAM 13 over-predicts wall shear by 48 %, so CFD cd is not used. On the NASA TMR NACA 0012 check (Re 6e6,
+     alpha 10, published SA answer cl 1.0909, cd 0.01231) this mesh gives cl 1.039 (-4.8 %) but cd 0.0194 (+58 %).
+     The boundary-layer profile one cell off the wall follows the log law, so the error sits in the wall cells. A
+     laminar Poiseuille channel isolates it. The exact answer is
+         dp/dx = 12 mu U_bar / H^2   (30 Pa/m per unit density here), and the wall-cell velocity is 0.03749.
+     icoFoam gets 29.99 and 0.03749. Both foamRun/incompressibleFluid and the legacy porousSimpleFoam give 44.2 and
+     wall cells that alternate 0.069 / 0.042 cell to cell along the wall (an odd-even mode). The result is the same
+     with laminar or SA, every convection/gradient scheme, SIMPLE, SIMPLEC or PISO, square cells, and noSlip or
+     fixedValue walls. The common factor is OpenFOAM 13's momentumTransport viscous term (divDevSigma), which icoFoam
+     does not use. So post() reports CFD cd for the record only. The design takes the section drag from XFOIL, and
+     uses CFD cl as an independent lift and stall check with a ~5 % band.
 Reference: SA is fully turbulent, so post() compares against XFOIL both free (ncrit 9, what sizing used) and tripped
-at 1 % chord (the like-for-like turbulence state).
+at 5 % chord (the like-for-like turbulence state). A 1 % trip is closer to SA's turbulent-from-the-stagnation-point
+boundary layer, but XFOIL's Newton iteration fails above alpha 6-7 deg with it (NaN, "sequence halted"); the 5 % trip
+converges to stall and is within 1 % on cl and 3 % on cd of the 1 % trip where both converge.
 """
 import json, math, os, shutil, subprocess, sys
 import numpy as np
@@ -90,75 +114,147 @@ def ratio_for(first, total, n):
     return r
 
 
-def block_mesh_dict(code, c, U, nu, dz, Ro=15.0, Lw=20.0, nf=70, na=90, nn=120, nw=110, yplus=1.0):
-    up, lo = naca4_closed(code, 241)
-    xs = 0.30                                                     # split station (x/c) on both surfaces
-    iu = int(np.argmin(abs(up[:, 0] - xs))); il = int(np.argmin(abs(lo[:, 0] - xs)))
+def geom_fractions(n, grading):
+    """n cells whose sizes grow geometrically with last/first = grading; returns n+1 fractions 0..1."""
+    if abs(grading - 1) < 1e-9: return np.linspace(0, 1, n + 1)
+    r = grading ** (1 / (n - 1)); s = np.r_[0, np.cumsum(r ** np.arange(n))]
+    return s / s[-1]
+
+
+def geom_from_first(first, total, n):
+    r = ratio_for(first, total, n) if first * n < total else 1.0
+    s = np.r_[0, np.cumsum(first * r ** np.arange(n))] if r != 1.0 else np.linspace(0, total, n + 1)
+    return s * total / s[-1]
+
+
+def c_grid(code, c, U, nu, dz, Ro=15.0, Lw=20.0, nf=70, na=90, nn=120, nw=110, yplus=1.0, k_wall=0.2):
+    """Single-block C-grid built here and written straight to constant/polyMesh (docstring item 6).
+    i runs outlet (lower) -> TE -> lower surface -> LE -> upper surface -> TE -> outlet (upper); j runs wall -> far field.
+    Each j-line is a cubic Hermite curve that leaves the wall point along the surface normal and arrives at its far-field
+    point, so cells at the wall are orthogonal to it; j-spacing is geometric in arc length from dy1."""
     re = U * c / nu
     cf = 0.026 / re ** (1 / 7)
     dy1 = yplus * nu / (U * math.sqrt(cf / 2))
     R, L = Ro * c, Lw * c
-    g_n = ratio_for(dy1, R, nn) ** (nn - 1)                         # last / first cell, wall-normal
-    ds_te = (1 - xs) * c / na * 0.5                                 # TE cell along the surface (graded 0.5 toward TE)
-    g_w = ratio_for(ds_te, L - c, nw) ** (nw - 1)
-    # Wake blocks: the wall-normal spacing must NOT run at dy1 all the way to the outlet (first attempt: 45,000:1 cells
-    # there, k went negative at iteration 1 and every run diverged). edgeGrading relaxes it to dy_out at the outlet.
-    dy_out = 0.01 * c
-    g_out = ratio_for(dy_out, R, nn) ** (nn - 1)
-    P = lambda q: q * c
-    # Far field: a quarter arc (centre (xs*c, 0), radius R) then a straight line to the outlet, top and bottom. The far
-    # vertices 5/6 (and 11/10) are placed so each block gets its share of the far-field length in proportion to its cell
-    # count, and the far edges are uniform. Second attempt: with 5/6 above the split station and the TE, block 1's 90
-    # cells were packed into 0.56 m of far field next to 0.44 m cells on the arc -> 50:1 neighbour volume jumps there,
-    # and even a laminar first-order run diverged.
+    xs = 0.30
+    # dense surface, arc-length parametrised, unit chord
+    up, lo = naca4_closed(code, 4001)
+    def arc(p): return np.r_[0, np.cumsum(np.linalg.norm(np.diff(p, axis=0), axis=1))]
+    def place(p, f):                                              # points at arc fractions f of curve p
+        s = arc(p); t = f * s[-1]
+        return np.c_[np.interp(t, s, p[:, 0]), np.interp(t, s, p[:, 1])]
+    def split(p):
+        k = int(np.argmin(abs(p[:, 0] - xs))); return p[:k + 1], p[k:]
+    def surface(p):                                               # LE -> TE points: nf cells (grading 3) then na (0.5)
+        a, b = split(p)
+        return np.r_[place(a, geom_fractions(nf, 3.0)), place(b, geom_fractions(na, 0.5))[1:]]
+    su, sl = surface(up), surface(lo)
+    def normals(dense, pts, sgn):
+        t = np.gradient(dense, axis=0); n = sgn * np.c_[-t[:, 1], t[:, 0]]; n /= np.linalg.norm(n, axis=1)[:, None]
+        s = arc(dense); sp = np.array([s[np.argmin(np.hypot(*(dense - q).T))] for q in pts])
+        nn_ = np.c_[np.interp(sp, s, n[:, 0]), np.interp(sp, s, n[:, 1])]
+        w = np.clip((pts[:, 0] - 0.85) / 0.15, 0, 1); w = w * w * (3 - 2 * w)  # blend to +-y at the TE: the wake cut is along x
+        nn_ = (1 - w)[:, None] * nn_ + w[:, None] * np.array([0.0, sgn])
+        return nn_ / np.linalg.norm(nn_, axis=1)[:, None]
+    nu_, nl_ = normals(up, su, 1), normals(lo, sl, -1)
+    nle = nu_[0] + nl_[0]; nle /= np.linalg.norm(nle); nu_[0] = nl_[0] = nle
+    su, sl = su * c, sl * c
+    te = su[-1]
+    ds_te = np.linalg.norm(su[-1] - su[-2])
+    xw = te[0] + geom_from_first(ds_te, L - te[0], nw)              # wake cut, TE -> outlet
+    wake = np.c_[xw, np.full_like(xw, te[1])]
+    # wall/cut points along i, and their outward directions
+    W = np.r_[wake[::-1], sl[::-1][1:], su[1:], wake[1:]]
+    Nv = np.r_[np.tile([0.0, -1.0], (nw + 1, 1)), nl_[::-1][1:], nu_[1:], np.tile([0.0, 1.0], (nw, 1))]
+    Nv[nw] = nl_[-1]; Nv[-nw - 1] = nu_[-1]
+    NIp = len(W); NI = NIp - 1
+    # far-field points: uniform in i along the C (bottom line, front arc, top line)
     cx = xs * c
-    S_arc, S_tot = 0.5 * math.pi * R, 0.5 * math.pi * R + (L - cx)
-    def far(sv, sgn):                                            # point at arc length sv from the front stagnation vertex
-        if sv <= S_arc:
-            th = sv / R
-            return (cx - R * math.cos(th), sgn * R * math.sin(th))
-        return (cx + (sv - S_arc), sgn * R)
-    ntot = nf + na + nw
-    s5, s6 = S_tot * nf / ntot, S_tot * (nf + na) / ntot
-    v = [(0, 0), P(up[iu]), (c, 0), P(lo[il]), (cx - R, 0), far(s5, 1), far(s6, 1), (L, R), (L, 0), (L, -R), far(s6, -1), far(s5, -1)]
-    v[0] = tuple(P(up[0])); v[2] = tuple(P(up[-1])); v[8] = (L, v[2][1])
-    verts = "".join(f"    ({x:.8f} {y:.8f} 0)\n" for x, y in v) + "".join(f"    ({x:.8f} {y:.8f} {dz})\n" for x, y in v)
-    def pl(a, b, pts):
-        s = ""
-        for o in (0, 12):
-            s += f"    polyLine {a+o} {b+o} (" + " ".join(f"({x:.8f} {y:.8f} {0 if o == 0 else dz})" for x, y in pts) + ")\n"
-        return s
-    edges = pl(0, 1, P(up[1:iu])) + pl(1, 2, P(up[iu + 1:-1])) + pl(0, 3, P(lo[1:il])) + pl(3, 2, P(lo[il + 1:-1]))
-    fs = lambda a, b, sgn: [far(t, sgn) for t in np.linspace(a, b, 40)[1:-1]]
-    edges += pl(4, 5, fs(0, s5, 1)) + pl(5, 6, fs(s5, s6, 1)) + pl(4, 11, fs(0, s5, -1)) + pl(11, 10, fs(s5, s6, -1))
-    h = lambda a, b, c_, d: f"({a} {b} {c_} {d} {a+12} {b+12} {c_+12} {d+12})"
-    gn, gw, go = f"{g_n:.6g}", f"{g_w:.6g}", f"{g_out:.6g}"
-    rn, ro = f"{1/g_n:.6g}", f"{1/g_out:.6g}"
-    eg = lambda x1, x2: "edgeGrading (" + " ".join(x1 + x2) + " 1 1 1 1)"
-    # x1 edges in blockMesh order (0-1, 3-2, 7-6, 4-5): inner surface/wake-cut edges graded, far-field edges uniform
-    blocks = (f"    hex {h(0,1,5,4)} ({nf} {nn} 1) {eg(['3', '1', '1', '3'], [gn] * 4)}\n"
-              f"    hex {h(1,2,6,5)} ({na} {nn} 1) {eg(['0.5', '1', '1', '0.5'], [gn] * 4)}\n"
-              f"    hex {h(2,8,7,6)} ({nw} {nn} 1) {eg([gw, '1', '1', gw], [gn, go, go, gn])}\n"
-              f"    hex {h(3,0,4,11)} ({nf} {nn} 1) {eg(['0.333333', '1', '1', '0.333333'], [gn] * 4)}\n"
-              f"    hex {h(2,3,11,10)} ({na} {nn} 1) {eg(['2', '1', '1', '2'], [gn] * 4)}\n"
-              f"    hex {h(10,9,8,2)} ({nw} {nn} 1) {eg(['1', gw, gw, '1'], [rn, ro, ro, rn])}\n")
-    f2 = lambda a, b: f"({a} {b} {b+12} {a+12})"
-    bnd = ("    airfoil { type wall; faces (" + " ".join(f2(a, b) for a, b in ((0, 1), (1, 2), (3, 0), (2, 3))) + "); }\n"
-           "    farfield { type patch; faces (" + " ".join(f2(a, b) for a, b in ((4, 5), (5, 6), (6, 7), (7, 8), (8, 9), (9, 10), (10, 11), (11, 4))) + "); }\n"
-           "    frontAndBack { type empty; faces (" + " ".join(f"({a} {b} {c_} {d})" for a, b, c_, d in ((0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 8), (3, 11, 4, 0), (2, 10, 11, 3), (10, 2, 8, 9))) +
-           " " + " ".join(f"({a+12} {b+12} {c_+12} {d+12})" for a, b, c_, d in ((0, 1, 5, 4), (1, 2, 6, 5), (2, 8, 7, 6), (3, 0, 4, 11), (2, 3, 11, 10), (10, 9, 8, 2))) + "); }\n")
-    txt = (HDR.format(cls="dictionary", loc="", obj="blockMeshDict") + "convertToMeters 1;\nvertices\n(\n" + verts + ");\nblocks\n(\n" + blocks +
-           ");\nedges\n(\n" + edges + ");\nboundary\n(\n" + bnd + ");\n")
-    info = {"Re": re, "dy1_m": dy1, "grading_normal": g_n, "grading_wake": g_w, "dy_wake_outlet_m": dy_out, "cells": (2 * (nf + na + nw)) * nn,
-            "far_field_chords": Ro, "wake_chords": Lw}
-    return txt, info
+    S_line, S_arc = L - cx, math.pi * R
+    def far(sv):
+        if sv < S_line: return (L - sv, -R)
+        if sv < S_line + S_arc:
+            th = (sv - S_line) / R; return (cx - R * math.sin(th), -R * math.cos(th))
+        return (cx + sv - S_line - S_arc, R)
+    F = np.array([far(v) for v in np.linspace(0, 2 * S_line + S_arc, NIp)])
+    # j lines
+    dy_out = 0.01 * c
+    first = np.full(NIp, dy1)
+    for k in range(nw + 1):                                       # wake: relax the first spacing to dy_out at the outlet
+        fr = (W[k, 0] - te[0]) / (L - te[0])
+        first[k] = first[NI - k] = dy1 * (dy_out / dy1) ** fr
+    X = np.zeros((NIp, nn + 1, 2))
+    u = np.linspace(0, 1, 4001)
+    h00, h10, h01, h11 = 2*u**3 - 3*u**2 + 1, u**3 - 2*u**2 + u, -2*u**3 + 3*u**2, u**3 - u**2
+    for i in range(NIp):
+        d = F[i] - W[i]; Ld = np.linalg.norm(d)
+        curve = h00[:, None] * W[i] + h10[:, None] * Nv[i] * (k_wall * Ld) + h01[:, None] * F[i] + h11[:, None] * d
+        s = arc(curve); t = geom_from_first(first[i], s[-1], nn)
+        X[i] = np.c_[np.interp(t, s, curve[:, 0]), np.interp(t, s, curve[:, 1])]
+    X[NI - nw:, 0] = X[nw::-1, 0]                                  # the cut: upper wake j=0 points are the lower ones
+    # ---------------- polyMesh ----------------
+    NJ = nn
+    pid = np.arange(NIp * (nn + 1)).reshape(NIp, nn + 1)          # 2-D point ids before merging the cut
+    for i in range(NI - nw, NIp): pid[i, 0] = pid[NI - i, 0]
+    used = np.unique(pid); remap = -np.ones(pid.max() + 1, int); remap[used] = np.arange(len(used)); pid = remap[pid]
+    n2 = len(used)
+    P2 = np.zeros((n2, 2)); P2[pid.ravel()] = X.reshape(-1, 2)
+    pts = np.r_[np.c_[P2, np.zeros(n2)], np.c_[P2, np.full(n2, dz)]]
+    cell = lambda i, j: i + j * NI
+    cc = np.zeros((NI * NJ, 3))
+    for j in range(NJ):
+        q = (X[:-1, j] + X[1:, j] + X[:-1, j + 1] + X[1:, j + 1]) / 4; cc[j * NI:(j + 1) * NI] = np.c_[q, np.full(NI, dz / 2)]
+    def quad(a, b):                                               # face from 2-D edge a-b, extruded in z
+        return [a, b, b + n2, a + n2]
+    internal, bnd = [], {"airfoil": [], "farfield": [], "frontAndBack": []}
+    for j in range(NJ):                                           # i-faces
+        for i in range(1, NI): internal.append((cell(i - 1, j), cell(i, j), quad(pid[i, j], pid[i, j + 1])))
+        bnd["farfield"].append((cell(0, j), quad(pid[0, j], pid[0, j + 1])))
+        bnd["farfield"].append((cell(NI - 1, j), quad(pid[NI, j], pid[NI, j + 1])))
+    for j in range(1, NJ):                                        # j-faces
+        for i in range(NI): internal.append((cell(i, j - 1), cell(i, j), quad(pid[i, j], pid[i + 1, j])))
+    for i in range(NI):
+        f0 = quad(pid[i, 0], pid[i + 1, 0])
+        if i < nw: internal.append((cell(i, 0), cell(NI - 1 - i, 0), f0))         # wake cut
+        elif i >= NI - nw: pass
+        else: bnd["airfoil"].append((cell(i, 0), f0))
+        bnd["farfield"].append((cell(i, NJ - 1), quad(pid[i, NJ], pid[i + 1, NJ])))
+    for j in range(NJ):
+        for i in range(NI):
+            a, b, c_, d_ = pid[i, j], pid[i + 1, j], pid[i + 1, j + 1], pid[i, j + 1]
+            bnd["frontAndBack"].append((cell(i, j), [a, d_, c_, b])); bnd["frontAndBack"].append((cell(i, j), [a + n2, b + n2, c_ + n2, d_ + n2]))
+    def orient(f, own, target):                                   # normal must point from the owner towards target
+        p = pts[f]; nvec = np.cross(p[1] - p[0], p[2] - p[0]) + np.cross(p[2] - p[0], p[3] - p[0])
+        return f if np.dot(nvec, target - cc[own]) > 0 else f[::-1]
+    internal = [(min(o, n_), max(o, n_), f) for o, n_, f in internal]
+    internal.sort(key=lambda t: (t[0], t[1]))
+    faces, owner, neigh = [], [], []
+    for o, n_, f in internal: faces.append(orient(f, o, cc[n_])); owner.append(o); neigh.append(n_)
+    patches = []
+    for name in ("airfoil", "farfield", "frontAndBack"):
+        start = len(faces)
+        for o, f in bnd[name]: faces.append(orient(f, o, pts[f].mean(0))); owner.append(o)
+        patches.append((name, start, len(faces) - start))
+    hdr = lambda cls, obj, note="": ("FoamFile { format ascii; class %s; %slocation \"constant/polyMesh\"; object %s; }\n" % (cls, note, obj))
+    note = f'note "nPoints: {len(pts)} nCells: {NI*NJ} nFaces: {len(faces)} nInternalFaces: {len(neigh)}"; '
+    files = {
+        "points": hdr("vectorField", "points") + f"{len(pts)}\n(\n" + "".join(f"({x:.10g} {y:.10g} {z:.10g})\n" for x, y, z in pts) + ")\n",
+        "faces": hdr("faceList", "faces") + f"{len(faces)}\n(\n" + "".join("4(%d %d %d %d)\n" % tuple(f) for f in faces) + ")\n",
+        "owner": hdr("labelList", "owner", note) + f"{len(owner)}\n(\n" + "\n".join(map(str, owner)) + "\n)\n",
+        "neighbour": hdr("labelList", "neighbour", note) + f"{len(neigh)}\n(\n" + "\n".join(map(str, neigh)) + "\n)\n",
+        "boundary": hdr("polyBoundaryMesh", "boundary") + f"{len(patches)}\n(\n" + "".join(
+            f"    {nm} {{ type {'wall' if nm == 'airfoil' else 'empty' if nm == 'frontAndBack' else 'patch'}; nFaces {n_}; startFace {s}; }}\n"
+            for nm, s, n_ in patches) + ")\n"}
+    info = {"Re": re, "dy1_m": dy1, "cells": NI * NJ, "far_field_chords": Ro, "wake_chords": Lw, "n_i": NI, "n_j": NJ,
+            "dy_wake_outlet_m": dy_out, "mesh": "single-block C-grid, Hermite wall-normal lines (cfd_airfoil2d.c_grid)"}
+    return files, info
 
 
 def case_files(code, alpha, c, U, nu, dz):
     a = math.radians(alpha)
     Ux, Uy = U * math.cos(a), U * math.sin(a)
     nt_inf = 3.0 * nu                                                   # NASA TMR freestream nuTilda for SA
-    nt_0 = 0.007 * U * c                                                # viscous start-up field (convected out)
+    nt_0 = nt_inf                                                       # physical start (docstring item 6)
     files = {}
     files["constant/physicalProperties"] = HDR.format(cls="dictionary", loc='location "constant"; ', obj="physicalProperties") + \
         f"viscosityModel constant;\nnu [0 2 -1 0 0 0 0] {nu:.6e};\n"
@@ -201,11 +297,13 @@ wallDist { method Poisson; }                                     // see docstrin
 solvers
 {
     yPsi { solver GAMG; smoother GaussSeidel; tolerance 1e-8; relTol 0; }
+    Phi { solver GAMG; smoother GaussSeidel; tolerance 1e-8; relTol 0.01; }
     p { solver GAMG; smoother GaussSeidel; tolerance 1e-7; relTol 0.1; }
     "(U|nuTilda)" { solver smoothSolver; smoother GaussSeidel; tolerance 1e-9; relTol 0.1; nSweeps 2; }
 }
 SIMPLE { nNonOrthogonalCorrectors 1; residualControl { p 1e-5; U 1e-6; nuTilda 1e-6; } }
 relaxationFactors { fields { p 0.3; } equations { U 0.7; nuTilda 0.7; } }
+potentialFlow { nNonOrthogonalCorrectors 3; }          // potentialFoam start, item 6
 """
     bc = lambda name, cls, dim, internal, far, wall: HDR.format(cls=cls, loc='location "0"; ', obj=name) + \
         f"dimensions {dim};\ninternalField uniform {internal};\nboundaryField\n{{\n    farfield {{ {far} }}\n    airfoil {{ {wall} }}\n    frontAndBack {{ type empty; }}\n}}\n"
@@ -225,7 +323,7 @@ def setup(codes=("4415", "0012")):
         c = sz["wing"]["c"] if code == sz["wing"]["airfoil"] else sz["stability"]["c_h"]
         alphas = [-4, 0, 2, 4, 6, 8, 10, 12, 14, 16] if code != "0012" else [0, 4, 8, 12]
         dz = 0.01 * c
-        bmd, info = block_mesh_dict(code, c, U, nu, dz)
+        mesh_files, info = c_grid(code, c, U, nu, dz)
         for a in alphas:
             d = os.path.join(CFD, code, f"a{a:+03d}")
             if os.path.isdir(d):                                  # clear the previous run so run_all.sh re-runs it
@@ -233,8 +331,10 @@ def setup(codes=("4415", "0012")):
                     if e == "postProcessing" or e.startswith("log.") or (e not in ("0", "constant", "system") and e.replace(".", "").isdigit()):
                         pth = os.path.join(d, e); shutil.rmtree(pth) if os.path.isdir(pth) else os.remove(pth)
                 shutil.rmtree(os.path.join(d, "0"), ignore_errors=True)
-            for sub in ("system", "constant", "0"): os.makedirs(os.path.join(d, sub), exist_ok=True)
-            with open(os.path.join(d, "system", "blockMeshDict"), "w") as f: f.write(bmd)
+            for sub in ("system", "constant/polyMesh", "0"): os.makedirs(os.path.join(d, sub), exist_ok=True)
+            if os.path.exists(os.path.join(d, "system", "blockMeshDict")): os.remove(os.path.join(d, "system", "blockMeshDict"))
+            for k_, txt in mesh_files.items():
+                with open(os.path.join(d, "constant", "polyMesh", k_), "w") as f: f.write(txt)
             for k_, txt in case_files(code, a, c, U, nu, dz).items():
                 with open(os.path.join(d, k_), "w") as f: f.write(txt)
         plan[code] = dict(info, chord=c, U=U, nu=nu, alphas=alphas)
@@ -252,7 +352,9 @@ while [ "$(pgrep -x foamRun | wc -l)" -gt 0 ]; do echo "$(date) foamRun busy, wa
 run_case() {
   cd "$1"
   [ -f log.foamRun ] && grep -q "^End" log.foamRun && return 0
-  blockMesh > log.blockMesh 2>&1 && checkMesh > log.checkMesh 2>&1 && nice -n 19 foamRun > log.foamRun 2>&1
+  checkMesh > log.checkMesh 2>&1
+  nice -n 19 potentialFoam -initialiseUBCs > log.potentialFoam 2>&1
+  nice -n 19 foamRun > log.foamRun 2>&1
 }
 export -f run_case
 ls -d */a* | xargs -P 2 -I{} bash -c 'run_case "$PWD/{}"'
@@ -265,16 +367,16 @@ echo "$(date) all airfoil cases finished"
 def mesh(code):
     d = sorted(os.listdir(os.path.join(CFD, code)))[0]
     case = os.path.join(CFD, code, d)
-    cmd = f"source /opt/openfoam13/etc/bashrc && cd '{case}' && nice -n 19 blockMesh > log.blockMesh 2>&1 && nice -n 19 checkMesh > log.checkMesh 2>&1; tail -30 log.checkMesh"
+    cmd = f"source /opt/openfoam13/etc/bashrc && cd '{case}' && nice -n 19 checkMesh > log.checkMesh 2>&1; tail -30 log.checkMesh"
     print(subprocess.run(["bash", "-c", cmd], capture_output=True, text=True).stdout)
 
 
 def xfoil_polar(naca, re, mach, xtr=1.0, ncrit=9.0):
-    """XFOIL polar at one Re, free transition (xtr 1) or tripped (xtr 0.01). Rows (alpha, cl, cd, cdp, cm)."""
+    """XFOIL polar at one Re, free transition (xtr 1) or tripped (xtr 0.05). Rows (alpha, cl, cd, cdp, cm)."""
     import tempfile, airfoils
     with tempfile.TemporaryDirectory() as td:
         cmds = (f"PLOP\nG F\n\nNACA {naca}\nPPAR\nN 200\n\n\nOPER\nVISC {re:.0f}\nMACH {mach:.3f}\nVPAR\nN {ncrit}\n"
-                f"XTR {xtr} {xtr}\n\nITER 300\nPACC\np.txt\n\nASEQ 0 18 1\nINIT\nASEQ -1 -6 -1\nPACC\n\nQUIT\n")
+                f"XTR {xtr} {xtr}\n\nITER 300\nPACC\np.txt\n\nASEQ 0 18 0.5\nINIT\nASEQ -0.5 -6 -0.5\nPACC\n\nQUIT\n")
         env = dict(os.environ); env.pop("DISPLAY", None)
         if os.path.exists(airfoils.SHIM):
             shutil.copy(airfoils.SHIM, os.path.join(td, "nofpe_shim.so")); env["LD_PRELOAD"] = "./nofpe_shim.so"
@@ -312,25 +414,47 @@ def post():
                          "converged": "SIMPLE solution converged" in log})
         sz = jload(os.path.join(RESULTS, "sizing.json"))
         mach = pl["U"] / sz["air"]["a"]
-        for tag, xtr in (("", 1.0), ("_trip", 0.01)):             # free transition (as sizing) and tripped at 1 % c
+        polars = {}
+        for tag, xtr in (("", 1.0), ("_trip", 0.05)):             # free transition (as sizing) and tripped at 5 % c
             P = xfoil_polar(code, pl["Re"], mach, xtr)
+            polars["free" if not tag else "trip05"] = P[:, :3].round(5).tolist()   # alpha, cl, cd
             for r in rows:
                 if "cl" not in r or not (P[0, 0] <= r["alpha"] <= P[-1, 0]): continue
                 r[f"xfoil{tag}_cl"] = float(np.interp(r["alpha"], P[:, 0], P[:, 1])); r[f"xfoil{tag}_cd"] = float(np.interp(r["alpha"], P[:, 0], P[:, 2]))
                 r[f"diff{tag}_cl_pct"] = 100 * (r["cl"] / r[f"xfoil{tag}_cl"] - 1) if abs(r[f"xfoil{tag}_cl"]) > 0.05 else None
                 r[f"diff{tag}_cd_pct"] = 100 * (r["cd"] / r[f"xfoil{tag}_cd"] - 1)
-        out[code] = {"plan": pl, "rows": rows}
+        out[code] = {"plan": pl, "rows": rows, "xfoil": polars}
         for a in pl["alphas"]:                                     # keep logs + force histories in the repo
             src = os.path.join(CFD, code, f"a{a:+03d}"); dst = os.path.join(REPO_CFD, code, f"a{a:+03d}")
             if not os.path.isdir(src): continue
             os.makedirs(dst, exist_ok=True)
-            for fn in ("log.blockMesh", "log.checkMesh", "log.foamRun"):
+            for fn in ("log.checkMesh", "log.potentialFoam", "log.foamRun"):
                 if os.path.exists(os.path.join(src, fn)): shutil.copy(os.path.join(src, fn), dst)
             if os.path.isdir(os.path.join(src, "postProcessing")):
                 shutil.copytree(os.path.join(src, "postProcessing"), os.path.join(dst, "postProcessing"), dirs_exist_ok=True)
+    plot(out)
     with open(os.path.join(RESULTS, "cfd_airfoil2d.json"), "w") as f: json.dump(out, f, indent=1)
     with open(os.path.join(SUMMARY, "summary.json"), "w") as f: json.dump(out, f, indent=1)
     print(json.dumps(out, indent=1))
+
+
+def plot(out):
+    """cl(alpha) and the drag polar, CFD against XFOIL free and tripped -> results/cfd_airfoil2d_polar.png."""
+    import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(len(out), 2, figsize=(10, 3.6 * len(out)), squeeze=False)
+    for k, (code, blk) in enumerate(out.items()):
+        r = [x for x in blk["rows"] if "cl" in x]
+        A, CL, CD = (np.array([x[q] for x in r]) for q in ("alpha", "cl", "cd"))
+        for name, sty in (("free", "-"), ("trip05", "--")):
+            P = np.array(blk["xfoil"][name])
+            lab = "XFOIL free (Ncrit 9)" if name == "free" else "XFOIL tripped 5 % c"
+            ax[k, 0].plot(P[:, 0], P[:, 1], "k" + sty, lw=1, label=lab); ax[k, 1].plot(P[:, 2], P[:, 1], "k" + sty, lw=1, label=lab)
+        ax[k, 0].plot(A, CL, "o", color="C0", label="OpenFOAM SA (cl used)")
+        ax[k, 1].plot(CD, CL, "x", color="C3", label="OpenFOAM SA (cd NOT used: item 7)")
+        ax[k, 0].set(xlabel="alpha [deg]", ylabel="cl", title=f"NACA {code}, Re {blk['plan']['Re']:.2e}: lift")
+        ax[k, 1].set(xlabel="cd", ylabel="cl", title=f"NACA {code}: drag polar")
+        for a_ in ax[k]: a_.grid(alpha=0.3); a_.legend(fontsize=7)
+    fig.tight_layout(); fig.savefig(os.path.join(RESULTS, "cfd_airfoil2d_polar.png"), dpi=130); plt.close(fig)
 
 
 if __name__ == "__main__":

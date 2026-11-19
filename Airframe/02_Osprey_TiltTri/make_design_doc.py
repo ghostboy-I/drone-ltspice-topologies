@@ -290,26 +290,64 @@ if FS:
         "Next: design the boom fitting and the wing carry-through fitting, model them in the shell model, and re-run.",
     ])
 
-doc.h("10. CFD, and what is still to run")
+doc.h("10. Airfoil CFD: lift checked, drag from XFOIL")
+pl = json.load(open(os.path.join(here, "cfd", "airfoil2d", "plan.json")))
+doc.p(f"2-D RANS of both sections (OpenFOAM 13, Spalart-Allmaras): the NACA {w['airfoil']} wing at Re {pl[w['airfoil']]['Re']:.2e}, "
+      f"alpha {pl[w['airfoil']]['alphas'][0]} to {pl[w['airfoil']]['alphas'][-1]} deg, and the NACA 0012 tail at Re {pl['0012']['Re']:.2e}. "
+      f"The mesh is a single-block C-grid with {pl[w['airfoil']]['cells']} cells, written directly by cfd_airfoil2d.c_grid(), "
+      f"with the first cell at {pl[w['airfoil']]['dy1_m']*1e6:.0f} um (y+ ~ 1) from the flat-plate estimate:")
+doc.eq(r"C_f=\frac{0.026}{Re_x^{1/7}},\qquad u_\tau=U\sqrt{C_f/2},\qquad \Delta y_1=\frac{y^+\,\nu}{u_\tau}")
+doc.p("Each grid line is a cubic Hermite curve from the wall point W, leaving along the surface normal N, to its far-field point F. "
+      "This keeps the wall cells orthogonal (0.7 deg mean, 8 deg max). The blockMesh grid it replaced was sheared 40-60 deg at the "
+      "leading edge:")
+doc.eq(r"P(t)=h_{00}(t)\,W+h_{10}(t)\,k_{wall}L\,N+h_{01}(t)\,F+h_{11}(t)\,F',\qquad h_{00}=2t^3-3t^2+1,\; h_{10}=t^3-2t^2+t")
+doc.p("The runs start from a physical field: nuTilda = 3 nu (the NASA TMR freestream value) everywhere, and U from potentialFoam. "
+      "The earlier viscous start-up field leaked into the wall boundary condition through OpenFOAM's bound() and froze there. On "
+      "the new mesh it also got trapped in the wake. The script docstring lists all seven setup failures and their fixes.")
+doc.p("Verification found a solver fault, not a setup one. On a laminar Poiseuille channel the exact pressure gradient is:")
+doc.eq(r"\frac{dp}{dx}=\frac{12\,\mu\,\bar U}{H^2}=\frac{12\,(10^{-3})(1)}{0.02^2}=30\ \mathrm{Pa/m}\ (\rho=1)")
+doc.table(["Check", "Exact / reference", "Result", "Error"], [
+    ["Channel dp/dx, icoFoam", "30", "29.99", "0 %"],
+    ["Channel dp/dx, foamRun incompressibleFluid", "30", "44.2", "+47 %"],
+    ["Channel dp/dx, legacy porousSimpleFoam", "30", "44.25", "+48 %"],
+    ["Channel wall-cell U (icoFoam / foamRun)", "0.0375", "0.0375 / 0.069-0.042 alternating", "odd-even mode"],
+    ["NASA TMR NACA 0012, Re 6e6, alpha 10: cl", "1.0909", "1.039", "-4.8 %"],
+    ["NASA TMR NACA 0012, Re 6e6, alpha 10: cd", "0.01231", "0.0194", "+58 %"],
+], widths=[0.42, 0.18, 0.25, 0.15])
+doc.p("Every OpenFOAM 13 solver that computes the viscous term through the momentumTransport library (divDevSigma) overestimates "
+      "wall shear by about 48 %, laminar or turbulent. icoFoam does not use that library, and it is exact. Changing schemes, "
+      "pressure-velocity coupling, cell shape or wall boundary condition does not move the error. One cell off the wall the "
+      "boundary-layer profile matches the log law, so the fault is in the wall cells. Decision (user, 2026-11-19): use the CFD for "
+      "lift and stall only, with a ~5 % band, and take section drag from XFOIL. The tripped XFOIL polar (5 % chord) is the "
+      "like-for-like comparison for fully turbulent SA, and the free-transition polar is what sizing used.")
 if CFD:
     for code, blk in CFD.items():
-        rows = [[f"{r_['alpha']:+d}", f3(r_.get('cl', float('nan'))) if 'cl' in r_ else r_.get("status", ""), f"{r_['cd']:.5f}" if 'cd' in r_ else "",
-                 f"{r_.get('diff_cl_pct'):+.1f} %" if r_.get('diff_cl_pct') is not None else "", f"{r_.get('diff_cd_pct'):+.0f} %" if 'diff_cd_pct' in r_ else ""] for r_ in blk["rows"]]
-        doc.table([f"NACA {code} alpha", "cl (CFD)", "cd (CFD)", "cl vs XFOIL", "cd vs XFOIL"], rows, widths=[0.2, 0.2, 0.2, 0.2, 0.2])
-pl = json.load(open(os.path.join(here, "cfd", "airfoil2d", "plan.json")))
-doc.p(f"2-D airfoil RANS (OpenFOAM 13, foamRun incompressibleFluid, Spalart-Allmaras), set up and meshed. The NACA {w['airfoil']} wing case runs at "
-      f"Re {pl[w['airfoil']]['Re']:.2e} with alpha {pl[w['airfoil']]['alphas'][0]} to {pl[w['airfoil']]['alphas'][-1]} deg; the NACA 0012 tail at "
-      f"Re {pl['0012']['Re']:.2e}. Each uses a six-block C-grid with {pl[w['airfoil']]['cells']} cells and first cell "
-      f"{pl[w['airfoil']]['dy1_m']*1e6:.0f} um (y+ ~ 1), and checkMesh passes. Getting there took three fixes (module docstring of "
-      "cfd_airfoil2d.py): wake cells at the wall spacing to the outlet (45,000:1), far-field corners that put 50:1 volume jumps between "
-      "neighbours, and a start-up that diverged with k-omega SST even from a laminar run; Spalart-Allmaras with a viscous start-up field "
-      "converges. Stated before running: fully turbulent SA should give cd above XFOIL's free-transition value and an earlier stall, with "
-      "cl in the linear range within a few %.")
+        pct = lambda v: f"{v:+.1f} %" if v is not None else "-"
+        rows = [[f"{r_['alpha']:+d}", f3(r_['cl']) if 'cl' in r_ else r_.get("status", ""),
+                 f3(r_['xfoil_trip_cl']) if 'xfoil_trip_cl' in r_ else "-", pct(r_.get('diff_trip_cl_pct')),
+                 f3(r_['xfoil_cl']) if 'xfoil_cl' in r_ else "-", pct(r_.get('diff_cl_pct')),
+                 f"{r_['xfoil_cd']:.4f}" if 'xfoil_cd' in r_ else "-", f"{r_['cd']:.4f}" if 'cd' in r_ else ""] for r_ in blk["rows"]]
+        doc.table([f"NACA {code} alpha", "cl CFD", "cl XFOIL trip", "diff", "cl XFOIL free", "diff", "cd XFOIL (used)", "cd CFD (not used)"],
+                  rows, widths=[0.12, 0.11, 0.13, 0.1, 0.13, 0.1, 0.16, 0.15])
+    doc.figure(img("cfd_airfoil2d_polar.png"), 6.6)
+    WS = [r_ for r_ in CFD[w['airfoil']]["rows"] if r_.get('diff_trip_cl_pct') is not None and abs(r_['alpha']) <= 8]
+    doc.bullets([
+        f"Linear range (alpha -4 to 8): CFD cl is within {min(r_['diff_trip_cl_pct'] for r_ in WS):+.1f} to {max(r_['diff_trip_cl_pct'] for r_ in WS):+.1f} % "
+        f"of tripped XFOIL on the NACA {w['airfoil']}. The TMR case puts the solver's own lift error at about -5 %, so the "
+        "section lift used in sizing is confirmed within that band.",
+        f"cl_max (CFD): {max(r_['cl'] for r_ in CFD[w['airfoil']]['rows'] if 'cl' in r_):.3f} for the NACA {w['airfoil']}, against the "
+        f"{max(c_[1] for c_ in CFD[w['airfoil']]['xfoil']['free']):.3f} free and {max(c_[1] for c_ in CFD[w['airfoil']]['xfoil']['trip05']):.3f} tripped XFOIL. "
+        "Fully turbulent SA is the conservative case for stall speed.",
+    ])
+doc.h("10a. Still to run")
 doc.bullets([
-    "3-D CFD next: geometry/airframe_hover.stl and rotor_disks_hover.stl (named solids, metres, FE axes) are ready for snappyHexMesh "
-    "with actuator disks. They give the real wing and boom download (sec. 4) and the fuselage interference.",
-    "Fuselage FEM: done (sec. 9) for the skin, keel, floor and frames. Next: the fairing decision (float it or make it structural), a "
-    "boom fitting and a wing carry-through fitting, then rerun with the keel position fixed in the beam model.",
+    "Airfoil CFD drag: a second CFD code (SU2, or an OpenFOAM release without this fault) would give an independent cd. Not "
+    "needed for sizing, which uses XFOIL drag.",
+    "3-D CFD: geometry/airframe_hover.stl and rotor_disks_hover.stl (named solids, metres, FE axes) are ready for snappyHexMesh "
+    "with actuator disks. They give the real wing and boom download (sec. 4) and the fuselage interference. Its forces would "
+    "carry the same wall-shear error, so pressure (lift and download) forces only.",
+    "Fuselage FEM: done (sec. 9), with the fairing floated. Next: the boom fitting and the wing carry-through fitting, then a "
+    "rerun with the keel position fixed in the beam model.",
     "Whirl flutter of the wing + pod + rotor (the defining tiltrotor aeroelastic check) is not in any model yet.",
 ])
 
@@ -323,8 +361,10 @@ doc.bullets([
     "Equal thrust on three equal rotors fixes the hover CG at the hub centroid, which pushes the front heads ahead of the wing (V-280 "
     "style) so the airplane mode can have a normal tail.",
     f"Gusts, not manoeuvres, size the wing: n = {g['n_gust']:.2f} at 25 m/s, because the wing loading is light ({w['wing_loading_n_m2']:.0f} N/m^2).",
-    "The fuselage shell FEM shows the one-ply skin is loaded by the keel and frames it is bonded to and buckles far below ultimate: "
-    "float it or make it structural. Equilibrium checks close; plane-sections beam theory does not hold in this short fuselage.",
+    "The fuselage shell FEM shows the one-ply skin, bonded to the keel and frames, buckles far below ultimate, so the fairing "
+    "floats. Equilibrium checks close; plane-sections beam theory does not hold in this short fuselage.",
+    "OpenFOAM 13's viscous wall term over-predicts wall shear by ~48 % (a laminar channel shows it). Airfoil CFD checks lift "
+    "and stall; section drag comes from XFOIL.",
     f"Modal rule: nominal operating-point bands (user, 2026-11-18). Open decisions: the tail-boom download ({100*S['download_tail']['frac']:.0f} % of the tail rotor), the real mass against the 280 lb sizing weight, "
     f"and the tilt actuator ({S['tilt_actuator']['hold_torque_nm']:.0f} N m hold torque against an assumed 0.85 kg actuator).",
 ])
