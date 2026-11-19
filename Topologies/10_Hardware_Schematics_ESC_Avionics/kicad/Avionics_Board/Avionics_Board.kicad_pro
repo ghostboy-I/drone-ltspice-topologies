@@ -117,9 +117,9 @@
       },
       "rules": {
         "max_error": 0.005,
-        "min_clearance": 0.0,
+        "min_clearance": 0.2,
         "min_connection": 0.0,
-        "min_copper_edge_clearance": 0.5,
+        "min_copper_edge_clearance": 0.4,
         "min_groove_width": 0.0,
         "min_hole_clearance": 0.25,
         "min_hole_to_hole": 0.25,
@@ -130,7 +130,7 @@
         "min_text_height": 0.8,
         "min_text_thickness": 0.08,
         "min_through_hole_diameter": 0.3,
-        "min_track_width": 0.0,
+        "min_track_width": 0.2,
         "min_via_annular_width": 0.1,
         "min_via_diameter": 0.5,
         "solder_mask_to_copper_clearance": 0.0,
@@ -279,31 +279,6 @@
     "legacy_lib_dir": "",
     "legacy_lib_list": []
   },
-  "sheets": [
-    [
-      "ad0dbe65-0442-5665-9625-ae12a2ec6d76",
-      "Root"
-    ],
-    [
-      "b805e9a4-f84e-5a83-956a-88ade9101572",
-      "Inputs"
-    ],
-    [
-      "42a32cbe-66e8-5ccf-9120-f8e6c359d5bb",
-      "Buck_12V"
-    ],
-    [
-      "76ea193a-9966-5304-9ea9-b491e3efb12c",
-      "Out_12V"
-    ],
-    [
-      "dd401775-26c1-51c4-a275-31313a968a20",
-      "Buck_5V"
-    ],
-    [
-      "50b4d14f-dca5-5412-ac00-e68483ab9240",
-      "LDO_3V3"
-    ]
-  ],
+  "sheets": [],
   "text_variables": {}
 }

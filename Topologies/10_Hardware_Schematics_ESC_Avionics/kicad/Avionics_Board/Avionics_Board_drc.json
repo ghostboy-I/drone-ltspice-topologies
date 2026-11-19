@@ -1,0 +1,200 @@
+{
+    "$schema": "https://schemas.kicad.org/drc.v1.json",
+    "coordinate_units": "mm",
+    "date": "2026-11-19T16:37:53-0500",
+    "included_severities": [
+        "error",
+        "warning",
+        "exclusion"
+    ],
+    "kicad_version": "9.0.8",
+    "schematic_parity": [],
+    "source": "Avionics_Board.kicad_pcb",
+    "unconnected_items": [
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 1 [+5V] of C24 on F.Cu",
+                    "pos": {
+                        "x": 119.0,
+                        "y": 90.75
+                    },
+                    "uuid": "e80baf58-19a5-4cec-a938-f5f9496f8e50"
+                },
+                {
+                    "description": "Pad 2 [+5V] of U3 on F.Cu",
+                    "pos": {
+                        "x": 121.55,
+                        "y": 90.0
+                    },
+                    "uuid": "09562fb9-fa95-4412-aac4-aeb85e1af7fc"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 1 [+5V] of C24 on F.Cu",
+                    "pos": {
+                        "x": 119.0,
+                        "y": 90.75
+                    },
+                    "uuid": "e80baf58-19a5-4cec-a938-f5f9496f8e50"
+                },
+                {
+                    "description": "Pad 1 [+5V] of R19 on F.Cu",
+                    "pos": {
+                        "x": 119.575,
+                        "y": 95.3
+                    },
+                    "uuid": "5921ac3a-8cf5-46d6-b919-55bdc868fb5f"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 1 [+5V] of U3 on F.Cu",
+                    "pos": {
+                        "x": 121.55,
+                        "y": 89.5
+                    },
+                    "uuid": "dfbcd4ec-c480-4a7d-a72e-e597981a5c1d"
+                },
+                {
+                    "description": "Pad 2 [+5V] of U3 on F.Cu",
+                    "pos": {
+                        "x": 121.55,
+                        "y": 90.0
+                    },
+                    "uuid": "09562fb9-fa95-4412-aac4-aeb85e1af7fc"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 2 [+5V] of U3 on F.Cu",
+                    "pos": {
+                        "x": 121.55,
+                        "y": 90.0
+                    },
+                    "uuid": "09562fb9-fa95-4412-aac4-aeb85e1af7fc"
+                },
+                {
+                    "description": "Track [+5V] on B.Cu, length 0.7071 mm",
+                    "pos": {
+                        "x": 130.699999,
+                        "y": 89.85
+                    },
+                    "uuid": "78b203f6-cd59-4424-a216-be4995d100c0"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 1 [+5V] of U2 on F.Cu",
+                    "pos": {
+                        "x": 133.6,
+                        "y": 84.75
+                    },
+                    "uuid": "7fb27dee-9516-43ec-afa5-d5653b14ee6f"
+                },
+                {
+                    "description": "Track [+5V] on B.Cu, length 0.6364 mm",
+                    "pos": {
+                        "x": 132.5,
+                        "y": 83.25
+                    },
+                    "uuid": "af90d61d-79db-4413-92f1-a957ac87d9fe"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 1 [+5V] of R12 on F.Cu",
+                    "pos": {
+                        "x": 134.3,
+                        "y": 82.425
+                    },
+                    "uuid": "820bafe5-7e67-4f14-9ae8-0c22ccb1f26f"
+                },
+                {
+                    "description": "Track [+5V] on F.Cu, length 0.7750 mm",
+                    "pos": {
+                        "x": 132.6,
+                        "y": 82.375
+                    },
+                    "uuid": "4a4e0c21-0df8-4e6c-9d51-da71fd6caaa0"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 21 [/Buck_12V/RUN12] of U1 on F.Cu",
+                    "pos": {
+                        "x": 132.225,
+                        "y": 51.625
+                    },
+                    "uuid": "aa32f501-7e8e-4c84-8a23-3eb76d760733"
+                },
+                {
+                    "description": "Pad 2 [/Buck_12V/RUN12] of R2 on F.Cu",
+                    "pos": {
+                        "x": 140.0625,
+                        "y": 60.0
+                    },
+                    "uuid": "6da813ff-1293-428a-8165-c7afe8106f74"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        },
+        {
+            "description": "Missing connection between items",
+            "items": [
+                {
+                    "description": "Pad 2 [/Buck_12V/RUN12] of R2 on F.Cu",
+                    "pos": {
+                        "x": 140.0625,
+                        "y": 60.0
+                    },
+                    "uuid": "6da813ff-1293-428a-8165-c7afe8106f74"
+                },
+                {
+                    "description": "Pad 1 [/Buck_12V/RUN12] of R3 on F.Cu",
+                    "pos": {
+                        "x": 141.775,
+                        "y": 60.0
+                    },
+                    "uuid": "7b8349cd-c221-4ffc-b787-7490e3e6e4a0"
+                }
+            ],
+            "severity": "error",
+            "type": "unconnected_items"
+        }
+    ],
+    "violations": []
+}

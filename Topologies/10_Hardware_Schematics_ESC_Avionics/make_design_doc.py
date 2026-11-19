@@ -190,7 +190,86 @@ doc.p("The LTC4366 needs about 0.1 s to ramp Q4's gate, far longer than the 8 ms
       "51 ms timer is well inside a D2PAK's transient rating. A surge longer than the timer turns Q4 off for the 9 s cool-down, "
       "so the flight controller would brown out; size CT for the longest surge the airframe can produce.", size=9)
 
-doc.h("8. What went wrong first (and what each taught)")
+# =====================================================================================================================
+kd = os.path.join(here, "kicad", "Avionics_Board")
+ls = json.load(open(os.path.join(kd, "layout_stats.json")))
+doc.pagebreak()
+doc.h("8. Avionics PCB layout (KiCad, for JLCPCB)")
+doc.p("pcb_avionics.py turns the netted KiCad board into a manufacturable one: 4 layers, 1.6 mm, 2 oz outer / 1 oz inner copper "
+      "(JLC04161H-7628: F.Cu, 0.21 mm prepreg, In1, 1.07 mm core, In2, 0.21 mm prepreg, B.Cu), 100 × 62 mm, four M3 holes. In1 and "
+      "In2 are solid ground planes; F.Cu carries the power pours and B.Cu a ground pour plus the signal crossings. The layout is a "
+      "script, so a schematic change is one re-run: export → place → pour → route → fill → DRC → Gerbers.", size=9.5)
+# --- clearances
+pk = {"HVIN": "200 (pack surge)", "HVF": f"{ms['vprot_max']:.0f}–122", "HVSW": "0–126 (SW + BST)", "PWR / DRV / signal": "≤ 13"}
+doc.p("Clearance. IPC-2221B table 6-1, column B2 (external, uncoated, below 3050 m), gives the minimum spacing for the peak "
+      "voltage between two conductors: 31–150 V → 0.6 mm, 151–300 V → 1.25 mm. Inner layers (B1) need only 0.2 mm up to 300 V; 0.5 mm "
+      "is used. The peak voltages are from Avionics_SurgeTest (pack 1 stepped to 200 V behind 4 Ω). Nets are grouped by voltage, and "
+      "the rule applies to the difference between the two groups' peaks:", size=9.5)
+doc.table(["Net class (group)", "Nets", "Peak (V)", "Outer clearance to LV"], [
+    ["HVIN", "PACK1-3+, PACK1-3_F, VIN_AV", pk["HVIN"], "1.25 mm (0.6 to HVF, 1.25 to HVSW)"],
+    ["HVF", "VIN_PROT and the floating LTC4366 nets", pk["HVF"], "0.6 mm"],
+    ["HVSW", "SW12, BST12, TG12", pk["HVSW"], "0.6 mm (0.6 to HVF)"],
+    ["PWR / DRV / signal", "+12V, +5V, +3V3, GND, drivers, control", pk["PWR / DRV / signal"], "0.2 mm (JLC 2 oz minimum)"],
+], widths=[0.17, 0.37, 0.16, 0.3])
+doc.p("Inside one group the spacing is 0.2 mm: the floating LTC4366 nets all sit within 13 V of each other, and BST12 is SW12 + "
+      "12 V. One exception: the LTC7801's own pinout puts VIN (pin 19) 0.65 mm from low-voltage pins, so the IC's pin field is a "
+      "KiCad rule area where 0.2 mm applies. Its HTSSOP-24 pitch cannot meet B2, which is why the datasheet derates. Conformal "
+      "coating (IPC B4: 0.13 mm up to 150 V) covers this; coat the board.", size=9.5)
+# --- trace width
+ipc = lambda w_mm, oz=2, dT=10: 0.048 * dT ** 0.44 * ((w_mm / 0.0254) * oz * 1.378) ** 0.725
+i_in = av["i_in"]; i_in_max = U1.vset * U1.iout / 0.93 / 71.25
+doc.p("Track width. IPC-2221 (external): I = 0.048 ΔT^0.44 A^0.725, with A the cross-section in mil² (2 oz = 2.76 mil) and ΔT "
+      "the allowed rise. At ΔT = 10 °C:", size=9.5)
+doc.eq(r"I_{1.0\,mm} = 0.048\cdot 10^{0.44}\,(39.4\cdot 2.76)^{0.725} = %.1f\ \mathrm{A} \qquad I_{0.5\,mm} = %.1f\ \mathrm{A} \qquad I_{0.2\,mm} = %.1f\ \mathrm{A}" % (ipc(1.0), ipc(0.5), ipc(0.2)), size=11)
+doc.table(["Path", "Current", "Copper", "Capacity (ΔT 10 °C)"], [
+    ["Pack inputs → diodes → Q4 (HVIN)", f"{i_in:.2f} A typ, {i_in_max:.2f} A at 5 A out, 71 V", "1.0 mm tracks + pours", f"{ipc(1.0):.1f} A"],
+    ["12 V stage: SW → L1 → R1 → +12V", f"{U1.iout:.0f} A max", "pours ≥ 4 mm wide", f"{ipc(4.0):.0f} A"],
+    ["+5V / +3V3 taps to ICs", "< 0.5 A", "0.5 mm (0.2 at fine-pitch pins)", f"{ipc(0.5):.1f} A / {ipc(0.2):.1f} A"],
+    ["Signals, feedback, gate drive", "mA (gate peaks ~1 A for ns)", "0.2–0.4 mm", f"{ipc(0.2):.1f}–{ipc(0.4):.1f} A"],
+], widths=[0.33, 0.29, 0.2, 0.18])
+# --- hot loop and Kelvin
+mu0 = 4e-7 * math.pi; h_pp = 0.21e-3; l_loop = (71.9 - 51.35) * 1e-3; w_loop = 5e-3
+L_loop = mu0 * h_pp * l_loop / w_loop; didt = U1.iout / 10e-9
+doc.p("Hot loop. In a buck the current that switches on and off every cycle flows in C_in → Q1 → Q2 → ground → C_in. Q1, the switch "
+      "node and Q2 sit in one line with C2/C3 at the left end; the loop closes back through the In1 plane 0.21 mm below "
+      "(vias at C2/C3 and at Q2's source). A loop over a plane is a strip line, L ≈ µ0·h·l/w:", size=9.5)
+doc.eq(r"L_{loop} \approx \frac{\mu_0\,h\,l}{w} = \frac{4\pi\cdot10^{-7}\cdot 0.21\,\mathrm{mm}\cdot %.1f\,\mathrm{mm}}{%.0f\,\mathrm{mm}} = %.2f\ \mathrm{nH}, \quad L\frac{di}{dt} = %.2f\,\mathrm{nH}\cdot\frac{%.0f\,\mathrm{A}}{10\,\mathrm{ns}} = %.2f\ \mathrm{V}" % (l_loop * 1e3, w_loop * 1e3, L_loop * 1e9, L_loop * 1e9, U1.iout, L_loop * didt), size=11)
+doc.p("A side-by-side layout with the return on the same layer would enclose an area of millimetres, not 0.21 mm, and be ~10× worse. "
+      "The FET packages add ~1 nH each, so the plane return halves the total.", size=9.5)
+r_cu = 1.72e-8 * 5e-3 / (0.8e-3 * 70e-6)
+doc.p(f"Kelvin sense. R1 = 10 mΩ gives 10 mV/A. A shared 5 mm × 0.8 mm run of 2 oz copper is ρl/(wt) = {r_cu*1e3:.1f} mΩ, so "
+      f"tapping the pour instead of the resistor would read {r_cu/10e-3*100:.0f} % high and move the current limit. Two 0.3 mm traces "
+      "leave from the inner edges of R1's pads, run together on B.Cu over the ground plane (no loop for the switch node to couple "
+      "into), and reach SENSE+/SENSE− and the filter capacitor C4. The router marks them as foreign copper after they are drawn, so "
+      "no other +12V connection can join them.", size=9.5)
+# --- router
+doc.p("Router. kicad_route.py is a small A* router on a 0.05 mm grid with two layers and vias (cost 2.5 mm of track). For each "
+      "net it computes, with a Euclidean distance transform per voltage group, the cells where a track of the chosen width would come "
+      "closer than that pair's clearance, then searches the free cells. A cell counts as copper when its centre is inside the copper, "
+      "so a real copper edge can be up to half a cell diagonal closer than the grid says:", size=9.5)
+doc.eq(r"e_{max} = \frac{\sqrt{2}}{2}\,\Delta = 0.035\ \mathrm{mm} \;\Rightarrow\; \mathrm{blocked\ if}\; d < s_{pair} + \frac{w}{2} + 0.75\,\Delta", size=12)
+doc.p("The first version used a 0.1 mm grid and no margin; KiCad's DRC found 51 places 0.03–0.1 mm too close, which is exactly that "
+      "error. Order matters too: the gate drive and the Kelvin pair go first, then a ground via beside every ground pad, then the "
+      "small-signal nets (they need the short paths between IC pins), then the power taps, ground last. A track wider than a "
+      "fine-pitch pin cannot reach it, so each connection retries at 0.4, 0.3, 0.25 and 0.2 mm.", size=9.5)
+drc = ls["drc"]
+err = sum(v for k, v in drc.items() if k.startswith("error")); warn = {k.split(":")[1]: v for k, v in drc.items() if k.startswith("warning")}
+doc.table(["Result", "Value"], [
+    ["Parts placed", f"{ls['parts']} + 4 mounting holes"],
+    ["Tracks / vias", f"{ls['tracks']} / {ls['vias']}  (F.Cu {ls['length_mm']['F.Cu']:.0f} mm, B.Cu {ls['length_mm']['B.Cu']:.0f} mm)"],
+    ["Unrouted connections (KiCad DRC)", f"{ls['unconnected']}"],
+    ["DRC errors", f"{err}" + ("" if not err else "  (" + ", ".join(f"{k.split(':')[1]} {v}" for k, v in drc.items() if k.startswith('error')) + ")")],
+    ["DRC warnings", ", ".join(f"{k} {v}" for k, v in warn.items()) or "0"],
+    ["Schematic ↔ PCB parity issues", f"{ls['schematic_parity']}"],
+    ["References on F.Fab only (no silkscreen room)", f"{len(ls['hidden_refs'])} of {ls['parts']}"],
+], widths=[0.45, 0.55])
+doc.img(os.path.join(kd, "layout_routed.png"), width=6.6)
+doc.p("Fabrication files (python3 pcb_avionics.py fab → kicad/Avionics_Board/jlcpcb/): Gerbers for the 4 copper layers, mask, "
+      "paste, silkscreen and outline, Excellon drill (plated and non-plated), all in one zip for upload; the BOM and the CPL "
+      "(placement) in JLC's column format. Check each part's rotation in JLC's preview before ordering: footprint zero "
+      "orientations differ between KiCad and JLC's library for some packages (SOT-23, diodes, electrolytics).", size=9.5)
+
+doc.h("9. What went wrong first (and what each taught)")
 doc.bullets([
     "Units: the .asc files were first written as UTF-8 with 'µ'. LTspice read it as two Latin-1 characters and dropped the unit, so 47µ became 47 H and 0.1µ became 0.1 F, and nothing started. Write 'u', or write the file in Latin-1.",
     "Library models: a test from a bare .cir file said the vendor FETs were missing. From a schematic they load, because LTspice adds its standard libraries only for .asc files. Confirm a model by measuring it (here: Ron with 1 V / 1 mΩ), not by the absence of an error.",
@@ -205,8 +284,11 @@ doc.bullets([
     "The first 'drive efficiency' read 76.6 %. It was not an efficiency: the rotor was still speeding up after the coast, so ½Jω² was absorbing about 0.9 kW. Write the energy balance before you trust a ratio.",
 ])
 
-doc.h("9. Takeaways")
+doc.h("10. Takeaways")
 doc.bullets([
+    "Clearance is set by the voltage between two conductors, not by the voltage of either one. Group the nets by peak voltage (from the surge simulation) and give KiCad one rule per pair of groups.",
+    "Close the hot loop through the plane directly underneath it: L ≈ µ0·h·l/w with h = 0.21 mm is about 1 nH, a tenth of a loop drawn side by side.",
+    "A grid router must add the grid's own error (half a cell diagonal) to every clearance, or the real copper ends up closer than the rule. KiCad's DRC is the check that catches it.",
     "Describe the board once (a parts table) and generate the simulation, BOM and net list from it. That way what you simulated is what you build.",
     "A current-mode buck is a Type II loop on a single pole, plus about one switching period of delay. The delay costs ~25° of phase at fc ≈ fsw/13.",
     "You can measure a loop gain on a switching model with a series sine injection and a correlation at the injection frequency, which works even when the controller model is encrypted.",

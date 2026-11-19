@@ -1,0 +1,56 @@
+(version 1)
+
+(rule "HVF to HVIN: 0.6 mm (IPC-2221B B2)"
+  (layer outer)
+  (condition "A.NetClass == 'HVF' && B.NetClass == 'HVIN' && B.Net != ''")
+  (constraint clearance (min 0.6mm)))
+
+(rule "HVF to HVSW: 0.6 mm (IPC-2221B B2)"
+  (layer outer)
+  (condition "A.NetClass == 'HVF' && B.NetClass == 'HVSW' && B.Net != ''")
+  (constraint clearance (min 0.6mm)))
+
+(rule "HVF to LV: 0.6 mm (IPC-2221B B2)"
+  (layer outer)
+  (condition "A.NetClass == 'HVF' && !(B.NetClass == 'HVIN' || B.NetClass == 'HVF' || B.NetClass == 'HVSW') && B.Type != 'Footprint' && B.Net != ''")
+  (constraint clearance (min 0.6mm)))
+
+(rule "HVF to unconnected copper: 0.6 mm"
+  (layer outer)
+  (condition "A.NetClass == 'HVF' && B.Net == '' && B.Type == 'Pad'")
+  (constraint clearance (min 0.6mm)))
+
+(rule "HVIN to HVSW: 1.25 mm (IPC-2221B B2)"
+  (layer outer)
+  (condition "A.NetClass == 'HVIN' && B.NetClass == 'HVSW' && B.Net != ''")
+  (constraint clearance (min 1.25mm)))
+
+(rule "HVIN to LV: 1.25 mm (IPC-2221B B2)"
+  (layer outer)
+  (condition "A.NetClass == 'HVIN' && !(B.NetClass == 'HVIN' || B.NetClass == 'HVF' || B.NetClass == 'HVSW') && B.Type != 'Footprint' && B.Net != ''")
+  (constraint clearance (min 1.25mm)))
+
+(rule "HVIN to unconnected copper: 1.25 mm"
+  (layer outer)
+  (condition "A.NetClass == 'HVIN' && B.Net == '' && B.Type == 'Pad'")
+  (constraint clearance (min 1.25mm)))
+
+(rule "HVSW to LV: 0.6 mm (IPC-2221B B2)"
+  (layer outer)
+  (condition "A.NetClass == 'HVSW' && !(B.NetClass == 'HVIN' || B.NetClass == 'HVF' || B.NetClass == 'HVSW') && B.Type != 'Footprint' && B.Net != ''")
+  (constraint clearance (min 0.6mm)))
+
+(rule "HVSW to unconnected copper: 0.6 mm"
+  (layer outer)
+  (condition "A.NetClass == 'HVSW' && B.Net == '' && B.Type == 'Pad'")
+  (constraint clearance (min 0.6mm)))
+
+(rule "HV on inner layers: 0.5 mm (IPC B1 asks 0.2 mm)"
+  (layer inner)
+  (condition "(A.NetClass == 'HVIN' || A.NetClass == 'HVF' || A.NetClass == 'HVSW') && A.Net != B.Net")
+  (constraint clearance (min 0.5mm)))
+
+(rule "U1 pin field: the IC's own pin pitch (0.2 mm between VIN / BST and their neighbours)"
+  (layer "F.Cu")
+  (condition "A.intersectsArea('U1_PINS') && B.intersectsArea('U1_PINS')")
+  (constraint clearance (min 0.2mm)))

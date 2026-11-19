@@ -1,0 +1,29 @@
+{
+ "tracks": 455,
+ "vias": 115,
+ "length_mm": {
+  "F.Cu": 452.4,
+  "B.Cu": 219.7
+ },
+ "routed_by_router": 500,
+ "failed": [
+  [
+   "/Buck_12V/RUN12",
+   "/Buck_12V/RUN12 R3.1 -> U1.21"
+  ],
+  [
+   "+5V",
+   "+5V U2.1 -> J5.2"
+  ]
+ ],
+ "hidden_refs": [
+  "U2",
+  "C10",
+  "R12",
+  "C23"
+ ],
+ "unconnected": 8,
+ "drc": {},
+ "schematic_parity": 0,
+ "parts": 77
+}

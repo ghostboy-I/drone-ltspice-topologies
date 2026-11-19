@@ -182,6 +182,12 @@ CUSTOM = dict(fn() for fn in (udc18, fe24, wire8, as150))
 CUSTOM_NAMES = set(CUSTOM)
 
 
+BOARD_ONLY = ["MountingHole:MountingHole_3.2mm_M3"]     # placed by the layout scripts, no schematic symbol
+# Stock footprints changed after copying: (old text, new text). TSOT-23-8: 0.5 mm lands on a 0.65 mm pitch leave a
+# 0.15 mm gap, below the 0.2 mm JLC asks for on 2 oz outer copper; 0.45 mm lands (lead width 0.22-0.36 mm) leave 0.2 mm.
+PATCH = {"TSOT-23-8": [("(size 1.325 0.5)", "(size 1.325 0.45)")]}
+
+
 def used_footprints():
     """Footprint names (library:name) used by both boards, from their parts tables."""
     import esc, avionics
@@ -199,6 +205,7 @@ def build():
     os.makedirs(LIB, exist_ok=True)
     for f in glob.glob(os.path.join(LIB, "*.kicad_mod")): os.remove(f)
     used = used_footprints()
+    for fp in BOARD_ONLY: used.setdefault(fp, [])
     copied, made = [], []
     for fp in sorted(used):
         lib, name = fp.split(":", 1)
@@ -208,7 +215,11 @@ def build():
         else:
             src = os.path.join(STOCK, lib + ".pretty", name + ".kicad_mod")
             if not os.path.exists(src): raise FileNotFoundError(f"{fp} is not in KiCad's library ({src})")
-            shutil.copyfile(src, os.path.join(LIB, name + ".kicad_mod")); copied.append(fp)
+            txt = open(src).read()
+            for old, new in PATCH.get(name, []):
+                if old not in txt: raise ValueError(f"{fp}: patch text {old!r} not found")
+                txt = txt.replace(old, new)
+            open(os.path.join(LIB, name + ".kicad_mod"), "w").write(txt); copied.append(fp)
     return used, copied, made
 
 
