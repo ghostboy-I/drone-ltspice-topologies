@@ -99,6 +99,6 @@ loads:                      # same philosophy as Airframe/01 (FAR 27 style), plu
 
 modal:
   margin: 0.15
-  band_rule: nominal         # DEVIATION from Airframe/01 (envelope 16.6-78.6 Hz), user to confirm: no 6.6 m frame keeps
+  band_rule: nominal         # requirement (user, 2026-11-18): deviates from Airframe/01's envelope band (16.6-78.6 Hz); no 6.6 m frame keeps
                             # every hub mode out of the merged envelope band; nominal = +-15 % at MTOW hover and cruise rpm
   participation_min: 0.05

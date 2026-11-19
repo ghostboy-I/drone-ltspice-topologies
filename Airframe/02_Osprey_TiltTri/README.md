@@ -52,10 +52,14 @@ python3 src/cfd_airfoil2d.py post                         # CFD vs XFOIL -> resu
 | `cfd/airfoil2d/` | Case plan; logs and force histories copied back after the runs |
 | `results/` | JSON and figures |
 
+## Decided
+
+- Modal rule (user, 2026-11-18): +-15 % bands around 1P / 2P at the two operating points (MTOW hover on a hot day, airplane
+  cruise), direction-aware as Airframe/01, instead of 01's envelope band (16.6-78.6 Hz), which no frame this size clears.
+  Envelope crossings are still flagged in `results/final.json` for off-design weights and air.
+
 ## Open items (need a decision or a run)
 
-- Modal rule: Airframe/01's envelope band (16.6-78.6 Hz) is replaced here by +-15 % bands at the two operating points
-  (`params.yaml modal.band_rule`). No frame this size clears the envelope band.
 - Tail-boom + aft-cone download, 8.6 % of the tail rotor's thrust: an airfoil-section boom is the fix.
 - Real vehicle mass (~185 kg) against the 280 lb (127 kg) sizing weight: the wing stalls at ~25 m/s at the real mass.
 - Whirl flutter, prop normal force in airplane mode, transition corridor: not modelled yet.

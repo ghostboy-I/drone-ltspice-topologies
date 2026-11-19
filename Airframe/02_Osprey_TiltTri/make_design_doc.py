@@ -156,7 +156,7 @@ doc.p("Modes. Airframe/01 required every hub-moving mode to stay out of the 1P a
       "Merged, those bands run 16.6 to 78.6 Hz (red strip). A 6.6 m wide frame always has hub-moving modes in that range. This design "
       "therefore checks the bands at its two operating points instead: MTOW hover on a hot day, and airplane cruise. It keeps 01's "
       "direction rule: axial hub motion against 2P, in-plane motion against 1P. "
-      "This is a deviation from Airframe/01 and needs your decision. Modes below 1P are allowed (V-22 practice) but must pass a "
+      "This deviates from Airframe/01, and the user confirmed it on 2026-11-18. Envelope crossings are still listed as flags for off-design weights and air. Modes below 1P are allowed (V-22 practice) but must pass a "
       f"whirl-flutter check, which this model doesn't do. Flags: {len(F['flags'])} (listed in final.json).")
 hc = F["hand_checks"]
 doc.table(["Hand check", "Hand", "FE", "Diff", "Note"], [
@@ -212,7 +212,7 @@ doc.bullets([
     "Equal thrust on three equal rotors fixes the hover CG at the hub centroid, which pushes the front heads ahead of the wing (V-280 "
     "style) so the airplane mode can have a normal tail.",
     f"Gusts, not manoeuvres, size the wing: n = {g['n_gust']:.2f} at 25 m/s, because the wing loading is light ({w['wing_loading_n_m2']:.0f} N/m^2).",
-    f"Open decisions: the modal band rule (envelope or nominal), the tail-boom download ({100*S['download_tail']['frac']:.0f} % of the tail rotor), the real mass against the 280 lb sizing weight, "
+    f"Modal rule: nominal operating-point bands (user, 2026-11-18). Open decisions: the tail-boom download ({100*S['download_tail']['frac']:.0f} % of the tail rotor), the real mass against the 280 lb sizing weight, "
     f"and the tilt actuator ({S['tilt_actuator']['hold_torque_nm']:.0f} N m hold torque against an assumed 0.85 kg actuator).",
 ])
 doc.save(os.path.join(here, "02_Osprey_TiltTri_Design.pdf"))
