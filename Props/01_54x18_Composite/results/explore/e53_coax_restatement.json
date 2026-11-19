@@ -1,0 +1,186 @@
+{
+ "dP_w": 1539.1131941448552,
+ "dpack_wh": 751.6358452459281,
+ "wh_per_w": 0.4883564432462315,
+ "dpayload_kg": -2.478192697810511,
+ "rows": [
+  {
+   "case": "CONFIG_STUDY: Phase 2 blade pair, half-size motors",
+   "payload_lens": -0.8,
+   "payload_vortex": -3.2781926978105114,
+   "pack_lens": 5969.0,
+   "pack_vortex": 6720.635845245928,
+   "energy_vs_tri_lens": -0.20145020602557928,
+   "energy_vs_tri_vortex": -0.10089422523065128
+  },
+  {
+   "case": "Entry 03: spar-sized coax blade (best of entries 01-03)",
+   "payload_lens": 0.2,
+   "payload_vortex": -2.278192697810511
+  },
+  {
+   "case": "Entry 04/05 reference: entry 03 blade, 54/54 in",
+   "payload_lens": 0.26,
+   "payload_vortex": -2.218192697810511,
+   "pack_lens": 5777.754816033803,
+   "pack_vortex": 6529.390661279731,
+   "energy_vs_tri_lens": -0.2270355305782359,
+   "energy_vs_tri_vortex": -0.12647954978330778
+  },
+  {
+   "case": "Entry 06: entry 03 blade with mast mass and drag, h/D 0.2",
+   "payload_lens": 0.10783376305646275,
+   "payload_vortex": -2.3703589347540484,
+   "pack_lens": 5822.999935112507,
+   "pack_vortex": 6574.635780358435,
+   "energy_vs_tri_lens": -0.22098250988487889,
+   "energy_vs_tri_vortex": -0.12042652908995088
+  }
+ ],
+ "e05": [
+  {
+   "family": "lower",
+   "D_upper_in": 54.0,
+   "D_lower_in": 43.2,
+   "payload_lens": 0.24254721646997446,
+   "f_prandtl": 1.1750538361770926,
+   "P_int_bs_est": 4021.500452655311,
+   "P_int_lens_est": 800.6326307267675,
+   "payload_vortex_est": -4.943511318588582
+  },
+  {
+   "family": "lower",
+   "D_upper_in": 54.0,
+   "D_lower_in": 45.9,
+   "payload_lens": 0.4890838883484845,
+   "f_prandtl": 1.1243805972653083,
+   "P_int_bs_est": 3848.0765235149793,
+   "P_int_lens_est": 1033.203538649917,
+   "payload_vortex_est": -4.043264806272699
+  },
+  {
+   "family": "lower",
+   "D_upper_in": 54.0,
+   "D_lower_in": 48.6,
+   "payload_lens": 0.5760509643457183,
+   "f_prandtl": 1.0788102118834066,
+   "P_int_bs_est": 3692.1165838093953,
+   "P_int_lens_est": 1291.3558828026669,
+   "payload_vortex_est": -3.2895176377939963
+  },
+  {
+   "family": "lower",
+   "D_upper_in": 54.0,
+   "D_lower_in": 51.3,
+   "payload_lens": 0.519851286840157,
+   "f_prandtl": 1.0375593238840695,
+   "P_int_bs_est": 3550.939677990787,
+   "P_int_lens_est": 1574.7899290709186,
+   "payload_vortex_est": -2.6620328631909684
+  },
+  {
+   "family": "lower",
+   "D_upper_in": 54.0,
+   "D_lower_in": 54.0,
+   "payload_lens": 0.2566879524069572,
+   "f_prandtl": 1.0,
+   "P_int_bs_est": 3422.396769273838,
+   "P_int_lens_est": 1883.2835751289824,
+   "payload_vortex_est": -2.2215047454035544
+  },
+  {
+   "family": "lower",
+   "D_upper_in": 54.0,
+   "D_lower_in": 56.7,
+   "payload_lens": 0.4718768470975503,
+   "f_prandtl": 0.9656228104778298,
+   "P_int_bs_est": 3304.744386916448,
+   "P_int_lens_est": 1883.2835751289824,
+   "payload_vortex_est": -1.8168786631511393
+  },
+  {
+   "family": "lower",
+   "D_upper_in": 54.0,
+   "D_lower_in": 59.400000000000006,
+   "payload_lens": 0.5522963001862697,
+   "f_prandtl": 0.9340099715927335,
+   "P_int_bs_est": 3196.55270924852,
+   "P_int_lens_est": 1883.2835751289824,
+   "payload_vortex_est": -1.562255112156874
+  },
+  {
+   "family": "lower",
+   "D_upper_in": 54.0,
+   "D_lower_in": 62.099999999999994,
+   "payload_lens": 0.6102269928918114,
+   "f_prandtl": 0.9048154883953525,
+   "P_int_bs_est": 3096.6376042731845,
+   "P_int_lens_est": 1883.2835751289824,
+   "payload_vortex_est": -1.3434467890776802
+  },
+  {
+   "family": "footprint",
+   "D_upper_in": 51.42857142857142,
+   "D_lower_in": 54.0,
+   "payload_lens": 0.37094809808046403,
+   "f_prandtl": 1.0356915185613513,
+   "P_int_bs_est": 3544.5473070886837,
+   "P_int_lens_est": 1757.8150587625953,
+   "payload_vortex_est": -2.5059467447348047
+  },
+  {
+   "family": "footprint",
+   "D_upper_in": 49.090909090909086,
+   "D_lower_in": 54.0,
+   "payload_lens": 0.36901655947981205,
+   "f_prandtl": 1.0710089869844293,
+   "P_int_bs_est": 3665.4176969187565,
+   "P_int_lens_est": 1645.0779984123685,
+   "payload_vortex_est": -2.884019738943344
+  },
+  {
+   "family": "footprint",
+   "D_upper_in": 46.956521739130444,
+   "D_lower_in": 54.0,
+   "payload_lens": 0.3711453456915237,
+   "f_prandtl": 1.105988229855866,
+   "P_int_bs_est": 3785.130544713607,
+   "P_int_lens_est": 1543.0322357581672,
+   "payload_vortex_est": -3.238954079200889
+  }
+ ],
+ "spacing_e07": [
+  {
+   "h_over_D": 0.1,
+   "pack_bs_wh": 7121.477232700923
+  },
+  {
+   "h_over_D": 0.15,
+   "pack_bs_wh": 6844.962126423908
+  },
+  {
+   "h_over_D": 0.2,
+   "pack_bs_wh": 6574.635780358435
+  },
+  {
+   "h_over_D": 0.25,
+   "pack_bs_wh": 6314.167309952882
+  },
+  {
+   "h_over_D": 0.3,
+   "pack_bs_wh": 6071.278733028731
+  },
+  {
+   "h_over_D": 0.4,
+   "pack_bs_wh": 5714.634928662151
+  },
+  {
+   "h_over_D": 0.5,
+   "pack_bs_wh": 5570.955597484883
+  },
+  {
+   "h_over_D": 0.75,
+   "pack_bs_wh": 5341.806130325946
+  }
+ ]
+}

@@ -24,7 +24,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 10. ~~Tip speed and noise~~ (entry 27: the hex is 6–7 dBA quieter in tonal loading noise; quieting the tri to match costs it > 2 kg, which removes most of its free-speed lead)
 11. ~~Check the cruise wake-overlap model with a prescribed-wake (Biot–Savart) calculation~~ (entry 07: the lens model was optimistic; use the vortex-wake / biplane σ from now on)
 12. Mast structure at h/D 0.4–0.5: bending under motor-out and gust loads, first bending mode against 1P/2P, gyroscopic moments
-13. Re-state the coaxial case (CONFIG_STUDY headline, entries 01–06 payloads) with the vortex-wake cruise term: at h/D 0.2 the coax is −12 % energy and −2.4 kg payload, not −22 % and +0.1 kg
+13. ~~Re-state the coaxial case~~ (entry 53: every equal-diameter h/D 0.2 result shifts by the same −2.48 kg, so the CONFIG_STUDY headline −0.8 → −3.3 kg and entries 03/04/06 +0.1 to +0.3 → −2.2 to −2.4 kg. Entry 05's smaller lower rotor reverses from +0.24 to ≈ −4.9 kg; only the larger lower rotor still helps. A correction note is added to CONFIG_STUDY.md.) Original: (CONFIG_STUDY headline, entries 01–06 payloads) with the vortex-wake cruise term: at h/D 0.2 the coax is −12 % energy and −2.4 kg payload, not −22 % and +0.1 kg
 14. ~~Stagger: offset the lower rotor forward along the flight path (tilted mast)~~ (entry 08: modest gain; large stagger turns into the planar layout, item 7)
 15. ~~Faired (aerofoil) arms and masts~~ (entry 14: worth only +0.07 kg on the hex and +0.16 kg on the y6 once fairing mass and hover download count; −4.6 % energy on the hex)
 16. ~~Motor and fitting mass: find real catalogue numbers~~ (entry 10: motors sized by torque; hex ties the tri, y6 −3.3 kg)
@@ -3435,4 +3435,68 @@ L = 10 log₁₀[(Σ nᵢ 10^(Lᵢ/10))/6].
   | 4 + 2, shifted | +4.61 kg | 48.9 dBA |
   | 2 + 4, shifted | +3.75 kg | 47.5 dBA |
   | MN1320 | +2.95 kg | 46.3 dBA |
+
+## 53 — The coaxial results re-stated with the vortex-wake cruise term (2026-11-18)
+
+**Question.** Entry 07 found that the lens model of the cruise wake, used by the configuration study and entries 01–06, under-predicted the coaxial arm's cruise interference. At h/D 0.2 it gave 1.9 kW where the vortex wake gives 3.4 kW. Entry 07 corrected only the spacing sweep. What do the other published coaxial numbers become? Does any ranking change?
+
+**Why one constant corrects most of them (the technique).** In cruise a rotor acts as a lifting surface of span 2R. The interference between two rotors at gap G is an *induced-power* term (entry 07, Prandtl's biplane form):
+
+P_int = 2σ(G/b)·T_u·T_l / (2ρA·V′)
+
+It depends only on the two thrusts, the disc areas, the gap and the flight state, not on the blade's chord, twist or section. Every equal-diameter coaxial design at h/D 0.2 carries the same cruise thrusts. So the error is the **same additive constant** for all of them:
+- ΔP = 3422 − 1883 = **1539 W** of cruise power;
+- the mission model turns that into **+752 Wh** of pack (0.488 Wh per W);
+- that is **−2.48 kg** of payload at 303 Wh/kg.
+
+Rankings *among* entries 01–04 therefore stand. Only their offset against the tricopter moves.
+
+Entry 05's diameter splits are the exception, because they change the disc areas and the lens overlap fraction. For those, the vortex-wake term is scaled with Prandtl's biplane factor, using the mean span for G/b and 1/(D_u·D_l) for the area product. That is an estimate.
+
+**Re-stated headlines** (src/explore/e53_coax_restatement.py; payload against the Phase 2 tricopter):
+
+| Case (h/D 0.2) | Payload, lens [kg] | Payload, vortex wake [kg] | Pack energy vs tricopter |
+|---|---|---|---|
+| CONFIG_STUDY: Phase 2 blade pair, half-size motors | −0.80 | **−3.28** | −20.1 % → **−10.1 %** |
+| Entry 03: spar-sized coaxial blade | +0.20 | **−2.28** | |
+| Entry 04/05 reference: entry 03 blade, 54/54 in | +0.26 | **−2.22** | −22.7 % → −12.6 % |
+| Entry 06: with mast mass and drag | +0.11 | **−2.37** | −22.1 % → −12.0 % (matches entry 07) |
+
+**Entry 05, diameter split** (estimate):
+
+| D_upper / D_lower [in] | Lens interference [W] | Vortex interference [W] | Payload, lens → vortex [kg] |
+|---|---|---|---|
+| 54 / 43.2 (lower fully in the wake) | 801 | 4022 | +0.24 → **−4.94** |
+| 54 / 48.6 | 1291 | 3692 | +0.58 → −3.29 |
+| 54 / 54 | 1883 | 3422 | +0.26 → −2.22 |
+| 54 / 62.1 | 1883 | 3097 | +0.61 → **−1.34** |
+| 47.0 / 54 (fixed footprint) | 1543 | 3785 | +0.37 → −3.24 |
+
+**Findings.**
+- **The configuration study's "payload-neutral coaxial arm" is −3.3 kg,** and its "+25 % range on the same pack" is about +11 % (7475/6721). The coaxial arm loses payload at every spacing below about 0.4 D (entry 07). Even at 0.75 D it gains only +0.5 kg over the tricopter, while the planar hexacopter gains about 3.3 kg in the same frame (entry 11). The coaxial arm stays out for payload, as the Y6 did in entry 49.
+- **One idea in entry 05 reverses outright.** A smaller lower rotor sitting entirely inside the upper wake looked good because the lens model only charged the lower disc where the wake tube crosses it.
+  - The vortex wake charges the whole disc, through the trailing vortex pair. A smaller lower disc also has a higher loading, since the interference scales with 1/(D_u·D_l).
+  - The result goes from **+0.24 to about −4.9 kg**, the worst coaxial variant.
+- **The larger lower rotor survives,** as the least-bad coaxial variant (−1.3 kg at 62 in), but it grows the footprint, which entry 05 did not cost.
+- **A correction note is added to CONFIG_STUDY.md** next to its recommendation. The original text is left as the record.
+
+**Hand checks.**
+- **The constant.** 1539 W × 0.4884 Wh/W = 752 Wh, and 752/303.3 = **2.48 kg** ✓.
+  - Independently: the cruise segment is 18.52 km at 15 m/s, which is 1235 s. Then 1539 W × 1235 s / 3600 / (1 − 0.20) = 660 Wh.
+  - The mission model's 752 Wh is 14 % more. That is the drivetrain and ESC efficiency (≈ 0.88) the mission model applies between shaft and pack: 660/0.88 = 750 ✓.
+- **Entry 06 row against entry 07.** +0.11 − 2.48 = **−2.37 kg**, exactly entry 07's own h/D 0.2 figure ✓. That confirms the constant is additive.
+- **Entry 05, 54/62.1.**
+  - G/b = 10.8/58.05 = 0.186, so σ = (1 − 0.123)/(1.055 + 0.688) = 0.503. At G/b 0.2, σ = 0.868/1.795 = 0.484.
+  - f = (0.503/0.484) × 54²/(54 × 62.1) = 1.041 × 0.870 = **0.905** ✓.
+  - The interference is 3422 × 0.905 = 3097 W. Then (3097 − 1883) × 0.4884/303.3 = 1.95 kg, and +0.61 − 1.95 = **−1.34 kg** ✓.
+
+**Caveats.**
+- The entry 05 numbers use Prandtl's factor at the mean span, which is 5–15 % off for discs (entry 08) and cruder still for unequal spans. Signs and rankings are reliable; values are ±0.5 kg.
+- The constant assumes each design's cruise thrust split matches the 54/54 reference. Entries 01–04 trimmed to equal torque, and their splits differ by under 2 %.
+
+**Lesson.** When a model term is fixed, find which earlier results depend on it, and how. A term that depends only on quantities every design shares (thrust, area, spacing) shifts all results by one constant and leaves their order alone. A term that a design variable changes (here the lower radius) can reverse conclusions. That is where the re-check matters.
+
+**Next.**
+- Items 45 (T/W-2 section), 42 (serrations) and 61 (co-designed mixed-hex blades) remain in the queue.
+- The deciders are still the user's questions: is 15 m/s fixed, which battery, what noise limit, and whether to run the refined-nose CFD (item 55).
 
