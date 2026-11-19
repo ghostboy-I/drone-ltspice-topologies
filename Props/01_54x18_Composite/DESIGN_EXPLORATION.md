@@ -64,7 +64,9 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 50. ~~Free-speed and 200 Wh/kg scenarios with the catalogue motors~~ (entry 41: at 15 m/s the hex wins every case, +0.7 to +8.1 kg. At free speed with 303 Wh/kg the V13828 tri wins by 2.8–4.1 kg, but at 61.4 dBA; held to a ≈ 55 dBA limit (U15XL tri) it is a tie, −0.7 to +0.6 kg. Break-even batteries: 15 m/s 328 Wh/kg (V13828) or none (U15XL); free speed 174 / 277 Wh/kg.)
 52. ~~Free-speed break-even noise limit~~ (entry 42: with a 12 % reserve the tri's noise is set by its motor, not its cap. The U15XL designs at caps 0.65–0.80 all land at 55.2–55.6 dBA (torque-limited at tip Mach 0.70), and the V13828 at 61.4. At free speed with 303 Wh/kg the hex wins below ≈ 55.5 dBA, it is a tie at 55.2–55.6 (−0.42 to +0.14 kg), and only the V13828's 61.4 dBA gives the tri a clear win.)
 53. **Reserve as the tri's noise knob:** between 0 % reserve (V13828 at 55.9 dBA, +6.87 kg, entry 38) and 12 % (61.4 dBA, +4.37 kg) the reserve moves the tri's noise by 5.5 dB. Sweep the reserve (0–15 %) for both layouts on the free-speed/303 case, and decide on a reserve from a gust/sag requirement rather than a round number.
-44. Absolute-level caveat from the toroid session's CFD (2026-11-18): on its rotor, BEMT predicted 620 N against 436 N in CFD (30 % high), in line with the earlier Caradonna–Tung check. The tri–hex comparisons here are relative, but absolute payloads and the motor sizing at T/W 2 should be re-based when its 2-blade reference solve (same mesh) reports
+44. ~~BEMT calibration on CFD~~ (entry 43: on the toroid session's 2-blade reference, CFD at equal thrust needs 1.16 × the rpm, 1.23 × the torque and 1.42 × the power of plain BEMT. If the CFD torque holds, the hex moves from the MN1123 to the MN1320 and the tri has no 24S motor that holds T/W 2 with a reserve. The additive Δc_d fit, 0.033, does not transfer to other loadings: it doubles the hex's hover power.)
+54. **Re-optimise both layouts under a CFD-consistent model:** the torque and power factors at equal thrust (×1.23, ×1.42) or a loading-dependent correction. The hex would be on the MN1320 or V13828; the tri on the U15XL with no reserve, or not feasible. This gives new absolute payloads; the old ones are 5–10 kg optimistic.
+55. **A second CFD point to separate thrust and torque error** (needs the CFD machine time, so it is the user's and the toroid session's call): a refined leading-edge mesh of the 2-blade reference (the CT validation found coarse noses inflate torque), or the same mesh at a second rpm or loading, to show whether the 23 % torque excess is physical (3-D, root and tip losses) or a mesh artefact.
 
 ## Entries
 
@@ -2714,3 +2716,100 @@ It ran on 2 cores at nice 19, beside the toroid CFD.
 - Item 44, now the priority: apply the toroid session's calibration (a₀ ≈ 4°, Δc_d ≈ 0.033) to this BEMT. Re-check against the 437 N / 35.9 N·m point, then re-size both layouts' motors. The tri may have no catalogue motor left.
 - Item 53: sweep the reserve.
 - Item 51: the hex's payload–noise curve.
+
+## 43 — BEMT calibrated on the 2-blade CFD: the thrust gap is a pitch loss, but the torque gap decides the motors (2026-11-18)
+
+**Question.** The toroid session's OpenFOAM solve of this program's final 2-blade blade (results/blade_final.csv) converged at 1500 iterations:
+- conditions: 2280 rpm, 45 °C sea-level air;
+- result: **T = 437.4 N, Q = 35.88 N·m, FoM 0.590**;
+- plain BEMT gives 584.8 N and 39.02 N·m.
+
+How should the BEMT be corrected? What does the correction do to the designs and motors of entries 38–42?
+
+**Method.** src/explore/e43_cfd_calibration.py.
+- **Data source.** The CFD totals come from the toroid session's results/cfd_reference.json. I only read that folder; nothing there is changed.
+- **Correction model** (the toroid session's): effective pitch θ − a₀, and section drag c_d + Δc_d. There are two fits:
+  - **Full:** a₀ and Δc_d fitted to both thrust and torque;
+  - **Thrust only:** a₀ fitted to thrust, with Δc_d = 0.
+- **Designs tested** in entry 41's chain (constant body, 15 m/s), each against its catalogue motor's 12 % reserve torque:
+  - the hex on the MN1123 (entry 39) and on the MN1320 (entry 38);
+  - the tri on the V13828 (entry 39) and on the U15XL (entry 40).
+- **Four ways to apply the correction:**
+  - **plain:** no correction;
+  - **as built:** a₀ and Δc_d both applied;
+  - **re-pitched:** Δc_d only, because a designer would add a₀ of collective back;
+  - **thrust only:** a₀ alone.
+- It ran as one process at nice 19, because the toroid CFD was running.
+
+**Calibration** (our blade, our polars, the same air: ρ = 1.1095 kg/m³, a = 357.6 m/s):
+
+| Model | a₀ [°] | Δc_d | T [N] | Q [N·m] |
+|---|---|---|---|---|
+| plain BEMT | 0 | 0 | 584.8 | 39.02 |
+| thrust only | 3.20 | 0 | 437.4 | **25.47** |
+| full | **3.05** | **0.0333** | 437.4 | 35.88 |
+| CFD | | | **437.4** | **35.88** |
+
+The full fit reproduces the toroid session's uniform-a₀ (a1 = 0) values exactly (3.046° and 0.0333) ✓. That is a cross-check that both scripts use the same blade, polars and air.
+
+**Design checks** (catalogue motor mass; mass_sum = hardware + pack/303.3; 15 m/s, constant body):
+
+| Design | Model | Hover [W] | Pack [Wh] | Q_max / limit [N·m] | Fits | T/W at the limit |
+|---|---|---|---|---|---|---|
+| hex MN1123 | plain | 13 514 | 5 056 | 19.53 / 19.53 | yes | 2.00 |
+| | thrust only, as built | 20 339 | 7 028 | 19.86 / 19.53 | no (+1.7 %) | 1.97 |
+| | re-pitched (Δc_d only) | 28 050 | 10 711 | 39.31 / 19.53 | no | < 1 |
+| hex MN1320 | plain | 12 582 | 4 753 | 26.83 / 28.51 | yes | 2.13 |
+| | thrust only, as built | 13 359 | 4 913 | 22.90 / 28.51 | yes | 2.48 |
+| | re-pitched | 19 115 | 7 547 | 40.45 / 28.51 | no | 1.41 |
+| tri V13828 | plain | 18 047 | 7 963 | 38.07 / 37.93 | yes | 1.99 |
+| | re-pitched | 32 871 | 14 851 | 67.40 / 37.93 | no | 1.12 |
+| tri U15XL | plain | 17 557 | 7 650 | 44.35 / 44.35 | yes | 2.00 |
+| | re-pitched | 29 803 | 13 282 | 73.13 / 44.35 | no | 1.21 |
+
+The "as built" rows with both corrections are worse still: hover power rises 3–4 ×, because a 3° pitch loss on a lightly loaded blade drives it toward zero lift. They are left out of the table; the JSON has them.
+
+**Findings.**
+- **The thrust gap is a pitch loss, and a pitch loss is free to fix.** BEMT's 34 % thrust excess at fixed rpm is matched exactly by a uniform 3.2° loss of effective pitch. That is inflow the strip model does not see: 3-D tip relief and the root. A designer recovers it by building the blade 3.2° steeper. With a₀ alone and the pitch restored, every design is identical to plain BEMT. So **if only the thrust is wrong, entries 10–42 stand as they are**, apart from a 3° collective offset.
+- **The torque gap is what matters, and it is large.**
+  - With a₀ alone, BEMT gives 25.5 N·m at the CFD point, where CFD gives 35.9 N·m.
+  - At equal thrust, CFD needs **1.16 × the rpm, 1.23 × the torque and 1.42 × the power** of plain BEMT (hand check below).
+  - FoM 0.59 against 0.84. Our blades are designed at FoM ≈ 0.80–0.84, and real 1.4 m rotors measure 0.65–0.75.
+- **The additive Δc_d does not transfer.** Fitted at one point it is 0.033, five times the section drag. Applied to the other designs it doubles the hex's hover power (13.5 → 28 kW), against the 1.42 × that the CFD itself implies at equal thrust.
+  - A constant Δc_d penalises in proportion to σ V_tip³, so it hits fast, lightly loaded rotors hardest.
+  - It absorbs whatever caused the CFD's extra torque, including the coarse leading-edge mesh (0.63 mm cells). The Caradonna–Tung validation found coarse noses inflate torque.
+  - **So the Δc_d rows above are a lower bound on performance, not a prediction.**
+- **What a CFD-consistent torque does to the motors.** Scale each design's T/W-2 torque by the CFD's 1.23 at equal thrust and compare with the 12 % reserve limits:
+
+  | Design | Q_max plain | × 1.23 | Fits its motor? | Next catalogue motor that fits |
+  |---|---|---|---|---|
+  | hex MN1123 | 19.53 | **24.0** | no (19.5) | **MN1320** (28.5 limit, 2.07 kg) |
+  | hex MN1320 | 26.83 | **33.0** | no (28.5) | **V13828** (37.9 limit, 2.465 kg) |
+  | tri V13828 | 38.07 | **46.8** | no (37.9) | U15XL only without a reserve (50.4) |
+  | tri U15XL | 44.35 | **54.5** | no (44.35) | **none**, no larger 24S motor in the survey |
+
+  If the CFD torque is right, **the tri has no 24S motor that holds T/W 2 with a reserve**. The hex steps up one motor size, +0.65 kg per arm, to a design entry 38 already showed works.
+- **The pack grows too:** 1.42 × the hover power is ≈ +40 % hover energy. That is roughly +2000 Wh for the hex and +3200 Wh for the tri at 15 m/s, about **+7 kg and +10 kg** of battery at 303 Wh/kg. The absolute payloads of entries 10–42 are likely **5–10 kg optimistic**, more for the tri. Cruise is less affected (lower C_T, profile-dominated), so the free-speed rows would shift less; that is not computed here.
+
+**Hand checks.**
+- **Equal-thrust ratios.** At fixed geometry, BEMT thrust goes as rpm² and power as rpm³, to first order.
+  - Plain BEMT reaches CFD's 437.4 N at 2280 × √(437.4/584.8) = **1972 rpm**.
+  - Its power there is 9318 × (1972/2280)³ = **6027 W**, and its torque 6027/(1972 × π/30 = 206.5) = **29.19 N·m**.
+  - CFD: 8567 W and 35.88 N·m at 2280 rpm. So the power ratio is 8567/6027 = **1.42**, the torque ratio 35.88/29.19 = **1.23**, and the rpm ratio 2280/1972 = **1.16** ✓.
+  - The rpm² and rpm³ scaling ignores Re and Mach effects over a 14 % rpm change, a ≈ 1–2 % error.
+- **Figure of merit:** ideal power T^1.5/√(2ρA) = 437.4^1.5/√(2 × 1.1095 × 1.4776) = **5051 W**.
+  - CFD: 5051/8567 = **0.590** ✓ (as printed).
+  - Plain BEMT at equal thrust: 5051/6027 = **0.838**.
+- **The thrust-only fit leaves the torque untouched:** a 3.2° pitch loss lowers the inflow angle, so the torque at 2280 rpm falls with the thrust (39.0 → 25.5 N·m). It does not explain the CFD's 35.9.
+- **The motor table:** 19.53 × 1.229 = 24.0, 26.83 × 1.229 = 33.0, 38.07 × 1.229 = 46.8, 44.35 × 1.229 = 54.5 N·m ✓.
+
+**Lesson.** A one-point calibration with two free parameters always fits, so the test is whether it *transfers*. Here the two corrections behave very differently:
+- The **pitch loss** is a real, transferable correction (a known 3-D effect), and a designer can absorb it entirely.
+- The **drag shift** is a catch-all. It contains a possible mesh artefact, and as a constant Δc_d it scales with the wrong variable.
+
+The equal-thrust torque and power factors (1.23, 1.42) are the more honest way to carry the CFD into sizing. A second CFD point (refined nose, or another loading) is what would separate physics from mesh. Until then, the conclusion that does not depend on the torque question is this: **the hex has a catalogue motor one size up, and the tri has none.** So the CFD's torque gap, if real, settles the layout for the hex.
+
+**Next.**
+- Item 54: re-optimise both layouts under the ×1.23 torque, ×1.42 power model: hex on the MN1320 or V13828, tri on the U15XL with no reserve.
+- Item 55: a refined-nose or second-loading CFD of the 2-blade reference to settle the torque. This needs the CFD machine time, so it is the user's and the toroid session's call.
+- The user's open questions remain: cruise speed, battery and noise limit.
