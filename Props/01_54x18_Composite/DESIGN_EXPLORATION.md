@@ -66,6 +66,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 53. ~~Reserve sweep~~ (entry 45: per 1 % of torque reserve the hex loses ≈ 0.11 kg and 0.19 dB, the tri ≈ 0.21 kg and 0.45 dB. Hex − tri at 15 m/s and 303 Wh/kg crosses zero at a ≈ 9 % reserve. At free speed the V13828 tri wins at every reserve, by 3.8–4.8 kg (303 Wh/kg) or 1.1–2.2 kg (200), at 7.4–10.6 dB more noise. Magnet heating alone justifies ≈ 10 %.) Original: between 0 % reserve (V13828 at 55.9 dBA, +6.87 kg, entry 38) and 12 % (61.4 dBA, +4.37 kg) the reserve moves the tri's noise by 5.5 dB. Sweep the reserve (0–15 %) for both layouts on the free-speed/303 case, and decide on a reserve from a gust/sag requirement rather than a round number.
 44. ~~BEMT calibration on CFD~~ (entry 43: on the toroid session's 2-blade reference, CFD at equal thrust needs 1.16 × the rpm, 1.23 × the torque and 1.42 × the power of plain BEMT. If the CFD torque holds, the hex moves from the MN1123 to the MN1320 and the tri has no 24S motor that holds T/W 2 with a reserve. The additive Δc_d fit, 0.033, does not transfer to other loadings: it doubles the hex's hover power.)
 54. ~~Re-optimise under the CFD factors~~ (entry 44: the hex on the MN1320 keeps its 12 % reserve at 48.0 dBA, losing ≈ 4.3 kg; the tri flies only on the U15XL with no reserve, at tip Mach 0.86 and 57.5 dBA, also losing ≈ 4.3 kg. Hex − tri: +3.4 kg at 15 m/s and 303 Wh/kg, −1.1 at free speed and 303, +1.9 to +8.6 with 200 Wh/kg.) Original: the torque and power factors at equal thrust (×1.23, ×1.42) or a loading-dependent correction. The hex would be on the MN1320 or V13828; the tri on the U15XL with no reserve, or not feasible. This gives new absolute payloads; the old ones are 5–10 kg optimistic.
+58. **Pack model from cells** (entry 49): the 15 m/s ranking moves 0.03 kg per Wh/kg near 300, so a ±20 Wh/kg uncertainty (±0.8 kg) exceeds the margin. Build the pack's usable specific energy up from cell energy, packaging fraction, hot-day usable fraction and end-of-life fade, for both chemistries.
 57. ~~Full chain on the 10 % designs~~ (entry 48: the frame-shift estimates held to within 0.36 kg. At 15 m/s and 303 Wh/kg it is a tie: hex +0.54 kg with 24xx, tri +0.31 with -64. Break-even batteries at 15 m/s are 322 / 294 Wh/kg, and at free speed 171 / 156 Wh/kg.) Original: (entry 47): replace the frame-shift estimate with an exact hex − tri across speed and battery.
 56. **A hex with mixed motors**, MN1123 on some arms and MN1320 on others: yaw and roll authority need a symmetric layout, so it would be three and three in alternation. This fills the payload–noise curve between 46.3 and 50.3 dBA (entry 46), but the unequal rotors complicate control.
 55. **A second CFD point to separate thrust and torque error** (needs the CFD machine time, so it is the user's and the toroid session's call): a refined leading-edge mesh of the 2-blade reference (the CT validation found coarse noses inflate torque), or the same mesh at a second rpm or loading, to show whether the 23 % torque excess is physical (3-D, root and tip losses) or a mesh artefact.
@@ -3164,3 +3165,44 @@ Hover noise (hex / tri): 50.3 / 60.4 dBA with 24xx, and 50.0 / 59.7 dBA with 24x
 - Item 55, a refined-nose CFD of the 2-blade, is the only remaining input that could decide the layout without the user's requirements. It needs the CFD machine.
 - The user's three questions (speed requirement, battery chemistry, noise limit) now map directly onto the table above.
 - After that: item 45 proper (a T/W-2 section with transonic polars, mostly for the tri), item 42 (serration effectiveness) and item 13 (re-stating the coaxial case).
+
+## 49 — Decision curves against battery energy, and the Y6 re-scored with catalogue motors (2026-11-18)
+
+**Question.** Entry 48 put the 15 m/s break-even battery at 294–322 Wh/kg, which is right at the semi-solid pack. How steep is the payload difference around it? And does the Y6 (coaxial pairs on three arms, entries 9 and 12), which was dropped before catalogue motors were introduced, come back now that its rotors land in the well-stocked part of the 24S market?
+
+**Method.** src/explore/e49_decision_curves.py, with no new BEMT:
+- **Decision curves.** From entry 48's chain points (10 % reserve, constant body), hex − tri = sum_tri − sum_hex, where sum = hardware + pack/e_b. This is swept over e_b = 150–400 Wh/kg, at 15 m/s and at each layout's best speed (re-picked for every e_b), for the 24xx and 24xx-64 designs. The plot is results/explore/e49_decision_curves.png.
+- **Y6.** Entry 12's best Y6 arm needs 27.2 N·m per rotor at T/W 2, on a fitted 2.44 kg motor. The MN1320 at a 10 % reserve allows 0.90 × 32.44 = 29.2 N·m, so it fits with no re-optimisation. The payload change is 6 × (2.44 − 2.07).
+
+**Decision curves** (hex payload minus tri payload in kg):
+
+| Design, speed | 200 Wh/kg | 250 | 303 | 350 | Break-even |
+|---|---|---|---|---|---|
+| 24xx, 15 m/s | +5.50 | +2.59 | +0.54 | −0.74 | **321 Wh/kg** |
+| 24xx-64, 15 m/s | +4.56 | +1.70 | −0.31 | −1.56 | **294 Wh/kg** |
+| 24xx, free | −1.33 | −2.87 | −3.96 | −4.64 | 171 Wh/kg |
+| 24xx-64, free | −2.14 | −3.65 | −4.72 | −5.39 | 156 Wh/kg |
+
+**Findings.**
+- **Near the semi-solid pack the 15 m/s margin moves by about 0.04 kg per Wh/kg** (from +2.59 at 250 to +0.54 at 303 with 24xx). So a ±20 Wh/kg uncertainty in the pack's real specific energy is worth ±0.8 kg. That is larger than the margin itself.
+  - The pack's specific energy *at the cell-to-pack level, after the 20 % reserve, on a hot day* is therefore a deciding number. The vendor's 303 Wh/kg is a cited value, not a measurement (entry 19).
+- **The curves are hyperbolas in e_b.** The payload difference is −Δhw − Δpack/e_b, so it steepens toward low specific energy. That is why the LiPo case is a clear hex win (+4.6 to +5.5 kg) while the high-energy end flattens toward the tri.
+- **At free speed the tri wins at every plausible battery.** Its break-even (156–171 Wh/kg) is below any current lithium pack. The free-speed decision is made by noise, not by battery (entries 45–48).
+- **Y6 with catalogue motors:**
+  - it fits the MN1320 with a 16 % reserve (27.2 of 32.44 N·m);
+  - it gains 6 × (2.44 − 2.07) = **+2.22 kg**, moving from −0.43 to **+1.79 kg** against the tri in entry 12's continuous-fit frame;
+  - the hex gains +2.15 kg in the same move (+3.31 → +5.46 at 10 %, entry 46), and the tri +2.76 kg (+2.14 → +4.90, entry 47);
+  - so the Y6 stays **≈ 2.6 kg behind the hex** and ≈ 1 kg behind the tri.
+  - Its coaxial hover penalty (k_P ≈ 1.37) and 2.2 kW of cruise interference are paid in battery, and catalogue motors help every layout about equally. **The Y6 stays out.**
+
+**Hand checks.**
+- **Slope at 303 Wh/kg:** d(hex − tri)/de_b = Δpack/e_b², with Δpack = pack_tri − pack_hex = 7905 − 4995 = 2910 Wh (24xx, 15 m/s). That gives 2910/303.3² = **0.0316 kg per Wh/kg**.
+  - The table's 250 → 350 chord gives (2.59 + 0.74)/100 = 0.033 ✓. The chord is slightly steeper because the curve is convex.
+- **The break-even is a pure ratio,** e_b* = Δpack/Δhw = 2910/9.05 = **321.5 Wh/kg** ✓ (printed 321.4).
+- **Y6 motor fit:** 27.2/32.44 = 0.838 of test torque, a 16 % reserve, so it fits ✓. The payload gain is 6 × 0.37 = **2.22 kg** ✓.
+
+**Lesson.** A tie at a point is not a tie over the plausible range. The margin's slope against the uncertain input, here 0.03 kg per Wh/kg, says how precisely that input must be known: here to better than ±15 Wh/kg to call the 15 m/s case. A real measurement of the pack (cell-to-pack mass fraction, hot-day usable energy) is worth more than further rotor refinement.
+
+**Next.**
+- Item 58: the pack model. Replace the cited 303 Wh/kg with a cell-to-pack build-up (cell energy, packaging fraction, usable-energy fraction at 45 °C, end-of-life fade) for both chemistries, and redo the curves with that band.
+- Item 55 (refined CFD) and the user's three questions remain the deciders.
