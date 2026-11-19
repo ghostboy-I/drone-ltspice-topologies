@@ -300,25 +300,25 @@ doc.eq(r"C_f=\frac{0.026}{Re_x^{1/7}},\qquad u_\tau=U\sqrt{C_f/2},\qquad \Delta 
 doc.p("Each grid line is a cubic Hermite curve from the wall point W, leaving along the surface normal N, to its far-field point F. "
       "This keeps the wall cells orthogonal (0.7 deg mean, 8 deg max). The blockMesh grid it replaced was sheared 40-60 deg at the "
       "leading edge:")
-doc.eq(r"P(t)=h_{00}(t)\,W+h_{10}(t)\,k_{wall}L\,N+h_{01}(t)\,F+h_{11}(t)\,F',\qquad h_{00}=2t^3-3t^2+1,\; h_{10}=t^3-2t^2+t")
+doc.eq(r"P(t)=h_{00}(t)\,W+h_{10}(t)\,k_{wall}L\,N+h_{01}(t)\,F+h_{11}(t)\,F',\qquad h_{00}=2t^3-3t^2+1,\; h_{10}=t^3-2t^2+t", size=11)
 doc.p("The runs start from a physical field: nuTilda = 3 nu (the NASA TMR freestream value) everywhere, and U from potentialFoam. "
       "The earlier viscous start-up field leaked into the wall boundary condition through OpenFOAM's bound() and froze there. On "
       "the new mesh it also got trapped in the wake. The script docstring lists all seven setup failures and their fixes.")
 doc.p("Verification found a solver fault, not a setup one. On a laminar Poiseuille channel the exact pressure gradient is:")
 doc.eq(r"\frac{dp}{dx}=\frac{12\,\mu\,\bar U}{H^2}=\frac{12\,(10^{-3})(1)}{0.02^2}=30\ \mathrm{Pa/m}\ (\rho=1)")
-doc.table(["Check", "Exact / reference", "Result", "Error"], [
+doc.table(["Check", "Exact / ref.", "Result", "Error"], [
     ["Channel dp/dx, icoFoam", "30", "29.99", "0 %"],
     ["Channel dp/dx, foamRun incompressibleFluid", "30", "44.2", "+47 %"],
     ["Channel dp/dx, legacy porousSimpleFoam", "30", "44.25", "+48 %"],
-    ["Channel wall-cell U (icoFoam / foamRun)", "0.0375", "0.0375 / 0.069-0.042 alternating", "odd-even mode"],
+    ["Channel wall-cell U (icoFoam / foamRun)", "0.0375", "0.0375 / 0.069 & 0.042", "odd-even"],
     ["NASA TMR NACA 0012, Re 6e6, alpha 10: cl", "1.0909", "1.039", "-4.8 %"],
     ["NASA TMR NACA 0012, Re 6e6, alpha 10: cd", "0.01231", "0.0194", "+58 %"],
-], widths=[0.42, 0.18, 0.25, 0.15])
+], widths=[0.46, 0.14, 0.26, 0.14])
 doc.p("Every OpenFOAM 13 solver that computes the viscous term through the momentumTransport library (divDevSigma) overestimates "
       "wall shear by about 48 %, laminar or turbulent. icoFoam does not use that library, and it is exact. Changing schemes, "
       "pressure-velocity coupling, cell shape or wall boundary condition does not move the error. One cell off the wall the "
       "boundary-layer profile matches the log law, so the fault is in the wall cells. Decision (user, 2026-11-19): use the CFD for "
-      "lift and stall only, with a ~5 % band, and take section drag from XFOIL. The tripped XFOIL polar (5 % chord) is the "
+      "lift only, and take section drag from XFOIL. The tripped XFOIL polar (5 % chord) is the "
       "like-for-like comparison for fully turbulent SA, and the free-transition polar is what sizing used.")
 if CFD:
     for code, blk in CFD.items():
@@ -327,17 +327,26 @@ if CFD:
                  f3(r_['xfoil_trip_cl']) if 'xfoil_trip_cl' in r_ else "-", pct(r_.get('diff_trip_cl_pct')),
                  f3(r_['xfoil_cl']) if 'xfoil_cl' in r_ else "-", pct(r_.get('diff_cl_pct')),
                  f"{r_['xfoil_cd']:.4f}" if 'xfoil_cd' in r_ else "-", f"{r_['cd']:.4f}" if 'cd' in r_ else ""] for r_ in blk["rows"]]
-        doc.table([f"NACA {code} alpha", "cl CFD", "cl XFOIL trip", "diff", "cl XFOIL free", "diff", "cd XFOIL (used)", "cd CFD (not used)"],
-                  rows, widths=[0.12, 0.11, 0.13, 0.1, 0.13, 0.1, 0.16, 0.15])
-    doc.figure(img("cfd_airfoil2d_polar.png"), 6.6)
-    WS = [r_ for r_ in CFD[w['airfoil']]["rows"] if r_.get('diff_trip_cl_pct') is not None and abs(r_['alpha']) <= 8]
+        doc.table([f"{code} alpha", "cl CFD", "cl trip", "diff", "cl free", "diff", "cd XFOIL", "cd CFD (unused)"],
+                  rows, widths=[0.15, 0.1, 0.1, 0.1, 0.1, 0.1, 0.15, 0.2])
+    doc.img(img("cfd_airfoil2d_polar.png"), width=6.4)
+    RW = {r_['alpha']: r_ for r_ in CFD[w['airfoil']]["rows"] if 'cl' in r_}
+    WS = [r_ for r_ in RW.values() if r_.get('diff_trip_cl_pct') is not None and abs(r_['alpha']) <= 8]
+    sl_cfd = (RW[8]['cl'] - RW[0]['cl']) / 8; sl_xf = (RW[8]['xfoil_trip_cl'] - RW[0]['xfoil_trip_cl']) / 8
+    doc.eq(r"a=\frac{c_l(8^\circ)-c_l(0^\circ)}{8^\circ}:\quad a_{CFD}=%.4f,\; a_{XFOIL,trip}=%.4f\ \mathrm{per\ deg}\ (%+.1f\ \%%)" % (sl_cfd, sl_xf, 100 * (sl_cfd / sl_xf - 1)),
+           note="lift slope of the NACA %s, alpha 0-8 deg (thin-airfoil theory: 2 pi / rad = 0.110 per deg)" % w['airfoil'])
     doc.bullets([
-        f"Linear range (alpha -4 to 8): CFD cl is within {min(r_['diff_trip_cl_pct'] for r_ in WS):+.1f} to {max(r_['diff_trip_cl_pct'] for r_ in WS):+.1f} % "
-        f"of tripped XFOIL on the NACA {w['airfoil']}. The TMR case puts the solver's own lift error at about -5 %, so the "
-        "section lift used in sizing is confirmed within that band.",
-        f"cl_max (CFD): {max(r_['cl'] for r_ in CFD[w['airfoil']]['rows'] if 'cl' in r_):.3f} for the NACA {w['airfoil']}, against the "
-        f"{max(c_[1] for c_ in CFD[w['airfoil']]['xfoil']['free']):.3f} free and {max(c_[1] for c_ in CFD[w['airfoil']]['xfoil']['trip05']):.3f} tripped XFOIL. "
-        "Fully turbulent SA is the conservative case for stall speed.",
+        f"Linear range (alpha -4 to 8): CFD cl is {-max(r_['diff_trip_cl_pct'] for r_ in WS):.1f} to {-min(r_['diff_trip_cl_pct'] for r_ in WS):.1f} % below "
+        f"tripped XFOIL on the NACA {w['airfoil']}, but the lift slope agrees to {100*abs(sl_cfd/sl_xf-1):.1f} %. The gap is an offset at zero lift "
+        f"(cl {RW[0]['cl']:.3f} vs {RW[0]['xfoil_trip_cl']:.3f}): less effective camber, as a thicker trailing-edge boundary layer gives, which the "
+        "inflated wall shear also produces. The NASA TMR case puts the solver's own lift error at -4.8 %. Sizing used the free-transition "
+        "XFOIL cl, 13-17 % above this CFD over alpha 0-6 deg. Treat it as the optimistic end, and note that it sets the cruise "
+        "angle of attack and the 1.2 x stall-speed margin.",
+        f"Stall: the CFD has not stalled by 16 deg (cl {RW[16]['cl']:.3f} and still rising, above XFOIL's "
+        f"{max(c_[1] for c_ in CFD[w['airfoil']]['xfoil']['trip05']):.3f} tripped maximum). 2-D steady SA is known to over-predict cl_max, so the CFD "
+        "does NOT confirm the stall speed. That stays on XFOIL and the 0.9 x 3-D factor.",
+        "Table columns: cl trip / cl free = XFOIL tripped at 5 % chord / free transition (Ncrit 9); cd XFOIL is the free-transition value sizing uses.",
+        "NACA 0012 tail: cl 3-8 % below tripped XFOIL, the same pattern. The tail volume coefficients have margin for that.",
     ])
 doc.h("10a. Still to run")
 doc.bullets([

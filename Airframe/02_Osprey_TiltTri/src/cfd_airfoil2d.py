@@ -68,7 +68,7 @@ What it took to get a converged run (kept here because each was a real failure):
      with laminar or SA, every convection/gradient scheme, SIMPLE, SIMPLEC or PISO, square cells, and noSlip or
      fixedValue walls. The common factor is OpenFOAM 13's momentumTransport viscous term (divDevSigma), which icoFoam
      does not use. So post() reports CFD cd for the record only. The design takes the section drag from XFOIL, and
-     uses CFD cl as an independent lift and stall check with a ~5 % band.
+     uses CFD cl as an independent lift check (slope within 2 %, zero-lift offset 4-9 %; no stall by 16 deg).
 Reference: SA is fully turbulent, so post() compares against XFOIL both free (ncrit 9, what sizing used) and tripped
 at 5 % chord (the like-for-like turbulence state). A 1 % trip is closer to SA's turbulent-from-the-stagnation-point
 boundary layer, but XFOIL's Newton iteration fails above alpha 6-7 deg with it (NaN, "sequence halted"); the 5 % trip
