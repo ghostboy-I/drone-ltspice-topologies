@@ -1,0 +1,104 @@
+# Airframe 02: Osprey-style tilt-tricopter frame. Single source of truth for every input.
+# kind: requirement = user / brief;  v22 = proportion taken from the Bell-Boeing V-22 (published data, cited below);
+#       derived = computed;  assumption = my choice, logged with the reason.
+# Rotor, motor, mission and material numbers are READ from Props/01_54x18_Composite and Airframe/01_Tricopter_Fuselage,
+# never copied (src/sizing.py).
+#
+# User decisions (2026-11-18, this session):
+#   * "3 rotors, Osprey look": two tilting wingtip nacelles + one fixed lift rotor at the tail; the 54 in rotors stay.
+#   * "Real tilt, faster cruise": the nacelles tilt 0-90 deg and the wing carries the weight in cruise.
+#   * "280 lb MTOW, 225 lb payload": same as the tricopter program (55 lb drone target, known not to close).
+#   * "Long wing, cruise 25 m/s": V-22 proportions give a 0.5 m^2 wing that needs ~67 m/s, beyond the fixed-pitch prop's
+#     ~33 m/s zero-thrust speed, so the wing is stretched to carry the weight at 25 m/s; the Osprey look is kept elsewhere.
+
+vehicle:
+  mtow_lb: 280.0            # requirement
+  drone_lb: 55.0            # requirement (known not to close; reported, never re-decided)
+  payload_lb: 225.0         # requirement: five 45 lb bumper plates (Airframe/01 params)
+  cruise_speed_ms: 25.0     # requirement (user choice 2026-11-18)
+  n_rotors: 3
+
+# V-22 proportions (Bell-Boeing V-22 Osprey, NAVAIR fact file / Jane's All the World's Aircraft):
+#   rotor diameter 38 ft (11.58 m), width with rotors turning 84 ft 7 in (25.78 m), fuselage length 57 ft 4 in (17.48 m),
+#   wing span 45 ft 10 in (13.97 m), wing area 382 ft^2 (35.49 m^2), forward sweep 6 deg, dihedral 3.5 deg (approximate).
+# These set the LOOK only where physics does not decide; each use is listed in the design doc.
+v22:
+  rotor_D_m: 11.58
+  width_rotors_m: 25.78
+  fuselage_L_m: 17.48
+  wing_span_m: 13.97
+  wing_area_m2: 35.49
+  wing_sweep_deg: -6.0      # forward sweep (the V-22 sweeps forward so the blades clear the wing when they flap)
+  wing_dihedral_deg: 3.5
+
+wing:
+  aspect_ratio: 5.5         # v22: 13.97^2 / 35.49 = 5.50. Kept so the wing reads as an Osprey wing at any size
+  sweep_deg: -6.0           # v22
+  dihedral_deg: 3.5         # v22
+  taper: 1.0                # v22: constant chord (it carries the nacelles at the tips)
+  airfoils: ["2412", "4412", "4415", "4418", "23012", "23015", "23018", "23021"]   # XFOIL's NACA generator takes 4- and 5-digit sections
+  t_c_min: 0.15             # assumption: a spar box needs depth; below 15 % the wing spar mass rises steeply (checked in the sweep)
+  e_oswald: 0.80            # assumption: Raymer 12.6 typical straight wing with tip nacelles
+  clmax_3d_factor: 0.90     # Raymer eq. 12.15: CLmax ~ 0.9 clmax for an unswept, untwisted wing
+  stall_margin: 1.20        # assumption: cruise at >= 1.2 x the airplane-mode stall speed (gust and turn margin)
+  ncrit: 9.0
+  spar_front_xc: 0.15       # assumption: front and rear spar at 15 % and 60 % chord (wingbox; standard light-aircraft practice)
+  spar_rear_xc: 0.60
+  flaperon_download_cd: 1.0 # not used in sizing (see nacelle.overlap): placeholder for the CFD download study
+
+nacelle:
+  # V-280-style (the Osprey family's newer member): a FIXED pod at each wing tip, only the rotor head (motor + rotor) tilts,
+  # at the pod's front end. Why: equal thrust on three rotors puts the hover CG at the hub-triangle centroid; with the
+  # hubs on the wing spar (V-22) that CG sits at ~81 % chord and the airplane mode then needs V_h ~1.6 (a 1.8 m^2 tail).
+  # A forward head moves the centroid forward, so a normal tail works. sizing.py solves the head position.
+  # Overlap = how far the disk reaches inboard of the wing tip, in rotor radii (1.0 = hub on the tip, as on the V-22).
+  download_cd_wing: 2.0     # Viterna-Corrigan Cd at 90 deg for an AR > 50 strip (2.01); conservative (no flaperon)
+  download_max_frac: 0.05   # assumption: wing download <= 5 % of front-rotor thrust (V-22 ~10 % with flaperons at 60-70 deg)
+  head_arm_m: 0.35          # assumption: tilt pivot to hub (motor + tilt gearbox + clearance stack); hub above the pivot in
+                            # hover, ahead of it in airplane mode
+  pod_diameter_m: 0.22      # assumption: U15XL is ~0.18 m across plus structure
+  tilt_actuator_kg: 0.85    # assumption: geared servo / linear actuator; required torque checked in sizing.py
+  pivot_bearing_kg: 0.35    # assumption: pair of flanged bearings + aluminium trunnion
+  head_fairing_kg: 0.25     # assumption: spinner / head cowl (moves with the head)
+
+tail:
+  # Tail rotor: the third 54 in rotor, fixed vertical lift rotor on a pylon at the boom end, with the Phase 1 tilt servo
+  # for hover yaw. Stopped and parked fore-aft in airplane mode.
+  rotor_gap_m: 0.10         # assumption: plan-view gap between the tail disk and any lifting surface (no download)
+  pylon_height_m: 0.30      # assumption: disk above the boom axis
+  horizontal_AR: 4.0        # v22-ish: H-stab span 5.61 m on ~1.6 m chord gives ~3.5-4
+  vertical_volume: 0.07     # Raymer table 6.4, twin-engine GA (the wingtip motors are an engine-out yaw case)
+  eta_tail: 0.90            # assumption: dynamic pressure ratio at the tail
+  horizontal_volume: 0.80  # Raymer table 6.4, twin-engine GA
+  static_margin: 0.10       # assumption: 10 % MAC, airplane mode; prop normal force (destabilising) is NOT modelled
+  tc_tail: 0.12             # NACA 0012 tail surfaces
+
+fuselage:
+  # Envelope from the payload (five 450 mm plates, 425 mm stack), the 24.6 kg battery and avionics; length from the V-22
+  # ratio L_fus / D_rotor = 17.48 / 11.58 = 1.51.
+  length_over_D: 1.51       # v22
+  width_m: 0.56             # derived: 450 mm plates + 2 x 55 mm (frame + skin)
+  height_m: 0.62            # derived: 425 mm stack + floor + keel + skin
+  nose_frac: 0.25           # assumption: ogive nose, 25 % of the length
+  tail_frac: 0.30           # assumption: upswept tail cone (V-22 style ramp), 30 %
+  gear: tricycle            # v22 look: nose leg + two main legs in sponsons; fixed (no retraction mass)
+
+masses:                     # kg; catalogue values come via Airframe/01 params.yaml (read)
+  avionics_kg: 2.0
+  battery_kg: 24.64         # Airframe/01 (Phase 2 mission pack); kept for comparability, re-checked against the tilt mission later
+
+loads:                      # same philosophy as Airframe/01 (FAR 27 style), plus the airplane-mode cases (FAR 23 style)
+  ultimate_factor: 1.5
+  n_z_hover: 2.0            # Airframe/01: T/W 2.0 pull-up in helicopter mode
+  gust_ms: 15.24            # FAR 23.333(c): 50 ft/s cruise gust at V_C
+  n_z_maneuver_airplane: 2.5  # assumption: below FAR 23 normal 3.8 (an unmanned cargo vehicle); the gust case usually governs
+  landing_sink_ms: 1.5      # Airframe/01
+  landing_rotor_lift_frac: 0.667
+  landing_stroke_max_m: 0.10
+  shaft_tilt_max_deg: 1.0
+
+modal:
+  margin: 0.15
+  band_rule: nominal         # DEVIATION from Airframe/01 (envelope 16.6-78.6 Hz), user to confirm: no 6.6 m frame keeps
+                            # every hub mode out of the merged envelope band; nominal = +-15 % at MTOW hover and cruise rpm
+  participation_min: 0.05
