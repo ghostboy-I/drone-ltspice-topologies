@@ -55,7 +55,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 41. ~~Wider blade for low α*~~ (entry 34: at the same tip speed, a 15–50 % wider chord cuts the tri's total by only 0.3–0.7 dBA at 0.6–2.7 kg/dB, and the hex's by at most 0.3 dBA. The angle term falls, but the thicker boundary layer raises the suction- and pressure-side terms. Not worth it next to serrations at about 0.1 kg/dB)
 33. ~~Laminar-flow section from coordinates~~ (entry 35: NACA 24xx-64 gains the hex 0.34 kg and the tri 0.06 kg; 24xx-65 loses 0.4–0.6 kg. Aft thickness pays above Re ≈ 7 × 10⁵ and costs below it, and this rotor sits at that crossover)
 43. ~~Section by spanwise Reynolds number~~ (entry 36: banding the -64 to 0.45–0.93R changes nothing, −0.03 kg; the -65 band still loses. The -64's gain comes from lower drag at T/W 2, where Re is higher, through a lighter torque-sized motor, and not from mission energy)
-45. A section designed for the T/W-2 point: entry 36 shows the motor-sizing condition, at about 1.4 × hover rpm and Re ≈ 1.1 × 10⁶, is where section drag pays on the hex. A true 6-series (63-2xx/64-2xx, Theodorsen mapping) or an XFOIL inverse design centred on C_l ≈ 0.35 at Re 1.1 × 10⁶ could push this further; worth it only if the motor model's torque exponent (≈ 1) holds
+45. (Narrowed test done in entry 47: on torque-bound catalogue designs the existing 24xx-64 gains the hex +0.39 kg and the tri +1.34 kg, against +0.34 and +0.06 on the continuous fit. The tri's gain is at tip Mach ≈ 0.8, outside the polars' validated range. A dedicated T/W-2 section is worth more now than when this item was written.) Original: A section designed for the T/W-2 point: entry 36 shows the motor-sizing condition, at about 1.4 × hover rpm and Re ≈ 1.1 × 10⁶, is where section drag pays on the hex. A true 6-series (63-2xx/64-2xx, Theodorsen mapping) or an XFOIL inverse design centred on C_l ≈ 0.35 at Re 1.1 × 10⁶ could push this further; worth it only if the motor model's torque exponent (≈ 1) holds
 46. ~~Motors between 18 and 50 N·m~~ (entry 38: real 24S motors fill the gap at 0.057–0.064 kg/N·m, against the fit's 0.090. The hex on the T-Motor MN1123 (1.425 kg, 22.2 N·m) gets +6.37 kg; the tri on the Hobbywing V13828 (2.465 kg, 43.1 N·m) gets +6.87 kg, but only by lifting its cap to 0.70. At 15 m/s the layouts are tied (hex +0.06 kg), and at equal noise the hex wins by 7.4 dBA. Both optima use 100 % of the motor's test-point torque.)
 47. ~~Torque margin on catalogue motors~~ (entry 39: with a 12 % reserve the hex on the MN1123 drops to +5.06 kg at 50.8 dBA; the tri on the V13828 needs tip Mach 0.84 at T/W 2 for +4.37 kg at 61.4 dBA. The hex leads by ≈ 1.2 kg and is 10.5 dBA quieter. The free-speed and 200 Wh/kg scenarios are still open, now item 50.)
 48. **Equal-noise comparison with the V13828 tri:** the tri's catalogue gain needs tip Mach 0.70 and costs it 3.8 dBA (52.1 → 55.9). Compare the tri at the hex's 48.5 dBA (serrations from entry 33, or a lower cap with the U15XL) against the hex on the MN1123.
@@ -66,6 +66,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 53. ~~Reserve sweep~~ (entry 45: per 1 % of torque reserve the hex loses ≈ 0.11 kg and 0.19 dB, the tri ≈ 0.21 kg and 0.45 dB. Hex − tri at 15 m/s and 303 Wh/kg crosses zero at a ≈ 9 % reserve. At free speed the V13828 tri wins at every reserve, by 3.8–4.8 kg (303 Wh/kg) or 1.1–2.2 kg (200), at 7.4–10.6 dB more noise. Magnet heating alone justifies ≈ 10 %.) Original: between 0 % reserve (V13828 at 55.9 dBA, +6.87 kg, entry 38) and 12 % (61.4 dBA, +4.37 kg) the reserve moves the tri's noise by 5.5 dB. Sweep the reserve (0–15 %) for both layouts on the free-speed/303 case, and decide on a reserve from a gust/sag requirement rather than a round number.
 44. ~~BEMT calibration on CFD~~ (entry 43: on the toroid session's 2-blade reference, CFD at equal thrust needs 1.16 × the rpm, 1.23 × the torque and 1.42 × the power of plain BEMT. If the CFD torque holds, the hex moves from the MN1123 to the MN1320 and the tri has no 24S motor that holds T/W 2 with a reserve. The additive Δc_d fit, 0.033, does not transfer to other loadings: it doubles the hex's hover power.)
 54. ~~Re-optimise under the CFD factors~~ (entry 44: the hex on the MN1320 keeps its 12 % reserve at 48.0 dBA, losing ≈ 4.3 kg; the tri flies only on the U15XL with no reserve, at tip Mach 0.86 and 57.5 dBA, also losing ≈ 4.3 kg. Hex − tri: +3.4 kg at 15 m/s and 303 Wh/kg, −1.1 at free speed and 303, +1.9 to +8.6 with 200 Wh/kg.) Original: the torque and power factors at equal thrust (×1.23, ×1.42) or a loading-dependent correction. The hex would be on the MN1320 or V13828; the tri on the U15XL with no reserve, or not feasible. This gives new absolute payloads; the old ones are 5–10 kg optimistic.
+57. **Full chain on the 24xx-64 designs at a 10 % reserve** (entry 47): replace the frame-shift estimate with an exact hex − tri across speed and battery.
 56. **A hex with mixed motors**, MN1123 on some arms and MN1320 on others: yaw and roll authority need a symmetric layout, so it would be three and three in alternation. This fills the payload–noise curve between 46.3 and 50.3 dBA (entry 46), but the unequal rotors complicate control.
 55. **A second CFD point to separate thrust and torque error** (needs the CFD machine time, so it is the user's and the toroid session's call): a refined leading-edge mesh of the 2-blade reference (the CT validation found coarse noses inflate torque), or the same mesh at a second rpm or loading, to show whether the 23 % torque excess is physical (3-D, root and tip losses) or a mesh artefact.
 
@@ -3040,3 +3041,73 @@ All payloads are in entry 11's hex frame, so they compare directly. It ran on 2 
 - Item 55, a refined-nose CFD of the 2-blade, remains the deciding input on the absolute torque (user's call). The toroid chain runs until about 23:00.
 - Item 45: a section designed for the T/W-2 point.
 - Mixed motors (an MN1123–MN1320 pair per arm side) could fill in the hex curve between 46.3 and 50.3 dBA (item 56).
+
+## 47 — A low-drag section pays more on torque-bound catalogue designs, most of all on the tri (2026-11-18)
+
+**Question.** In entry 36 the NACA 24xx-64 section, with maximum thickness at 40 % chord, gained the hex 0.34 kg. The gain came from lower drag at the T/W-2 point, which shrank the *continuously sized* motor. With catalogue motors the motor mass is fixed and torque is a hard limit. Does lower section drag still pay, and through what?
+
+**Method.** src/explore/e47_section_torque_bound.py re-optimises at the 10 % reserve (e37 job(), hard penalty, plain BEMT) three designs:
+- the hex MN1123 (19.97 N·m) at cap 0.65 with 24xx-64 sections, compared with entry 46's 24xx design;
+- the tri V13828 (38.79 N·m) at cap 0.80 with 24xx sections, as a baseline (no 10 % tri existed);
+- the same tri with 24xx-64 sections (44xx-inboard hybrid, as in entry 35).
+
+The polars are entry 35's cached XFOIL set. e24.db_for is redirected inside the workers, so the optimiser and the noise model both see the new section. It ran on 2 cores at nice 19.
+
+| Design (10 % reserve) | Section | Payload [kg] | rpm hover / max | P_max [W] | Pack [Wh] | Hardware [kg] | σ | TE / tonal / total [dBA] |
+|---|---|---|---|---|---|---|---|---|
+| hex MN1123, cap 0.65 (entry 46) | 24xx | +5.46 | 2059 / 2876 | 6015 | 5202 | 26.73 | 0.132 | 49.7 / 41.4 / 50.3 |
+| hex MN1123, cap 0.65 | **24xx-64** | **+5.85** | 2013 / 2819 | 5895 | 5170 | 26.44 | 0.130 | 49.5 / 40.7 / **50.0** |
+| tri V13828, cap 0.80 | 24xx | +4.90 | 2913 / 4046 | 16435 | 7974 | 18.36 | 0.097 | 53.1 / 59.5 / 60.4 |
+| tri V13828, cap 0.80 | **24xx-64** | **+6.24** | 2858 / 3986 | 16192 | 7857 | 17.41 | 0.109 | 53.0 / 58.6 / **59.7** |
+
+(Both run at the full torque limit, Q_max = 19.97 and 38.79 N·m. The hex payload is in entry 11's frame, the tri's in entry 13's.)
+
+**Findings.**
+- **The section pays on both, and much more on the tri:**
+
+  | Layout | Gain on the catalogue motor, 10 % reserve | Noise | Gain on the continuous fit (entry 35) |
+  |---|---|---|---|
+  | Hex | **+0.39 kg** | −0.3 dB | +0.34 kg |
+  | Tri | **+1.34 kg** | −0.7 dB | +0.06 kg |
+
+  - The mechanism differs from entry 36's. With the motor fixed and torque-bound, lower profile drag means **less torque per unit thrust at T/W 2**, so the rotor reaches T/W 2 at a lower rpm: hex 2876 → 2819, tri 4046 → 3986.
+  - The slower rotor needs less power everywhere (P_max −2 % and −1.5 %, smaller ESCs), a smaller pack (−32 and −117 Wh) and, for the tri, a lighter hardware set (−0.95 kg).
+- **Why the tri gains three times as much:**
+  - It runs at much higher section Reynolds and Mach numbers at T/W 2. Its tip moves at ≈ 0.8 Mach, where profile power is a large share of the torque, and the -64 section's advantage grows above Re ≈ 7 × 10⁵ (entry 35).
+  - It is also further onto the steep part of its reserve cost curve (entry 45: 0.21 kg per 1 % of torque at this end). Any torque the section saves is worth twice as much.
+- **Caveat on the tri's figure:** its tip sections at T/W 2 run at M ≈ 0.8, but the XFOIL polar grid stops at M 0.6 and is extrapolated above. Aft-thick sections behave differently near drag divergence. They can be better (they are the ancestors of supercritical sections) or worse, if a shock forms on the steeper aft recovery. So the tri's +1.34 kg is **unverified at that Mach number**. The hex's +0.39 kg sits inside the polar range (tip Mach ≈ 0.58) and is credible.
+- **Effect on the ranking at a 10 % reserve:** apply each layout's change (hex +0.39, tri +1.34) to entry 45's interpolated 10 % row. The shift is Δhex − Δtri = −0.95 kg:
+
+  | Scenario | 24xx (entry 45) | **24xx-64 on both** |
+  |---|---|---|
+  | 15 m/s, 303 Wh/kg | hex +0.3 | **tri +0.6** (a tie within the frame offset of ±0.5) |
+  | free, 303 | tri +4.1 | **tri +5.1** |
+  | 15 m/s, 200 | hex +5.3 | **hex +4.3** |
+  | free, 200 | tri +1.5 | **tri +2.4** |
+  | noise, hex / tri | 50.4 / 60.5 dBA | **50.0 / 59.7 dBA** |
+
+  These use the frame-shift method of entries 37–39, which entry 41 showed is good to about ±0.5 kg. A full chain run would firm them up.
+- **Item 45 is now worth more than when it was written.** A section designed for the T/W-2 condition (C_l ≈ 0.35–0.45, Re 1–1.5 × 10⁶, M 0.6–0.8) is a better lever for the tri than for the hex, and it needs transonic polars to judge. It also narrows the hex's lead at 15 m/s.
+
+**Hand checks.**
+- **Q = P/Ω at the limit:**
+  - hex -64: 5895 / (2819 × π/30 = 295.2 rad/s) = **19.97 N·m** ✓;
+  - tri -64: 16192 / (3986 × π/30 = 417.4) = **38.79 N·m** ✓.
+- **Payload change split into hardware and pack** (303.3 Wh/kg):
+  - hex: −Δhw − Δpack/303.3 = 0.29 + 32/303.3 = 0.29 + 0.11 = **0.40 kg**, against +0.39 ✓;
+  - tri: 0.95 + 117/303.3 = 0.95 + 0.39 = **1.34 kg** ✓.
+- **Torque per thrust from drag, a first-order estimate:** at fixed thrust, profile torque ≈ (σ C_d₀ / 8) ρ A (ΩR)² R.
+  - A 5 % lower C_d₀ at T/W 2 lowers that part of the torque by 5 %. With profile torque about 30 % of the total at the tri's T/W-2 point, Q falls ≈ 1.5 %.
+  - At a fixed Q limit, Ω can then drop ≈ 1.5 % (Q ∝ P/Ω, with P falling about as fast). The tri's 4046 → 3986 is **−1.5 %** ✓, consistent with a ≈ 5 % section-drag saving at T/W 2.
+- **Baseline tri at 10 %, against entry 45's interpolation:** +5.89 kg at 8 % and +4.37 kg at 12 % give 5.13 kg at 10 %. The optimiser gives +4.90 ✓, within the curvature of the 8–12 % segment.
+
+**Lesson.** The same section change helps through different routes depending on the active constraint:
+- on a continuous motor fit, lower drag saves motor mass;
+- on a fixed catalogue motor at its torque limit, it saves rpm, which saves power, pack and noise.
+
+The second route is worth most to the design pressed hardest against its limit (the tri at 10 %). So an improvement that looked negligible for the tri (+0.06 kg, entry 35) is its largest single gain once the real constraint is modelled.
+
+**Next.**
+- Run entry 41's full chain on the -64 hex and tri at 10 %, to firm up the shifted ranking (item 57).
+- Item 45 proper: a T/W-2 section with transonic polars (MSES-like, or XFOIL's compressibility correction pushed to M 0.8 with care).
+- Item 55: the refined CFD, still the user's call.
