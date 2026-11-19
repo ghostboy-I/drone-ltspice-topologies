@@ -370,8 +370,8 @@ def export_pcb(name, outdir, parts, block_order, netmap):
             if fp is None: raise FileNotFoundError(p["fp"])
             fp.SetFPID(pcbnew.LIB_ID(FP_LIB, p["fp"]))
             fp.SetReference(p["ref"]); fp.SetValue(p["value"])
-            fp.SetPath(pcbnew.KIID_PATH("/" + p["uuid"]))
-            fp.SetSheetname("Root"); fp.SetSheetfile(f"{name}.kicad_sch")
+            fp.SetPath(pcbnew.KIID_PATH(p.get("path", "/" + p["uuid"])))      # hierarchical: /sheet-uuid/symbol-uuid
+            fp.SetSheetname(p.get("sheetname", "Root")); fp.SetSheetfile(p.get("sheetfile", f"{name}.kicad_sch"))
             fp.SetDNP(p["dnp"]); fp.SetExcludedFromBOM(False)          # attributes follow the symbol (in BOM)
             for pad in fp.Pads():
                 n = netmap.get((p["ref"], pad.GetNumber()))
@@ -430,8 +430,8 @@ def run(which):
     here = os.path.dirname(os.path.abspath(__file__))
     if which == "esc":
         import esc; B = esc.build(); name = "ESC_Board"
-    else:
-        import avionics; B = avionics.build(); name = "Avionics_Board"
+    else:                                   # the avionics board is a drawn, hierarchical schematic (kicad_avionics.py)
+        import kicad_avionics; print("Avionics_Board", kicad_avionics.export()); return
     info = export(B, name, os.path.join(here, "kicad", name))
     json.dump({k: sorted(map(list, v)) for k, v in info.pop("expected").items()},
               open(os.path.join(here, "kicad", name, "expected_nets.json"), "w"), indent=0)

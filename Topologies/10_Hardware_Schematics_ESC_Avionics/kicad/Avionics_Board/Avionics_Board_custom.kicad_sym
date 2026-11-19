@@ -1,6 +1,6 @@
 (kicad_symbol_lib
   (version 20241209)
-  (generator "kicad_export")
+  (generator "kicad_draw")
   (generator_version "9.0")
   (symbol "LTC4366-2"
     (pin_names
@@ -10,7 +10,7 @@
     (in_bom yes)
     (on_board yes)
     (property "Reference" "U"
-      (at 0 8.89 0)
+      (at 0 12.7 0)
       (effects
         (font
           (size 1.27 1.27)
@@ -18,7 +18,7 @@
       )
     )
     (property "Value" "LTC4366-2"
-      (at 0 -8.89 0)
+      (at 0 -12.7 0)
       (effects
         (font
           (size 1.27 1.27)
@@ -54,8 +54,8 @@
     )
     (symbol "LTC4366-2_0_1"
       (rectangle
-        (start -10.16 6.35)
-        (end 10.16 -6.35)
+        (start -10.16 10.16)
+        (end 10.16 -10.16)
         (stroke
           (width 0.254)
           (type default)
@@ -67,7 +67,7 @@
     )
     (symbol "LTC4366-2_1_1"
       (pin passive line
-        (at -12.7 3.81 0)
+        (at -12.7 7.62 0)
         (length 2.54)
         (name "VDD"
           (effects
@@ -85,7 +85,7 @@
         )
       )
       (pin passive line
-        (at -12.7 1.27 0)
+        (at -12.7 2.54 0)
         (length 2.54)
         (name "~{SD}"
           (effects
@@ -103,7 +103,7 @@
         )
       )
       (pin passive line
-        (at -12.7 -1.27 0)
+        (at -12.7 -2.54 0)
         (length 2.54)
         (name "TIMER"
           (effects
@@ -121,7 +121,7 @@
         )
       )
       (pin passive line
-        (at -12.7 -3.81 0)
+        (at -12.7 -7.62 0)
         (length 2.54)
         (name "VSS"
           (effects
@@ -139,16 +139,16 @@
         )
       )
       (pin passive line
-        (at 12.7 -3.81 180)
+        (at 12.7 7.62 180)
         (length 2.54)
-        (name "BASE"
+        (name "GATE"
           (effects
             (font
               (size 1.27 1.27)
             )
           )
         )
-        (number "5"
+        (number "8"
           (effects
             (font
               (size 1.27 1.27)
@@ -157,25 +157,7 @@
         )
       )
       (pin passive line
-        (at 12.7 -1.27 180)
-        (length 2.54)
-        (name "FB"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "6"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at 12.7 1.27 180)
+        (at 12.7 2.54 180)
         (length 2.54)
         (name "OUT"
           (effects
@@ -193,16 +175,34 @@
         )
       )
       (pin passive line
-        (at 12.7 3.81 180)
+        (at 12.7 -2.54 180)
         (length 2.54)
-        (name "GATE"
+        (name "FB"
           (effects
             (font
               (size 1.27 1.27)
             )
           )
         )
-        (number "8"
+        (number "6"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 12.7 -7.62 180)
+        (length 2.54)
+        (name "BASE"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "5"
           (effects
             (font
               (size 1.27 1.27)
@@ -220,7 +220,7 @@
     (in_bom yes)
     (on_board yes)
     (property "Reference" "U"
-      (at 0 20.32 0)
+      (at 0 50.8 0)
       (effects
         (font
           (size 1.27 1.27)
@@ -228,7 +228,7 @@
       )
     )
     (property "Value" "LTC7801"
-      (at 0 -20.32 0)
+      (at 0 -50.8 0)
       (effects
         (font
           (size 1.27 1.27)
@@ -264,8 +264,8 @@
     )
     (symbol "LTC7801_0_1"
       (rectangle
-        (start -12.7 17.78)
-        (end 12.7 -17.78)
+        (start -15.24 48.26)
+        (end 15.24 -48.26)
         (stroke
           (width 0.254)
           (type default)
@@ -277,7 +277,7 @@
     )
     (symbol "LTC7801_1_1"
       (pin passive line
-        (at -15.24 15.24 0)
+        (at -17.78 45.72 0)
         (length 2.54)
         (name "VIN"
           (effects
@@ -295,7 +295,7 @@
         )
       )
       (pin passive line
-        (at -15.24 12.7 0)
+        (at -17.78 38.1 0)
         (length 2.54)
         (name "RUN"
           (effects
@@ -313,7 +313,7 @@
         )
       )
       (pin passive line
-        (at -15.24 10.16 0)
+        (at -17.78 30.48 0)
         (length 2.54)
         (name "OVLO"
           (effects
@@ -331,7 +331,7 @@
         )
       )
       (pin passive line
-        (at -15.24 7.62 0)
+        (at -17.78 22.86 0)
         (length 2.54)
         (name "EXTVCC"
           (effects
@@ -349,61 +349,7 @@
         )
       )
       (pin passive line
-        (at -15.24 5.08 0)
-        (length 2.54)
-        (name "FREQ"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "10"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at -15.24 2.54 0)
-        (length 2.54)
-        (name "PLLIN"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "8"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at -15.24 0 0)
-        (length 2.54)
-        (name "MODE"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "5"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at -15.24 -2.54 0)
+        (at -17.78 15.24 0)
         (length 2.54)
         (name "CPUMP_EN"
           (effects
@@ -421,16 +367,16 @@
         )
       )
       (pin passive line
-        (at -15.24 -5.08 0)
+        (at -17.78 7.62 0)
         (length 2.54)
-        (name "DRVSET"
+        (name "MODE"
           (effects
             (font
               (size 1.27 1.27)
             )
           )
         )
-        (number "11"
+        (number "5"
           (effects
             (font
               (size 1.27 1.27)
@@ -439,7 +385,25 @@
         )
       )
       (pin passive line
-        (at -15.24 -7.62 0)
+        (at -17.78 0 0)
+        (length 2.54)
+        (name "PLLIN"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "8"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at -17.78 -7.62 0)
         (length 2.54)
         (name "DRVUV"
           (effects
@@ -457,7 +421,43 @@
         )
       )
       (pin passive line
-        (at -15.24 -10.16 0)
+        (at -17.78 -15.24 0)
+        (length 2.54)
+        (name "DRVSET"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "11"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at -17.78 -22.86 0)
+        (length 2.54)
+        (name "FREQ"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "10"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at -17.78 -30.48 0)
         (length 2.54)
         (name "SS"
           (effects
@@ -475,7 +475,7 @@
         )
       )
       (pin passive line
-        (at -15.24 -12.7 0)
+        (at -17.78 -38.1 0)
         (length 2.54)
         (name "ITH"
           (effects
@@ -493,7 +493,7 @@
         )
       )
       (pin passive line
-        (at -15.24 -15.24 0)
+        (at -17.78 -45.72 0)
         (length 2.54)
         (name "VFB"
           (effects
@@ -511,187 +511,7 @@
         )
       )
       (pin passive line
-        (at 15.24 -12.7 180)
-        (length 2.54)
-        (name "GND"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "25"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at 15.24 -10.16 180)
-        (length 2.54)
-        (name "GND"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "6"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at 15.24 -7.62 180)
-        (length 2.54)
-        (name "PGOOD"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "9"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at 15.24 -5.08 180)
-        (length 2.54)
-        (name "INTVCC"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "22"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at 15.24 -2.54 180)
-        (length 2.54)
-        (name "SENSE-"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "1"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at 15.24 0 180)
-        (length 2.54)
-        (name "SENSE+"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "24"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at 15.24 2.54 180)
-        (length 2.54)
-        (name "BG"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "16"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at 15.24 5.08 180)
-        (length 2.54)
-        (name "SW"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "14"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at 15.24 7.62 180)
-        (length 2.54)
-        (name "TG"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "13"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at 15.24 10.16 180)
-        (length 2.54)
-        (name "BOOST"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "15"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at 15.24 12.7 180)
+        (at 17.78 45.72 180)
         (length 2.54)
         (name "NDRV"
           (effects
@@ -709,7 +529,7 @@
         )
       )
       (pin passive line
-        (at 15.24 15.24 180)
+        (at 17.78 38.1 180)
         (length 2.54)
         (name "DRVCC"
           (effects
@@ -719,6 +539,186 @@
           )
         )
         (number "17"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 17.78 30.48 180)
+        (length 2.54)
+        (name "BOOST"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "15"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 17.78 22.86 180)
+        (length 2.54)
+        (name "TG"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "13"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 17.78 15.24 180)
+        (length 2.54)
+        (name "SW"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "14"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 17.78 7.62 180)
+        (length 2.54)
+        (name "BG"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "16"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 17.78 -7.62 180)
+        (length 2.54)
+        (name "SENSE+"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "24"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 17.78 -15.24 180)
+        (length 2.54)
+        (name "SENSE-"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "1"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 17.78 -22.86 180)
+        (length 2.54)
+        (name "INTVCC"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "22"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 17.78 -30.48 180)
+        (length 2.54)
+        (name "PGOOD"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "9"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 17.78 -38.1 180)
+        (length 2.54)
+        (name "GND"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "6"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 17.78 -45.72 180)
+        (length 2.54)
+        (name "GND"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "25"
           (effects
             (font
               (size 1.27 1.27)
@@ -736,7 +736,7 @@
     (in_bom yes)
     (on_board yes)
     (property "Reference" "U"
-      (at 0 20.32 0)
+      (at 0 50.8 0)
       (effects
         (font
           (size 1.27 1.27)
@@ -744,7 +744,7 @@
       )
     )
     (property "Value" "LT8641"
-      (at 0 -20.32 0)
+      (at 0 -50.8 0)
       (effects
         (font
           (size 1.27 1.27)
@@ -780,8 +780,8 @@
     )
     (symbol "LT8641_0_1"
       (rectangle
-        (start -10.16 17.78)
-        (end 10.16 -17.78)
+        (start -12.7 48.26)
+        (end 12.7 -48.26)
         (stroke
           (width 0.254)
           (type default)
@@ -793,7 +793,7 @@
     )
     (symbol "LT8641_1_1"
       (pin passive line
-        (at -12.7 15.24 0)
+        (at -15.24 45.72 0)
         (length 2.54)
         (name "Vin1"
           (effects
@@ -811,7 +811,7 @@
         )
       )
       (pin passive line
-        (at -12.7 12.7 0)
+        (at -15.24 38.1 0)
         (length 2.54)
         (name "Vin2"
           (effects
@@ -829,7 +829,7 @@
         )
       )
       (pin passive line
-        (at -12.7 10.16 0)
+        (at -15.24 30.48 0)
         (length 2.54)
         (name "EN/UV"
           (effects
@@ -847,7 +847,7 @@
         )
       )
       (pin passive line
-        (at -12.7 7.62 0)
+        (at -15.24 22.86 0)
         (length 2.54)
         (name "Rt"
           (effects
@@ -865,7 +865,7 @@
         )
       )
       (pin passive line
-        (at -12.7 5.08 0)
+        (at -15.24 15.24 0)
         (length 2.54)
         (name "TR/SS"
           (effects
@@ -883,43 +883,7 @@
         )
       )
       (pin passive line
-        (at -12.7 2.54 0)
-        (length 2.54)
-        (name "Sync/Mode"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "17"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at -12.7 0 0)
-        (length 2.54)
-        (name "Bias"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "1"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at -12.7 -2.54 0)
+        (at -15.24 7.62 0)
         (length 2.54)
         (name "INTVcc"
           (effects
@@ -937,16 +901,16 @@
         )
       )
       (pin passive line
-        (at -12.7 -5.08 0)
+        (at -15.24 0 0)
         (length 2.54)
-        (name "GND1"
+        (name "Sync/Mode"
           (effects
             (font
               (size 1.27 1.27)
             )
           )
         )
-        (number "6"
+        (number "17"
           (effects
             (font
               (size 1.27 1.27)
@@ -955,61 +919,7 @@
         )
       )
       (pin passive line
-        (at -12.7 -7.62 0)
-        (length 2.54)
-        (name "GND1"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "7"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at -12.7 -10.16 0)
-        (length 2.54)
-        (name "GND2"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "10"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at -12.7 -12.7 0)
-        (length 2.54)
-        (name "GND2"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-        (number "11"
-          (effects
-            (font
-              (size 1.27 1.27)
-            )
-          )
-        )
-      )
-      (pin passive line
-        (at -12.7 -15.24 0)
+        (at -15.24 -15.24 0)
         (length 2.54)
         (name "GND"
           (effects
@@ -1027,16 +937,16 @@
         )
       )
       (pin passive line
-        (at 12.7 0 180)
+        (at -15.24 -22.86 0)
         (length 2.54)
-        (name "FB"
+        (name "GND1"
           (effects
             (font
               (size 1.27 1.27)
             )
           )
         )
-        (number "20"
+        (number "6"
           (effects
             (font
               (size 1.27 1.27)
@@ -1045,16 +955,16 @@
         )
       )
       (pin passive line
-        (at 12.7 2.54 180)
+        (at -15.24 -30.48 0)
         (length 2.54)
-        (name "PG"
+        (name "GND1"
           (effects
             (font
               (size 1.27 1.27)
             )
           )
         )
-        (number "19"
+        (number "7"
           (effects
             (font
               (size 1.27 1.27)
@@ -1063,16 +973,16 @@
         )
       )
       (pin passive line
-        (at 12.7 5.08 180)
+        (at -15.24 -38.1 0)
         (length 2.54)
-        (name "SW"
+        (name "GND2"
           (effects
             (font
               (size 1.27 1.27)
             )
           )
         )
-        (number "22"
+        (number "10"
           (effects
             (font
               (size 1.27 1.27)
@@ -1081,16 +991,16 @@
         )
       )
       (pin passive line
-        (at 12.7 7.62 180)
+        (at -15.24 -45.72 0)
         (length 2.54)
-        (name "SW"
+        (name "GND2"
           (effects
             (font
               (size 1.27 1.27)
             )
           )
         )
-        (number "21"
+        (number "11"
           (effects
             (font
               (size 1.27 1.27)
@@ -1099,16 +1009,16 @@
         )
       )
       (pin passive line
-        (at 12.7 10.16 180)
+        (at 15.24 45.72 180)
         (length 2.54)
-        (name "SW"
+        (name "BST"
           (effects
             (font
               (size 1.27 1.27)
             )
           )
         )
-        (number "9"
+        (number "3"
           (effects
             (font
               (size 1.27 1.27)
@@ -1117,7 +1027,7 @@
         )
       )
       (pin passive line
-        (at 12.7 12.7 180)
+        (at 15.24 38.1 180)
         (length 2.54)
         (name "SW"
           (effects
@@ -1135,16 +1045,106 @@
         )
       )
       (pin passive line
-        (at 12.7 15.24 180)
+        (at 15.24 30.48 180)
         (length 2.54)
-        (name "BST"
+        (name "SW"
           (effects
             (font
               (size 1.27 1.27)
             )
           )
         )
-        (number "3"
+        (number "9"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 15.24 22.86 180)
+        (length 2.54)
+        (name "SW"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "21"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 15.24 15.24 180)
+        (length 2.54)
+        (name "SW"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "22"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 15.24 0 180)
+        (length 2.54)
+        (name "FB"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "20"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 15.24 -7.62 180)
+        (length 2.54)
+        (name "Bias"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "1"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+      )
+      (pin passive line
+        (at 15.24 -30.48 180)
+        (length 2.54)
+        (name "PG"
+          (effects
+            (font
+              (size 1.27 1.27)
+            )
+          )
+        )
+        (number "19"
           (effects
             (font
               (size 1.27 1.27)

@@ -26,7 +26,7 @@ def netlist_nets(path):
     root = S.parse(open(path, encoding="utf-8").read())[0]
     out = {}
     for n in S.find(S.first(root, "nets"), "net"):
-        name = S.first(n, "name")[1].lstrip("/")
+        name = S.first(n, "name")[1]
         out[name] = {(S.first(nd, "ref")[1], S.first(nd, "pin")[1]) for nd in S.find(n, "node")}
     return out
 
@@ -47,16 +47,26 @@ def check(name, tmp):
     got = netlist_nets(net)
     exp = {k: {tuple(x) for x in v} for k, v in json.load(open(os.path.join(d, "expected_nets.json"))).items()}
     used_pins = set().union(*exp.values())
-    bad = [k for k, v in exp.items() if got.get(k) != v]
-    extra = [k for k, v in got.items() if k not in exp and (v & used_pins)]
+    # compare by pins: each parts-table net must be exactly one KiCad net. A KiCad net carries the table's name
+    # (after its sheet path, e.g. /Inputs/VIN_AV) unless it is one KiCad named itself after a pin (Net-(U1-SS)).
+    pin2got = {p: n for n, ps in got.items() for p in ps}
+    exp2got, bad = {}, []
+    for k, v in exp.items():
+        names = {pin2got.get(p) for p in v}
+        kn = names.pop() if len(names) == 1 else None
+        if kn is None or got[kn] != v: bad.append(k); continue
+        if kn.split("/")[-1] != k and not kn.startswith("Net-("): bad.append(f"{k} (KiCad calls it {kn})"); continue
+        exp2got[k] = kn
+    extra = [k for k, v in got.items() if k not in exp2got.values() and (v & used_pins)]
     if bad or extra: fails.append(f"net list: {len(bad)} nets differ ({bad[:3]}), {len(extra)} unexpected nets ({extra[:3]})")
-    notes.append(f"net list = parts table on all {len(exp)} nets")
+    auto = sum(1 for v in exp2got.values() if v.startswith("Net-("))
+    notes.append(f"net list = parts table on all {len(exp)} nets" + (f" ({auto} short pin-to-part nets carry KiCad's pin names)" if auto else ""))
     # 3 + 4 PCB
     import pcbnew
     b = pcbnew.LoadBoard(pcb)
     padnet = {}
     for k, v in exp.items():
-        for ref, pin in v: padnet[(ref, pin)] = k
+        for ref, pin in v: padnet[(ref, pin)] = exp2got.get(k, "/" + k)
     missing_pad, wrong, unnetted = [], [], []
     fps = {fp.GetReference(): fp for fp in b.GetFootprints()}
     sch_refs = {ref for ref, _ in used_pins} | {r for r in fps}
@@ -65,7 +75,7 @@ def check(name, tmp):
         if fp is None: missing_pad.append(f"{ref} (no footprint)"); continue
         pads = [p for p in fp.Pads() if p.GetNumber() == pin]
         if not pads: missing_pad.append(f"{ref}.{pin}")
-        wrong += [f"{ref}.{pin}: {p.GetNetname()} != /{n}" for p in pads if p.GetNetname() != "/" + n]
+        wrong += [f"{ref}.{pin}: {p.GetNetname()} != {n}" for p in pads if p.GetNetname() != n]
     for ref, fp in fps.items():
         nick, item = str(fp.GetFPID().GetLibNickname()), str(fp.GetFPID().GetLibItemName())
         if nick != "Drone_Power" or not os.path.exists(os.path.join(LIB, f"{item}.kicad_mod")):
@@ -75,7 +85,7 @@ def check(name, tmp):
                 unnetted.append(f"{ref}.{p.GetNumber()}")
         if str(fp.GetFPID().GetLibItemName()).startswith("CP_"):
             plus = [p.GetNetname() for p in fp.Pads() if p.GetNumber() == "1"]
-            if plus and plus[0] == "/GND": fails.append(f"{ref}: polarised cap with + on GND")
+            if plus and plus[0].split("/")[-1] == "GND": fails.append(f"{ref}: polarised cap with + on GND")
     if missing_pad: fails.append(f"symbol pins without a pad: {missing_pad[:6]}")
     if wrong: fails.append(f"pads on the wrong net: {wrong[:6]}")
     notes.append(f"PCB: {len(fps)} footprints, {sum(1 for fp in fps.values() for p in fp.Pads() if p.GetNetname())} pads on nets, "

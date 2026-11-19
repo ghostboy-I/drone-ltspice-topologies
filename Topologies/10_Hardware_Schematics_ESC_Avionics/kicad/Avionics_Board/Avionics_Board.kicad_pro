@@ -281,8 +281,28 @@
   },
   "sheets": [
     [
-      "6ef37251-5e7d-5470-b4cc-ffbf0acfcee6",
+      "ad0dbe65-0442-5665-9625-ae12a2ec6d76",
       "Root"
+    ],
+    [
+      "b805e9a4-f84e-5a83-956a-88ade9101572",
+      "Inputs"
+    ],
+    [
+      "42a32cbe-66e8-5ccf-9120-f8e6c359d5bb",
+      "Buck_12V"
+    ],
+    [
+      "76ea193a-9966-5304-9ea9-b491e3efb12c",
+      "Out_12V"
+    ],
+    [
+      "dd401775-26c1-51c4-a275-31313a968a20",
+      "Buck_5V"
+    ],
+    [
+      "50b4d14f-dca5-5412-ac00-e68483ab9240",
+      "LDO_3V3"
     ]
   ],
   "text_variables": {}

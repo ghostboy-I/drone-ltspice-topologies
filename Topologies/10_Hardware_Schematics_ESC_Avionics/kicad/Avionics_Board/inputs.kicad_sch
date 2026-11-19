@@ -1,0 +1,5058 @@
+(kicad_sch
+  (version 20250114)
+  (generator "eeschema")
+  (generator_version "9.0")
+  (uuid "ca962e51-593d-5da8-b63b-bd67a5431d83")
+  (paper "A4")
+  (title_block
+    (title "1  PACK INPUTS")
+    (rev "A")
+    (company "AVIONICS POWER BOARD")
+    (comment 1 "Drawn from avionics.py (topology 10) by kicad_avionics.py")
+    (comment 2 "LTC7801, LT8641, LTC4366 symbols: ADI pin drawings")
+    (comment 3 "Footprints: Drone_Power.pretty")
+  )
+  (lib_symbols
+    (symbol "Connector_Generic:Conn_01x02"
+      (pin_names
+        (offset 1.016)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "J"
+        (at 0 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Value" "Conn_01x02"
+        (at 0 -5.08 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "connector"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "Connector*:*_1x??_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "Conn_01x02_1_1"
+        (rectangle
+          (start -1.27 1.27)
+          (end 1.27 -3.81)
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type background)
+          )
+        )
+        (rectangle
+          (start -1.27 0.127)
+          (end 0 -0.127)
+          (stroke
+            (width 0.1524)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (rectangle
+          (start -1.27 -2.413)
+          (end 0 -2.667)
+          (stroke
+            (width 0.1524)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (pin passive line
+          (at -5.08 0 0)
+          (length 3.81)
+          (name "Pin_1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at -5.08 -2.54 0)
+          (length 3.81)
+          (name "Pin_2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "Device:Fuse"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "F"
+        (at 2.032 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Value" "Fuse"
+        (at -1.905 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at -1.778 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Fuse"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "fuse"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "*Fuse*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "Fuse_0_1"
+        (rectangle
+          (start -0.762 -2.54)
+          (end 0.762 2.54)
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0 2.54)
+            (xy 0 -2.54)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "Fuse_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "Device:D"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 1.016)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "D"
+        (at 0 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Value" "D"
+        (at 0 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Diode"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Sim.Device" "D"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Sim.Pins" "1=K 2=A"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "diode"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "D_0_1"
+        (polyline
+          (pts
+            (xy -1.27 1.27)
+            (xy -1.27 -1.27)
+          )
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 1.27 1.27)
+            (xy 1.27 -1.27)
+            (xy -1.27 0)
+            (xy 1.27 1.27)
+          )
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 1.27 0)
+            (xy -1.27 0)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "D_1_1"
+        (pin passive line
+          (at -3.81 0 0)
+          (length 2.54)
+          (name "K"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 3.81 0 180)
+          (length 2.54)
+          (name "A"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "Device:D_Zener"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 1.016)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "D"
+        (at 0 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Value" "D_Zener"
+        (at 0 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Zener diode"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "diode"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "D_Zener_0_1"
+        (polyline
+          (pts
+            (xy -1.27 -1.27)
+            (xy -1.27 1.27)
+            (xy -0.762 1.27)
+          )
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 1.27 0)
+            (xy -1.27 0)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 1.27 -1.27)
+            (xy 1.27 1.27)
+            (xy -1.27 0)
+            (xy 1.27 -1.27)
+          )
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "D_Zener_1_1"
+        (pin passive line
+          (at -3.81 0 0)
+          (length 2.54)
+          (name "K"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 3.81 0 180)
+          (length 2.54)
+          (name "A"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "Device:R"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "R"
+        (at 2.032 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Value" "R"
+        (at 0 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at -1.778 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Resistor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "R res resistor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "R_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "R_0_1"
+        (rectangle
+          (start -1.016 -2.54)
+          (end 1.016 2.54)
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "R_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "Transistor_FET:Q_NMOS_GDS"
+      (pin_names
+        (offset 0)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "Q"
+        (at 5.08 1.905 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (justify left)
+        )
+      )
+      (property "Value" "Q_NMOS_GDS"
+        (at 5.08 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (justify left)
+        )
+      )
+      (property "Footprint" ""
+        (at 5.08 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "N-MOSFET transistor, gate/drain/source"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "transistor NMOS N-MOS N-MOSFET"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "Q_NMOS_GDS_0_1"
+        (polyline
+          (pts
+            (xy 0.254 1.905)
+            (xy 0.254 -1.905)
+          )
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0.254 0)
+            (xy -2.54 0)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0.762 2.286)
+            (xy 0.762 1.27)
+          )
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0.762 0.508)
+            (xy 0.762 -0.508)
+          )
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0.762 -1.27)
+            (xy 0.762 -2.286)
+          )
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0.762 -1.778)
+            (xy 3.302 -1.778)
+            (xy 3.302 1.778)
+            (xy 0.762 1.778)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 1.016 0)
+            (xy 2.032 0.381)
+            (xy 2.032 -0.381)
+            (xy 1.016 0)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type outline)
+          )
+        )
+        (circle
+          (center 1.651 0)
+          (radius 2.794)
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 2.54 2.54)
+            (xy 2.54 1.778)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (circle
+          (center 2.54 1.778)
+          (radius 0.254)
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type outline)
+          )
+        )
+        (circle
+          (center 2.54 -1.778)
+          (radius 0.254)
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type outline)
+          )
+        )
+        (polyline
+          (pts
+            (xy 2.54 -2.54)
+            (xy 2.54 0)
+            (xy 0.762 0)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 2.921 0.381)
+            (xy 3.683 0.381)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 3.302 0.381)
+            (xy 2.921 -0.254)
+            (xy 3.683 -0.254)
+            (xy 3.302 0.381)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "Q_NMOS_GDS_1_1"
+        (pin input line
+          (at -5.08 0 0)
+          (length 2.54)
+          (name "G"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 2.54 5.08 270)
+          (length 2.54)
+          (name "D"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 2.54 -5.08 90)
+          (length 2.54)
+          (name "S"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "Device:C"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0.254)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "C"
+        (at 0.635 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (justify left)
+        )
+      )
+      (property "Value" "C"
+        (at 0.635 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (justify left)
+        )
+      )
+      (property "Footprint" ""
+        (at 0.9652 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Unpolarized capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "cap capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "C_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "C_0_1"
+        (polyline
+          (pts
+            (xy -2.032 0.762)
+            (xy 2.032 0.762)
+          )
+          (stroke
+            (width 0.508)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy -2.032 -0.762)
+            (xy 2.032 -0.762)
+          )
+          (stroke
+            (width 0.508)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "C_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "Avionics_Board_custom:LTC4366-2"
+      (pin_names
+        (offset 1.016)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U"
+        (at 0 12.7 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Value" "LTC4366-2"
+        (at 0 -12.7 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "High-voltage surge stopper, floating, auto-retry, TSOT-23-8"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "LTC4366-2_0_1"
+        (rectangle
+          (start -10.16 10.16)
+          (end 10.16 -10.16)
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type background)
+          )
+        )
+      )
+      (symbol "LTC4366-2_1_1"
+        (pin passive line
+          (at -12.7 7.62 0)
+          (length 2.54)
+          (name "VDD"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at -12.7 2.54 0)
+          (length 2.54)
+          (name "~{SD}"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at -12.7 -2.54 0)
+          (length 2.54)
+          (name "TIMER"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at -12.7 -7.62 0)
+          (length 2.54)
+          (name "VSS"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 12.7 7.62 180)
+          (length 2.54)
+          (name "GATE"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "8"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 12.7 2.54 180)
+          (length 2.54)
+          (name "OUT"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "7"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 12.7 -2.54 180)
+          (length 2.54)
+          (name "FB"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "6"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 12.7 -7.62 180)
+          (length 2.54)
+          (name "BASE"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "5"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+    )
+    (symbol "Device:C_Polarized"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0.254)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "C"
+        (at 0.635 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (justify left)
+        )
+      )
+      (property "Value" "C_Polarized"
+        (at 0.635 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (justify left)
+        )
+      )
+      (property "Footprint" ""
+        (at 0.9652 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Polarized capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "cap capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "CP_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "C_Polarized_0_1"
+        (rectangle
+          (start -2.286 0.508)
+          (end 2.286 1.016)
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy -1.778 2.286)
+            (xy -0.762 2.286)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy -1.27 2.794)
+            (xy -1.27 1.778)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (rectangle
+          (start 2.286 -0.508)
+          (end -2.286 -1.016)
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type outline)
+          )
+        )
+      )
+      (symbol "C_Polarized_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "power:GND"
+      (power)
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "#PWR"
+        (at 0 -6.35 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Value" "GND"
+        (at 0 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "global power"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "GND_0_1"
+        (polyline
+          (pts
+            (xy 0 0)
+            (xy 0 -1.27)
+            (xy 1.27 -1.27)
+            (xy 0 -2.54)
+            (xy -1.27 -1.27)
+            (xy 0 -1.27)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "GND_1_1"
+        (pin power_in line
+          (at 0 0 270)
+          (length 0)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "power:PWR_FLAG"
+      (power)
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "#FLG"
+        (at 0 1.905 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Value" "PWR_FLAG"
+        (at 0 3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Special symbol for telling ERC where power comes from"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "flag power"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "PWR_FLAG_0_0"
+        (pin power_out line
+          (at 0 0 90)
+          (length 0)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (symbol "PWR_FLAG_0_1"
+        (polyline
+          (pts
+            (xy 0 0)
+            (xy 0 1.27)
+            (xy -1.016 1.905)
+            (xy 0 2.54)
+            (xy 1.016 1.905)
+            (xy 0 1.27)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+  )
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x02")
+    (at 25.4 63.5 0)
+    (mirror y)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "42dc8cf0-d822-555e-a64b-9d666eec6df7")
+    (property "Reference" "J1"
+      (at 25.4 60.96 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Value" "Micro-Fit 3.0"
+      (at 25.4 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" "Drone_Power:Molex_Micro-Fit_3.0_43650-0215_1x02_P3.00mm_Vertical"
+      (at 25.4 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 25.4 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Pack 1 input (from that pack's PDB tap)"
+      (at 25.4 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "Molex Micro-Fit 3.0, 2 pin (600 V, 5 A)"
+      (at 25.4 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "≥150 V"
+      (at 25.4 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "9ba7b570-a01a-5d78-9ea2-ff000027560b")
+    )
+    (pin "2"
+      (uuid "b842ae38-5241-5692-9cbe-4721e9d1d0ea")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "J1")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:Fuse")
+    (at 41.91 63.5 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "023b7a88-c8a5-5183-8cb0-48cf6299d34f")
+    (property "Reference" "F1"
+      (at 41.275 60.706 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "0.5 A"
+      (at 42.545 60.706 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:Fuse_1206_3216Metric"
+      (at 41.91 63.5 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 41.91 63.5 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Fuse, fast, 0.5 A"
+      (at 41.91 63.5 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "Littelfuse 0451.500 (NANO2, 125 V DC)"
+      (at 41.91 63.5 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V DC"
+      (at 41.91 63.5 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "59f5d488-09c3-5f4a-b637-fc9ba74f94f8")
+    )
+    (pin "2"
+      (uuid "a5dc8da3-00a0-5a6d-aa32-1975d8fbeb3d")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "F1")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:D")
+    (at 59.69 63.5 180)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "25183aef-c920-58b3-a023-fa10d289db17")
+    (property "Reference" "D1"
+      (at 59.055 60.706 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "ES1D"
+      (at 60.325 60.706 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:D_SMA"
+      (at 59.69 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 59.69 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Diode-OR, ultrafast 200 V 1 A"
+      (at 59.69 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "ES1D"
+      (at 59.69 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "200 V 1 A"
+      (at 59.69 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "b384f875-0874-59cc-89c5-b52bfd5a68e8")
+    )
+    (pin "2"
+      (uuid "ba479073-744d-5136-9020-81290f692a39")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "D1")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x02")
+    (at 25.4 81.28 0)
+    (mirror y)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "df4d35d3-c076-5444-998b-0c388662309a")
+    (property "Reference" "J2"
+      (at 25.4 78.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Value" "Micro-Fit 3.0"
+      (at 25.4 86.36 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" "Drone_Power:Molex_Micro-Fit_3.0_43650-0215_1x02_P3.00mm_Vertical"
+      (at 25.4 81.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 25.4 81.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Pack 2 input (from that pack's PDB tap)"
+      (at 25.4 81.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "Molex Micro-Fit 3.0, 2 pin (600 V, 5 A)"
+      (at 25.4 81.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "≥150 V"
+      (at 25.4 81.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "2a2ebde3-0e00-516d-99e6-911d114a0e38")
+    )
+    (pin "2"
+      (uuid "0558c1fe-8501-5cab-a43c-5779f88e699f")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "J2")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:Fuse")
+    (at 41.91 81.28 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "d8dc7899-bca3-5865-8178-2a0c464089f9")
+    (property "Reference" "F2"
+      (at 41.275 78.486 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "0.5 A"
+      (at 42.545 78.486 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:Fuse_1206_3216Metric"
+      (at 41.91 81.28 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 41.91 81.28 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Fuse, fast, 0.5 A"
+      (at 41.91 81.28 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "Littelfuse 0451.500 (NANO2, 125 V DC)"
+      (at 41.91 81.28 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V DC"
+      (at 41.91 81.28 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "0c54d160-d3a5-53d0-a0b9-79f62f8eaad5")
+    )
+    (pin "2"
+      (uuid "e6ac15b4-58d1-5b67-913b-dba4ee8f6b41")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "F2")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:D")
+    (at 59.69 81.28 180)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "f97c8edb-c347-5777-9a90-ff6574c717cd")
+    (property "Reference" "D2"
+      (at 59.055 78.486 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "ES1D"
+      (at 60.325 78.486 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:D_SMA"
+      (at 59.69 81.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 59.69 81.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Diode-OR, ultrafast 200 V 1 A"
+      (at 59.69 81.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "ES1D"
+      (at 59.69 81.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "200 V 1 A"
+      (at 59.69 81.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "ad50a283-d84d-5616-981b-97506f631146")
+    )
+    (pin "2"
+      (uuid "1ddc79d6-0619-5cf4-a903-20f5af277e64")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "D2")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x02")
+    (at 25.4 99.06 0)
+    (mirror y)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "c54fa1bc-6d84-514b-9adc-0c1c35c9ab67")
+    (property "Reference" "J3"
+      (at 25.4 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Value" "Micro-Fit 3.0"
+      (at 25.4 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" "Drone_Power:Molex_Micro-Fit_3.0_43650-0215_1x02_P3.00mm_Vertical"
+      (at 25.4 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 25.4 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Pack 3 input (from that pack's PDB tap)"
+      (at 25.4 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "Molex Micro-Fit 3.0, 2 pin (600 V, 5 A)"
+      (at 25.4 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "≥150 V"
+      (at 25.4 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "663f167c-e471-5e6b-ad50-396936f8da7a")
+    )
+    (pin "2"
+      (uuid "0c89f1ba-df52-5586-9813-b7d8b90f3960")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "J3")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:Fuse")
+    (at 41.91 99.06 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "6dd3de6d-4c79-5d8c-8a88-b4a57a7041a7")
+    (property "Reference" "F3"
+      (at 41.275 96.266 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "0.5 A"
+      (at 42.545 96.266 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:Fuse_1206_3216Metric"
+      (at 41.91 99.06 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 41.91 99.06 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Fuse, fast, 0.5 A"
+      (at 41.91 99.06 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "Littelfuse 0451.500 (NANO2, 125 V DC)"
+      (at 41.91 99.06 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V DC"
+      (at 41.91 99.06 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "2c29c8e4-47eb-538d-b0bb-1aff80d16ab6")
+    )
+    (pin "2"
+      (uuid "38721c3b-6187-5a5d-ba6a-582b08b0ec08")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "F3")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:D")
+    (at 59.69 99.06 180)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "60876333-8531-5736-8219-2dbff615db63")
+    (property "Reference" "D3"
+      (at 59.055 96.266 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "ES1D"
+      (at 60.325 96.266 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:D_SMA"
+      (at 59.69 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 59.69 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Diode-OR, ultrafast 200 V 1 A"
+      (at 59.69 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "ES1D"
+      (at 59.69 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "200 V 1 A"
+      (at 59.69 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "f11b5afc-f275-5dc1-880e-d86bc769b94a")
+    )
+    (pin "2"
+      (uuid "a9fc8fa6-907a-57df-8f63-f43fd2b3e0c0")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "D3")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:D_Zener")
+    (at 88.9 41.91 270)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "1464a99e-46aa-5f46-97b3-d4b06376ddbb")
+    (property "Reference" "D4"
+      (at 91.44 40.64 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "SMBJ110A"
+      (at 91.44 43.18 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:D_SMB"
+      (at 88.9 41.91 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 88.9 41.91 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "TVS 600 W, 110 V stand-off"
+      (at 88.9 41.91 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "SMBJ110A"
+      (at 88.9 41.91 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "VBR 122 V"
+      (at 88.9 41.91 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "ef7a5370-6626-5958-9684-170bd3e50bca")
+    )
+    (pin "2"
+      (uuid "b86d4337-464b-58c8-9254-7b1c6cb046d3")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "D4")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 101.6 41.91 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "dd6640bd-5ab0-5861-8578-eb6f2630515b")
+    (property "Reference" "R21"
+      (at 104.14 40.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "2.49Meg"
+      (at 104.14 43.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_1206_3216Metric"
+      (at 101.6 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 101.6 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "RIN: VDD shunt-regulator feed"
+      (at 101.6 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %, thick film"
+      (at 101.6 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "200 V"
+      (at 101.6 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "95d72e75-262d-5a40-bdc4-6e10e6793f43")
+    )
+    (pin "2"
+      (uuid "f00e7bbe-5b2f-5116-9a1c-3ac997ec0522")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "R21")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Transistor_FET:Q_NMOS_GDS")
+    (at 119.38 40.64 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "e6e24953-cb31-5333-9dcd-0cc389fad5e8")
+    (property "Reference" "Q4"
+      (at 110.49 31.75 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Value" "FDB33N25"
+      (at 110.49 34.29 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:TO-263-2"
+      (at 119.38 40.64 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 119.38 40.64 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Surge-stopper pass FET, 250 V"
+      (at 119.38 40.64 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "onsemi FDB33N25 (250 V, 94 mΩ, D2PAK)"
+      (at 119.38 40.64 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "250 V 33 A"
+      (at 119.38 40.64 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "060c9873-fe55-531a-9f1f-b973904af424")
+    )
+    (pin "2"
+      (uuid "66c95dea-9340-5cfa-85f0-91755466113f")
+    )
+    (pin "3"
+      (uuid "ceb13b0e-81e5-5fe6-bcad-ef357b92aed1")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "Q4")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 119.38 59.69 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "e06e8db5-b720-5d99-93f6-c400523adf9a")
+    (property "Reference" "C26"
+      (at 121.92 58.42 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10n"
+      (at 121.92 60.96 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_0805_2012Metric"
+      (at 119.38 59.69 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 119.38 59.69 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "CG: gate ramp; bypasses Q4's Cgd during a surge"
+      (at 119.38 59.69 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "X7R"
+      (at 119.38 59.69 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "25 V"
+      (at 119.38 59.69 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "b7976b1f-e67b-52c5-9b08-20538155569c")
+    )
+    (pin "2"
+      (uuid "da0c6807-3cbb-59fa-978a-411963a6f6fb")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "C26")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 128.27 55.88 270)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "be409915-dc74-5c2a-8fee-2cda63f490e6")
+    (property "Reference" "R25"
+      (at 127.635 53.086 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Value" "10"
+      (at 128.905 53.086 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 128.27 55.88 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 128.27 55.88 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate resistor (stops Q4 oscillating; at the FET)"
+      (at 128.27 55.88 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %, thick film"
+      (at 128.27 55.88 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 128.27 55.88 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "1eea2927-0641-5f96-b33e-9fa13e9319e7")
+    )
+    (pin "2"
+      (uuid "22e5e75d-3b7a-546c-92c5-60fc88b87522")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "R25")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Avionics_Board_custom:LTC4366-2")
+    (at 160.02 76.2 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "5fa472df-0373-5cd4-87c6-06d21edab4ba")
+    (property "Reference" "U4"
+      (at 160.02 62.23 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Value" "LTC4366-2"
+      (at 160.02 64.77 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" "Drone_Power:TSOT-23-8"
+      (at 160.02 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 160.02 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Surge stopper, floating, auto-retry"
+      (at 160.02 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "LTC4366CTS8-2 (TSOT-23-8)"
+      (at 160.02 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "9 V to >500 V (floating)"
+      (at 160.02 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "e21f12e9-b32f-5c84-9689-b8adabd21c5f")
+    )
+    (pin "2"
+      (uuid "c83d3269-604e-5687-92a2-ceffb02a39c8")
+    )
+    (pin "3"
+      (uuid "22e9a233-468c-5d22-8f4d-9eab1b1c979a")
+    )
+    (pin "4"
+      (uuid "2b5900fd-1200-52f2-b3d9-7195f28bbecb")
+    )
+    (pin "8"
+      (uuid "5741970a-aee5-56b5-9336-8f59e2888cd9")
+    )
+    (pin "7"
+      (uuid "8fd77446-386e-5d9a-b2ed-9b2c53792b96")
+    )
+    (pin "6"
+      (uuid "de4826e8-0219-53ce-938b-503a5d08c052")
+    )
+    (pin "5"
+      (uuid "7252e127-7915-52db-835e-9e70ceef305e")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "U4")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 139.7 82.55 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "368688f5-46dd-55f3-be45-20a5928c1526")
+    (property "Reference" "C27"
+      (at 137.16 81.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Value" "180n"
+      (at 137.16 83.82 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_0603_1608Metric"
+      (at 139.7 82.55 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 139.7 82.55 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "CT: 51 ms overvoltage time (3.5 nF/ms)"
+      (at 139.7 82.55 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "X7R"
+      (at 139.7 82.55 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 139.7 82.55 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "28a2a6d6-763f-5ca9-b458-be02f0d26503")
+    )
+    (pin "2"
+      (uuid "d4c26cce-f8a2-539d-86be-2806daf05220")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "C27")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 144.78 95.25 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "4a6bfadb-88ab-51af-a614-3b8565966adb")
+    (property "Reference" "R22"
+      (at 147.32 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "274k"
+      (at 147.32 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_1206_3216Metric"
+      (at 144.78 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 144.78 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "RSS: lets the LTC4366 float with the supply"
+      (at 144.78 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %, thick film"
+      (at 144.78 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "200 V"
+      (at 144.78 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "74481ac5-5fe9-5948-896a-d484fde3c604")
+    )
+    (pin "2"
+      (uuid "da3d7db3-098c-517d-b675-2875832b4e90")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "R22")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 195.58 41.91 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "dd40eb92-f63b-5bb9-9420-d21b1fad26e6")
+    (property "Reference" "R23"
+      (at 198.12 40.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "12.4k"
+      (at 198.12 43.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 195.58 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 195.58 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "RFB1 (1.23 V across it at regulation)"
+      (at 195.58 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %, thick film"
+      (at 195.58 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 195.58 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "147a2397-8c0a-5a1f-8e5b-17cdd5ddd1b3")
+    )
+    (pin "2"
+      (uuid "ba3784c2-11b4-5656-97d9-226489509955")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "R23")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 195.58 82.55 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "879822d4-f774-512a-b7b3-8ffe0568e847")
+    (property "Reference" "R24"
+      (at 198.12 81.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "1.15Meg"
+      (at 198.12 83.82 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_1206_3216Metric"
+      (at 195.58 82.55 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 195.58 82.55 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "RFB2: VREG = 1.23 V (1 + RFB2/RFB1) = 115 V"
+      (at 195.58 82.55 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %, thick film"
+      (at 195.58 82.55 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "200 V"
+      (at 195.58 82.55 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "cdd2e741-5068-5f87-b197-1f4145f93f00")
+    )
+    (pin "2"
+      (uuid "6777105c-29b5-50bd-bbca-875f31e07f42")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "R24")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 208.28 41.91 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "ecbee299-e27a-5556-9bcb-13008294abaf")
+    (property "Reference" "C28"
+      (at 210.82 40.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "470n"
+      (at 210.82 43.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_0805_2012Metric"
+      (at 208.28 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 208.28 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "C1: OUT-VSS supply of the LTC4366 (5.7 V)"
+      (at 208.28 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "X7R"
+      (at 208.28 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "25 V"
+      (at 208.28 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "61283532-0bc5-556d-a40f-3fb44123d0b8")
+    )
+    (pin "2"
+      (uuid "cd1c54f6-4547-55da-9e3c-225fcaefc98d")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "C28")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 226.06 41.91 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "0fe1fa05-9cc1-578e-bfd7-412c6138791f")
+    (property "Reference" "C1"
+      (at 228.6 40.64 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "33µ"
+      (at 228.6 43.18 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Radial_D10.0mm_P5.00mm"
+      (at 226.06 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 226.06 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Input bulk (damps the input filter)"
+      (at 226.06 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "Aluminium electrolytic, low ESR"
+      (at 226.06 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "160 V"
+      (at 226.06 41.91 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "320f6419-effa-5322-a1f7-18d0d271fa9b")
+    )
+    (pin "2"
+      (uuid "0afd1263-3cd2-5d31-af7e-5065c1b65bef")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "C1")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 33.02 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "4ff4f826-71d7-5427-88ca-22f1e037a158")
+    (property "Reference" "#PWR001"
+      (at 33.02 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 33.02 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 33.02 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 33.02 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 33.02 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "ec0e5d43-9572-5e22-a8c4-0d1d24809b74")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "#PWR001")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 33.02 88.9 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "abc5dac7-f4da-58c2-a9ac-e8f68f907d87")
+    (property "Reference" "#PWR002"
+      (at 33.02 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 33.02 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 33.02 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 33.02 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 33.02 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "90014a2b-a7ed-5891-8e89-fe9d565dea40")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "#PWR002")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 33.02 106.68 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "7915de53-11ea-5958-9594-986de3fa2a53")
+    (property "Reference" "#PWR003"
+      (at 33.02 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 33.02 110.49 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 33.02 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 33.02 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 33.02 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "bdf9b1a2-8e9d-5cea-8be1-d5a36990c940")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "#PWR003")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:PWR_FLAG")
+    (at 33.02 106.68 270)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "85db5ea5-367f-5faf-9b03-6016bf86b1e1")
+    (property "Reference" "#FLG004"
+      (at 33.02 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "PWR_FLAG"
+      (at 39.116 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 33.02 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 33.02 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 33.02 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "0cef6a9e-84b5-5f59-8d4f-91d3c4236935")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "#FLG004")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 88.9 45.72 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "b8ef7b4a-99ff-5608-af94-81eec395abf1")
+    (property "Reference" "#PWR005"
+      (at 88.9 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 88.9 49.53 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 88.9 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 88.9 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 88.9 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "f4496e17-e892-5829-9cfb-4e46e4772e4f")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "#PWR005")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 119.38 63.5 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "c2eb987d-cde8-5a63-a270-99080bd16033")
+    (property "Reference" "#PWR006"
+      (at 119.38 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 119.38 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 119.38 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 119.38 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 119.38 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "4d0f8168-d1eb-538e-a163-cb90a97c7ab8")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "#PWR006")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 144.78 99.06 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "4cf7abd8-ea18-5afa-a08a-31c6bb15e32b")
+    (property "Reference" "#PWR007"
+      (at 144.78 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 144.78 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 144.78 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 144.78 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 144.78 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "88f9f60a-9095-5636-8ab1-f1f5721971a5")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "#PWR007")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 195.58 86.36 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "16be54ef-d6dc-5da8-8291-a08131098ff4")
+    (property "Reference" "#PWR008"
+      (at 195.58 86.36 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 195.58 90.17 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 195.58 86.36 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 195.58 86.36 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 195.58 86.36 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "a9bba29a-ada9-5610-a220-d7734140a20e")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "#PWR008")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 226.06 45.72 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "214479e3-5e0e-55cf-8c52-78eb33632404")
+    (property "Reference" "#PWR009"
+      (at 226.06 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 226.06 49.53 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 226.06 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 226.06 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 226.06 45.72 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "44d009c9-c507-5247-9479-f1718feb8fe2")
+    )
+    (instances
+      (project "Avionics_Board"
+        (path "/ad0dbe65-0442-5665-9625-ae12a2ec6d76/b805e9a4-f84e-5a83-956a-88ade9101572"
+          (reference "#PWR009")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (wire
+    (pts
+      (xy 30.48 66.04)
+      (xy 33.02 66.04)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "759fbe70-3f5c-5624-90f9-80ec76aef0ce")
+  )
+  (wire
+    (pts
+      (xy 33.02 66.04)
+      (xy 33.02 71.12)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "c11ceb5b-6923-5a4e-8cc4-0f6a6a654984")
+  )
+  (wire
+    (pts
+      (xy 30.48 63.5)
+      (xy 38.1 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "1f3bb857-6e57-5245-83d7-7d3cf20fe484")
+  )
+  (wire
+    (pts
+      (xy 45.72 63.5)
+      (xy 55.88 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "55934fde-4b18-5ffc-8b77-8df795c18077")
+  )
+  (wire
+    (pts
+      (xy 63.5 63.5)
+      (xy 76.2 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "a5e74a0d-4701-5284-904c-b274099235bf")
+  )
+  (wire
+    (pts
+      (xy 30.48 83.82)
+      (xy 33.02 83.82)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "f7bb6b0f-685d-582d-b7af-c6e4f2875e9b")
+  )
+  (wire
+    (pts
+      (xy 33.02 83.82)
+      (xy 33.02 88.9)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "6f144c58-92fa-5880-9a03-0d1363fbae9c")
+  )
+  (wire
+    (pts
+      (xy 30.48 81.28)
+      (xy 38.1 81.28)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "ec9eb120-97b5-5845-b785-8fb36a08988c")
+  )
+  (wire
+    (pts
+      (xy 45.72 81.28)
+      (xy 55.88 81.28)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "1e0a7f48-c04c-5d4a-97fe-c369a76ad502")
+  )
+  (wire
+    (pts
+      (xy 63.5 81.28)
+      (xy 76.2 81.28)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "a4063f8c-9b27-5e5a-b37f-eea25fd903d6")
+  )
+  (wire
+    (pts
+      (xy 30.48 101.6)
+      (xy 33.02 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "f9ba2d1f-0dec-5d33-b424-f0de71ed1a5d")
+  )
+  (wire
+    (pts
+      (xy 33.02 101.6)
+      (xy 33.02 106.68)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "c2e2d758-2baa-5d12-b88b-a50e5d227c2f")
+  )
+  (wire
+    (pts
+      (xy 30.48 99.06)
+      (xy 38.1 99.06)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "88289749-f64b-5dc4-890c-ae1217a8181c")
+  )
+  (wire
+    (pts
+      (xy 45.72 99.06)
+      (xy 55.88 99.06)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "aeb0c38f-be0b-521c-b1bf-a5a8bf0fcab2")
+  )
+  (wire
+    (pts
+      (xy 63.5 99.06)
+      (xy 76.2 99.06)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "14e621b9-69fa-54a8-afcf-87018a1f01bd")
+  )
+  (wire
+    (pts
+      (xy 76.2 99.06)
+      (xy 76.2 81.28)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "325e8f21-c179-55f8-9313-36222dcdb035")
+  )
+  (wire
+    (pts
+      (xy 76.2 81.28)
+      (xy 76.2 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "938242bd-d337-59bf-8263-03882192f6a3")
+  )
+  (wire
+    (pts
+      (xy 76.2 63.5)
+      (xy 76.2 38.1)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "c8b9be39-4a19-58a9-828a-d2b712ccc680")
+  )
+  (wire
+    (pts
+      (xy 76.2 38.1)
+      (xy 88.9 38.1)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "290ec362-fb92-53cb-850d-449e824df934")
+  )
+  (wire
+    (pts
+      (xy 88.9 38.1)
+      (xy 101.6 38.1)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "5dc1e9d3-e44a-5506-9097-2dd8436f6174")
+  )
+  (wire
+    (pts
+      (xy 101.6 38.1)
+      (xy 114.3 38.1)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "6eaab443-2801-5d44-9bda-cea1f6fa22b7")
+  )
+  (wire
+    (pts
+      (xy 119.38 45.72)
+      (xy 119.38 55.88)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "7b12a1a5-e478-555b-956f-66706bc23da4")
+  )
+  (wire
+    (pts
+      (xy 119.38 55.88)
+      (xy 124.46 55.88)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "eb5ce115-7a96-5725-af10-bc661bd20d60")
+  )
+  (wire
+    (pts
+      (xy 132.08 55.88)
+      (xy 177.8 55.88)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "0dae7c18-c6ec-570d-871d-4a7140097bdf")
+  )
+  (wire
+    (pts
+      (xy 177.8 55.88)
+      (xy 177.8 68.58)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "7aea935d-8bb3-5290-944a-da851351386a")
+  )
+  (wire
+    (pts
+      (xy 177.8 68.58)
+      (xy 172.72 68.58)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "5873bf68-7a60-5b69-a681-9933d75cdbfc")
+  )
+  (wire
+    (pts
+      (xy 101.6 45.72)
+      (xy 101.6 68.58)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "9973232c-ee21-56ec-8ef6-e2bb033d75a8")
+  )
+  (wire
+    (pts
+      (xy 101.6 68.58)
+      (xy 144.78 68.58)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "c69ee5c9-1b59-5ba2-b385-1d1c42b66fc5")
+  )
+  (wire
+    (pts
+      (xy 144.78 68.58)
+      (xy 147.32 68.58)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "55b4ad5e-be15-54a1-a98b-92deb0c03832")
+  )
+  (wire
+    (pts
+      (xy 147.32 73.66)
+      (xy 144.78 73.66)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "bffd780c-902a-56c7-aaad-69014d88996b")
+  )
+  (wire
+    (pts
+      (xy 144.78 73.66)
+      (xy 144.78 68.58)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "09eb3379-7cce-52a1-b0f1-5fb436f18545")
+  )
+  (wire
+    (pts
+      (xy 147.32 78.74)
+      (xy 139.7 78.74)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "785a59ee-32ed-5155-b188-b8adcc954b32")
+  )
+  (wire
+    (pts
+      (xy 147.32 83.82)
+      (xy 144.78 83.82)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "5904f427-7035-5616-a615-37b45dc72f54")
+  )
+  (wire
+    (pts
+      (xy 144.78 83.82)
+      (xy 144.78 91.44)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "84a5d43c-7a6a-5cf8-bc77-25d26abc27ea")
+  )
+  (wire
+    (pts
+      (xy 139.7 86.36)
+      (xy 139.7 91.44)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "25fbbde0-95fa-5df7-8d2c-baef33042590")
+  )
+  (wire
+    (pts
+      (xy 139.7 91.44)
+      (xy 144.78 91.44)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "7b9969c3-23a4-5be6-b0bf-3da0b66e72e5")
+  )
+  (wire
+    (pts
+      (xy 172.72 73.66)
+      (xy 182.88 73.66)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "bb2cd8a3-f59d-556b-bf16-c6d45365db2b")
+  )
+  (wire
+    (pts
+      (xy 182.88 73.66)
+      (xy 182.88 38.1)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "a6df037e-c81c-57c5-867e-81406c1b4e59")
+  )
+  (wire
+    (pts
+      (xy 172.72 78.74)
+      (xy 195.58 78.74)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "9f088426-d42d-54f5-a938-fc2594fcf99a")
+  )
+  (wire
+    (pts
+      (xy 195.58 45.72)
+      (xy 195.58 78.74)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "a7637646-2a40-52e5-a75e-e85b7df506ed")
+  )
+  (wire
+    (pts
+      (xy 208.28 45.72)
+      (xy 208.28 91.44)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "8e2cbdad-3b38-5e3c-ab17-91cd336b6618")
+  )
+  (wire
+    (pts
+      (xy 208.28 91.44)
+      (xy 144.78 91.44)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "c4b41bbe-a7d4-5bb6-ac92-05eab6e9f0df")
+  )
+  (wire
+    (pts
+      (xy 124.46 38.1)
+      (xy 182.88 38.1)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "a2e93c99-bef3-5914-bb7e-cd9d98b4ac5e")
+  )
+  (wire
+    (pts
+      (xy 182.88 38.1)
+      (xy 195.58 38.1)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "1ec7d682-10e7-5c65-8814-52d445d110ba")
+  )
+  (wire
+    (pts
+      (xy 195.58 38.1)
+      (xy 208.28 38.1)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "c838d0a5-2284-5c82-8496-8a719e1324d8")
+  )
+  (wire
+    (pts
+      (xy 208.28 38.1)
+      (xy 226.06 38.1)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "da5f9445-f0cc-535f-aa24-55cc86bf153d")
+  )
+  (wire
+    (pts
+      (xy 226.06 38.1)
+      (xy 264.16 38.1)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "2d4561a4-0e78-56e2-89cd-863b4b5073e0")
+  )
+  (junction
+    (at 33.02 106.68)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "69186030-268b-54dd-9d76-15e7c70f7ccc")
+  )
+  (junction
+    (at 76.2 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "613f8620-6ca3-539a-a583-79e05757bb4e")
+  )
+  (junction
+    (at 76.2 81.28)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "2b174903-02d1-56bb-934b-7988821ab881")
+  )
+  (junction
+    (at 88.9 38.1)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "e83a7d8b-4e65-566a-ad8c-3599a9903ea2")
+  )
+  (junction
+    (at 101.6 38.1)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "10b981d2-12f8-5623-a17b-8506347104d1")
+  )
+  (junction
+    (at 119.38 55.88)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "14872e0a-7b84-5326-8e68-305bf5f0b1e1")
+  )
+  (junction
+    (at 144.78 68.58)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "c1d5bb62-fde3-50ce-9806-39e7cf6c4b5c")
+  )
+  (junction
+    (at 144.78 91.44)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "b20e067f-801e-53c2-83a4-c66e27957fae")
+  )
+  (junction
+    (at 182.88 38.1)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "23fcd579-3383-58d5-ad88-529fc56b73a5")
+  )
+  (junction
+    (at 195.58 38.1)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "7502c900-d3a0-588f-9f1b-3c589f40e3e0")
+  )
+  (junction
+    (at 195.58 78.74)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "d645a96a-f146-5e2c-adf7-413ee2c6b061")
+  )
+  (junction
+    (at 208.28 38.1)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "ad88b5e9-2f4c-58b0-9715-cb95d458e241")
+  )
+  (junction
+    (at 226.06 38.1)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "3fe921b0-e9e2-59c4-892e-67700c38a7eb")
+  )
+  (no_connect
+    (at 172.72 83.82)
+    (uuid "81063c1f-96b0-5548-a66e-263344fd8714")
+  )
+  (global_label "VIN_PROT"
+    (shape bidirectional)
+    (at 264.16 38.1 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "8c53008f-4fb5-55e9-8f3f-7988060de9e1")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 264.16 38.1 0)
+      (effects
+        (font
+          (size 1 1)
+        )
+        (justify left)
+        (hide yes)
+      )
+    )
+  )
+  (label "PACK1+"
+    (at 31.75 63.5 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "c70c700d-b9b3-5b2d-9f4a-2a542ede6272")
+  )
+  (label "PACK1_F"
+    (at 46.99 63.5 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "8a2902fa-08fc-5e6e-a839-f657357c64c7")
+  )
+  (label "VIN_AV"
+    (at 64.77 63.5 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "9cebc785-429c-5ec0-a755-0315b8bf311f")
+  )
+  (label "PACK2+"
+    (at 31.75 81.28 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "0da2cab4-5c0d-5daf-9f80-97a5a768003b")
+  )
+  (label "PACK2_F"
+    (at 46.99 81.28 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "b03e4276-8885-54fc-b7c4-43746a703525")
+  )
+  (label "PACK3+"
+    (at 31.75 99.06 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "d2e04e1c-a861-5c76-bda6-9ad9bd2aa2a1")
+  )
+  (label "PACK3_F"
+    (at 46.99 99.06 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "94466083-eeb2-5e73-a5e6-715cce94452d")
+  )
+  (label "GATE_SS"
+    (at 119.38 54.61 90)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "1fb146bb-c69a-5aa1-ac4c-6b4266eaacad")
+  )
+  (label "GATE_SSD"
+    (at 133.35 55.88 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "221cd5f9-1630-5fb6-8215-bf20d3959a66")
+  )
+  (label "VDD_SS"
+    (at 102.87 68.58 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "7b145b4c-57a8-5b94-8218-22f40dca94e9")
+  )
+  (label "TMR_SS"
+    (at 140.97 78.74 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "48d5654b-4856-54dc-b872-9a02f6cbdb0f")
+  )
+  (label "VSS_SS"
+    (at 146.05 91.44 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "1e84648e-1587-50ec-aa51-6c40747e81b4")
+  )
+  (label "FB_SS"
+    (at 173.99 78.74 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "cab8162e-8837-5a2a-bdc0-3fe7db2228ea")
+  )
+  (text "1  PACK INPUTS"
+    (exclude_from_sim no)
+    (at 20.32 20.32 0)
+    (effects
+      (font
+        (size 3 3)
+        (bold yes)
+      )
+      (justify left)
+    )
+    (uuid "e292a123-6549-59bd-9e27-dd2508e2e83c")
+  )
+  (text "Any pack keeps the avionics alive (diode-OR). U4 LTC4366-2 floats on the supply and holds VIN_PROT at"
+    (exclude_from_sim no)
+    (at 20.32 26.67 0)
+    (effects
+      (font
+        (size 1.6 1.6)
+      )
+      (justify left)
+    )
+    (uuid "e28f8243-4717-5f76-8454-94e2b0de5dc2")
+  )
+  (text "VREG = 1.23 V (1 + R24/R23) = 115 V during a surge (the LTC7801 is rated 150 V); C27 sets the 51 ms overvoltage time."
+    (exclude_from_sim no)
+    (at 20.32 29.97 0)
+    (effects
+      (font
+        (size 1.6 1.6)
+      )
+      (justify left)
+    )
+    (uuid "80a3ad45-4b66-5ace-a827-9d6e41eaebf9")
+  )
+  (text "J1-J3: one Micro-Fit lead from each pack's PDB tap. F1-F3 0.5 A, D1-D3 ES1D (200 V)."
+    (exclude_from_sim no)
+    (at 22.86 116.84 0)
+    (effects
+      (font
+        (size 1.4 1.4)
+      )
+      (justify left)
+    )
+    (uuid "8702cea3-3077-558f-bde2-6e9dc81b2205")
+  )
+  (text "Q4 FDB33N25 (250 V) drops the surge; R21 RIN feeds U4's shunt regulator, R22 RSS lets it float."
+    (exclude_from_sim no)
+    (at 132.08 104.14 0)
+    (effects
+      (font
+        (size 1.4 1.4)
+      )
+      (justify left)
+    )
+    (uuid "7e881ab4-4626-52ae-afe9-b54a58f4c6b9")
+  )
+  (text "R25 at Q4's gate stops it oscillating; C26 ramps the gate and bypasses Cgd during a surge."
+    (exclude_from_sim no)
+    (at 132.08 107.95 0)
+    (effects
+      (font
+        (size 1.4 1.4)
+      )
+      (justify left)
+    )
+    (uuid "8a0e4880-222e-52b7-99ac-3dc37e1e4636")
+  )
+  (text "After 51 ms of overvoltage (C27) U4 turns Q4 off for a 9 s cool-down, then retries."
+    (exclude_from_sim no)
+    (at 132.08 111.76 0)
+    (effects
+      (font
+        (size 1.4 1.4)
+      )
+      (justify left)
+    )
+    (uuid "be028050-33a1-5d07-87a8-93d45b0835ca")
+  )
+  (text "C1 33 µF 160 V low-ESR electrolytic: damps the input filter"
+    (exclude_from_sim no)
+    (at 212.09 52.07 0)
+    (effects
+      (font
+        (size 1.4 1.4)
+      )
+      (justify left)
+    )
+    (uuid "4bdde766-c93b-56d8-b94b-e1ebee3b03d3")
+  )
+  (embedded_fonts no)
+)
