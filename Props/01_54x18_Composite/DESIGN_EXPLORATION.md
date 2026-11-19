@@ -60,12 +60,13 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 47. ~~Torque margin on catalogue motors~~ (entry 39: with a 12 % reserve the hex on the MN1123 drops to +5.06 kg at 50.8 dBA; the tri on the V13828 needs tip Mach 0.84 at T/W 2 for +4.37 kg at 61.4 dBA. The hex leads by ≈ 1.2 kg and is 10.5 dBA quieter. The free-speed and 200 Wh/kg scenarios are still open, now item 50.)
 48. **Equal-noise comparison with the V13828 tri:** the tri's catalogue gain needs tip Mach 0.70 and costs it 3.8 dBA (52.1 → 55.9). Compare the tri at the hex's 48.5 dBA (serrations from entry 33, or a lower cap with the U15XL) against the hex on the MN1123.
 49. ~~Tri on the U15XL with the 12 % reserve~~ (entry 40: +1.68 kg at 55.5 dBA, cap 0.70; it trades 2.7 kg for 5.9 dB against the V13828 tri. The hex on the MN1123, +5.06 kg at 50.8 dBA, beats every tri variant on payload *and* noise.)
-51. **Hex payload against noise between the MN1123 and the MN1320** (entry 40): MN1123 with the reserve, +5.06 kg at 50.8 dBA; MN1320, +2.95 kg at 46.3 dBA (0.47 kg/dB). Try the MN1123 at a lower cap and the V13823 (34.4 N·m, 2.16 kg).
+51. ~~Hex payload against noise~~ (entry 46: two points only. MN1123 at 10 % reserve: +5.46 kg, 50.3 dBA. Any motor with ≥ 27 N·m to spare converges to the same free-torque design (1427 rpm hover, 46.3 dBA), so the MN1320 is best there (+2.95 kg) and heavier motors only add mass. 0.63 kg/dB between the two. A lower cap on the MN1123 is worse on both counts.) Original: (entry 40): MN1123 with the reserve, +5.06 kg at 50.8 dBA; MN1320, +2.95 kg at 46.3 dBA (0.47 kg/dB). Try the MN1123 at a lower cap and the V13823 (34.4 N·m, 2.16 kg).
 50. ~~Free-speed and 200 Wh/kg scenarios with the catalogue motors~~ (entry 41: at 15 m/s the hex wins every case, +0.7 to +8.1 kg. At free speed with 303 Wh/kg the V13828 tri wins by 2.8–4.1 kg, but at 61.4 dBA; held to a ≈ 55 dBA limit (U15XL tri) it is a tie, −0.7 to +0.6 kg. Break-even batteries: 15 m/s 328 Wh/kg (V13828) or none (U15XL); free speed 174 / 277 Wh/kg.)
 52. ~~Free-speed break-even noise limit~~ (entry 42: with a 12 % reserve the tri's noise is set by its motor, not its cap. The U15XL designs at caps 0.65–0.80 all land at 55.2–55.6 dBA (torque-limited at tip Mach 0.70), and the V13828 at 61.4. At free speed with 303 Wh/kg the hex wins below ≈ 55.5 dBA, it is a tie at 55.2–55.6 (−0.42 to +0.14 kg), and only the V13828's 61.4 dBA gives the tri a clear win.)
 53. ~~Reserve sweep~~ (entry 45: per 1 % of torque reserve the hex loses ≈ 0.11 kg and 0.19 dB, the tri ≈ 0.21 kg and 0.45 dB. Hex − tri at 15 m/s and 303 Wh/kg crosses zero at a ≈ 9 % reserve. At free speed the V13828 tri wins at every reserve, by 3.8–4.8 kg (303 Wh/kg) or 1.1–2.2 kg (200), at 7.4–10.6 dB more noise. Magnet heating alone justifies ≈ 10 %.) Original: between 0 % reserve (V13828 at 55.9 dBA, +6.87 kg, entry 38) and 12 % (61.4 dBA, +4.37 kg) the reserve moves the tri's noise by 5.5 dB. Sweep the reserve (0–15 %) for both layouts on the free-speed/303 case, and decide on a reserve from a gust/sag requirement rather than a round number.
 44. ~~BEMT calibration on CFD~~ (entry 43: on the toroid session's 2-blade reference, CFD at equal thrust needs 1.16 × the rpm, 1.23 × the torque and 1.42 × the power of plain BEMT. If the CFD torque holds, the hex moves from the MN1123 to the MN1320 and the tri has no 24S motor that holds T/W 2 with a reserve. The additive Δc_d fit, 0.033, does not transfer to other loadings: it doubles the hex's hover power.)
 54. ~~Re-optimise under the CFD factors~~ (entry 44: the hex on the MN1320 keeps its 12 % reserve at 48.0 dBA, losing ≈ 4.3 kg; the tri flies only on the U15XL with no reserve, at tip Mach 0.86 and 57.5 dBA, also losing ≈ 4.3 kg. Hex − tri: +3.4 kg at 15 m/s and 303 Wh/kg, −1.1 at free speed and 303, +1.9 to +8.6 with 200 Wh/kg.) Original: the torque and power factors at equal thrust (×1.23, ×1.42) or a loading-dependent correction. The hex would be on the MN1320 or V13828; the tri on the U15XL with no reserve, or not feasible. This gives new absolute payloads; the old ones are 5–10 kg optimistic.
+56. **A hex with mixed motors**, MN1123 on some arms and MN1320 on others: yaw and roll authority need a symmetric layout, so it would be three and three in alternation. This fills the payload–noise curve between 46.3 and 50.3 dBA (entry 46), but the unequal rotors complicate control.
 55. **A second CFD point to separate thrust and torque error** (needs the CFD machine time, so it is the user's and the toroid session's call): a refined leading-edge mesh of the 2-blade reference (the CT validation found coarse noses inflate torque), or the same mesh at a second rpm or loading, to show whether the 23 % torque excess is physical (3-D, root and tip losses) or a mesh artefact.
 
 ## Entries
@@ -2981,3 +2982,61 @@ Full-chain comparison, hex payload minus tri payload in kg, constant body:
 - Item 51: the hex's payload–noise curve.
 - Item 45: a section designed for the T/W-2 point.
 - The user's open questions (cruise speed, battery, noise limit) now map onto the 10 % row above.
+
+## 46 — The hex's payload–noise curve has two points: the MN1123 at 50.3 dBA and a free-torque design at 46.3 dBA (2026-11-18)
+
+**Question.** With the 10 % torque reserve of entry 45, how much payload does the hex give up to be quieter? A motor with more torque lets the rotor turn slower for the same power (Ω = P/Q), at more motor mass. The other way to quieten it is a lower tip-Mach cap on the light motor.
+
+**Method.** src/explore/e46_hex_noise_curve.py re-optimises the hex (e37 job(), hard torque penalty, plain BEMT) with torque limits at 0.90 × test torque:
+- MN1123 (1.425 kg, 19.97 N·m) at caps 0.55 and 0.65;
+- MN1320 (2.070 kg, 29.2 N·m), V13823 (2.160 kg, 31.0 N·m) and V13828 (2.465 kg, 38.8 N·m), each at cap 0.60.
+
+All payloads are in entry 11's hex frame, so they compare directly. It ran on 2 cores at nice 19.
+
+| Hex, 10 % reserve | Q_max / limit [N·m] | Payload [kg] | rpm hover / max | P_max [W] | Pack [Wh] | Hardware [kg] | σ | TE / tonal / total [dBA] |
+|---|---|---|---|---|---|---|---|---|
+| **MN1123, cap 0.65** | 19.97 / 19.97 | **+5.46** | 2059 / 2876 | 6015 | 5202 | 26.73 | 0.132 | 49.7 / 41.4 / **50.3** |
+| MN1123, cap 0.55 | 19.97 / 19.97 | +4.76 | 1976 / 2769 | 5792 | 5152 | 27.60 | 0.122 | 50.3 / 39.6 / 50.7 |
+| **MN1320, cap 0.60** | 26.83 / 29.16 | **+2.95** | 1427 / 2020 | 5674 | 4886 | 30.28 | 0.143 | 46.1 / 27.7 / **46.3** |
+| V13823, cap 0.60 | 26.83 / 30.96 | +2.41 | 1427 / 2020 | 5674 | 4886 | 30.82 | 0.143 | 46.1 / 27.7 / 46.3 |
+| V13828, cap 0.60 | 26.83 / 38.79 | +0.58 | 1427 / 2020 | 5674 | 4886 | 32.65 | 0.143 | 46.1 / 27.7 / 46.3 |
+
+**Findings.**
+- **Three different motors give the same rotor.** Once the torque limit stops binding, the optimiser lands on one design: 26.83 N·m at T/W 2, 1427 rpm in hover, σ = 0.143.
+  - This is the hex's **free-torque optimum**. Slowing further would need more solidity, and the extra blade mass and profile drag outweigh the energy saved.
+  - So every motor with more than ≈ 27 N·m (after the reserve) gives the same 46.3 dBA, and the extra torque is only extra mass. **The MN1320 is the right motor at that point;** the V13823 costs 0.54 kg more and the V13828 2.37 kg more for nothing.
+- **The hex's curve therefore has two points:** +5.46 kg at 50.3 dBA (MN1123) and +2.95 kg at 46.3 dBA (MN1320). That is **2.51 kg for 4.0 dB, 0.63 kg/dB.**
+  - Below 46.3 dBA the catalogue offers nothing more. Further quieting needs serrations (entry 33) or a larger rotor.
+- **A lower cap on the light motor is worse on both counts:** cap 0.55 gives +4.76 kg at 50.7 dBA against +5.46 kg at 50.3.
+  - The motor is torque-bound at T/W 2. A lower cap therefore cannot slow the T/W-2 point; it only binds below T/W 2 (T/W at cap 1.95).
+  - It forces the optimiser to a thinner blade (σ 0.122), which runs at a higher angle of attack, so its trailing-edge noise rises 0.6 dB. That is entry 34's mechanism again.
+  - **On a torque-bound rotor the cap is the wrong noise knob. The motor is the right one.**
+- **The noise-limited ranking at a 10 % reserve:**
+
+  | Hover noise limit | Best hex | Best tri | Verdict |
+  |---|---|---|---|
+  | ≥ 60.5 dBA | MN1123, 50.3 dBA | V13828, ≈ 60.5 dBA | entry 45's 10 % row: tie at 15 m/s/303; tri +4.1 kg free/303 |
+  | 55.4–60.5 dBA | MN1123 | U15XL, ≈ 55.4 dBA | entry 42: tie at free speed/303; hex at 15 m/s and with 200 Wh/kg |
+  | 50.3–55.4 dBA | MN1123 | none in the catalogue | **hex** |
+  | 46.3–50.3 dBA | MN1320 (or an MN1123–MN1320 mix) | none | **hex** |
+  | < 46.3 dBA | needs serrations or a larger rotor | none | **hex**, with extra treatment |
+
+  The two noise slopes differ: the tri pays 0.46–0.57 kg/dB (entries 40 and 42) and the hex 0.63 kg/dB. But the hex starts 5–10 dB lower, so any limit below ≈ 55 dBA excludes the tri entirely.
+- **Under entry 44's CFD factors,** the MN1320 hex becomes torque-bound (+0.79 kg at 48.0 dBA), and its free-torque point would need the V13828. The two-point structure stays.
+
+**Hand checks.**
+- **Q = P/Ω:**
+  - free-torque design: 5674 W / (2020 × π/30 = 211.5 rad/s) = **26.83 N·m** ✓;
+  - MN1123 at cap 0.65: 6015 / (2876 × π/30 = 301.2) = **19.97 N·m** = 0.90 × 22.19 ✓.
+- **Only motor mass differs between the three free-torque rows** (same blade, pack and P_max):
+  - MN1320 → V13823: 6 × (2.160 − 2.070) = **0.54 kg**, against 2.95 − 2.41 = 0.54 ✓;
+  - MN1320 → V13828: 6 × (2.465 − 2.070) = **2.37 kg**, against 2.95 − 0.58 = 2.37 ✓.
+- **Why the free-torque design is quieter.** Tonal noise falls from 41.4 to 27.7 dB. Hover tip Mach drops from 2059 × π/30 × 0.6858/357.6 = **0.414** to 1427 × π/30 × 0.6858/357.6 = **0.287**. Then 40 log₁₀(0.414/0.287) = **6.4 dB** from tip speed alone, against a printed 13.7 dB. The tonal term falls faster than M⁴ at this low Mach, because Gutin's first harmonic rises steeply with M via the Bessel factor.
+  - The trailing-edge term sets the total and falls only 3.6 dB (49.7 → 46.1). BPM's TE noise scales roughly as U⁵, and 50 log₁₀(2059/1427) = 8.0 dB at fixed α*. The larger solidity of the slow rotor (0.143 against 0.132) keeps α* higher, which recovers part of that.
+
+**Lesson.** When the torque limit stops binding, extra motor torque buys nothing: the optimum becomes the structural and profile-drag balance (the free-torque point). On a design limited by motor torque, the noise knob is the motor, not the cap. Lowering the cap made the hex heavier and louder.
+
+**Next.**
+- Item 55, a refined-nose CFD of the 2-blade, remains the deciding input on the absolute torque (user's call). The toroid chain runs until about 23:00.
+- Item 45: a section designed for the T/W-2 point.
+- Mixed motors (an MN1123–MN1320 pair per arm side) could fill in the hex curve between 46.3 and 50.3 dBA (item 56).
