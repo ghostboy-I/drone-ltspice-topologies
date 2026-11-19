@@ -25,7 +25,9 @@ python3 src/screen.py check designs/selected.json   # one design, PASS/FAIL in ~
 python3 src/geometry.py               # STL (hover + airplane), rotor disks, 3-view and iso figures
 python3 src/make_results.py           # final.json, hand checks of the FE model, figures
 python3 src/cfd_airfoil2d.py setup    # 2-D OpenFOAM airfoil cases (wing NACA 4415 + tail NACA 0012)
-python3 src/fuselage_shell.py         # CalculiX shell model of the fuselage, five load cases (~6 min, 1 thread, nice 19)
+python3 src/fittings.py               # hand sizing of the wing lugs, spar frames and boom socket -> results/fittings.json
+python3 src/fuselage_shell.py         # CalculiX shell model of the fuselage with the fittings, five load cases (~1 min, 1 thread)
+python3 src/fittings.py               # again: the lug design load takes the FE split if it is larger
 python3 make_design_doc.py
 ```
 
@@ -48,13 +50,17 @@ python3 src/cfd_airfoil2d.py post                         # CFD vs XFOIL -> resu
 | `src/screen.py` | The instant check and the design sweep |
 | `src/geometry.py` | Outer-mould-line STL + figures |
 | `src/make_results.py` | Selected design, hand checks (H1-H3), figures, `results/final.json` |
-| `src/fuselage_shell.py` | Fuselage shell FEM (CalculiX): keel, floor, frames (+ skin if `fuselage.skin: bonded`); loads cut from the beam model; hand checks F1-F3 |
-| `src/cfd_airfoil2d.py` | 2-D RANS airfoil cases: C-grid blockMesh, Spalart-Allmaras, post-processing against XFOIL |
+| `src/fuselage_shell.py` | Fuselage shell FEM (CalculiX): keel, floor, frames (+ skin if `fuselage.skin: bonded`), fittings if `fuselage.fittings`; loads cut from the beam model; hand checks F1-F3, H1-H3 |
+| `src/fittings.py` | Wing carry-through (four bolted lugs, heavy spar frames by a closed-ring unit-load solution with arch thrust) and boom socket (two collars, two bulkheads) sized by hand |
+| `src/cfd_airfoil2d.py` | 2-D RANS airfoil cases: orthogonal Hermite C-grid, Spalart-Allmaras, polar plot against XFOIL. Lift only: OpenFOAM 13's wall shear is +48 % (channel test), so section drag comes from XFOIL |
 | `geometry/` | `airframe_hover.stl`, `airframe_airplane.stl`, `rotor_disks_hover.stl`, `wing_section.dat` |
 | `cfd/airfoil2d/` | Case plan; logs and force histories copied back after the runs |
 | `results/` | JSON and figures |
 
 ## Decided
+
+- Airfoil CFD (user, 2026-11-19): lift only; section drag stays on XFOIL. OpenFOAM 13's incompressibleFluid and the legacy
+  porousSimpleFoam both over-predict laminar channel wall shear by 48 % (icoFoam is exact).
 
 - Fuselage skin (user, 2026-11-19): the fairing floats on compliant mounts and carries no fuselage load (`fuselage.skin:
   floating`). The bonded one-ply skin buckled at 0.01-0.15 of ultimate; that run is kept in `results/*_bonded.*`.
@@ -68,8 +74,10 @@ python3 src/cfd_airfoil2d.py post                         # CFD vs XFOIL -> resu
 - Tail-boom + aft-cone download, 8.6 % of the tail rotor's thrust: an airfoil-section boom is the fix.
 - Real vehicle mass (~185 kg) against the 280 lb (127 kg) sizing weight: the wing stalls at ~25 m/s at the real mass.
 - Whirl flutter, prop normal force in airplane mode, transition corridor: not modelled yet.
-- Boom fitting and wing carry-through fitting (fuselage shell FEM, floating fairing): the keel alone fails where the boom enters
-  its shallow tail end (LC5 web MS -0.89) and at the rigidly fixed wing-attach frames (LC4 web MS -0.54). Between them it has a
-  large margin. Design both fittings, add them to `fuselage_shell.py`, re-run.
+- Main-gear fitting: the one open margin after the fittings is the LC4 keel flange between the rear spar frame and the main
+  gear (MS -0.25), where the gear load is still smeared over the keel. A flange doubler there crashes CalculiX 2.21 (NaN
+  stiffness where a thicker flange meets a wing frame), so the gear fitting should carry it.
+- Fittings mass (+3.0 kg) and the boom extension are not in the beam model's mass yet.
+- Tail cone end (0.196 x 0.124 m) is smaller than the 0.134 m boom: the fairing's aft closure must open around it.
 - tiltframe.py hangs the keel 0.09 m below the mould line's belly; the shell model puts it inside. Fix and re-sweep.
 - 3-D download CFD: inputs ready, not run.

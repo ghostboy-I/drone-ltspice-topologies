@@ -184,12 +184,16 @@ doc.p(f"Airframe {F['mass_airframe_kg']:.1f} kg (wing {F['mass_breakdown'].get('
 # ------------------------------------------------------------------------------------------------------------------
 if FS:
     FSB = J("fuselage_shell_bonded.json") if os.path.exists(os.path.join(R, "fuselage_shell_bonded.json")) else None
+    FSF, FT = None, None                                         # the run with the fittings (9.3); 9.2 is the run before them
+    if os.path.exists(os.path.join(R, "fuselage_shell_model_nofit.json")):
+        FSF, FT, FS = FS, J("fittings.json"), J("fuselage_shell_model_nofit.json")
     doc.h("9. Fuselage shell FEM (CalculiX)")
     ne = FS["elements"]; m_ = FS["mass_kg"]; st = FS["stations"]
     doc.p("The beam screen treats the fuselage as one beam, the keel box, and the skin as a fairing. A shell model asks what a "
           "beam cannot: does a skin attached to the keel and frames pick up load, and does its one woven ply survive that; what happens "
           "where the wing, gear and boom put their loads in; and how the keel turns up the tail ramp to the boom. It was run twice: "
-          "first with the skin bonded (9.1), then, by the user's decision, with the fairing floating (9.2, the current design).")
+          "first with the skin bonded (9.1), then, by the user's decision, with the fairing floating (9.2). 9.2 showed the two fittings "
+          "were missing; 9.3 designs them and re-runs the model with them in place (the current design).")
     doc.bullets([
         f"Mesh: the STL's outer mould line (one shared function), {ne['ESKIN']} skin, {ne['EFLANGE']} keel-flange, {ne['EWEB']} keel-web "
         f"and {ne['EFLOOR']} floor S8R shells, {len(FS['frames_x'])} frames as {ne['EFRAME']} shells; {FS['nodes']} nodes. Each face is homogenised by "
@@ -223,10 +227,10 @@ if FS:
               "(slotted or elastomeric attachments, so the keel-only beam model holds), or make the skin structural (foam-core sandwich or "
               "stringers, heavier). DECIDED (user, 2026-11-19): float the fairing. params.yaml: fuselage.skin = floating.")
 
-    doc.h("9.2 Current design: floating fairing")
+    doc.h("9.2 Floating fairing, before the fittings")
     doc.p("The skin elements are left out of the analysis; the fairing's mass stays in the loads (it is in the beam model's mass), its "
           "stiffness does not. Everything is now carried by the keel box (flange, two webs, floor) and the frames.")
-    doc.img(img("fig_fuselage_shell.png"), width=6.6)
+    doc.img(img("fig_fuselage_shell_nofit.png" if FSF else "fig_fuselage_shell.png"), width=6.6)
     cs = FS["cases"]
     rows = []
     for n_, o in cs.items():
@@ -287,8 +291,106 @@ if FS:
         "The floating fairing still sees air loads; it needs a local panel check, not a fuselage-load one.",
         "Beam-model inconsistency found: tiltframe.py hangs the keel under the floor, 0.09 m below the mould line's belly; the shell model puts "
         "it inside, as the fuselage height (payload stack + floor + keel + skin) was derived. It moves the CG and the gear length slightly.",
-        "Next: design the boom fitting and the wing carry-through fitting, model them in the shell model, and re-run.",
+        "Next: design the boom fitting and the wing carry-through fitting, model them in the shell model, and re-run (9.3).",
     ])
+    if FSF:
+        CF = FSF["cases"]; HH = FSF["hand_H"]; lg = FT["lug"]; wf = FT["wing_frames"]; sk = FT["socket"]; mf = FSF["mass_kg"]
+        doc.h("9.3 The fittings: wing carry-through and boom socket")
+        doc.p("Both are sized by hand in fittings.py at the ultimate free-body loads the shell model applies, then built into the shell "
+              "model (params fuselage.fittings) and checked there. Fitting factor 1.15 (FAR 23.625) on the metal parts.")
+        doc.p("Wing carry-through. The spar box runs unbroken over the fuselage. The fuselage hangs from it by four bolted 7075-T6 lugs, "
+              f"two on the crown of each spar frame (x = {FT['x_f']:.3f} and {FT['x_r']:.3f} m) at y = +-{abs(FT['lug_points'][0][1]):.2f} m, over "
+              "the payload. Four pins x 3 forces is 12 unknowns for 6 equations, so the first split assumes equal pin stiffness "
+              "(the least-norm patch formula above). Each lug is then sized against its three classic failure modes:")
+        doc.eq(r"d\geq\sqrt{\frac{4\,P\,FF}{2\pi F_{su}}},\qquad t\geq\max\left(\frac{P\,FF}{(w-d)F_{tu}},\ \frac{P\,FF}{2(e-d/2)F_{su}},\ \frac{P\,FF}{d\,F_{bru}}\right)",
+               note="double-shear bolt; lug net tension, shear-out, bearing (e = 1.5 d, w = 3 d)", size=11)
+        doc.table(["Lug item", "Value", "MS"], [
+            ["Design load P x 1.15 (worst lug)", f"{lg['P_design_N']:.0f} N", ""],
+            ["Bolt, class 10.9, double shear", f"M{lg['bolt_d_m']*1e3:.0f} (6 mm floor)", f"{lg['bolt_MS']:+.2f}"],
+            ["Lug tang thickness", f"{lg['t_m']*1e3:.0f} mm (3 mm floor)", ""],
+            ["  t needed: tension / shear-out / bearing", f"{lg['t_required_m']['net_tension']*1e3:.2f} / {lg['t_required_m']['shear_out']*1e3:.2f} / {lg['t_required_m']['bearing']*1e3:.2f} mm",
+             f"{lg['MS']['net_tension']:+.2f} / {lg['MS']['shear_out']:+.2f} / {lg['MS']['bearing']:+.2f}"],
+            ["Mass, each lug + bolt (estimate)", f"{lg['mass_each_kg']*1e3:.0f} g", ""],
+        ], widths=[0.42, 0.33, 0.25])
+        doc.p("Heavy frame. Each spar frame is a closed ring loaded in its own plane by the two lug reactions at the crown and the keel "
+              "at the two web feet. A closed ring is three times statically indeterminate: cut it at the crown, put redundants "
+              "(H, V, M0) on the cut, and make the cut close (unit-load method, bending flexibility only). Both lugs bolt into the same "
+              "spanwise-rigid spar, so their spacing cannot change either: a fourth redundant, the arch thrust between the lugs.")
+        doc.eq(r"M(s)=M_{open}(s)+M_0+(y_0-y)V-(z_0-z)H,\qquad \oint M\,\frac{\partial M}{\partial X_i}\,\frac{ds}{EI}=0,\qquad H_{arch}=-\frac{\oint M\,m_H\,ds}{\oint m_H^2\,ds}")
+        st_ = FT["self_test"]
+        doc.p(f"Self-test: a circular ring under two opposite loads gives {st_['ring_M_at_load_Nm']:.2f} N m at the loads against Roark's "
+              f"PR/pi = {st_['roark_PR_over_pi']:.2f}, and {st_['ring_M_at_90deg_Nm']:.2f} against PR(1/2 - 1/pi) = {st_['roark_PR_(1/2-1/pi)']:.2f} at 90 deg.")
+        rows = []
+        for n_, c in FT["cases"].items():
+            ff = c["frame_front"]; h = HH[n_]
+            rows.append([n_.split()[0], f"{ff['arch_thrust_N']:.0f}", f"{ff['keel_stiffened']['arch_thrust_N']:.0f}", f"{abs(h['lug_fe_N'][0][1]):.0f}",
+                         f"{c['lug_max_N']:.0f}", f"{h['lug_max_fe_N']:.0f}", f"{h['frame_front']['eps_hand']*1e6:.0f}", f"{h['frame_front']['eps_fe_clear']*1e6:.0f}"])
+        doc.table(["Case", "H ring", "H keel", "H FE", "lug hand", "lug FE", "eps hand", "eps FE"], rows,
+                  widths=[0.09, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13])
+        doc.p("Front spar frame; forces in N, strains in ue. H ring / H keel: arch thrust from the plain ring and from the ring with a "
+              "rigid keel arc; H FE: the FE lug's lateral reaction. The plain ring over-predicts the arch thrust by ~40 %. Treating the frame's lower "
+              "arc between the web feet as rigid (it is the bottom of the keel box) brings the thrust to within 3-10 % of the FE in the four cases "
+              "that load the lugs (20 % in LC3, the lightest). That verifies the lug load path. The peak frame moment then sits where that rigid arc meets the frame, and the FE "
+              "strain there is about a third of the hand value, because the keel webs also resist the frame's rotation along their length, "
+              "which a planar ring cannot represent. So the hand sizing is an upper bound: "
+              f"frames {wf['front']['t_m']*1e3:.1f} mm (front) and {wf['rear']['t_m']*1e3:.1f} mm (rear) x {wf['front']['d_m']*1e3:.0f} mm "
+              "quasi-isotropic carbon, against 4 x 40 mm before. The FE split also differs from equal stiffness (LC4: the stiffer front "
+              "frame takes more), so the lug design load is the larger of the two.")
+        doc.p("Boom socket. The boom (D = %.3f m) runs forward inside the tail cone to x = %.3f m and is held by aluminium collars, "
+              "bonded to it and bolted to two sandwich bulkheads at x = %.3f and %.3f m, both aft of the payload. The aft collar is a slip "
+              "fit (radial forces only) and the forward one also takes the axial force and the torsion, so the split is statically "
+              "determinate. With the boom rigid between the collars, spacing s:" % (sk["boom_D_m"], sk["x_fwd"], sk["x_fwd"], sk["x_aft"]))
+        doc.eq(r"M_{fwd}=M_{root}+(r_{root}-r_{fwd})\times F", size=12)
+        doc.eq(r"F_{aft,z}=\frac{M_{y,fwd}}{s},\quad F_{aft,y}=-\frac{M_{z,fwd}}{s},\quad F_{fwd}=F-F_{aft},\quad T_{fwd}=M_{x}", size=12)
+        rows = [[n_.split()[0], f"{c['F_boom_N'][2]:.0f}", f"{c['M_boom_root_Nm'][1]:.0f}", f"{c['F_aft_collar_N'][2]:.0f}", f"{c['F_fwd_collar_N'][2]:.0f}",
+                 f"{c['F_aft_collar_N'][1]:.0f} / {c['F_fwd_collar_N'][1]:.0f}"] for n_, c in sk["cases"].items()]
+        doc.table(["Case", "boom F_z [N]", "root M_y [N m]", "aft collar F_z", "fwd collar F_z", "F_y aft / fwd"], rows, widths=[0.1, 0.16, 0.18, 0.18, 0.18, 0.2])
+        doc.p(f"The short socket multiplies the load: LC1's 1.5 kN tail-rotor force becomes {max(abs(c['F_aft_collar_N'][2]) for c in sk['cases'].values()):.0f} N "
+              f"at the aft collar. Collar bond: {sk['bond_tau_Pa']/1e6:.2f} MPa shear (force and torsion, x 1.15) against a 10 MPa "
+              f"toughened-epoxy design value (MS {sk['bond_MS']:+.0f}); no bolts go through the UD-heavy boom wall. Collar-to-bulkhead: "
+              f"8 x M{sk['flange_bolt_d_m']*1e3:.0f} into potted inserts. Mould line: the tail cone ends at "
+              f"{sk['tail_end_section_m'][0]:.3f} x {sk['tail_end_section_m'][1]:.3f} m, smaller than the boom, so the floating fairing's aft "
+              "closure must open around it (a geometry change for geometry.py).")
+        doc.img(img("fig_fuselage_shell.png"), width=6.6)
+        rows = []
+        for n_, o in CF.items():
+            sc = o["strain_clear"]
+            rows.append([n_.split()[0]] + [f2(sc[k_]["MS"]) for k_ in ("EFLANGE", "EWEB", "EFLOOR", "EWEBD", "EFLOORD", "EFRAME", "EFRAMEF", "EFRAMER", "EBULK")]
+                        + [f2(min(c_["MS"] for c_ in o["core"].values()))])
+        doc.table(["Case", "flange", "web", "floor", "web dbl", "floor dbl", "frames", "front fr.", "rear fr.", "bulkh.", "core"], rows,
+                  widths=[0.08] + [0.092] * 10)
+        l4f = CF["LC4 hard landing one main"]["strain_clear"]["EFLANGE"]
+        q = CF["LC1 hover pull-up n=2"]["hand_F2_bays"][0]["resultants"]
+        doc.p("Strain MS at ultimate, outside the elements that touch a lug pin or a collar (the metal parts there are the hand checks above). "
+              f"F1 still closes exactly, and F2 at the cabin cut: pitch {q['M_pitch_statics']:.0f} / {q['M_pitch_fe']:.0f} N m, yaw "
+              f"{q['M_yaw_statics']:.0f} / {q['M_yaw_fe']:.0f} N m (statics / FE, LC1). Getting here took four more design and model changes:")
+        doc.bullets([
+            "Bulkheads: one +-45 ply per face (the keel web lay-up) failed the 33 mm ligament between the boom hole and the crown at 4,400 ue; "
+            "the design has 5 per face.",
+            "Keel doublers (+2 +-45 plies per face): on the web, floor and flange two elements either side of each bulkhead, and on the web "
+            "and floor over the whole carry-through bay between the spar frames, where the one-wheel landing's roll torque runs through the keel.",
+            "Lug model: pinning every frame node within 25 mm of a lug made a moment clamp; a lug turns on its bolt, so it is now one pinned "
+            "node on the frame's mid-depth line.",
+            "Bulkhead-to-keel joint: tying the nearest bulkhead node within 20 mm by *EQUATION passed the forces but not their couples (F x d "
+            "of every offset tie). F2 caught it: the cabin cut lost 15 % of the pitch and 90 % of the yaw moment, and the LC4 margins "
+            "looked better than they are. The joint now merges nodes within 6 mm (a shared, bonded line). With the moment conserved, LC4's "
+            "torque reached the keel and the carry-through-bay doublers became necessary.",
+        ])
+        m_old = sum(v for k_, v in FS["mass_kg"].items() if k_ != "ESKIN")
+        m_new = sum(v for k_, v in mf.items() if k_ not in ("ESKIN", "fittings_metal", "boom_extension"))
+        doc.bullets([
+            f"Mass: keel, frames and bulkheads {m_new:.2f} kg against {m_old:.2f} kg before the fittings, plus {mf['fittings_metal']:.2f} kg of "
+            f"lugs, bolts and collars and {mf['boom_extension']:.2f} kg for the {sk['boom_extension_m']:.2f} m of boom inside the socket: "
+            f"+{m_new - m_old + mf['fittings_metal'] + mf['boom_extension']:.2f} kg in all. Not yet in the beam model's mass.",
+            f"OPEN: LC4 keel flange beside the rear spar frame, MS {l4f['MS']:+.2f} at x = {l4f['at'][0]:.2f} m. It sits between that frame and "
+            "the main-gear patch, where the gear load is still smeared over +-60 mm of keel (no gear fitting yet). A flange doubler there "
+            "could not be checked: CalculiX 2.21 returned NaN stiffness wherever a thicker flange met a wing frame on the belly, with a plain "
+            "or a one-layer-composite frame section. The same doubler beside a bulkhead runs. A main-gear fitting is the next design item, "
+            "and it should carry this flange.",
+            "F2 between the collars (x = -0.83 m) closes in pitch but not in yaw: the lateral collar forces bend the sandwich webs as plates, "
+            "and the check integrates membrane strain only. That is a limit of the check, not an equilibrium error.",
+            "The frames could be thinner: FE margins are +0.9 or more, because the hand ring is an upper bound (about 0.3 kg).",
+        ])
 
 doc.h("10. Airfoil CFD: lift checked, drag from XFOIL")
 pl = json.load(open(os.path.join(here, "cfd", "airfoil2d", "plan.json")))
@@ -372,6 +474,10 @@ doc.bullets([
     f"Gusts, not manoeuvres, size the wing: n = {g['n_gust']:.2f} at 25 m/s, because the wing loading is light ({w['wing_loading_n_m2']:.0f} N/m^2).",
     "The fuselage shell FEM shows the one-ply skin, bonded to the keel and frames, buckles far below ultimate, so the fairing "
     "floats. Equilibrium checks close; plane-sections beam theory does not hold in this short fuselage.",
+    "The fittings close: four bolted lugs on two heavy spar frames carry the fuselage, and a two-bulkhead socket carries the boom (+3.0 kg). "
+    "The checks earned their keep twice: the arch thrust between the lugs only matched the FE once the keel box was in the hand ring, "
+    "and the cabin-cut statics exposed offset FE ties that had hidden a third of the one-wheel-landing torque. One flange margin, at "
+    "the main gear, stays open for the gear fitting.",
     "OpenFOAM 13's viscous wall term over-predicts wall shear by ~48 % (a laminar channel shows it). Airfoil CFD checks lift "
     "and stall; section drag comes from XFOIL.",
     f"Modal rule: nominal operating-point bands (user, 2026-11-18). Open decisions: the tail-boom download ({100*S['download_tail']['frac']:.0f} % of the tail rotor), the real mass against the 280 lb sizing weight, "

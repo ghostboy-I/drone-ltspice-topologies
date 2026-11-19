@@ -82,6 +82,8 @@ fuselage:
   nose_frac: 0.25           # assumption: ogive nose, 25 % of the length
   tail_frac: 0.30           # assumption: upswept tail cone (V-22 style ramp), 30 %
   gear: tricycle            # v22 look: nose leg + two main legs in sponsons; fixed (no retraction mass)
+  fittings: true            # boom socket + four-lug wing carry-through (src/fittings.py, user request 2026-11-19);
+                            # false = the earlier load-smear + crown-clamp model (results/*_nofit.*)
   skin: floating            # requirement (user, 2026-11-19): the fairing floats on compliant mounts and carries no
                             # load; the bonded one-ply skin buckled at 0.01-0.15 of ultimate (fuselage_shell.py)
 
