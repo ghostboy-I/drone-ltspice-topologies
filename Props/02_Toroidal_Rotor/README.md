@@ -90,6 +90,7 @@ Inside that envelope the shaft power is at most ~12.1 kW, so T/W 1.5 needs a fig
 4. **Candidates** live under `variants:` in `params.yaml` and run through the same stages with their own name
    (`geometry`, `case`, `mesh`, `run`, `post` with `toroid_opt1` etc.). `optimize.py predict <variant>` records the model's
    forecast before the CFD, so the CFD tests the model.
+5. **Candidate 1 by CFD (2550 rpm, converged): forecast failed.** 544 N and 50.0 N·m against the forecast 593 N and 46.0 N·m; FoM 0.53 (as-built toroid 0.55), ceiling T/W 1.19. The thinner legs cured the leg-to-leg interference (trailing leg 94 % of the leading, up from 79 %) but lost more to pressure drag at high lift, on noses about one cell wide. The model's constant extra drag does not carry over to thinner, higher-pitched blades on this mesh.
 
 ## Rebuild everything before the CFD
 

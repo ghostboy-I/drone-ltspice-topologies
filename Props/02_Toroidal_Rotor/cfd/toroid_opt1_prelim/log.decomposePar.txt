@@ -1,0 +1,173 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  13
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 13-18870c24d21c
+Exec   : decomposePar -copyZero
+Date   : Nov 18 2026
+Time   : 18:29:04
+Host   : "elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000"
+PID    : 243292
+I/O    : uncollated
+Case   : /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Calculating distribution of cells
+
+Selecting decomposer scotch
+
+Finished decomposition in 0.1135 s
+
+Calculating original mesh data
+
+Distributing cells to processors
+
+Distributing faces to processors
+
+Distributing points to processors
+
+Constructing processor meshes
+
+Processor 0
+    Number of cells = 2483
+    Number of faces shared with processor 1 = 303
+    Number of faces shared with processor 2 = 73
+    Number of faces shared with processor 3 = 127
+    Number of processor patches = 3
+    Number of processor faces = 503
+    Number of boundary faces = 477
+
+Processor 1
+    Number of cells = 2459
+    Number of faces shared with processor 0 = 303
+    Number of faces shared with processor 2 = 74
+    Number of faces shared with processor 3 = 131
+    Number of processor patches = 3
+    Number of processor faces = 508
+    Number of boundary faces = 472
+
+Processor 2
+    Number of cells = 2476
+    Number of faces shared with processor 0 = 73
+    Number of faces shared with processor 1 = 74
+    Number of faces shared with processor 3 = 227
+    Number of faces shared with processor 4 = 229
+    Number of faces shared with processor 8 = 91
+    Number of faces shared with processor 9 = 36
+    Number of processor patches = 6
+    Number of processor faces = 730
+    Number of boundary faces = 312
+
+Processor 3
+    Number of cells = 2440
+    Number of faces shared with processor 0 = 127
+    Number of faces shared with processor 1 = 131
+    Number of faces shared with processor 2 = 227
+    Number of faces shared with processor 4 = 272
+    Number of processor patches = 4
+    Number of processor faces = 757
+    Number of boundary faces = 265
+
+Processor 4
+    Number of cells = 2462
+    Number of faces shared with processor 2 = 229
+    Number of faces shared with processor 3 = 272
+    Number of faces shared with processor 7 = 127
+    Number of faces shared with processor 8 = 38
+    Number of faces shared with processor 9 = 93
+    Number of processor patches = 5
+    Number of processor faces = 759
+    Number of boundary faces = 267
+
+Processor 5
+    Number of cells = 2488
+    Number of faces shared with processor 6 = 340
+    Number of faces shared with processor 7 = 26
+    Number of faces shared with processor 8 = 36
+    Number of faces shared with processor 9 = 129
+    Number of processor patches = 4
+    Number of processor faces = 531
+    Number of boundary faces = 499
+
+Processor 6
+    Number of cells = 2481
+    Number of faces shared with processor 5 = 340
+    Number of faces shared with processor 7 = 118
+    Number of faces shared with processor 8 = 96
+    Number of processor patches = 3
+    Number of processor faces = 554
+    Number of boundary faces = 450
+
+Processor 7
+    Number of cells = 2448
+    Number of faces shared with processor 4 = 127
+    Number of faces shared with processor 5 = 26
+    Number of faces shared with processor 6 = 118
+    Number of faces shared with processor 8 = 304
+    Number of faces shared with processor 9 = 228
+    Number of processor patches = 5
+    Number of processor faces = 803
+    Number of boundary faces = 311
+
+Processor 8
+    Number of cells = 2452
+    Number of faces shared with processor 2 = 91
+    Number of faces shared with processor 4 = 38
+    Number of faces shared with processor 5 = 36
+    Number of faces shared with processor 6 = 96
+    Number of faces shared with processor 7 = 304
+    Number of faces shared with processor 9 = 285
+    Number of processor patches = 6
+    Number of processor faces = 850
+    Number of boundary faces = 248
+
+Processor 9
+    Number of cells = 2451
+    Number of faces shared with processor 2 = 36
+    Number of faces shared with processor 4 = 93
+    Number of faces shared with processor 5 = 129
+    Number of faces shared with processor 7 = 228
+    Number of faces shared with processor 8 = 285
+    Number of processor patches = 5
+    Number of processor faces = 771
+    Number of boundary faces = 285
+
+Number of processor faces = 3383
+Max number of cells = 2488 (0.97402597% above average 2464)
+Max number of processor patches = 6 (36.363636% above average 4.4)
+Max number of faces between processors = 850 (25.628141% above average 676.6)
+
+Time = 0s
+
+Processor 0: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/processor0"
+Processor 1: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/processor1"
+Processor 2: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/processor2"
+Processor 3: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/processor3"
+Processor 4: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/processor4"
+Processor 5: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/processor5"
+Processor 6: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/processor6"
+Processor 7: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/processor7"
+Processor 8: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/processor8"
+Processor 9: copying "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/0"
+ to "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim/processor9"
+
+End
+

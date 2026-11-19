@@ -1,0 +1,30 @@
+{
+ "wall_s": 546.2598667144775,
+ "steps_s": {
+  "blockMesh": 2.001207113265991,
+  "surfaceFeatures": 2.001134157180786,
+  "surfaceCheck": 4.0022149085998535,
+  "decomposePar": 2.001904010772705,
+  "snappyHexMesh": 526.2461862564087,
+  "checkMesh": 10.005699872970581
+ },
+ "n_mesh": 10,
+ "cells": 2299859.0,
+ "max_non_orthogonality": 64.874683,
+ "avg_non_orthogonality": 11.108319,
+ "max_skewness": 5.4714513,
+ "max_aspect_ratio": 8.9613489,
+ "mesh_ok": false,
+ "failed_checks": [
+  "***Max skewness = 5.4714513, 18 highly skew faces detected which may impair the quality of the results"
+ ],
+ "layer_faces": 287882,
+ "layers_mean": 2.84,
+ "layer_thickness_m": 0.000685,
+ "layer_coverage_pct": 92.9,
+ "surface_closed": true,
+ "surface_self_intersections": 0,
+ "surface_self_intersecting": false,
+ "self_intersection_checked": true,
+ "surface_illegal_triangles": 0
+}

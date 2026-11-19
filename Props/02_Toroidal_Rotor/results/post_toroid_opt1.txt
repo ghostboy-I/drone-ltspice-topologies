@@ -1,0 +1,64 @@
+exported to CFD_Results/02_Toroidal_Rotor/toroid_opt1_prelim
+{
+ "rotor": "toroid_opt1",
+ "rpm": 2550,
+ "iterations": 1000,
+ "window": 200,
+ "T": 544.216374687085,
+ "Q": 49.96223717085,
+ "P": 13341.684766492526,
+ "FoM": 0.5255304946637906,
+ "CT_h": 0.009898546346104155,
+ "tw_at_cfd_rpm": 1.3108361572602814,
+ "T_drift_pct_per100": -0.012683863387909722,
+ "Q_drift_pct_per100": -0.0024248013471706163,
+ "converged": true,
+ "viscous_thrust_fraction": -0.0010405390378791896,
+ "viscous_torque_fraction": 0.0656887630777436,
+ "rpm_for_tw_required": 2727.794214135959,
+ "Q_at_tw_required": 57.17217620309671,
+ "P_at_tw_required": 16331.457512059142,
+ "motor_current_at_tw_required_a": 227.50813908256046,
+ "motor_rpm_available": 2553.6,
+ "tw_at_motor_rpm": 1.314539954305094,
+ "motor_limit": "torque",
+ "rpm_motor_limit": 2426.3273146826855,
+ "T_motor_limit": 492.7084593834526,
+ "Q_motor_limit": 45.2335101419071,
+ "tw_max_motor": 1.1867707286815778,
+ "vs_hand": [
+  {
+   "quantity": "Thrust [N]",
+   "cfd": 544.216374687085,
+   "legs_tip_loss": 702.4683762201475,
+   "legs_no_tip_loss": 714.4551613307062,
+   "reference": 739.4048768122301
+  },
+  {
+   "quantity": "Torque [N m]",
+   "cfd": 49.96223717085,
+   "legs_tip_loss": 47.48943972823522,
+   "legs_no_tip_loss": 46.96365276340692,
+   "reference": 49.54051134363682
+  },
+  {
+   "quantity": "Shaft power [W]",
+   "cfd": 13341.684766492526,
+   "legs_tip_loss": 12681.360372732117,
+   "legs_no_tip_loss": 12540.956653117199,
+   "reference": 13229.069051841356
+  },
+  {
+   "quantity": "Figure of merit",
+   "cfd": 0.5255304946637906,
+   "legs_tip_loss": 0.8108219776071036,
+   "legs_no_tip_loss": 0.8409748141014444,
+   "reference": 0.8393544011065223
+  }
+ ],
+ "yplus": {
+  "min": 0.816003121,
+  "max": 358.170467,
+  "average": 28.2442439
+ }
+}

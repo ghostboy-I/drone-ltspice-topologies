@@ -1,0 +1,71 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  13
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 13-18870c24d21c
+Exec   : surfaceFeatures
+Date   : Nov 18 2026
+Time   : 18:28:58
+Host   : "elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000"
+PID    : 242731
+I/O    : uncollated
+Case   : /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/toroid/toroid_opt1_prelim
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Reading "surfaceFeaturesDict"
+
+Surface            : "rotor.stl"
+
+
+Feature line extraction is only valid on closed manifold surfaces.
+Statistics:
+Triangles    : 182400
+Vertices     : 91200
+Bounding Box : (-0.687365 -0.091663115 -0.050584916) (0.687365 0.091663115 0.041647125)
+
+
+Constructing feature set from included angle 2.6179939
+Selecting edges purely based on geometric tests: no
+
+Initial feature set:
+    feature points : 0
+    feature edges  : 760
+    of which
+        region edges   : 0
+        external edges : 760
+        internal edges : 0
+
+
+Final feature set:
+points      : 760
+edges       : 760
+boundingBox : (-0.68581623 -0.091663115 -0.050584916) (0.68581623 0.091663115 0.031506382)
+point classification :
+    convex feature points          :        0
+    concave feature points         :        0
+    mixed feature points           :        0
+    other (non-feature) points     :      760
+edge classification :
+    external (convex angle) edges  :      760
+    internal (concave angle) edges :        0
+    flat region edges              :        0
+    open edges                     :        0
+    multiply connected edges       :        0
+
+Writing extendedFeatureEdgeMesh to "constant/extendedFeatureEdgeMesh/rotor.extendedFeatureEdgeMesh"
+
+Writing featureEdgeMesh to "constant/geometry/rotor.eMesh"
+
+ExecutionTime = 0.524975 s  ClockTime = 1 s
+
+End
+

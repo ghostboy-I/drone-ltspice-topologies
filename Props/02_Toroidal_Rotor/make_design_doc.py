@@ -291,9 +291,24 @@ if LD and CAL and SW:
         rows.append(["2-blade, best of sweep", f"{br['chord_scale']:.1f} x / {br['collective_add_deg']:+.0f}", f2(br["tw_max"]), f2(br["mass_area_kg"])])
     doc.table(["Rotor", "Chord / collective [deg]", "T/W ceiling on U15XL", "Blade set [kg]"], rows, widths=[0.27, 0.26, 0.31, 0.16])
     doc.p("Blade-set mass by wetted area (thin skins at minimum gauge). Swept rows are the calibrated model; 'CFD' rows are direct. "
-          "Both rotor families improve the same way: thinner blades with more pitch absorb the torque limit right at the speed limit. "
-          "Optimised, the two land within a few hundredths of each other, and neither reaches T/W 1.5 on this motor: the ~12 kW it "
+          "In the model both rotor families improve the same way: thinner blades with more pitch absorb the torque limit right at the "
+          "speed limit, and the two land within a few hundredths of each other. Neither reaches T/W 1.5 on this motor: the ~12 kW it "
           "can deliver is the binding limit, not the blade.")
+    if OPT1 and PRED:
+        m_ = PRED["model_at_cfd_rpm"]; LO = J("loads_toroid_opt1.json")
+        doc.p(f"Candidate opt1 by CFD at {OPT1['rpm']} rpm ({OPT1['iterations']} iterations, converged {OPT1['converged']}): {f0(OPT1['T'])} N and "
+              f"{f1(OPT1['Q'])} N m against the forecast {f0(m_['T'])} N and {f1(m_['Q'])} N m ({pct(m_['T'], OPT1['T'])} thrust, {pct(m_['Q'], OPT1['Q'])} torque). "
+              f"Figure of merit {OPT1['FoM']:.2f}, below the as-built toroid's {CFD['FoM']:.2f}; ceiling T/W {OPT1['tw_max_motor']:.2f} "
+              f"({OPT1['motor_limit']}-limited at {f0(OPT1['rpm_motor_limit'])} rpm). The forecast failed.")
+        if LO:
+            doc.p(f"What changed: the thinner legs did cure the interference (trailing leg {100 * LO['leg_thrust_ratio_trailing_to_leading']:.0f} % of the "
+                  f"leading, up from {100 * LD['leg_thrust_ratio_trailing_to_leading']:.0f} %), but the sections now run at section force coefficients "
+                  "near 1.0-1.1 where the model expected ~1.4, at the same torque: more pressure drag at high lift. The candidate's leading-edge "
+                  f"radius is {J('geometry_toroid_opt1.json')['nose_radius_mm_at_075R']:.2f} mm at 0.75 R, about one {C['curvature_cell_mm']:.2f} mm cell, "
+                  "the regime where the Caradonna-Tung case lost its suction peak; low-Reynolds stall (chord ~33 mm) is the other candidate. "
+                  "Either way the model's constant extra drag does not carry over to thinner, higher-pitched blades on this mesh, so the "
+                  "swept rows above are not trustworthy away from the as-built designs.")
+        doc.img(os.path.join(R_, "fig_loads_toroid_opt1.png"), width=6.6)
 
 # ------------------------------------------------------------------------------------------------------------------
 doc.h("11. Takeaways so far")
