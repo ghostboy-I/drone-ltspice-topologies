@@ -69,7 +69,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 59. **Measure the pack** (entry 50): a capacity test of the real 24S 55 Ah pack at 1C and at the hover current (about 2.7C), plus its DC resistance. Two numbers decide the 15 m/s case: whether the nameplate holds within 5 %, and the resistance; the model assumed 1.2 mΩ per cell.
 58. ~~Pack model from cells~~ (entry 50: the usable e_b is 223–299 Wh/kg for semi-solid and 147–197 for LiPo, which is below both 15 m/s break-evens, so the hex wins 15 m/s in every pack state, by +0.3 to +4.4 kg on semi-solid. Free speed stays with the tri on semi-solid, while on LiPo it is a tie within ±2 kg.) Original: (entry 49): the 15 m/s ranking moves 0.03 kg per Wh/kg near 300, so a ±20 Wh/kg uncertainty (±0.8 kg) exceeds the margin. Build the pack's usable specific energy up from cell energy, packaging fraction, hot-day usable fraction and end-of-life fade, for both chemistries.
 57. ~~Full chain on the 10 % designs~~ (entry 48: the frame-shift estimates held to within 0.36 kg. At 15 m/s and 303 Wh/kg it is a tie: hex +0.54 kg with 24xx, tri +0.31 with -64. Break-even batteries at 15 m/s are 322 / 294 Wh/kg, and at free speed 171 / 156 Wh/kg.) Original: (entry 47): replace the frame-shift estimate with an exact hex − tri across speed and battery.
-60. **Thrust shifted to the quiet rotors in a mixed hex** (entry 51): the MN1320 rotors have 8 % torque headroom (26.8 of 29.2 N·m). Fly them harder and the MN1123 rotors lighter: the MN1123s get quieter, and the T/W-2 ceiling still holds because the MN1320 pair can supply the difference. This needs off-design BEMT and noise at unequal rpm.
+61. **Blades designed for the mix** (entry 52): in the 2 + 4 hex with thrust shifted, the MN1123 rotors hover at 158 N instead of 208 N, which their blade was not optimised for. Re-optimise the two blades together, sharing the T/W-2 and yaw constraints: one blade for the light, unloaded pair and one for the four heavy rotors.
+60. ~~Thrust shifted to the quiet rotors~~ (entry 52: shifting the hover thrust toward the MN1320s costs almost no power, since the optimum split is s ≈ 1.04. It lowers 2 + 4 from 48.07 to 47.51 dBA at s = 1.12 for ≤ 0.07 kg, and 4 + 2 from 49.33 to 49.04 dBA for nothing. The mixed points move onto the straight line between the end points. The T/W ceiling does not depend on the split: 2.12 and 2.06.) Original: (entry 51): the MN1320 rotors have 8 % torque headroom (26.8 of 29.2 N·m). Fly them harder and the MN1123 rotors lighter: the MN1123s get quieter, and the T/W-2 ceiling still holds because the MN1320 pair can supply the difference. This needs off-design BEMT and noise at unequal rpm.
 56. ~~A hex with mixed motors~~ (entry 51: alternating 3 + 3 cannot trim yaw at T/W 2. The ceiling is 1.74, because the MN1320 rotors need 34 % more torque per newton. Opposite pairs work. 2 × MN1123 + 4 × MN1320 gives +3.79 kg at 48.1 dBA, and 4 + 2 gives +4.63 kg at 49.3 dBA, both 0.2–0.3 kg below the straight line between the end points because the louder rotors dominate the sum.) Original: MN1123 on some arms and MN1320 on others: yaw and roll authority need a symmetric layout, so it would be three and three in alternation. This fills the payload–noise curve between 46.3 and 50.3 dBA (entry 46), but the unequal rotors complicate control.
 55. **A second CFD point to separate thrust and torque error** (needs the CFD machine time, so it is the user's and the toroid session's call): a refined leading-edge mesh of the 2-blade reference (the CT validation found coarse noses inflate torque), or the same mesh at a second rpm or loading, to show whether the 23 % torque excess is physical (3-D, root and tip losses) or a mesh artefact.
 
@@ -3368,4 +3369,70 @@ L = 10 log₁₀[(Σ nᵢ 10^(Lᵢ/10))/6].
 - Item 60: unequal thrust in the opposite-pair mix. Load the MN1320s harder, since they have 8 % torque headroom, and the MN1123s lighter.
 - Items 45 (T/W-2 section), 42 (serrations) and 13 (coax re-statement) remain in the queue.
 - The deciders are still the user's questions: is 15 m/s fixed, which battery, what noise limit, and whether to run the refined-nose CFD (item 55).
+
+## 52 — Unequal hover thrust in the mixed hex: half a decibel for free, onto the straight line (2026-11-18)
+
+**Question.** In entry 51's opposite-pair hex, the louder MN1123 rotors and the quieter MN1320 rotors each carry W/6. The MN1320 has 8 % torque headroom. If the quiet rotors carry more of the hover thrust, how much quieter does the vehicle get, and what does it cost?
+
+**Why the split is free (the technique).** With each type on opposite arms, each spin direction holds the same motor mix, and the two rotors of a pair always match.
+- Yaw trims and roll/pitch trim for any thrust ratio between the types.
+- The only hover condition is n_A·T_A + n_B·T_B = W. With s = T_B/(W/6), this gives T_A = (W − n_B·s·W/6)/n_A.
+- The T/W-2 ceiling is not affected. A fixed-pitch rotor's maximum thrust is set by its torque limit, not by its hover share, so at full throttle every rotor goes to its own limit.
+  - The ceiling is (2W/6)·(n_A + n_B·Q_lim,B/Q_max,B)/W = **2.12** for 2 + 4 and **2.06** for 4 + 2 (Q_lim/Q_max = 29.16/26.83 = 1.087).
+- The split is therefore a pure hover-operating choice, set in the flight controller's mixer.
+
+**Method.** src/explore/e52_mixed_hex_split.py, 1 process at nice 19:
+- for s = 0.96–1.20, each blade is trimmed in BEMT hover to its thrust (bemt.hover_at_thrust);
+- each rotor type is scored at that thrust with entry 46's noise model (BPM trailing edge + rounded tip + Gutin tones, 50 m, 30° below), divided down to one rotor;
+- the rotors are summed incoherently with their counts.
+- Hover power changes are converted to pack with two bounds:
+  - hover only: the 228 s at hover power, through the 20 % reserve;
+  - the whole pack scaled by the hover-power ratio, as if the cruise split followed the hover split.
+- **Regression:** at s = 1.00 it reproduces entry 51's 48.07 / 49.33 dBA, and one MN1123 rotor + 10 log 6 = 50.31 dBA as in entry 46 ✓.
+
+| Mix | s = T_B/(W/6) | T_A / T_B [N] | rpm A / B | Hover power | TE / tonal / total [dBA] | Payload [kg] |
+|---|---|---|---|---|---|---|
+| 2 + 4 | 1.00 | 207.6 / 207.6 | 2059 / 1427 | 12362 W | 47.7 / 37.0 / 48.07 | +3.79 |
+| 2 + 4 | 1.04 | 191.0 / 215.9 | 1976 / 1456 | −0.11 % | 47.5 / 34.9 / 47.80 | +3.79 to +3.81 |
+| 2 + 4 | **1.12** | 157.8 / 232.5 | 1798 / 1511 | +0.42 % | 47.3 / 32.0 / **47.51** | **+3.72 to +3.78** |
+| 2 + 4 | 1.20 | 124.6 / 249.1 | 1596 / 1565 | +2.01 % | 47.3 / 31.7 / 47.46 | +3.46 to +3.73 |
+| 4 + 2 | 1.00 | 207.6 / 207.6 | 2059 / 1427 | 12605 W | 48.8 / 39.7 / 49.33 | +4.63 |
+| 4 + 2 | **1.20** | 186.8 / 249.1 | 1955 / 1565 | +0.15 % | 48.6 / 37.1 / **48.91** | **+4.60 to +4.62** |
+
+**Findings.**
+- **Shifting thrust to the quiet rotors is nearly free.** Hover power is flat around the equal split, with a shallow minimum at s ≈ 1.04.
+  - In 2 + 4, s = 1.12 lowers the noise by **0.56 dB** (48.07 → 47.51) for at most 0.07 kg.
+  - In 4 + 2, s = 1.20 lowers it by **0.42 dB** for at most 0.03 kg.
+- **The mixed points move onto the straight line.** At 47.51 dBA the line from the two pure hexes gives 2.95 + 0.63 × 1.24 = **+3.73 kg**, and the shifted 2 + 4 gives +3.72 to +3.78. Entry 51's 0.2–0.3 kg shortfall, caused by the louder rotors dominating the dB sum, is recovered by turning those rotors down.
+- **The saving saturates at about 47.5 dBA.** Once the MN1123s are unloaded (rpm 2059 → 1798), the MN1320s' trailing-edge noise sets the floor. Their own level rises with load (38.5 → 39.6 dBA per rotor). Past s ≈ 1.15 the power cost grows quadratically and nothing is gained.
+- **The tones fall much faster than the broadband.** For 2 + 4, tonal drops 37.0 → 32.0 dBA while trailing-edge noise drops only 47.7 → 47.3. Tonal level scales steeply with tip speed, and the A rotors' tip speed falls 13 %. Broadband scales with roughly the fifth power of speed, but four of the six rotors speed up.
+
+**Hand checks.**
+- **Optimum split (the Lagrange condition).** Total power is least when both types have the same marginal power, dP_A/dT = dP_B/dT.
+  - From the BEMT points: A (191.0 → 207.6 N) gives (2141 − 1892)/16.6 = **15.0 W/N**, and B (207.6 → 215.9 N) gives (2141 − 2020)/8.3 = **14.6 W/N**.
+  - They are nearly equal at s ≈ 1.0–1.04 ✓, matching the printed minimum at 1.04.
+  - Momentum theory gives the same answer: with P ∝ T^1.5, dP/dT = 1.5·P/T. At 207.6 N that is 1.5 × 2141/207.6 = 15.5 W/N (A) and 1.5 × 2020/207.6 = 14.6 W/N (B). B's better figure of merit at low tip speed is why the optimum leans slightly toward B ✓.
+- **Thrust balance at s = 1.12.** T_B = 1.12 × 207.6 = 232.5 N, and T_A = (1245.6 − 4 × 232.5)/2 = **157.8 N** ✓.
+- **Noise sum at s = 1.12.** 2 × 10^3.995 + 4 × 10^3.961 = 19,770 + 36,560 = 56,330, and 10 log₁₀ 56,330 = **47.51 dBA** ✓.
+- **Fixed-pitch scaling.** For A, T ∝ rpm² gives rpm = 2059 × √(157.8/207.6) = **1795**, against 1798 printed ✓.
+- **MN1320 hover torque at s = 1.20.** 16.2 N·m, well inside 29.2 N·m.
+
+**Caveats.**
+- The blades are entry 46's, optimised for W/6 each. The unloaded MN1123 blade at 158 N runs at lower α than designed. A blade pair designed together could do better (item 61).
+- Unequal hover rpm puts the two blade-passing frequencies apart: 2 × 1798/60 = 60 Hz and 2 × 1511/60 = 50 Hz. This avoids beating between equal tones. The tonal level is incoherent-summed here, which is right for unequal frequencies.
+- Cruise thrust split is not modelled. The bounds cover it, and they differ by under 0.3 kg.
+
+**Lesson.** Where trim leaves a degree of freedom, use it. Total power is stationary with respect to the split at the optimum (equal marginal power), so moving away from it costs only second-order power. Noise, by contrast, changes to first order. Small departures from the power optimum therefore buy noise almost for free. The same reasoning applies to any distributed-thrust vehicle.
+
+**Next.**
+- Item 61: co-design the two blades for the shifted split.
+- Items 45 (T/W-2 section), 42 (serrations) and 13 (coax re-statement) remain in the queue.
+- The noise-limit question now has a fuller menu for the hex:
+
+  | Hex | Payload | Hover noise |
+  |---|---|---|
+  | MN1123 | +5.46 kg | 50.3 dBA |
+  | 4 + 2, shifted | +4.61 kg | 48.9 dBA |
+  | 2 + 4, shifted | +3.75 kg | 47.5 dBA |
+  | MN1320 | +2.95 kg | 46.3 dBA |
 
