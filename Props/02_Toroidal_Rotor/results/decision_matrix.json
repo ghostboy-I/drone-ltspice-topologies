@@ -14,6 +14,7 @@
    "mass_delta_bemt": -0.5398582153588336,
    "mass_delta_cfd": -3.3925581139264125,
    "mass_delta_mid": -1.966208164642623,
+   "basis": "both",
    "mass_source": "entries 48 / 44 (hex - tri payload)",
    "scores": {
     "mass": 10.0,
@@ -38,7 +39,8 @@
    "mass_delta_bemt": 3.717916032067105,
    "mass_delta_cfd": 0.8652161334995263,
    "mass_delta_mid": 2.2915660827833157,
-   "mass_source": "entry 21 (hex 3-blade change) on top of the hex row",
+   "basis": "mixed",
+   "mass_source": "entry 21 (hex 3-blade change, BEMT) on top of the hex row",
    "scores": {
     "mass": 6.882546255248688,
     "tw15": 8,
@@ -60,6 +62,7 @@
    "mass_delta_bemt": -1.0641449419606772,
    "mass_delta_cfd": -1.0641449419606772,
    "mass_delta_mid": -1.0641449419606772,
+   "basis": "bemt_only",
    "mass_source": "diameter study: drone mass 60 in 58.32 vs 54 in 59.39 kg (U15XL, 303 Wh/kg)",
    "scores": {
     "mass": 9.339528070739691,
@@ -82,6 +85,7 @@
    "mass_delta_bemt": 0.9699999999999991,
    "mass_delta_cfd": 0.9699999999999991,
    "mass_delta_mid": 0.9699999999999991,
+   "basis": "bemt_only",
    "mass_source": "entry 49: Y6 -0.43 + 2.22 vs the tri's +2.76 catalogue gain",
    "scores": {
     "mass": 7.850169453261099,
@@ -104,6 +108,7 @@
    "mass_delta_bemt": 0.0,
    "mass_delta_cfd": 0.0,
    "mass_delta_mid": 0.0,
+   "basis": "both",
    "mass_source": "reference (entry 48 tri V13828 24xx: 44.42 kg; entry 44 tri U15XL: 52.11 kg)",
    "scores": {
     "mass": 8.560383277828455,
@@ -128,6 +133,7 @@
    "mass_delta_bemt": 2.224985186438791,
    "mass_delta_cfd": 2.224985186438791,
    "mass_delta_mid": 2.224985186438791,
+   "basis": "bemt_only",
    "mass_source": "entry 21: 3-blade payload change on the tri",
    "scores": {
     "mass": 6.931295402708449,
@@ -150,6 +156,7 @@
    "mass_delta_bemt": 2.7467674755000715,
    "mass_delta_cfd": 4.193564702071064,
    "mass_delta_mid": 3.4701660887855676,
+   "basis": "range",
    "mass_source": "this project's CFD pair + Props/01 spar model; low: cruise power as the 2-blade, high: cruise +7.8 % like hover",
    "scores": {
     "mass": 6.019599845044596,
@@ -182,6 +189,7 @@
    "mass_delta_bemt": null,
    "mass_delta_cfd": null,
    "mass_delta_mid": null,
+   "basis": "both",
    "mass_source": "infeasible: legs fail the 50 N / 1.2 mm flex test even with frame action (9.2 mm)",
    "scores": {
     "mass": 0.0,
@@ -204,6 +212,7 @@
    "mass_delta_bemt": 11.691650447035329,
    "mass_delta_cfd": 11.691650447035329,
    "mass_delta_mid": 11.691650447035329,
+   "basis": "bemt_only",
    "mass_source": "Airframe 02 frame 32.9 + tilt 2.9 kg vs Airframe 01 frame 8.0 kg; pack 3020 Wh (75.7 Wh/km cruise) vs the tri's 7905 Wh; sized at 127 kg, real ~185 kg",
    "scores": {
     "mass": 0.0,

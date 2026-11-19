@@ -358,11 +358,17 @@ if DM:
         short = {"hex_2blade": "Hex, 2-blade", "hex_3blade": "Hex, 3-blade", "tri_60in": "Tri, 2-blade 60 in", "y6_2blade": "Y6, 2-blade",
                  "tri_2blade": "Tri, 2-blade (current)", "tri_3blade": "Tri, 3-blade", "tri_toroid": "Tri, toroid as built",
                  "tri_toroid_opt1": "Tri, toroid cand. 1", "tilt_tri": "Tilt-tri (Osprey)"}[r_["key"]]
-        rows.append([str(i), short, f"{fm(r_['mass_delta_bemt'])} / {fm(r_['mass_delta_cfd'])}",
+        mk = {"both": "", "bemt_only": " *", "mixed": " **", "range": " r"}.get(r_.get("basis"), "")
+        rows.append([str(i), short, f"{fm(r_['mass_delta_bemt'])} / {fm(r_['mass_delta_cfd'])}{mk}",
                      f"{sc['mass']:.1f}", str(sc["tw15"]), str(sc["noise"]), str(sc["evidence"]), str(sc["risk"]), f"{r_['total']:.2f}"])
     doc.table(["#", "Option", "Mass d [kg]", "Mass", "T/W", "Noise", "Evid.", "Risk", "Total"], rows,
               widths=[0.04, 0.29, 0.17, 0.08, 0.08, 0.08, 0.08, 0.08, 0.10])
-    doc.p("Mass d: BEMT basis / CFD-factor basis, kg against the 2-blade tri (negative is lighter). Scores 0-10, total weighted.")
+    doc.p("Mass d: blade-element basis / CFD-factor basis, kg against the 2-blade tri on the same basis (negative is lighter); scores 0-10, total "
+          "weighted. * blade-element only, the same difference repeated in the CFD column: since the differences are against the tri on the same "
+          "basis, a CFD penalty that hits every layout alike cancels, and in entry 44 the factors improved the hex's difference because the tri "
+          "suffered more, so a repeated cell is neutral to pessimistic unless the option suffers more than the tri. ** hex basis plus a "
+          "blade-element 3-blade increment. r: not two bases but the toroid's own range, from cruise power equal to the 2-blade's to cruise carrying "
+          "the same +7.8 % as hover.")
     doc.img(os.path.join(R_, "fig_decision_matrix.png"), width=6.6)
     tor = next(r_ for r_ in DM["rows"] if r_["key"] == "tri_toroid"); pt = tor["parts"]
     doc.p(f"The toroid's mass, from the CFD pair at equal thrust: power x{pt['power_ratio']:.3f} and torque x{pt['torque_ratio']:.3f}. Blades sized "

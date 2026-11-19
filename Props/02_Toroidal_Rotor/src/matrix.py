@@ -46,22 +46,22 @@ def build(scen="15 m/s"):
     hover_s = 204.0                                          # entry 44: hover-power time of the mission (15 + 120 + 15 s + climb + descent)
     rows = {}
 
-    def row(key, bemt, cfd, src, extra=None):
-        rows[key] = {"d_bemt": bemt, "d_cfd": cfd, "source": src, **(extra or {})}
+    def row(key, bemt, cfd, src, extra=None, basis="both"):
+        rows[key] = {"d_bemt": bemt, "d_cfd": cfd, "source": src, "basis": basis, **(extra or {})}
 
     row("tri_2blade", 0.0, 0.0, "reference (entry 48 tri V13828 24xx: %.2f kg; entry 44 tri U15XL: %.2f kg)" % (e48["sum_tri"], e44["sum_tri"]),
         {"sum_bemt": e48["sum_tri"], "sum_cfd": e44["sum_tri"]})
     row("hex_2blade", -e48["hex_minus_tri"], -e44["hex_minus_tri"], "entries 48 / 44 (hex - tri payload)", {"sum_bemt": e48["sum_hex"], "sum_cfd": e44["sum_hex"]})
     tri_gain_e47 = 2.76                                      # DESIGN_EXPLORATION.md entry 49: the tri gains +2.76 kg in the same catalogue move (entry 47)
     y6 = -(e49["payload_vs_tri_fit"] + e49["payload_change"] - tri_gain_e47)
-    row("y6_2blade", y6, y6, "entry 49: Y6 %.2f + %.2f vs the tri's +%.2f catalogue gain" % (e49["payload_vs_tri_fit"], e49["payload_change"], tri_gain_e47))
+    row("y6_2blade", y6, y6, "entry 49: Y6 %.2f + %.2f vs the tri's +%.2f catalogue gain" % (e49["payload_vs_tri_fit"], e49["payload_change"], tri_gain_e47), basis="bemt_only")
     r3 = {r_["layout"]: r_ for r_ in e21["rows"]}
     d3t = e21["baseline_2blade"]["tri"] - r3["tri"]["payload_end"]; d3h = e21["baseline_2blade"]["hex"] - r3["hex"]["payload_end"]
-    row("tri_3blade", d3t, d3t, "entry 21: 3-blade payload change on the tri")
-    row("hex_3blade", -e48["hex_minus_tri"] + d3h, -e44["hex_minus_tri"] + d3h, "entry 21 (hex 3-blade change) on top of the hex row")
+    row("tri_3blade", d3t, d3t, "entry 21: 3-blade payload change on the tri", basis="bemt_only")
+    row("hex_3blade", -e48["hex_minus_tri"] + d3h, -e44["hex_minus_tri"] + d3h, "entry 21 (hex 3-blade change, BEMT) on top of the hex row", basis="mixed")
     b54, b60 = dia["54"]["best"]["tmotor_u15xl_kv38"]["budget"]["cited_303"], dia["60"]["best"]["tmotor_u15xl_kv38"]["budget"]["cited_303"]
     d60 = b60["drone_kg"] - b54["drone_kg"]
-    row("tri_60in", d60, d60, "diameter study: drone mass 60 in %.2f vs 54 in %.2f kg (U15XL, 303 Wh/kg)" % (b60["drone_kg"], b54["drone_kg"]))
+    row("tri_60in", d60, d60, "diameter study: drone mass 60 in %.2f vs 54 in %.2f kg (U15XL, 303 Wh/kg)" % (b60["drone_kg"], b54["drone_kg"]), basis="bemt_only")
     # toroid, from the two CFD runs at equal thrust
     p_ratio = cr["FoM"] / cf["FoM"]; q_ratio = p_ratio / math.sqrt(cr["CT_h"] / cf["CT_h"])
     blades = 3 * (bsm["toroid"]["fixed-guided equivalent (6.25 N)"]["set_kg"] - bsm["reference_set"])
@@ -74,7 +74,7 @@ def build(scen="15 m/s"):
     lo, hi = blades + motor + esc + pack_h, blades + motor + esc + pack_h + pack_c
     row("tri_toroid", lo, hi, "this project's CFD pair + Props/01 spar model; low: cruise power as the 2-blade, high: cruise +%.1f %% like hover" % (100 * (p_ratio - 1)),
         {"parts": {"power_ratio": p_ratio, "torque_ratio": q_ratio, "blades_flex_test": blades, "motors": motor, "motor_catalogue_step_worst": motor_step,
-                   "escs": esc, "pack_hover": pack_h, "pack_cruise_if_penalised": pack_c}})
+                   "escs": esc, "pack_hover": pack_h, "pack_cruise_if_penalised": pack_c}}, basis="range")
     row("tri_toroid_opt1", None, None, "infeasible: legs fail the 50 N / 1.2 mm flex test even with frame action (%.1f mm)" %
         bsm["toroid_opt1"]["fixed-guided equivalent (6.25 N)"]["leg_deflection_mm"])
     # tilt-tricopter: heavier airframe, much cheaper cruise (wing-borne at 25 m/s)
@@ -82,7 +82,7 @@ def build(scen="15 m/s"):
     pack_tilt = e_tilt / (1 - reserve)
     d_tilt = (a2["mass_airframe_kg"] + a2["vehicle_mass"]["tilt hardware"] - a1["mass_airframe_kg"]) + (pack_tilt - e48["pack_tri"]) / eb
     row("tilt_tri", d_tilt, d_tilt, "Airframe 02 frame %.1f + tilt %.1f kg vs Airframe 01 frame %.1f kg; pack %.0f Wh (%.1f Wh/km cruise) vs the tri's %.0f Wh; sized at 127 kg, real ~185 kg" %
-        (a2["mass_airframe_kg"], a2["vehicle_mass"]["tilt hardware"], a1["mass_airframe_kg"], pack_tilt, s2["cruise"]["wh_per_km"], e48["pack_tri"]))
+        (a2["mass_airframe_kg"], a2["vehicle_mass"]["tilt hardware"], a1["mass_airframe_kg"], pack_tilt, s2["cruise"]["wh_per_km"], e48["pack_tri"]), basis="bemt_only")
     # scores
     w = inp["weights"]; mid = {k: (0.5 * (r_["d_bemt"] + r_["d_cfd"]) if r_["d_bemt"] is not None else None) for k, r_ in rows.items()}
     feas = [v for v in mid.values() if v is not None]; dmin, dmax = min(feas), max(feas)
@@ -91,7 +91,7 @@ def build(scen="15 m/s"):
         r_ = rows[k]; m = mid[k]
         ms = 0.0 if m is None else 10 * (dmax - m) / (dmax - dmin)
         sc = {"mass": ms, "tw15": o["tw15"]["score"], "noise": o["noise"]["score"], "evidence": o["evidence"]["score"], "risk": o["risk"]["score"]}
-        out.append({"key": k, "label": o["label"], "mass_delta_bemt": r_["d_bemt"], "mass_delta_cfd": r_["d_cfd"], "mass_delta_mid": m,
+        out.append({"key": k, "label": o["label"], "mass_delta_bemt": r_["d_bemt"], "mass_delta_cfd": r_["d_cfd"], "mass_delta_mid": m, "basis": r_["basis"],
                     "mass_source": r_["source"], "scores": sc, "total": sum(w[c] * sc[c] for c in w), "why": {c: o[c]["why"] for c in ("tw15", "noise", "evidence", "risk")},
                     **({"parts": r_["parts"]} if "parts" in r_ else {}), **({k2: r_[k2] for k2 in ("sum_bemt", "sum_cfd") if k2 in r_})})
     out.sort(key=lambda r_: -r_["total"])
@@ -144,6 +144,13 @@ def plot(res):
     fig.savefig(os.path.join(RES, "fig_decision_matrix.png"), dpi=140); plt.close(fig)
 
 
+BASIS_NOTE = ("† blade-element only: the same difference is repeated in the CFD column. The differences are taken against the tri on the "
+              "same basis, so a CFD penalty that hits every layout alike cancels; in entry 44 the CFD factors improved the hex's difference "
+              "(-0.5 to -3.4 kg) because the tri suffered more, so a repeated cell is neutral if the option behaves like the tri and pessimistic if "
+              "it behaves like the hex. ◊ hex basis plus a blade-element 3-blade increment. ‡ not two bases: the toroid's own range, from cruise "
+              "power equal to the 2-blade's (low) to cruise carrying the same +7.8 % as hover (high), derived from the CFD pair.")
+
+
 def markdown(res, alt=None):
     f = lambda x: "-" if x is None else f"{x:+.1f}"
     L = ["# Decision matrix (weight first)", "", "Generated by `src/matrix.py` from the result files named in each row; scores and weights in "
@@ -151,9 +158,11 @@ def markdown(res, alt=None):
          "pack against the tricopter with 2-blade 54 in rotors, in kg (negative is lighter), on the plain blade-element basis (entry 48) and "
          "the CFD-factor basis (entry 44); the coarse-nose CFD reads torque high, so the truth is expected between the two.", "",
          "| Rank | Option | Mass Δ BEMT / CFD [kg] | Mass | T/W 1.5 | Noise | Evidence | Risk | **Total** |", "|---|---|---|---|---|---|---|---|---|"]
+    mark = {"both": "", "bemt_only": " †", "mixed": " ◊", "range": " ‡"}
     for i, r_ in enumerate(res["rows"], 1):
         s = r_["scores"]
-        L.append(f"| {i} | {r_['label']} | {f(r_['mass_delta_bemt'])} / {f(r_['mass_delta_cfd'])} | {s['mass']:.1f} | {s['tw15']} | {s['noise']} | {s['evidence']} | {s['risk']} | **{r_['total']:.2f}** |")
+        L.append(f"| {i} | {r_['label']} | {f(r_['mass_delta_bemt'])} / {f(r_['mass_delta_cfd'])}{mark.get(r_.get('basis'), '')} | {s['mass']:.1f} | {s['tw15']} | {s['noise']} | {s['evidence']} | {s['risk']} | **{r_['total']:.2f}** |")
+    L += ["", BASIS_NOTE]
     L += ["", "Weights: " + ", ".join(f"{k} {v:.0%}" for k, v in res["weights"].items()) + ".", "",
           "Ranking against the mass weight (others scaled to fill): " + "; ".join(f"{k}: {' > '.join(v[:3])}" for k, v in res["sensitivity_mass_weight"].items()) + ".", ""]
     if alt:

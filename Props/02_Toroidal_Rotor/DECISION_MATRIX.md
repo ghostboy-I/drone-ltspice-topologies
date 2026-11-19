@@ -7,14 +7,16 @@ Basis: 15 m/s cruise, 10 nmi, semi-solid pack 303 Wh/kg, hot day, 10 % torque re
 | Rank | Option | Mass Δ BEMT / CFD [kg] | Mass | T/W 1.5 | Noise | Evidence | Risk | **Total** |
 |---|---|---|---|---|---|---|---|---|
 | 1 | Hexacopter, 2-blade 54 in | -0.5 / -3.4 | 10.0 | 8 | 9 | 6 | 8 | **8.90** |
-| 2 | Hexacopter, 3-blade 54 in | +3.7 / +0.9 | 6.9 | 8 | 9 | 4 | 8 | **7.14** |
-| 3 | Tricopter, 2-blade 60 in | -1.1 / -1.1 | 9.3 | 6 | 5 | 3 | 4 | **7.07** |
-| 4 | Y6 (coaxial pairs on 3 arms), 2-blade 54 in | +1.0 / +1.0 | 7.9 | 7 | 6 | 4 | 7 | **7.03** |
+| 2 | Hexacopter, 3-blade 54 in | +3.7 / +0.9 ◊ | 6.9 | 8 | 9 | 4 | 8 | **7.14** |
+| 3 | Tricopter, 2-blade 60 in | -1.1 / -1.1 † | 9.3 | 6 | 5 | 3 | 4 | **7.07** |
+| 4 | Y6 (coaxial pairs on 3 arms), 2-blade 54 in | +1.0 / +1.0 † | 7.9 | 7 | 6 | 4 | 7 | **7.03** |
 | 5 | Tricopter, 2-blade 54 in (current design family) | +0.0 / +0.0 | 8.6 | 4 | 3 | 8 | 5 | **6.68** |
-| 6 | Tricopter, 3-blade 54 in | +2.2 / +2.2 | 6.9 | 5 | 4 | 4 | 5 | **5.77** |
-| 7 | Tricopter, toroidal 54 in (as built) | +2.7 / +4.2 | 6.0 | 2 | 4 | 8 | 2 | **4.81** |
+| 6 | Tricopter, 3-blade 54 in | +2.2 / +2.2 † | 6.9 | 5 | 4 | 4 | 5 | **5.77** |
+| 7 | Tricopter, toroidal 54 in (as built) | +2.7 / +4.2 ‡ | 6.0 | 2 | 4 | 8 | 2 | **4.81** |
 | 8 | Tricopter, toroid candidate 1 (thin legs) | - / - | 0.0 | 0 | 4 | 8 | 0 | **1.20** |
-| 9 | Osprey-style tilt-tricopter (Airframe 02) | +11.7 / +11.7 | 0.0 | 1 | 3 | 3 | 2 | **1.00** |
+| 9 | Osprey-style tilt-tricopter (Airframe 02) | +11.7 / +11.7 † | 0.0 | 1 | 3 | 3 | 2 | **1.00** |
+
+† blade-element only: the same difference is repeated in the CFD column. The differences are taken against the tri on the same basis, so a CFD penalty that hits every layout alike cancels; in entry 44 the CFD factors improved the hex's difference (-0.5 to -3.4 kg) because the tri suffered more, so a repeated cell is neutral if the option behaves like the tri and pessimistic if it behaves like the hex. ◊ hex basis plus a blade-element 3-blade increment. ‡ not two bases: the toroid's own range, from cruise power equal to the 2-blade's (low) to cruise carrying the same +7.8 % as hover (high), derived from the CFD pair.
 
 Weights: mass 50%, tw15 20%, noise 10%, evidence 10%, risk 10%.
 
@@ -40,7 +42,7 @@ Ranking against the mass weight (others scaled to fill): 0.3: hex_2blade > hex_3
 - evidence: 6 — blade-element with the CFD factors from the 2-blade run; no hex CFD
 - risk: 8 — survives a motor out; more parts and a larger frame
 
-**Hexacopter, 3-blade 54 in** (total 7.14). Mass: entry 21 (hex 3-blade change) on top of the hex row.
+**Hexacopter, 3-blade 54 in** (total 7.14). Mass: entry 21 (hex 3-blade change, BEMT) on top of the hex row.
 - tw15: 8 — as the 2-blade hex
 - noise: 9 — as the hex, slightly lower tones
 - evidence: 4 — blade-element (entry 21)
