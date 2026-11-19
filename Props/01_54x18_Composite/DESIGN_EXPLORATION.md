@@ -65,7 +65,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 52. ~~Free-speed break-even noise limit~~ (entry 42: with a 12 % reserve the tri's noise is set by its motor, not its cap. The U15XL designs at caps 0.65–0.80 all land at 55.2–55.6 dBA (torque-limited at tip Mach 0.70), and the V13828 at 61.4. At free speed with 303 Wh/kg the hex wins below ≈ 55.5 dBA, it is a tie at 55.2–55.6 (−0.42 to +0.14 kg), and only the V13828's 61.4 dBA gives the tri a clear win.)
 53. **Reserve as the tri's noise knob:** between 0 % reserve (V13828 at 55.9 dBA, +6.87 kg, entry 38) and 12 % (61.4 dBA, +4.37 kg) the reserve moves the tri's noise by 5.5 dB. Sweep the reserve (0–15 %) for both layouts on the free-speed/303 case, and decide on a reserve from a gust/sag requirement rather than a round number.
 44. ~~BEMT calibration on CFD~~ (entry 43: on the toroid session's 2-blade reference, CFD at equal thrust needs 1.16 × the rpm, 1.23 × the torque and 1.42 × the power of plain BEMT. If the CFD torque holds, the hex moves from the MN1123 to the MN1320 and the tri has no 24S motor that holds T/W 2 with a reserve. The additive Δc_d fit, 0.033, does not transfer to other loadings: it doubles the hex's hover power.)
-54. **Re-optimise both layouts under a CFD-consistent model:** the torque and power factors at equal thrust (×1.23, ×1.42) or a loading-dependent correction. The hex would be on the MN1320 or V13828; the tri on the U15XL with no reserve, or not feasible. This gives new absolute payloads; the old ones are 5–10 kg optimistic.
+54. ~~Re-optimise under the CFD factors~~ (entry 44: the hex on the MN1320 keeps its 12 % reserve at 48.0 dBA, losing ≈ 4.3 kg; the tri flies only on the U15XL with no reserve, at tip Mach 0.86 and 57.5 dBA, also losing ≈ 4.3 kg. Hex − tri: +3.4 kg at 15 m/s and 303 Wh/kg, −1.1 at free speed and 303, +1.9 to +8.6 with 200 Wh/kg.) Original: the torque and power factors at equal thrust (×1.23, ×1.42) or a loading-dependent correction. The hex would be on the MN1320 or V13828; the tri on the U15XL with no reserve, or not feasible. This gives new absolute payloads; the old ones are 5–10 kg optimistic.
 55. **A second CFD point to separate thrust and torque error** (needs the CFD machine time, so it is the user's and the toroid session's call): a refined leading-edge mesh of the 2-blade reference (the CT validation found coarse noses inflate torque), or the same mesh at a second rpm or loading, to show whether the 23 % torque excess is physical (3-D, root and tip losses) or a mesh artefact.
 
 ## Entries
@@ -2789,7 +2789,7 @@ The "as built" rows with both corrections are worse still: hover power rises 3�
   | tri U15XL | 44.35 | **54.5** | no (44.35) | **none**, no larger 24S motor in the survey |
 
   If the CFD torque is right, **the tri has no 24S motor that holds T/W 2 with a reserve**. The hex steps up one motor size, +0.65 kg per arm, to a design entry 38 already showed works.
-- **The pack grows too:** 1.42 × the hover power is ≈ +40 % hover energy. That is roughly +2000 Wh for the hex and +3200 Wh for the tri at 15 m/s, about **+7 kg and +10 kg** of battery at 303 Wh/kg. The absolute payloads of entries 10–42 are likely **5–10 kg optimistic**, more for the tri. Cruise is less affected (lower C_T, profile-dominated), so the free-speed rows would shift less; that is not computed here.
+- **The pack grows too** (*corrected in entry 44: the mission has little hover, so the pack grows only ≈ 2.5 %; the payload loss comes from heavier motors and ESCs*): 1.42 × the hover power is ≈ +40 % hover energy. That is roughly +2000 Wh for the hex and +3200 Wh for the tri at 15 m/s, about **+7 kg and +10 kg** of battery at 303 Wh/kg. The absolute payloads of entries 10–42 are likely **5–10 kg optimistic**, more for the tri. Cruise is less affected (lower C_T, profile-dominated), so the free-speed rows would shift less; that is not computed here.
 
 **Hand checks.**
 - **Equal-thrust ratios.** At fixed geometry, BEMT thrust goes as rpm² and power as rpm³, to first order.
@@ -2813,3 +2813,88 @@ The equal-thrust torque and power factors (1.23, 1.42) are the more honest way t
 - Item 54: re-optimise both layouts under the ×1.23 torque, ×1.42 power model: hex on the MN1320 or V13828, tri on the U15XL with no reserve.
 - Item 55: a refined-nose or second-loading CFD of the 2-blade reference to settle the torque. This needs the CFD machine time, so it is the user's and the toroid session's call.
 - The user's open questions remain: cruise speed, battery and noise limit.
+
+## 44 — Both layouts re-optimised with the CFD's equal-thrust factors: the hex keeps its reserve, and the tri survives only without one (2026-11-18)
+
+**Question.** Entry 43 found that the toroid session's 2-blade reference CFD needs more than plain BEMT to make the same thrust:
+
+| Quantity | CFD ÷ plain BEMT |
+|---|---|
+| rpm | **1.156 ×** |
+| torque | **1.229 ×** |
+| power | **1.421 ×** |
+
+If that holds for every rotor, which motors do the two layouts end up on, and how do they rank?
+
+**Method.** src/explore/e44_cfd_factors.py wraps bemt.hover_at_thrust so that every hover and T/W-2 point carries those three factors. The spanwise arrays are left untouched. The wrap applies in all the optimisers (e11/e13 through e37's job()) and in entry 41's chain. Assumptions:
+- The factors are constant across loading and rotor, since they come from one CFD point.
+- Cruise (edgewise) stays plain: no CFD exists for it, and it is profile- and parasite-dominated.
+
+Jobs, all with the hard torque penalty:
+- hex on the MN1320 with the 12 % reserve (28.5 N·m), caps 0.60 and 0.65;
+- hex on the V13828 with the reserve (37.9 N·m), cap 0.60;
+- tri on the U15XL with **no** reserve (50.4 N·m), and with the reserve (44.35 N·m), both at cap 0.70.
+
+The best feasible hex and tri then go through the chain (constant body, 14–30 m/s). It ran on 2 cores at nice 19, beside the toroid CFD.
+
+| Design (CFD factors) | Q_max / limit [N·m] | Fits | Payload [kg] | rpm hover / max | Tip Mach at T/W 2 | P_max [W] | Pack [Wh] | Hardware [kg] | σ | Total [dBA] |
+|---|---|---|---|---|---|---|---|---|---|---|
+| **hex MN1320, 12 % reserve, cap 0.60 / 0.65** | 28.51 / 28.51 | yes | **+0.79** | 1936 / 2733 | 0.55 | 8160 | 5342 | 30.94 | 0.135 | **48.0** |
+| hex V13828, 12 % reserve, cap 0.60 | 33.11 / 37.93 | yes | −1.33 | 1643 / 2324 | 0.47 | 8057 | 5251 | 33.36 | 0.143 | 46.3 |
+| **tri U15XL, no reserve, cap 0.70** | 50.62 / 50.4 | yes (within 1 %) | **−2.64** | 3087 / 4294 | **0.86** | 22762 | 8289 | 24.86 | 0.102 | **57.5** |
+| tri U15XL, 12 % reserve, cap 0.70 | 46.55 / 44.35 | **no** (+5 %) | (−5.31) | 3483 / 4840 | 0.97 | 23596 | 8578 | 26.57 | 0.100 | 61.6 |
+| *plain BEMT, hex MN1123 + reserve (entry 39)* | 19.53 | yes | *+5.06* | 2139 / 2982 | 0.60 | 6099 | 5274 | 26.89 | 0.130 | *50.8* |
+| *plain BEMT, tri U15XL + reserve (entry 40)* | 44.35 | yes | *+1.68* | 2509 / 3486 | 0.70 | 16192 | 7636 | 22.69 | 0.125 | *55.5* |
+
+(The hex payload is in entry 11's frame and the tri's in entry 13's. Compare each layout's change from its plain-BEMT row.)
+
+The chain gives the full-vehicle comparison: hex MN1320 (12 % reserve) against tri U15XL (no reserve), constant body.
+
+| Scenario | hex − tri [kg] | hex / tri mass sum [kg] | Packs [Wh] | Best V [m/s] | Plain BEMT (entries 41/42), tri with reserve |
+|---|---|---|---|---|---|
+| 15 m/s, 303 Wh/kg | **+3.39** | 48.72 / 52.11 | 5185 / 8265 | 15 / 15 | +3.66 |
+| free, 303 Wh/kg | **−1.06** | 46.47 / 45.42 | 4504 / 6234 | 21.2 / 25.0 | −0.42 |
+| 15 m/s, 200 Wh/kg | +8.64 | 57.55 / 66.19 | | | +8.08 |
+| free, 200 Wh/kg | +1.89 | 54.14 / 56.03 | | | +1.88 |
+
+**Findings.**
+- **Both layouts lose about 4.3 kg, and the cause is mostly hardware, not battery.**
+  - Hex: +5.06 → +0.79 kg. Its hardware rises 4.05 kg: six MN1320s at +0.645 kg each = 3.87 kg, plus ESCs sized for 8.2 kW instead of 6.1. The pack rises only 68 Wh.
+  - Tri: +1.68 → −2.64 kg. Its hardware rises 2.17 kg (ESCs for 22.8 kW instead of 16.2) and its pack 653 Wh.
+- **Correction to entry 43.** Entry 43 estimated the pack would grow by ≈ 40 % (+7 to +10 kg) because hover power grows 1.42 ×. That was wrong. The mission has only about 1.5 min of hover (as entry 16 recorded), so a 42 % rise in hover power adds only ≈ 130 Wh to the hex's pack at 15 m/s (5056 → 5185 Wh, +2.5 %). The CFD's cost is in the **torque- and power-sized hardware**: motors, ESCs and blade structure. Cruise energy dominates the pack and was not corrected.
+- **The hex keeps its 12 % reserve on the MN1320 at 48.0 dBA.**
+  - It is torque-bound at T/W 2 (28.51 N·m), so caps 0.60 and 0.65 give the same design.
+  - Moving up again to the V13828 costs 2.1 kg more for 1.7 dB less noise, which is not worth it.
+- **The tri flies only with no torque reserve.**
+  - On the U15XL at its full 50.4 N·m test torque, the T/W-2 point needs a tip Mach of **0.86** (Ω = 22 762/50.62 = 449.7 rad/s), and it makes 57.5 dBA.
+  - With the 12 % reserve it misses even at tip Mach 0.97.
+  - Tip Mach 0.86 is far beyond this BEMT's polar range (M ≤ 0.6) and near drag divergence for a 9–10 % thick section. In reality it would be worse still.
+- **On payload alone the ranking barely moves:** +3.39 kg (hex) at 15 m/s against +3.66 under plain BEMT, and −1.06 kg (tri) at free speed against −0.42.
+  - But it now compares a hex with a 12 % reserve at 48 dBA against a tri with **no reserve** at 57.5 dBA and tip Mach 0.86.
+  - At equal reserve the tri is not feasible at all with a catalogue 24S motor.
+- **Robustness verdict.** Under the CFD's torque and power, the hex is the only layout with a feasible, reserved, quiet design. The tri's free-speed lead of 1.1 kg with a 303 Wh/kg pack rests on running its motor at 100 % of test torque at tip Mach 0.86. If the CFD's torque is real (item 55), this settles the layout for the hex. If it is a mesh artefact, entries 41–42 stand.
+
+**Hand checks.**
+- **Q = P/Ω:**
+  - hex: 8160 W / (2733 × π/30 = 286.2 rad/s) = **28.51 N·m** ✓;
+  - tri: 22 762 / (4294 × π/30 = 449.7) = **50.62 N·m** ✓.
+- **Tip Mach at T/W 2:**
+  - tri: 449.7 × 0.6858 / 357.6 = **0.862** ✓;
+  - hex: 286.2 × 0.6858/357.6 = **0.549** ✓, below cap 0.60, which is why the cap is inactive.
+- **The hex's hardware change:**
+  - motors: 6 × (2.070 − 1.425) = **3.87 kg**;
+  - ESCs: mass ∝ P^0.7, so the ratio is (8160/6099)^0.7 = 1.226, about +23 % on the ESC mass. With entry 10's ESC mass this adds ≈ 0.2 kg over six arms.
+  - Total ≈ 4.07 kg, against **4.05** from the optimiser ✓.
+- **The pack, hover only:**
+  - ΔE_pack ≈ (K_P − 1) × P_hover × t_hover / η_batt. Hex: 0.421 × 13.5 kW = +5.7 kW. The 129 Wh rise corresponds to about 81 s of hover-equivalent energy (5.7 kW × 81 s / 3600 = 128 Wh).
+  - That is consistent with the mission's hover-and-climb phases. Cruise at 15 m/s is uncorrected and holds the rest of the ≈ 5 kWh.
+- **Payload comparison from mass sums:** hex − tri = sum_tri − sum_hex.
+  - 15 m/s, 303: 52.11 − 48.72 = **+3.39** ✓.
+  - Free, 303: 45.42 − 46.47 = **−1.05** ✓.
+
+**Lesson.** Before propagating a correction, ask where it enters the objective. A 42 % hover-power penalty sounds catastrophic, but this mission spends 1.5 min in hover and 30+ min in cruise. The correction mostly acts through the *peak* sizing (motor torque, ESC power, tip speed at T/W 2), not through energy. That sizing is exactly where a layout already at the top of its motor range (the tri) breaks.
+
+**Next.**
+- Item 55, the deciding input: a refined-nose or second-loading CFD of the 2-blade reference, to tell whether the 23 % torque excess is real. This needs the CFD machine, so it is the user's and the toroid session's call; the toroid chain runs until about 23:00.
+- A cruise (edgewise) correction is unknown and would move the free-speed rows. A forward-flight CFD point would be needed.
+- Item 53: sweep the reserve. Item 51: the hex's payload–noise curve on the MN1320.
