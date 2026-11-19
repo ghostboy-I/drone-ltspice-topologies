@@ -30,6 +30,10 @@ Max non-orthogonality is under 65° on both. The few highly skewed faces are the
 limited schemes are the same ones that ran the Caradonna-Tung case, and the guard stops a run that goes non-physical.
 Run the two one after the other, not side by side.
 
+## Decision matrix (weight first)
+
+`DECISION_MATRIX.md` (built by `python3 src/matrix.py` from the result files it names; scores and weights in `matrix_inputs.yaml`). At the 15 m/s design point the **Hexacopter, 2-blade 54 in** ranks first (8.90/10); the toroid ranks 7 of 9 (4.81), about 3.5 kg heavier than the 2-blade tricopter once its legs are sized for the same flex test. Battery chemistry, cruise speed and the T/W sizing move the mass far more than the rotor type.
+
 ## Run the CFD
 
 OpenFOAM cannot run in a path with spaces, so the case lives under `~/OpenFOAM/elijah-callahan-13/run/toroid/toroid_prelim`.
@@ -116,3 +120,7 @@ and split again for the solver.
 | `results/cfd_*.json`, `fig_convergence_*.png` | CFD results (after `post`) |
 | `cfd/<rotor>_prelim/` | Copies of the case setup and logs |
 | `geometry/toroid.stl` | Generated surface (git-ignored; `geometry` rebuilds it) |
+| `src/optimize.py` | CFD-anchored blade-element model: calibrate, bias (both CFD runs), sweeps, candidate forecasts |
+| `src/extract_surface.py` | pvpython: rotor-surface pressure from a decomposed case, for the `loads` stage |
+| `src/matrix.py`, `matrix_inputs.yaml`, `DECISION_MATRIX.md` | The weight-first decision matrix |
+| `results/blade_structure_mass.json` | Toroid and reference blade sets sized by the Props/01 spar model (50 N / 1.2 mm flex test) |

@@ -1,0 +1,40 @@
+{
+ "reference_blade": 0.504748730959779,
+ "reference_set": 1.009497461919558,
+ "toroid": {
+  "cantilever (25 N per leg)": {
+   "leg_kg": 0.39494765180663316,
+   "leg_caps_kg": 0.22750190547544716,
+   "leg_deflection_mm": 4.7435480693747225,
+   "feasible": false,
+   "turns_kg": 0.017576975734637842,
+   "set_kg": 1.6149445586958082
+  },
+  "fixed-guided equivalent (6.25 N)": {
+   "leg_kg": 0.38804913815343045,
+   "leg_caps_kg": 0.22060339182224445,
+   "leg_deflection_mm": 1.2000000002796178,
+   "feasible": true,
+   "turns_kg": 0.017576975734637842,
+   "set_kg": 1.5873505040829974
+  }
+ },
+ "toroid_opt1": {
+  "cantilever (25 N per leg)": {
+   "leg_kg": 0.21086462385110166,
+   "leg_caps_kg": 0.08202202016956098,
+   "leg_deflection_mm": 36.60133397543847,
+   "feasible": false,
+   "turns_kg": 0.010119086213449773,
+   "set_kg": 0.8636966678313062
+  },
+  "fixed-guided equivalent (6.25 N)": {
+   "leg_kg": 0.21075692270870167,
+   "leg_caps_kg": 0.08191431902716098,
+   "leg_deflection_mm": 9.150350634120683,
+   "feasible": false,
+   "turns_kg": 0.010119086213449773,
+   "set_kg": 0.8632658632617062
+  }
+ }
+}

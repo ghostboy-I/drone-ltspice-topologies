@@ -1,0 +1,68 @@
+# Decision matrix inputs (2026-11-18). Mass numbers are READ from result files by src/matrix.py where a file exists; the
+# scores below are judgements, each with its reason. Change a score or a weight here and re-run `python3 src/matrix.py`.
+
+weights:                    # user: "weight should be the biggest factor"
+  mass: 0.50
+  tw15: 0.20                # can it make T/W 1.5 on a real 24S motor (CFD where it exists)
+  noise: 0.10
+  evidence: 0.10            # how much of the number is CFD vs. blade-element vs. concept
+  risk: 0.10                # safety (motor-out), novelty, open structural/flight questions
+
+mission_basis: "15 m/s cruise, 10 nmi, semi-solid pack 303 Wh/kg, hot day, 10 % torque reserve, 54 in rotors unless stated"
+
+# scores 0-10 (10 best). mass is computed, not scored here.
+options:
+  tri_2blade:
+    label: "Tricopter, 2-blade 54 in (current design family)"
+    tw15: {score: 4, why: "CFD (U15XL KV38, 84 V): T/W 1.32 as built; ~1.47-1.54 re-pitched if the coarse-nose torque bias is 17-25 % (marginal)"}
+    noise: {score: 3, why: "60.4 dBA hover (entry 48, V13828 at tip-Mach cap 0.80); 57.5 dBA on the U15XL with CFD factors (entry 44)"}
+    evidence: {score: 8, why: "hover CFD of this blade on this mesh recipe; mass chain from entries 44/48"}
+    risk: {score: 5, why: "simplest, existing design; no motor-out survival (tricopter)"}
+  hex_2blade:
+    label: "Hexacopter, 2-blade 54 in"
+    tw15: {score: 8, why: "motors sized for T/W 2 with the CFD torque factor (entry 44: MN1320 fits with a 12 % reserve); speed headroom not CFD-checked"}
+    noise: {score: 9, why: "50.3 dBA (entry 48), 48.0 dBA with CFD factors (entry 44): ~10 dB below the tri"}
+    evidence: {score: 6, why: "blade-element with the CFD factors from the 2-blade run; no hex CFD"}
+    risk: {score: 8, why: "survives a motor out; more parts and a larger frame"}
+  y6_2blade:
+    label: "Y6 (coaxial pairs on 3 arms), 2-blade 54 in"
+    tw15: {score: 7, why: "MN1320 fits at a 16 % reserve for T/W 2 (entry 49); blade-element only"}
+    noise: {score: 6, why: "not computed; six smaller-loaded rotors like the hex, plus coaxial interaction"}
+    evidence: {score: 4, why: "blade-element with catalogue motors (entries 12, 49); coaxial wake model, no CFD"}
+    risk: {score: 7, why: "survives a motor out; coaxial mast and interference"}
+  tri_3blade:
+    label: "Tricopter, 3-blade 54 in"
+    tw15: {score: 5, why: "same motor family as the 2-blade tri; blade-element only"}
+    noise: {score: 4, why: "lower tonal loading noise with 3 blades; broadband similar"}
+    evidence: {score: 4, why: "blade-element (entry 21); mass driven by the per-blade 50 N / 1.2 mm flex test"}
+    risk: {score: 5, why: "no motor-out; heavier hub; 89 % less hub roll ripple (ride quality)"}
+  hex_3blade:
+    label: "Hexacopter, 3-blade 54 in"
+    tw15: {score: 8, why: "as the 2-blade hex"}
+    noise: {score: 9, why: "as the hex, slightly lower tones"}
+    evidence: {score: 4, why: "blade-element (entry 21)"}
+    risk: {score: 8, why: "survives a motor out"}
+  tri_60in:
+    label: "Tricopter, 2-blade 60 in"
+    tw15: {score: 6, why: "lower disk loading raises the T/W ceiling on the same power (diameter study, blade-element)"}
+    noise: {score: 5, why: "lower tip speed for the same thrust"}
+    evidence: {score: 3, why: "Phase 2 diameter study, before torque-sized catalogue motors and the CFD correction"}
+    risk: {score: 4, why: "no motor-out; longer arms and footprint"}
+  tri_toroid:
+    label: "Tricopter, toroidal 54 in (as built)"
+    tw15: {score: 2, why: "CFD: T/W 1.23 (torque-limited); ~1.40-1.46 re-pitched even if the torque bias is 17-25 %"}
+    noise: {score: 4, why: "estimate only: no free tip vortex (-0 to -2.4 dBA, entry 31 range) and 4 legs (lower tones); doubled trailing-edge length offsets part"}
+    evidence: {score: 8, why: "hover CFD on the same recipe as the 2-blade; forward flight not simulated"}
+    risk: {score: 2, why: "novel closed-loop structure, untested in forward flight, no motor-out; legs fail the flex test as plain cantilevers"}
+  tri_toroid_opt1:
+    label: "Tricopter, toroid candidate 1 (thin legs)"
+    tw15: {score: 0, why: "CFD: T/W 1.19, worse than as built"}
+    noise: {score: 4, why: "as the toroid"}
+    evidence: {score: 8, why: "hover CFD"}
+    risk: {score: 0, why: "legs cannot pass the flex test even with frame action (9 mm vs 1.2 mm)"}
+  tilt_tri:
+    label: "Osprey-style tilt-tricopter (Airframe 02)"
+    tw15: {score: 1, why: "same rotors and motors as the tri; sized at 127 kg but the real vehicle is ~185 kg (wing stalls at 25 m/s)"}
+    noise: {score: 3, why: "hover as the tri"}
+    evidence: {score: 3, why: "concept sizing + FEM screen; mass does not close"}
+    risk: {score: 2, why: "conversion, whirl flutter and transition not modelled; no motor-out"}
