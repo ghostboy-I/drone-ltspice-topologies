@@ -82,6 +82,8 @@ fuselage:
   nose_frac: 0.25           # assumption: ogive nose, 25 % of the length
   tail_frac: 0.30           # assumption: upswept tail cone (V-22 style ramp), 30 %
   gear: tricycle            # v22 look: nose leg + two main legs in sponsons; fixed (no retraction mass)
+  skin: floating            # requirement (user, 2026-11-19): the fairing floats on compliant mounts and carries no
+                            # load; the bonded one-ply skin buckled at 0.01-0.15 of ultimate (fuselage_shell.py)
 
 masses:                     # kg; catalogue values come via Airframe/01 params.yaml (read)
   avionics_kg: 2.0

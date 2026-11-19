@@ -183,11 +183,13 @@ doc.p(f"Airframe {F['mass_airframe_kg']:.1f} kg (wing {F['mass_breakdown'].get('
 
 # ------------------------------------------------------------------------------------------------------------------
 if FS:
+    FSB = J("fuselage_shell_bonded.json") if os.path.exists(os.path.join(R, "fuselage_shell_bonded.json")) else None
     doc.h("9. Fuselage shell FEM (CalculiX)")
-    ne = FS["elements"]; m_ = FS["mass_kg"]
+    ne = FS["elements"]; m_ = FS["mass_kg"]; st = FS["stations"]
     doc.p("The beam screen treats the fuselage as one beam, the keel box, and the skin as a fairing. A shell model asks what a "
-          "beam cannot: does a skin bonded to the keel and frames pick up load, and does its one woven ply survive that; what happens "
-          "where the wing, gear and boom put their loads in; and how the keel turns up the tail ramp to the boom.")
+          "beam cannot: does a skin attached to the keel and frames pick up load, and does its one woven ply survive that; what happens "
+          "where the wing, gear and boom put their loads in; and how the keel turns up the tail ramp to the boom. It was run twice: "
+          "first with the skin bonded (9.1), then, by the user's decision, with the fairing floating (9.2, the current design).")
     doc.bullets([
         f"Mesh: the STL's outer mould line (one shared function), {ne['ESKIN']} skin, {ne['EFLANGE']} keel-flange, {ne['EWEB']} keel-web "
         f"and {ne['EFLOOR']} floor S8R shells, {len(FS['frames_x'])} frames as {ne['EFRAME']} shells; {FS['nodes']} nodes. Each face is homogenised by "
@@ -200,49 +202,92 @@ if FS:
     ])
     doc.eq(r"\min_{f}\ \sum_i |f_i|^2\quad \mathrm{s.t.}\quad \sum_i f_i = F,\quad \sum_i (r_i - r_0)\times f_i = M"
            r"\ \ \Rightarrow\ \ f = A^T (A A^T)^{-1} \{F;\,M\}", note="the patch load; A stacks the identity and the cross-product rows of every node")
+    doc.p(f"Strain margins are against eps_allow = {FS['eps_allow']*1e6:.0f} ue (CAI/OHC, Airframe/01), at ultimate: MS = eps_allow / eps_max - 1.")
+
+    if FSB:
+        doc.h("9.1 First run: skin bonded to keel and frames")
+        rows = []
+        for n_, o in FSB["cases"].items():
+            st_ = o["strain"]; b_ = FSB["skin_buckling"][n_]
+            rows.append([n_.split()[0], f2(st_["ESKIN"]["MS"]), f2(st_["EFLANGE"]["MS"]), f2(st_["EWEB"]["MS"]), f2(st_["EFLOOR"]["MS"]),
+                         f2(st_["EFRAME"]["MS"]), f"{b_['lam_min_clear']:.2f}"])
+        doc.table(["Case", "skin", "keel flange", "keel web", "floor", "frames", "skin buckling factor"], rows,
+                  widths=[0.1, 0.12, 0.14, 0.13, 0.12, 0.12, 0.27])
+        doc.p("The buckling column is a hand check on every skin element's FE membrane loads (axial: curved panel with the SP-8007 "
+              "knockdown or wide column between frames; shear: Donnell with 0.67; R_c + R_s^2 = 1). A factor below 1 means that skin "
+              "panel buckles before ultimate.")
+        lo = min(b['lam_min_clear'] for b in FSB['skin_buckling'].values()); hi = max(b['lam_min_clear'] for b in FSB['skin_buckling'].values())
+        doc.p(f"Bonded, the one woven ply is structural whether intended or not: the wing holds the fuselage by the crowns of two frames, so "
+              f"the crown skin is a direct load path, and it buckles at {lo:.2f}-{hi:.2f} of ultimate, i.e. it would wrinkle in ordinary "
+              "flight. The keel itself passed with room to spare (flange MS +0.8 or more). Two fixes were possible: float the fairing "
+              "(slotted or elastomeric attachments, so the keel-only beam model holds), or make the skin structural (foam-core sandwich or "
+              "stringers, heavier). DECIDED (user, 2026-11-19): float the fairing. params.yaml: fuselage.skin = floating.")
+
+    doc.h("9.2 Current design: floating fairing")
+    doc.p("The skin elements are left out of the analysis; the fairing's mass stays in the loads (it is in the beam model's mass), its "
+          "stiffness does not. Everything is now carried by the keel box (flange, two webs, floor) and the frames.")
     doc.img(img("fig_fuselage_shell.png"), width=6.6)
     cs = FS["cases"]
     rows = []
     for n_, o in cs.items():
-        st_ = o["strain"]; b_ = FS["skin_buckling"][n_]
-        rows.append([n_.split()[0], f2(st_["ESKIN"]["MS"]), f2(st_["EFLANGE"]["MS"]), f2(st_["EWEB"]["MS"]), f2(st_["EFLOOR"]["MS"]),
-                     f2(st_["EFRAME"]["MS"]), f2(min(c["MS"] for c in o["core"].values())), f"{b_['lam_min_clear']:.2f}"])
-    doc.table(["Case", "skin", "keel flange", "keel web", "floor", "frames", "core shear", "skin buckling factor"], rows,
-              widths=[0.08, 0.1, 0.13, 0.12, 0.1, 0.1, 0.13, 0.24])
-    doc.p(f"Strain margins against eps_allow = {FS['eps_allow']*1e6:.0f} ue (CAI/OHC, Airframe/01), at ultimate. The buckling column is the "
-          "hand check on every skin element's FE membrane loads (axial: curved panel with the SP-8007 knockdown or wide column between "
-          "frames; shear: Donnell with 0.67; R_c + R_s^2 = 1). A factor below 1 means that skin panel buckles before ultimate.")
-    h1 = cs["LC1 hover pull-up n=2"]; q = h1["hand_F2_bays"][0]["resultants"]; hb = h1["hand_F2_bays"][0]
-    doc.table(["Hand check", "Hand", "FE", "Diff"], [
-        ["F1 wing reactions = - sum of loads, LC1 z [N]", f1(-h1["applied_N"][2]), f1(h1["reaction_N"][2]), f"{100*(h1['reaction_N'][2]/-h1['applied_N'][2]-1):+.3f} %"],
+        st_, sc = o["strain"], o["strain_clear"]
+        rows.append([n_.split()[0], f2(st_["EFLANGE"]["MS"]), f2(st_["EWEB"]["MS"]), f2(st_["EFLOOR"]["MS"]), f2(st_["EFRAME"]["MS"]),
+                     f2(sc["EFLANGE"]["MS"]), f2(sc["EWEB"]["MS"]), f2(sc["EFRAME"]["MS"]), f2(min(c["MS"] for c in o["core"].values()))])
+    doc.table(["Case", "flange", "web", "floor", "frames", "flange*", "web*", "frames*", "core shear"], rows,
+              widths=[0.08, 0.11, 0.11, 0.11, 0.11, 0.12, 0.12, 0.12, 0.12])
+    xb = st["x_end"]
+    doc.p(f"Columns with * leave out the boom-fitting patch (x < {xb + 0.06:.2f} m, the last 0.06 m before the boom at x = {xb:.2f} m). "
+          f"Wing-attach frames: x = {st['x_f']:.2f} and {st['x_r']:.2f} m.")
+    l5, l4 = cs["LC5 airplane gust n=2.78"], cs["LC4 hard landing one main"]
+    l1 = cs["LC1 hover pull-up n=2"]
+    peak = l1["hand_F2"]
+    doc.p("Where the margins go negative, and why:")
+    doc.bullets([
+        f"Boom fitting. In the first four columns every worst point is at x = -1.25, where the boom's root force and moment enter the end of the keel "
+        f"(LC5 web {l5['strain']['EWEB']['eps_max']*1e6:,.0f} ue, MS {l5['strain']['EWEB']['MS']:+.2f}). With the skin bonded, the whole "
+        "tail-cone shell shared that load; floating, the keel alone takes it, and at the boom it is at its shallowest. The beam model's "
+        "rigid tail-cone link hid this. A boom fitting (a plug that spreads the moment over the end frame and the keel walls) is needed.",
+        f"Wing attach. Away from the boom, the worst points sit at the wing-attach frames, mostly x = {st['x_f']:.2f} m (LC1 web MS "
+        f"{l1['strain_clear']['EWEB']['MS']:+.2f}, LC4 web MS {l4['strain_clear']['EWEB']['MS']:+.2f} at x = {l4['strain_clear']['EWEB']['at'][0]:.2f}). "
+        "The model fixes the frame crowns rigidly, so the whole fuselage load funnels through a few nodes; a carry-through fitting spreads it. "
+        "These numbers are hot spots at an idealised support, not sized structure.",
+        f"Between the fittings. At the cabin cut (x = {peak['x_s']:.2f} m, LC1) the bending strains are only ~"
+        f"{max(abs(peak['crown']['fe']), abs(peak['belly']['fe']))*1e6:.0f} ue; the larger strains are shear, in the webs and at the floor edges. "
+        f"The floor passes in every case (MS {min(o['strain']['EFLOOR']['MS'] for o in cs.values()):+.2f} or more), so does the core shear "
+        f"({min(min(c['MS'] for c in o['core'].values()) for o in cs.values()):+.2f} or more) and so do the frames away from the fittings. "
+        f"LC5's web* {l5['strain_clear']['EWEB']['MS']:+.2f} sits at x = {l5['strain_clear']['EWEB']['at'][0]:.2f} m, just outside the "
+        "excluded patch: that is still the boom load spreading into the keel.",
+    ])
+    q = l1["hand_F2_bays"][0]["resultants"]; hb = l1["hand_F2_bays"][0]
+    doc.table(["Hand check (floating)", "Hand", "FE", "Diff"], [
+        ["F1 wing reactions = - sum of loads, LC1 z [N]", f1(-l1["applied_N"][2]), f1(l1["reaction_N"][2]), f"{100*(l1['reaction_N'][2]/-l1['applied_N'][2]-1):+.3f} %"],
         [f"F2 pitch moment at the cut x = {hb['x_s']:.2f} m, LC1 [N m]", f1(q["M_pitch_statics"]), f1(q["M_pitch_fe"]), f"{100*(q['M_pitch_fe']/q['M_pitch_statics']-1):+.1f} %"],
         [f"F2 yaw moment at the same cut, LC1 [N m]", f1(q["M_yaw_statics"]), f1(q["M_yaw_fe"]), f"{100*(q['M_yaw_fe']/q['M_yaw_statics']-1):+.1f} %"],
-        ["F3 crown strain, plane-sections beam theory, LC1 [ue]", f0(hb["crown"]["beam"]*1e6), f0(hb["crown"]["fe"]*1e6), f"{100*hb['crown']['diff']:+.0f} %"],
+        ["F2 pitch moment, same cut, LC5 [N m]", f1(l5["hand_F2"]["resultants"]["M_pitch_statics"]), f1(l5["hand_F2"]["resultants"]["M_pitch_fe"]),
+         f"{100*(l5['hand_F2']['resultants']['M_pitch_fe']/l5['hand_F2']['resultants']['M_pitch_statics']-1):+.1f} %"],
+        ["F3 floor strain (top of keel box), LC1 [ue]", f0(hb["crown"]["beam"]*1e6), f0(hb["crown"]["fe"]*1e6), f"{100*hb['crown']['diff']:+.0f} %"],
+        ["F3 keel flange strain (bottom), LC1 [ue]", f0(hb["belly"]["beam"]*1e6), f0(hb["belly"]["fe"]*1e6), f"{100*hb['belly']['diff']:+.0f} %"],
     ], widths=[0.55, 0.15, 0.15, 0.15])
     doc.eq(r"N=\sum_i Q_{11,i}\,t_i\,\Delta s_i\,(\varepsilon_x+\nu_{21}\varepsilon_s)_i ,\qquad M_{pitch}=\sum_i Q_{11,i}\,t_i\,\Delta s_i\,(\varepsilon_x+\nu_{21}\varepsilon_s)_i\,(z_i-z_c)",
            note="F2: the FE stress resultants over one row of elements must equal the statics of the loads aft of the cut")
-    doc.p("F1 and F2 hold the model to statics: the reactions close to rounding, and the FE stresses at the prismatic cabin cut carry the moment "
-          "of every load behind it to within a few %. F3 is the instructive failure: plane-sections theory says the stiff keel at the bottom "
-          f"carries the bending and the crown sees {hb['crown']['beam']*1e6:.0f} ue; the FE crown sees {hb['crown']['fe']*1e6:.0f} ue. The "
-          "section does not stay plane. The wing holds the fuselage by the crown of two frames, so the crown skin is a direct load path to the "
-          "support, and the thin, soft skin shear-lags behind the keel. A one-beam model cannot show this.")
+    doc.p("F1 and F2 hold the model to statics: the reactions close to rounding, and the FE stresses at the prismatic cabin cut carry the "
+          "moment of every load behind it to within a few %. (Cuts further aft, on the ramp, are not plane cuts through an inclined keel, "
+          "so only the cabin cut is used.) F3, plane-sections beam theory, misses by a factor of 2-3 even though the moment is right. The "
+          "bay is short (0.30 m between frames) and the floor and flange are wide (0.26 m), so shear lag dominates: the webs carry the "
+          "bending, and the strain falls off toward the middle of the floor and the flange (13 ue at the flange centre line, 66 ue at its "
+          "edges, in LC1). The total is right; the plane-section distribution is not. With the skin bonded, F3 missed the same way "
+          + (f"(crown {FSB['cases']['LC1 hover pull-up n=2']['hand_F2']['crown']['beam']*1e6:.0f} vs {FSB['cases']['LC1 hover pull-up n=2']['hand_F2']['crown']['fe']*1e6:.0f} ue)." if FSB else "."))
     doc.bullets([
-        "Found 1, the skin is structural whether intended or not, and it buckles. Bonded to the frames and keel, the one woven ply picks up crown "
-        f"compression and buckles at {min(b['lam_min_clear'] for b in FS['skin_buckling'].values()):.2f}-{max(b['lam_min_clear'] for b in FS['skin_buckling'].values()):.2f} "
-        "of ultimate, i.e. it would wrinkle in ordinary flight. Decision needed: float the fairing (slotted or elastomeric attachments, so the "
-        "keel-only beam model holds), or make the skin structural (foam-core sandwich or stringers, heavier).",
-        f"Found 2, the boom joint. Spreading the boom root load over the last two rings over-strains the skin there (LC5 skin MS "
-        f"{cs['LC5 airplane gust n=2.78']['strain']['ESKIN']['MS']:+.2f}). The beam model's rigid tail-cone link hides this; the boom needs a "
-        "fitting that takes its moment into the keel and the end frame.",
-        f"Found 3, the keel web next to the wing attach is marginal in the one-wheel landing (LC4 MS {cs['LC4 hard landing one main']['strain']['EWEB']['MS']:+.2f}). "
-        "The support is idealised as fixed frame crowns; a real carry-through fitting spreads that load.",
-        f"Shell structure {sum(m_.values()):.1f} kg (skin {m_['ESKIN']:.2f}, keel webs, floor and flange {m_['EWEB']+m_['EFLOOR']+m_['EFLANGE']:.2f}, "
-        f"frames {m_['EFRAME']:.2f}) against {FS['beam_model_mass_kg']['keel']:.2f} kg keel + {FS['beam_model_mass_kg']['fuselage_fairing']:.2f} kg "
-        "fairing in the beam model: the frames are new mass the screen did not carry.",
+        f"Mass: shell structure {sum(v for k, v in m_.items() if k != 'ESKIN'):.1f} kg (keel webs, floor and flange "
+        f"{m_['EWEB']+m_['EFLOOR']+m_['EFLANGE']:.2f}, frames {m_['EFRAME']:.2f}) plus the {m_['ESKIN']:.2f} kg fairing, against "
+        f"{FS['beam_model_mass_kg']['keel']:.2f} kg keel + {FS['beam_model_mass_kg']['fuselage_fairing']:.2f} kg fairing in the beam model: "
+        "the frames are new mass the screen did not carry. The floating mounts and both fittings will add more.",
         "CalculiX *BUCKLE could not be used: it expands every shell into a brick layer, and a 0.218 mm ply on 25 mm elements is too thin for that. "
-        "It returned 0.995-1.003 for every case, with loads scaled x10 and for an isotropic skin-only model; with a 3 mm skin it gave 68.",
+        "It returned 0.995-1.003 for every case, with loads scaled x10 and for an isotropic skin-only model; with a 3 mm skin it gave 68. "
+        "The floating fairing still sees air loads; it needs a local panel check, not a fuselage-load one.",
         "Beam-model inconsistency found: tiltframe.py hangs the keel under the floor, 0.09 m below the mould line's belly; the shell model puts "
         "it inside, as the fuselage height (payload stack + floor + keel + skin) was derived. It moves the CG and the gear length slightly.",
+        "Next: design the boom fitting and the wing carry-through fitting, model them in the shell model, and re-run.",
     ])
 
 doc.h("10. CFD, and what is still to run")

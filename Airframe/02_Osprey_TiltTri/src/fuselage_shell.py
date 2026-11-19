@@ -27,6 +27,9 @@ Model (x forward, y left, z up; the same axes and origin as tiltframe.py):
   * Materials: each face homogenised by CLT (materials.Laminate) and written transversely isotropic about the
     fuselage axis x (E2 = E3, G12 = G13), Airframe/01's method. A single rectangular orientation (axis 1 = x) is then
     exact on every facet that contains the x direction, which is all of the model except the nose tip.
+  * Fairing: params fuselage.skin. "floating" (user decision, 2026-11-19): the skin rides on compliant mounts and is left
+    out of the stiffness; keel, floor and frames carry everything, as the beam screen assumes. "bonded": the skin is
+    shared with the frames and keel (results/fuselage_shell_bonded.json: it buckled at 0.01-0.15 of ultimate).
   * Support: the wing bolts to the top of the two wing-attach frames. Those nodes are fixed. Everything else is loaded.
 
 Loads. For every load case the beam model is solved with inertia relief (tiltframe.run). The fuselage free body is
@@ -135,6 +138,7 @@ def build_mesh(ctx, d, x_pay):
     rings = [ring(s_of(x), fu, z_top, nfr, nt, d["keel"]) for x in xa]
     np_ = 2 * (NB + NR)
     me = Mesh(); me.rings = rings; me.xa = xa; me.st = st; me.np = np_
+    me.skip = {"ESKIN"} if ctx["p"]["fuselage"].get("skin", "bonded") == "floating" else set()
     # Junctions (web on skin, floor on web, frame on skin) SHARE nodes: CalculiX joins them with a rigid "knot", i.e. a
     # bonded, moment-carrying joint. (Tried: separate nodes tied by *EQUATION, translations only. That pins every
     # corner of the keel box, which then shears like a parallelogram held only by the frames: LC4 web strain went from
@@ -298,8 +302,9 @@ def map_loads(me, case, st):
             ids = [i for i in floor_ids if abs(X[i - 1, 0] - xk) <= 0.15]
         elif kind == "gear":
             ids = [i for i in keel_ids if abs(X[i - 1, 0] - xk) <= 0.06]
-        else:
-            ids = [i for i in range(1, len(X) + 1) if X[i - 1, 0] <= st["x_end"] + 0.03]
+        else:                                                    # boom fitting: keel + end frames
+            live = sorted({n for s_, els in me.el.items() if s_ not in me.skip for _, ns in els for n in ns})
+            ids = [i for i in live if X[i - 1, 0] <= st["x_end"] + 0.03]
         P = X[np.array(ids) - 1]
         fi = patch_forces(P, grp["F"], grp["M"], np.zeros(3))
         for i, v in zip(ids, fi): f[i - 1] += v
@@ -313,6 +318,7 @@ def write_inp(me, secs, qi, foam, cases_f, fixed, path, buckle_case=None):
     L += [f"{i + 1}, {x[0]:.6f}, {x[1]:.6f}, {x[2]:.6f}" for i, x in enumerate(me.X)]
     eid = 1; me.eid = {}
     for eset, els in me.el.items():
+        if eset in me.skip: continue
         kind = els[0][0]
         L.append(f"*ELEMENT, TYPE={kind}, ELSET={eset}")
         for _, ns in els:
@@ -330,7 +336,7 @@ def write_inp(me, secs, qi, foam, cases_f, fixed, path, buckle_case=None):
           f"{foam['E']:.6g}, {foam['E']:.6g}, {foam['E']:.6g}, 0.3, 0.3, 0.3, {foam['G']:.6g}, {foam['G']:.6g}", f"{foam['G']:.6g}, 0."]
     L += ["*MATERIAL, NAME=FRAMEQI", "*ELASTIC", f"{qi['E']:.6g}, {qi['nu']}"]
     for eset, s_ in secs.items():
-        if eset not in me.el or eset.startswith("_"): continue
+        if eset not in me.el or eset.startswith("_") or eset in me.skip: continue
         if len(s_["layers"]) == 1:
             L += [f"*SHELL SECTION, ELSET={eset}, MATERIAL={s_['layers'][0][0]}, ORIENTATION=OX", f"{s_['layers'][0][1]:.6g}"]
         else:
@@ -350,6 +356,7 @@ def write_inp(me, secs, qi, foam, cases_f, fixed, path, buckle_case=None):
         if buckle_case is None:
             L += ["*NODE PRINT, NSET=NFIX, TOTALS=ONLY", "RF"]
             for eset in ("ESKIN", "EFLANGE", "EWEB", "EFLOOR", "EFRAME"):
+                if eset in me.skip: continue
                 L += [f"*EL PRINT, ELSET={eset}", "E"]
             for eset in ("EWEB", "EFLOOR", "EFLANGE"):
                 L += [f"*EL PRINT, ELSET={eset}", "S"]
@@ -414,7 +421,7 @@ def section_check(me, f, ef, eps_by_el, secs, x_s):
     aft = X[:, 0] < x_s
     # one row of elements: the row whose centroids are nearest x_s (a mid-bay station can fall on a node ring, and a
     # +-DX/2 window then catches two rows and doubles every resultant: the first version of this check did that)
-    cx = np.array([v[1][0] for v in ef.values() if v[0] == "ESKIN"])
+    cx = np.array([v[1][0] for v in ef.values() if v[0] in ("ESKIN", "EFLANGE")])
     x_row = cx[np.argmin(abs(cx - x_s))]
     strip = [(eid, v) for eid, v in ef.items() if v[0] != "EFRAME" and abs(v[1][0] - x_row) < 2e-3]
     x_s = float(x_row)
@@ -423,7 +430,7 @@ def section_check(me, f, ef, eps_by_el, secs, x_s):
     def q(mat_, t):
         nu21 = mat_["nu12"] * mat_["E2"] / mat_["E1"]
         return mat_["E1"] * t / (1 - mat_["nu12"] * nu21), nu21
-    Et = {"ESKIN": q(secs["ESKIN"]["mats"]["SKIN"], secs["ESKIN"]["layers"][0][1])}
+    Et = {"ESKIN": q(secs["ESKIN"]["mats"]["SKIN"], secs["ESKIN"]["layers"][0][1])}       # absent from ef when floating
     for k_, m_ in (("EWEB", "FWEB"), ("EFLOOR", "FFLG"), ("EFLANGE", "FFLG")):
         Et[k_] = q(secs[k_]["mats"][m_], 2 * secs[k_]["layers"][0][1])
     rows = []
@@ -507,9 +514,10 @@ def post(me, secs, eps_allow, foam, cases_f, names, pm_kd):
         out = {"reaction_N": B[("total force", "NFIX", t)][0].tolist(), "applied_N": cases_f[name].sum(0).tolist(), "strain": {}, "core": {}}
         eps_x = {}; emax_el = {}
         for eset in ("ESKIN", "EFLANGE", "EWEB", "EFLOOR", "EFRAME"):
+            if eset in me.skip: continue
             A = B[("strains", eset, t)]
             nl = len(secs[eset]["layers"]) if eset in secs else 1
-            worst = (0.0, None)
+            worst = (0.0, None); worst_c = (0.0, None)          # worst_c: outside the boom-fitting patch (x > x_end + 0.06)
             per = {}
             for row in A:
                 eid, ip = int(row[0]), int(row[1])
@@ -519,11 +527,14 @@ def post(me, secs, eps_allow, foam, cases_f, names, pm_kd):
                 pv, exx = inplane(tensor(row[2:8]), t1, t2)
                 e = max(abs(pv[0]), abs(pv[1]))
                 if e > worst[0]: worst = (e, eid)
+                if e > worst_c[0] and c[0] > me.st["x_end"] + 0.06: worst_c = (e, eid)
                 if e > emax_el.get(eid, 0.0): emax_el[eid] = e
                 per.setdefault(eid, []).append(exx)
             eps_x.update({e_: np.mean(np.array(v), axis=0) for e_, v in per.items()})
             c = ef[worst[1]][1]
             out["strain"][eset] = {"eps_max": worst[0], "MS": eps_allow / max(worst[0], 1e-12) - 1, "at": [round(v, 3) for v in c]}
+            cc = ef[worst_c[1]][1]
+            out.setdefault("strain_clear", {})[eset] = {"eps_max": worst_c[0], "MS": eps_allow / max(worst_c[0], 1e-12) - 1, "at": [round(v, 3) for v in cc]}
         for eset in ("EWEB", "EFLOOR", "EFLANGE"):
             A = B[("stresses", eset, t)]
             tmax, at = 0.0, None
@@ -540,7 +551,7 @@ def post(me, secs, eps_allow, foam, cases_f, names, pm_kd):
         out["_emax"] = emax_el
         out["hand_F2"] = out["hand_F2_bays"][0]                  # the prismatic cabin bay (the ramp bays are not plane cuts)
         res[name] = out
-    buck = {name: skin_buckling(me, B, float(k_ + 1), ef, secs["_skin_lam"], pm_kd) for k_, name in enumerate(names)}
+    buck = {} if "ESKIN" in me.skip else {name: skin_buckling(me, B, float(k_ + 1), ef, secs["_skin_lam"], pm_kd) for k_, name in enumerate(names)}
     return res, buck
 
 def figure(me, res, buck, eps_allow):
@@ -548,25 +559,33 @@ def figure(me, res, buck, eps_allow):
     import matplotlib.pyplot as plt
     from matplotlib.colors import LogNorm
     ef = element_frames(me)
+    show = ("ESKIN",) if "ESKIN" not in me.skip else ("EWEB", "EFRAME", "EFLANGE")
     fig = plt.figure(figsize=(12, 6.2))
     gs = fig.add_gridspec(2, 2, width_ratios=[2.3, 1], hspace=0.35, wspace=0.25)
     ax = [fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[1, 0]), fig.add_subplot(gs[:, 1])]
+    what = "skin" if show == ("ESKIN",) else "keel web, flange and frames"
     for a_, name in zip(ax[:2], ("LC1 hover pull-up n=2", "LC5 airplane gust n=2.78")):
         em = res[name]["_emax"]
-        pts = np.array([(ef[e][1][0], ef[e][1][2], v) for e, v in em.items() if ef[e][0] == "ESKIN" and ef[e][1][1] >= 0])
+        pts = np.array([(ef[e][1][0], ef[e][1][2], v) for e, v in em.items() if ef[e][0] in show and ef[e][1][1] >= 0])
         sc = a_.scatter(pts[:, 0], pts[:, 1], c=np.clip(pts[:, 2], 1e-5, None) / eps_allow, s=9, cmap="viridis", norm=LogNorm(0.02, 2))
-        for xf in me.st["frames"]: a_.axvline(xf, color="0.75", lw=0.6, zorder=0)
-        a_.set_title(f"{name.split()[0]} ({' '.join(name.split()[1:])}): skin strain / allowable, left side, ultimate", fontsize=9)
-        a_.set_xlabel("x [m]  (nose left; grey lines = frames)"); a_.set_ylabel("z [m]")
+        for xf in me.st["frames"]: a_.axvline(xf, color="0.85", lw=0.5, zorder=0)
+        a_.set_title(f"{name.split()[0]} ({' '.join(name.split()[1:])}): {what} strain / allowable, left side, ultimate", fontsize=9)
+        a_.set_xlabel("x [m]  (nose left)"); a_.set_ylabel("z [m]")
         a_.set_aspect("equal"); a_.invert_xaxis()
     fig.colorbar(sc, ax=ax[:2], shrink=0.9, label="max principal strain / eps_allow", pad=0.02)
-    h = res["LC1 hover pull-up n=2"]["hand_F2_bays"][0]
-    q = h["resultants"]
     names = list(res)
-    ax[2].bar(range(len(names)), [buck[n]["lam_min_clear"] for n in names], color="#b55")
-    ax[2].axhline(1, color="k", lw=0.8); ax[2].set_yscale("log")
+    if buck:
+        ax[2].bar(range(len(names)), [buck[n]["lam_min_clear"] for n in names], color="#b55")
+        ax[2].axhline(1, color="k", lw=0.8); ax[2].set_yscale("log")
+        ax[2].set_title("skin buckling factor at ultimate (hand, FE loads)", fontsize=9)
+    else:
+        groups = [g for g in ("EFLANGE", "EWEB", "EFLOOR", "EFRAME")]
+        wdt = 0.8 / len(groups)
+        for k_, g in enumerate(groups):
+            ax[2].bar(np.arange(len(names)) + (k_ - 1.5) * wdt, [res[n]["strain"][g]["MS"] for n in names], wdt, label=g[1:].lower())
+        ax[2].axhline(0, color="k", lw=0.8); ax[2].legend(fontsize=8)
+        ax[2].set_title("strain margin of safety at ultimate", fontsize=9)
     ax[2].set_xticks(range(len(names))); ax[2].set_xticklabels([n.split()[0] for n in names])
-    ax[2].set_title("skin buckling factor at ultimate (hand, FE loads)", fontsize=9)
     plt.savefig(os.path.join(RESULTS, "fig_fuselage_shell.png"), dpi=150, bbox_inches="tight"); plt.close(fig)
 
 
@@ -617,6 +636,7 @@ def main(build_only=False, post_only=False):
         print(name)
         print("   reaction", [round(v, 1) for v in o["reaction_N"]], " applied", [round(v, 1) for v in o["applied_N"]])
         for k_, v in o["strain"].items(): print(f"   {k_:8s} eps {v['eps_max']*1e6:7.0f} ue  MS {v['MS']:+6.2f}  at {[float(q) for q in v['at']]}")
+        for k_, v in o["strain_clear"].items(): print(f"   clear {k_:8s} eps {v['eps_max']*1e6:7.0f} ue  MS {v['MS']:+6.2f}  at {[float(q) for q in v['at']]}")
         for k_, v in o["core"].items(): print(f"   core {k_:8s} tau {v['tau_max_Pa']/1e3:6.0f} kPa  MS {v['MS']:+6.2f}  at {[float(q) for q in v['at']]}")
         h = o["hand_F2"]
         print(f"   F2 x={h['x_s']:.3f}: crown beam {h['crown']['beam']*1e6:.0f} ue FE {h['crown']['fe']*1e6:.0f} ue ({h['crown']['diff']:+.1%}); "
@@ -625,8 +645,8 @@ def main(build_only=False, post_only=False):
             q = h["resultants"]
             print(f"      bay x={h['x_s']:+.3f}: statics N {q['N_statics']:7.1f} / FE {q['N_fe']:7.1f} N,  M_pitch {q['M_pitch_statics']:7.1f} / {q['M_pitch_fe']:7.1f} N m,  M_yaw {q['M_yaw_statics']:7.1f} / {q['M_yaw_fe']:7.1f} N m")
             print(f"      bay x={h['x_s']:+.3f}: crown {h['crown']['beam']*1e6:6.0f}/{h['crown']['fe']*1e6:6.0f} ue  belly {h['belly']['beam']*1e6:6.0f}/{h['belly']['fe']*1e6:6.0f} ue (beam/FE)  M_pitch {h['M_pitch']:7.1f} N m")
-        b_ = buck[name]
-        print(f"   skin buckling (hand, FE loads): min factor {b_['lam_min']:.2f} at {b_['at']} (R {b_['R']:.2f} m, N_x {b_['Nx']:.0f} N/m, N_xs {b_['Nxs']:.0f} N/m);"
+        b_ = buck.get(name)
+        if b_: print(f"   skin buckling (hand, FE loads): min factor {b_['lam_min']:.2f} at {b_['at']} (R {b_['R']:.2f} m, N_x {b_['Nx']:.0f} N/m, N_xs {b_['Nxs']:.0f} N/m);"
               f" away from the boom fitting {b_['lam_min_clear']:.2f}; skin area below 1.0: {b_['frac_below_1']:.0%}")
 
 

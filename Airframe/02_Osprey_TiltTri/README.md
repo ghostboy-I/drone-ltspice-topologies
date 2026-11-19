@@ -48,13 +48,16 @@ python3 src/cfd_airfoil2d.py post                         # CFD vs XFOIL -> resu
 | `src/screen.py` | The instant check and the design sweep |
 | `src/geometry.py` | Outer-mould-line STL + figures |
 | `src/make_results.py` | Selected design, hand checks (H1-H3), figures, `results/final.json` |
-| `src/fuselage_shell.py` | Fuselage shell FEM (CalculiX): skin, keel, floor, frames; loads cut from the beam model; hand checks F1-F3 |
-| `src/cfd_airfoil2d.py` | 2-D RANS airfoil cases: C-grid blockMesh, k-omega SST, post-processing against XFOIL |
+| `src/fuselage_shell.py` | Fuselage shell FEM (CalculiX): keel, floor, frames (+ skin if `fuselage.skin: bonded`); loads cut from the beam model; hand checks F1-F3 |
+| `src/cfd_airfoil2d.py` | 2-D RANS airfoil cases: C-grid blockMesh, Spalart-Allmaras, post-processing against XFOIL |
 | `geometry/` | `airframe_hover.stl`, `airframe_airplane.stl`, `rotor_disks_hover.stl`, `wing_section.dat` |
 | `cfd/airfoil2d/` | Case plan; logs and force histories copied back after the runs |
 | `results/` | JSON and figures |
 
 ## Decided
+
+- Fuselage skin (user, 2026-11-19): the fairing floats on compliant mounts and carries no fuselage load (`fuselage.skin:
+  floating`). The bonded one-ply skin buckled at 0.01-0.15 of ultimate; that run is kept in `results/*_bonded.*`.
 
 - Modal rule (user, 2026-11-18): +-15 % bands around 1P / 2P at the two operating points (MTOW hover on a hot day, airplane
   cruise), direction-aware as Airframe/01, instead of 01's envelope band (16.6-78.6 Hz), which no frame this size clears.
@@ -65,8 +68,8 @@ python3 src/cfd_airfoil2d.py post                         # CFD vs XFOIL -> resu
 - Tail-boom + aft-cone download, 8.6 % of the tail rotor's thrust: an airfoil-section boom is the fix.
 - Real vehicle mass (~185 kg) against the 280 lb (127 kg) sizing weight: the wing stalls at ~25 m/s at the real mass.
 - Whirl flutter, prop normal force in airplane mode, transition corridor: not modelled yet.
-- Fuselage shell FEM (done 2026-11-19, `results/fuselage_shell_model.json`): the bonded one-ply skin buckles at 0.01-0.15 of
-  ultimate. Decide: float the fairing, or make the skin structural. The boom joint and the wing carry-through need fittings
-  (skin MS -0.61 at the boom, keel web MS -0.04 at the wing attach).
+- Boom fitting and wing carry-through fitting (fuselage shell FEM, floating fairing): the keel alone fails where the boom enters
+  its shallow tail end (LC5 web MS -0.89) and at the rigidly fixed wing-attach frames (LC4 web MS -0.54). Between them it has a
+  large margin. Design both fittings, add them to `fuselage_shell.py`, re-run.
 - tiltframe.py hangs the keel 0.09 m below the mould line's belly; the shell model puts it inside. Fix and re-sweep.
 - 3-D download CFD: inputs ready, not run.
