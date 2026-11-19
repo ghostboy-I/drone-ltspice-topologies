@@ -32,8 +32,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 18. ~~U15XL torque margin~~ (entry 13: the tri blade re-optimised with the motor gains +1.9 kg and fits the U15XL at T/W 1.99; the hex's lead falls to +0.4 kg)
 19. ~~Y6 blade with the motor in the objective~~ (entry 12: y6 −0.4 kg vs tri; the hex leads by 2.7 kg and 19 % energy)
 20. ~~Tip-Mach sensitivity of the tri~~ (entry 15: 0.71 kg per 0.05 of cap below 0.60; the hex is insensitive down to 0.50, so a stricter cap favours the hex)
-62. **Faired arms in the full chain at free speed** (entry 54): re-run entry 48's free-speed optimum with faired arms on both layouts. The re-picked speed, the hover download and the frame mass enter properly; entry 54 is first-order. At 200 Wh/kg the free-speed case may flip to the hex.
-22. ~~Lighter fairing construction~~ (entry 54: at 15 m/s fairings stay marginal, +0.07 to +0.46 kg on the hex. At the free-speed optimum they are worth hex +0.89 to +1.29 kg and tri +0.26 to +0.34 kg, because arm drag energy scales with V². The best section is t/c 0.5 at every speed and skin except 15 m/s with a heavy skin. At 303 Wh/kg the free-speed tri lead shrinks by ≈ 0.6–1.0 kg; at 200 Wh/kg it becomes about a tie.) Original: (skin < 0.39 kg/m² is the break-even) and thicker sections (t/c 0.5 won at the edge of the sweep)
+62. ~~Faired arms in the full chain at free speed~~ (entry 55: the chain already carried the hex fairing, so entry 54 double-counted. The tri fairing gains +0.25 / +0.46 kg at free speed (303 / 200 Wh/kg) and a lighter hex skin +0.40 kg. Free-speed hex − tri moves by under 0.5 kg and the best speeds don't move. No ranking changes.)
+22. ~~Lighter fairing construction~~ (entries 54–55: a 0.15 kg/m² skin on the hex's existing fairing is worth +0.40 kg at any speed. A tri fairing pays only at free speed, by +0.25 to +0.46 kg. Neither changes a ranking. Entry 54's "free-speed tri lead shrinks" was a double count, corrected in entry 55.)
 23. ~~Re-optimise each layout's blade at its own best-range speed~~ (entry 17: −0.14 kg tri, −0.07 kg hex; the blades are set by hover sizing; tri leads by 3.2 kg at free speed). Still open: re-state the 15 m/s requirement as a minimum
 24. ~~Fuselage drag against pitch attitude~~ (entry 18: a bluff body costs the tri 2.5 kg and the hex 1.5 kg at free speed; a body built nose-down at the cruise attitude recovers it; the tri still leads by 2.2–3.4 kg)
 21. ~~Consolidated layout ranking with uncertainty bands~~ (entry 19: the speed requirement decides it; hex wins at 15 m/s for any pack below 338 Wh/kg, tri wins at free speed for any pack above 177 Wh/kg)
@@ -3503,6 +3503,8 @@ Entry 05's diameter splits are the exception, because they change the disc areas
 
 ## 54 — Arm fairings at the free-speed cruise: drag energy goes as V², and the hex gains about 1 kg (2026-11-18)
 
+> **Correction (entry 55).** The vehicle chain behind entries 17–50 already carries the hex with entry 14's t/c 0.5 fairing (0.35 kg/m² skin) at every speed, and the tri with bare arms. So the hex's +0.89 kg below is already inside entry 48's free-speed numbers, and the "free-speed tri lead shrinks" findings are wrong. The new increments are a lighter hex skin (+0.40 kg) and a tri fairing (+0.25 kg at 303 Wh/kg, +0.46 at 200). Together they leave the free-speed hex − tri within ±0.4 kg of entry 48. The V² scaling, the t/c 0.5 optimum and the break-even skins stand.
+
 **Question.** Entry 14 priced arm fairings at 15 m/s with a 0.35 kg/m² skin and found them nearly payload-neutral (hex +0.07 kg, tri −0.05 kg). Since then the free-speed case has become one of the two deciding scenarios: the hex flies best at 21 m/s and the tri at about 25 m/s (entry 48). Lighter skins also exist. Do fairings matter there?
 
 **Why speed changes the answer (the technique).**
@@ -3578,5 +3580,60 @@ Hover powers come from entry 48's 10 % chain. The sweep covers t/c 0.33–1.0 an
 **Next.**
 - Item 62: the full chain at free speed with faired arms on both layouts, including the 200 Wh/kg case, which may now flip.
 - Items 45, 42 and 61 remain in the queue.
+- The deciders are still the user's questions: is 15 m/s fixed, which battery, what noise limit, and whether to run the refined-nose CFD (item 55).
+
+## 55 — Faired arms in the speed chain, and a correction to entry 54 (2026-11-18)
+
+**What went wrong in entry 54.** Entry 54 priced hex and tri fairings against **bare** arms and concluded that the hex's free-speed gain (+0.89 kg) shrinks the tri's lead. But the vehicle chain used since entry 17 already includes entry 14's best arm option for each layout:
+- in `e16.arm_force_per_q` and the `e17` setup, the **hex flies with the full t/c 0.5 fairing** (0.35 kg/m² skin, with its download and mass);
+- the **tri flies bare**.
+
+The arm term there is a drag area f = D/q, so it already scales correctly with speed. The hex's fairing gain is therefore already inside every free-speed number of entries 48–50. Entry 54 counted it a second time.
+
+**What is genuinely new.**
+- **Hex:** the same fairing with a lighter skin. This is a mass change only: 0.20 kg/m² less over the fairing's 1.97 m² of skin (including the 1.15 factor for ribs and bonding) is **−0.40 kg**.
+- **Tri:** a t/c 0.5 fairing, which entry 14 rejected at 15 m/s but which gains as V².
+
+**Method.** src/explore/e55_fairings_chain.py takes every entry 48 point (24xx and 24xx-64, 14–30 m/s):
+- it adds the tri fairing's cruise saving and broadside download at that speed (entry 54 model), converted with k_c(V) = 0.4884 × 15/V Wh/W and 0.082 Wh/W in hover;
+- it adds the skin mass changes;
+- it **re-picks each layout's best speed**, and gives the payload difference at 303 and 200 Wh/kg.
+- **Regression:** the unmodified basis reproduces entry 48 exactly (+0.54, −3.96, +5.50, −1.33 for 24xx) ✓.
+
+**Results** (hex payload minus tri payload in kg; positive means hex):
+
+| Section, battery, speed | Entry 48 basis (hex faired 0.35, tri bare) | Tri faired 0.35 | Hex skin 0.15, tri bare | Both light skins, tri faired |
+|---|---|---|---|---|
+| 24xx, 303, 15 m/s | +0.54 | +0.60 | +0.93 | +0.91 |
+| 24xx, 303, free | −3.96 | −4.21 | −3.56 | −3.90 |
+| 24xx, 200, 15 m/s | +5.50 | +5.52 | +5.89 | +5.83 |
+| 24xx, 200, free | −1.33 | −1.79 | −0.93 | −1.48 |
+| 24xx-64, 303, 15 m/s | −0.31 | −0.24 | +0.09 | +0.07 |
+| 24xx-64, 303, free | −4.72 | −4.97 | −4.32 | −4.66 |
+| 24xx-64, 200, free | −2.13 | −2.60 | −1.74 | −2.28 |
+
+The best speeds do not move on the 1 m/s grid: hex 21 m/s, tri 25 m/s.
+
+**Findings.**
+- **Fairings change no ranking.**
+  - The tri fairing helps the tri only at free speed, by +0.25 kg (303) or +0.46 kg (200). At 15 m/s it costs the tri 0.02–0.07 kg (entry 14).
+  - The lighter hex skin helps the hex by +0.40 kg at every speed.
+  - With both, the free-speed difference is within 0.15 kg of entry 48.
+- **The 200 Wh/kg free-speed case does not flip.** Entry 54's "≈ tie" claim came from the double count. It stays a tri win of 1.3–2.3 kg.
+- **The light hex skin is a small free gain at 15 m/s.** It moves the 24xx-64 tie (−0.31) to +0.07 to +0.09, a hex edge. Entry 50's usable-pack effect already put that case at hex +0.33. The two add, to about +0.7 kg.
+- **The best speed is insensitive.** Taking about 450 W off the tri's arm drag at 25 m/s does not move its optimum by 1 m/s, because the minimum of mass against speed is flat (entry 48: 37.66 at 25 m/s, 37.72 at 26).
+
+**Hand checks.**
+- **Hex skin.** Entry 14's hex fairing weighs 0.69 kg at 0.35 kg/m², so its area including the 1.15 factor is 0.69/0.35 = 1.97 m². At 0.15 kg/m² the saving is 0.20 × 1.97 = **0.39 kg** ✓ (−3.96 → −3.56 is +0.40).
+- **Tri fairing at 25 m/s, 303 Wh/kg.**
+  - Entry 54 gives 121 Wh of pack saved, which is 121/303.3 = 0.40 kg.
+  - Skin area = 3 × 0.621 × (2 × 0.112 − 0.57 × 0.056) × 1.15 = 0.412 m², so 0.144 kg at 0.35 kg/m².
+  - Net **+0.25 kg** for the tri ✓ (−3.96 → −4.21).
+  - At 200 Wh/kg: 121/200 − 0.144 = **+0.46** ✓ (−1.33 → −1.79).
+
+**Lesson.** Before pricing an improvement, check whether the baseline already contains it. Here the chain had silently adopted entry 14's best option per layout, so "faired against bare" was the wrong comparison for the hex. The earlier physics (V² scaling, t/c 0.5, break-even skins) was right; the bookkeeping was not. A regression row that reproduces the baseline does not catch this. Reading what the baseline *contains* does.
+
+**Next.**
+- Items 45 (T/W-2 section), 42 (serrations) and 61 (co-designed mixed-hex blades) remain in the queue.
 - The deciders are still the user's questions: is 15 m/s fixed, which battery, what noise limit, and whether to run the refined-nose CFD (item 55).
 
