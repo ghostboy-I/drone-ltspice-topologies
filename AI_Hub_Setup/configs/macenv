@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Run a command on the Mac inside ~/claude environment (Claude's sandbox folder).
+# Usage: macenv 'ls -la'     macenv   (no args: interactive shell in that folder)
+set -euo pipefail
+DIR='$HOME/claude environment'
+if [ $# -eq 0 ]; then
+  exec ssh -t mac "cd \"$DIR\" && exec \$SHELL -l"
+fi
+exec ssh mac "cd \"$DIR\" && $*"

@@ -1,0 +1,23 @@
+{
+  "dmPolicy": "allowlist",
+  "allowFrom": [
+    "<YOUR_USER_ID>"
+  ],
+  "groups": {
+    "<REQUESTS_ID>": {
+      "requireMention": false,
+      "allowFrom": [
+        "<YOUR_USER_ID>"
+      ]
+    },
+    "<ANSWERS_ID>": {
+      "requireMention": true,
+      "allowFrom": []
+    },
+    "<FILES_ID>": {
+      "requireMention": true,
+      "allowFrom": []
+    }
+  },
+  "pending": {}
+}

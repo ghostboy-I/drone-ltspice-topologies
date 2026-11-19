@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(./drone-ltspice-topologies/**)",
+      "Glob",
+      "Grep",
+      "Bash(git -C drone-ltspice-topologies pull:*)",
+      "Bash(git -C drone-ltspice-topologies log:*)",
+      "Bash(git -C drone-ltspice-topologies status:*)",
+      "Bash(git -C drone-ltspice-topologies ls-files:*)",
+      "Bash(git -C drone-ltspice-topologies show:*)",
+      "mcp__plugin_discord_discord"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Bash(git -C drone-ltspice-topologies push:*)",
+      "Bash(git -C drone-ltspice-topologies commit:*)",
+      "Bash(gh:*)",
+      "Edit(./drone-ltspice-topologies/**)",
+      "Write(./drone-ltspice-topologies/**)",
+      "Read(~/.claude/channels/**)",
+      "Read(~/.config/gh/**)",
+      "Read(**/.env)"
+    ]
+  }
+}
