@@ -35,6 +35,9 @@ class Doc:
     def img(self, path, width=TEXT_W): self.blocks.append(("img", path, width))
     def figure(self, fn, height): self.blocks.append(("fig", fn, height))
     def pagebreak(self): self.blocks.append(("break",))
+    def sheet(self, path, caption=""):
+        """A full landscape page holding one large image (schematic sheets), embedded at its native resolution."""
+        self.blocks.append(("sheet", path, caption))
 
     # ---- layout -----------------------------------------------------------
     @staticmethod
@@ -62,6 +65,9 @@ class Doc:
         for i, b in enumerate(self.blocks):
             if b[0] == "break":
                 pages.append(cur); cur, y = [], 0.0; continue
+            if b[0] == "sheet":
+                if cur: pages.append(cur)
+                pages.append(b); cur, y = [], 0.0; continue
             hgt = self._height(b)
             # keep headings with the next block: break early if a heading lands near the bottom
             nxt = self.blocks[i + 1] if i + 1 < len(self.blocks) else None
@@ -73,6 +79,8 @@ class Doc:
         title = self.blocks[0][1]
         with PdfPages(path) as pdf:
             for n, page in enumerate(pages, 1):
+                if isinstance(page, tuple):
+                    self._sheet_page(pdf, page, title, n, len(pages)); continue
                 fig = plt.figure(figsize=(PAGE_W, PAGE_H)); fig.patch.set_facecolor("white")
                 for b, y, hgt in page:
                     self._draw(fig, b, PAGE_H - MARGIN_TOP - y, hgt)
@@ -80,6 +88,20 @@ class Doc:
                 fig.text(1 - MARGIN_X / PAGE_W, 0.4 / PAGE_H, f"{n} / {len(pages)}", color=INK2, fontsize=8, ha="right")
                 pdf.savefig(fig); plt.close(fig)
         return len(pages)
+
+    @staticmethod
+    def _sheet_page(pdf, b, title, n, npages):
+        W, H, m = PAGE_H, PAGE_W, 0.45                   # landscape
+        fig = plt.figure(figsize=(W, H)); fig.patch.set_facecolor("white")
+        im = mpimg.imread(b[1]); top = H - m - (0.35 if b[2] else 0); bot = 0.6
+        aw, ah = W - 2 * m, top - bot; ar = im.shape[0] / im.shape[1]
+        w, h = (aw, aw * ar) if aw * ar <= ah else (ah / ar, ah)
+        ax = fig.add_axes([(W - w) / 2 / W, (bot + (ah - h) / 2) / H, w / W, h / H])
+        ax.imshow(im, interpolation="none"); ax.axis("off")
+        if b[2]: fig.text(m / W, (H - m - 0.2) / H, b[2], fontsize=11, weight="bold", color=INK)
+        fig.text(m / W, 0.3 / H, title, color=INK2, fontsize=8)
+        fig.text(1 - m / W, 0.3 / H, f"{n} / {npages}", color=INK2, fontsize=8, ha="right")
+        pdf.savefig(fig); plt.close(fig)
 
     def _draw(self, fig, b, top, hgt):
         X = lambda inch: inch / PAGE_W
@@ -111,6 +133,6 @@ class Doc:
                     fig.add_artist(plt.Line2D([X(MARGIN_X), X(PAGE_W - MARGIN_X)], [Y(yy - 0.09)] * 2, color=RULE, lw=0.8))
         elif k == "img":
             im = mpimg.imread(b[1]); w = b[2]; h = w * im.shape[0] / im.shape[1]
-            ax = fig.add_axes([X(MARGIN_X + (TEXT_W - w) / 2), Y(top - h), X(w), Y(h)]); ax.imshow(im); ax.axis("off")
+            ax = fig.add_axes([X(MARGIN_X + (TEXT_W - w) / 2), Y(top - h), X(w), Y(h)]); ax.imshow(im, interpolation="none"); ax.axis("off")
         elif k == "fig":
             ax = fig.add_axes([X(MARGIN_X), Y(top - b[2]), X(TEXT_W), Y(b[2])]); ax.axis("off"); b[1](ax)

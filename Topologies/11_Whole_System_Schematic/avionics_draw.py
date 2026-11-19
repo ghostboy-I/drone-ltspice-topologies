@@ -133,4 +133,4 @@ if __name__ == "__main__":
     lint = s.lint(); errs = s.verify()
     print(f"{s.name}: {len(s.parts)} parts, {len(s.wires)} wires; lint {len(lint)}; netlist errors {len(errs)}")
     for e in (lint + errs)[:30]: print("   ", e)
-    if "--png" in sys.argv: s.render("avionics_drawn.png", scale=0.3)
+    if "--png" in sys.argv: s.render("avionics_drawn.png", scale=0.3, dpi=220); s.render_areas("avionics_drawn")

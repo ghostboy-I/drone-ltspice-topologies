@@ -87,4 +87,6 @@ D = [
     "!.meas TRAN RPM1 MAX V(MOTOR1:rpm)", "!.meas TRAN V12_esc1 AVG V(ESC1:+12V) FROM 5.5m TO 6m",
 ]
 s.write(directives=D)
+import sys
+if "--png" in sys.argv: s.render("power_system_top.png", scale=0.3, dpi=250)
 print("wrote Power_System.asc + ESC_Block / U15XL_Motor / ACS772 / STM32G431_FOC / Avionics_Block sheets and symbols")
