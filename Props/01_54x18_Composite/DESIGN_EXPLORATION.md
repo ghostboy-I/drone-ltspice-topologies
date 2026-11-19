@@ -66,7 +66,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 53. ~~Reserve sweep~~ (entry 45: per 1 % of torque reserve the hex loses ≈ 0.11 kg and 0.19 dB, the tri ≈ 0.21 kg and 0.45 dB. Hex − tri at 15 m/s and 303 Wh/kg crosses zero at a ≈ 9 % reserve. At free speed the V13828 tri wins at every reserve, by 3.8–4.8 kg (303 Wh/kg) or 1.1–2.2 kg (200), at 7.4–10.6 dB more noise. Magnet heating alone justifies ≈ 10 %.) Original: between 0 % reserve (V13828 at 55.9 dBA, +6.87 kg, entry 38) and 12 % (61.4 dBA, +4.37 kg) the reserve moves the tri's noise by 5.5 dB. Sweep the reserve (0–15 %) for both layouts on the free-speed/303 case, and decide on a reserve from a gust/sag requirement rather than a round number.
 44. ~~BEMT calibration on CFD~~ (entry 43: on the toroid session's 2-blade reference, CFD at equal thrust needs 1.16 × the rpm, 1.23 × the torque and 1.42 × the power of plain BEMT. If the CFD torque holds, the hex moves from the MN1123 to the MN1320 and the tri has no 24S motor that holds T/W 2 with a reserve. The additive Δc_d fit, 0.033, does not transfer to other loadings: it doubles the hex's hover power.)
 54. ~~Re-optimise under the CFD factors~~ (entry 44: the hex on the MN1320 keeps its 12 % reserve at 48.0 dBA, losing ≈ 4.3 kg; the tri flies only on the U15XL with no reserve, at tip Mach 0.86 and 57.5 dBA, also losing ≈ 4.3 kg. Hex − tri: +3.4 kg at 15 m/s and 303 Wh/kg, −1.1 at free speed and 303, +1.9 to +8.6 with 200 Wh/kg.) Original: the torque and power factors at equal thrust (×1.23, ×1.42) or a loading-dependent correction. The hex would be on the MN1320 or V13828; the tri on the U15XL with no reserve, or not feasible. This gives new absolute payloads; the old ones are 5–10 kg optimistic.
-58. **Pack model from cells** (entry 49): the 15 m/s ranking moves 0.03 kg per Wh/kg near 300, so a ±20 Wh/kg uncertainty (±0.8 kg) exceeds the margin. Build the pack's usable specific energy up from cell energy, packaging fraction, hot-day usable fraction and end-of-life fade, for both chemistries.
+59. **Measure the pack** (entry 50): a capacity test of the real 24S 55 Ah pack at 1C and at the hover current (about 2.7C), plus its DC resistance. Two numbers decide the 15 m/s case: whether the nameplate holds within 5 %, and the resistance; the model assumed 1.2 mΩ per cell.
+58. ~~Pack model from cells~~ (entry 50: the usable e_b is 223–299 Wh/kg for semi-solid and 147–197 for LiPo, which is below both 15 m/s break-evens, so the hex wins 15 m/s in every pack state, by +0.3 to +4.4 kg on semi-solid. Free speed stays with the tri on semi-solid, while on LiPo it is a tie within ±2 kg.) Original: (entry 49): the 15 m/s ranking moves 0.03 kg per Wh/kg near 300, so a ±20 Wh/kg uncertainty (±0.8 kg) exceeds the margin. Build the pack's usable specific energy up from cell energy, packaging fraction, hot-day usable fraction and end-of-life fade, for both chemistries.
 57. ~~Full chain on the 10 % designs~~ (entry 48: the frame-shift estimates held to within 0.36 kg. At 15 m/s and 303 Wh/kg it is a tie: hex +0.54 kg with 24xx, tri +0.31 with -64. Break-even batteries at 15 m/s are 322 / 294 Wh/kg, and at free speed 171 / 156 Wh/kg.) Original: (entry 47): replace the frame-shift estimate with an exact hex − tri across speed and battery.
 56. **A hex with mixed motors**, MN1123 on some arms and MN1320 on others: yaw and roll authority need a symmetric layout, so it would be three and three in alternation. This fills the payload–noise curve between 46.3 and 50.3 dBA (entry 46), but the unequal rotors complicate control.
 55. **A second CFD point to separate thrust and torque error** (needs the CFD machine time, so it is the user's and the toroid session's call): a refined leading-edge mesh of the 2-blade reference (the CT validation found coarse noses inflate torque), or the same mesh at a second rpm or loading, to show whether the 23 % torque excess is physical (3-D, root and tip losses) or a mesh artefact.
@@ -3206,3 +3207,94 @@ Hover noise (hex / tri): 50.3 / 60.4 dBA with 24xx, and 50.0 / 59.7 dBA with 24x
 **Next.**
 - Item 58: the pack model. Replace the cited 303 Wh/kg with a cell-to-pack build-up (cell energy, packaging fraction, usable-energy fraction at 45 °C, end-of-life fade) for both chemistries, and redo the curves with that band.
 - Item 55 (refined CFD) and the user's three questions remain the deciders.
+
+## 50 — Usable pack energy, built up from the nameplate: the 15 m/s case goes to the hex in every pack state (2026-11-18)
+
+**Question.** Entry 49 showed the 15 m/s ranking moves about 0.03 kg per Wh/kg near 300 Wh/kg, so the vendor's 303 Wh/kg has to be known to about ±15 Wh/kg. What does a real pack actually deliver to this mission? And does the answer depend on the layout?
+
+**Where 303 Wh/kg comes from.** It is the reseller listing for the MAD 24S 55 Ah semi-solid pack: 4884 Wh / 16.112 kg (data/catalog.yaml). That is already a **pack-level** figure (cells + BMS + case), so there is no cell-to-pack packaging fraction to apply on top. The figure is an unverified claim; the factor f_verify below covers that. The 200 Wh/kg LiPo is also pack-level. The mission's own 20 % landing reserve (mission.py: pack_wh = e_wh/(1 − 0.20)) stays as it was, so it is **not** double-counted here.
+
+**Model.** src/explore/e50_pack_model.py, with no new BEMT:
+
+e_eff = e_nameplate × f_verify × f_usable × f_age
+
+| Factor | Values | Basis |
+|---|---|---|
+| f_verify | 1.00 or 0.95 | nameplate as claimed, or 5 % optimistic (a common gap on reseller figures) |
+| f_usable | per layout, from the mission's currents | I·R loss beyond what the 1C rating already includes |
+| f_age | 1.00 / 0.90 / 0.80 | new / mid-life / end of life (the usual 80 % EOL definition) |
+
+**The usable fraction (the technique).** A pack of resistance R delivering power P at voltage V carries I = P/V and loses I²R. So the fraction of chemical energy that reaches the bus is
+
+f(P) = 1 − I·R/V = 1 − P·R/V².
+
+The nameplate energy is measured at a rated current (taken as 1C = 55 A), which already includes that rate's loss. The extra loss at the mission's current is therefore f(P)/f(P_1C). The model weights hover (204 s) and cruise (18.52 km at 15 m/s, 1235 s) by their energy.
+
+Inputs:
+- V = 24 × 3.7 = 88.8 V;
+- R = 24 × 1.2 mΩ = 28.8 mΩ (an assumed DC resistance for a 55 Ah cell);
+- hover and cruise power from entry 48's 15 m/s points.
+
+| Layout | Hover f | Cruise f | Mission f_usable |
+|---|---|---|---|
+| hex 24xx | 0.969 | 0.989 | **0.985** |
+| tri 24xx | 0.952 | 0.970 | **0.966** |
+
+**The tri loses about 2 % more of its pack,** for two reasons:
+- it draws more power, because its disc loading is higher (cruise 1.7× the hex's per pack);
+- loss scales with P/V², so the fraction lost grows linearly with current.
+
+This is a layout-dependent effect, which a single e_b hides.
+
+**Results** (hex payload minus tri payload in kg; positive means the hex carries more):
+
+| Pack | State | e_eff hex / tri (Wh/kg) | 15 m/s 24xx | 15 m/s -64 | free 24xx | free -64 |
+|---|---|---|---|---|---|---|
+| semi-solid, as claimed | new | 298.6 / 293.1 | **+1.19** | **+0.33** | −3.45 | −4.25 |
+| | mid-life | 268.7 / 263.8 | +2.33 | +1.45 | −2.83 | −3.64 |
+| | end of life | 238.9 / 234.5 | +3.75 | +2.85 | −2.05 | −2.88 |
+| semi-solid, −5 % | new | 283.7 / 278.4 | +1.73 | +0.86 | −3.16 | −3.96 |
+| | end of life | 226.9 / 222.7 | +4.42 | +3.51 | −1.68 | −2.52 |
+| LiPo | new | 196.9 / 193.3 | +6.48 | +5.53 | −0.56 | −1.42 |
+| | mid-life | 177.2 / 173.9 | +8.21 | +7.22 | +0.38 | −0.50 |
+| | end of life | 157.5 / 154.6 | +10.36 | +9.34 | +1.57 | +0.66 |
+| LiPo, −5 % | end of life | 149.6 / 146.9 | +11.38 | +10.34 | +2.00 | +1.09 |
+
+(The full grid of 12 cases is in results/explore/e50_pack_model.json.)
+
+**Findings.**
+- **At 15 m/s the hex wins in every pack state.** Even a new semi-solid pack at its claimed rating delivers at most 299 Wh/kg to this mission, which is below the -64 design's 294 Wh/kg break-even once the tri's extra loss is counted.
+  - The tie of entries 48 and 49 (tri +0.31 kg with -64) becomes **hex +0.33 kg**.
+  - Sizing for end of life is what a real design does, because the vehicle must still fly its mission on an old pack. There the hex leads by **+2.9 to +4.4 kg** on semi-solid.
+- **At free speed the tri still wins on semi-solid,** by 1.7–4.3 kg. Ageing narrows the gap (−3.45 → −2.05 kg) but does not close it.
+- **On LiPo the free-speed case becomes a tie** within ±2 kg. Its sign depends on pack age, so a LiPo design sized for end of life tips slightly to the hex.
+- **The layout dependence is the new piece.** The I·R loss alone is worth about 0.65 kg at 15 m/s. The tri's 7905 Wh pack loses 1.9 % more than the hex's: 7905 × 0.019 / 293 ≈ 0.5 kg of extra pack, plus the hex's own gain. That is the same size as the old margin.
+- **Sensitivity to the resistance assumption.** The usable-fraction gap is proportional to R. Doubling R to 2.4 mΩ per cell, a poor cell or a cold day, roughly doubles the 0.65 kg, which favours the hex further. Halving R halves it, but the hex still wins at 15 m/s in all states except a new pack at its full claim with the -64 section (≈ +0.0 kg).
+
+**Hand checks.**
+- **Hex hover usable fraction.** Entry 48's hex 24xx hover power is 13.3 kW.
+  - I = 13300/88.8 = 150 A, which is 2.7C.
+  - I·R/V = 150 × 0.0288/88.8 = 0.0486, so f = 0.951.
+  - At 1C: 55 × 0.0288/88.8 = 0.0178, so f = 0.982.
+  - Ratio: 0.951/0.982 = **0.969** ✓ (printed 0.9686).
+- **15 m/s, semi-solid new, 24xx.** Hardware is the mass sum minus pack/303.3:
+  - hex: 43.88 − 4995/303.3 = 27.41 kg;
+  - tri: 44.42 − 7905/303.3 = 18.36 kg.
+  - With the effective specific energies: hex 27.41 + 4995/298.6 = 44.14 kg, tri 18.36 + 7905/293.1 = 45.33 kg.
+  - Difference: **+1.19 kg** ✓.
+- **Linear check against entry 49's slope.** Moving both layouts from 303.3 to about 296 Wh/kg is −7 Wh/kg × 0.032 = +0.22 kg. The tri's extra 1.9 % loss adds about +0.5 kg. Starting from +0.54 that gives ≈ +1.2 kg ✓.
+- **End of life, 24xx.** e = 303.3 × 0.80 × 0.985 = 238.9 (hex) and 303.3 × 0.80 × 0.966 = 234.5 (tri).
+  - (18.36 + 7905/234.5) − (27.41 + 4995/238.9) = 52.07 − 48.32 = **+3.75 kg** ✓.
+
+**Caveats.**
+- R is assumed, not measured. Semi-solid cells of this size are usually quoted at 1–1.5 mΩ.
+- Hot-day capacity is not modelled separately. A warm pack typically delivers slightly *more* energy (lower R), and the hard limit on a hot day is cell temperature rise, not capacity. Over a 24-minute mission at 1.6–2.7C, that rise needs a thermal check.
+- The free-speed column is entry 49's curve read at the mean of the two e values, with a first-order correction for their difference. It is accurate to about 0.1 kg (the correction itself is ≈ 0.2 kg).
+
+**Lesson.** Specific energy is not a property of the pack alone. It depends on how hard the vehicle draws on the pack, and a layout with a higher disc loading draws harder and keeps less. When two designs differ in power, compare them at the energy each actually gets, not at one nameplate number.
+
+**Next.**
+- Item 59: measure the real pack (capacity at 1C and at about 2.7C, plus its DC resistance). That one test settles whether the 15 m/s margin is +0.3 kg or +1.7 kg when new.
+- Item 45 proper (a T/W-2 section with transonic polars), item 42 (serration effectiveness) and item 56 (a mixed-motor hex) remain in the queue.
+- The deciders are still the user's three questions: is 15 m/s fixed, which battery, and what noise limit.
+
