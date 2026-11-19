@@ -246,7 +246,7 @@ class Sheet:
         return errs
 
     # -- picture
-    def render(self, png, scale=0.25, region=None, title=None):
+    def render(self, png, scale=0.25, region=None, title=None, dpi=100):
         import matplotlib; matplotlib.use("Agg")
         import matplotlib.pyplot as plt
         from matplotlib.patches import Arc
@@ -311,7 +311,19 @@ class Sheet:
                 wx, wy = p.s.windows.get(3, (24, 48)); tx, ty = T(wx, wy)
                 ax.text(tx, ty + 0, p.value, fontsize=fs * 0.85, color="#555", ha="left", va="center")
         if title: ax.text(x0 + 30, y0 + 40, title, fontsize=fs * 2, weight="bold")
-        fig.savefig(png); plt.close(fig)
+        fig.savefig(png, dpi=dpi); plt.close(fig)
+
+    def render_areas(self, prefix, dpi=250, min_w=1000, pad=40, page=(10.1, 7.2)):
+        """One PNG per numbered frame (the dashed areas with a bold title); returns [(png, title)]."""
+        out = []
+        for i, (x1, y1, x2, y2) in enumerate(self.rects):
+            if x2 - x1 < min_w: continue
+            heads = [t for t in self.texts if t[3] >= 3 and x1 <= t[0] <= x2 and y1 <= t[1] <= y2]
+            name = heads[0][4].lstrip(";").strip() if heads else f"area {i}"
+            png = f"{prefix}_area{len(out) + 1}.png"
+            scale = min(page[0] / ((x2 - x1 + 2 * pad) / 100), page[1] / ((y2 - y1 + 2 * pad) / 100))   # fill a landscape page
+            self.render(png, scale=scale, region=(x1 - pad, y1 - pad, x2 + pad, y2 + pad), dpi=dpi); out.append((png, name))
+        return out
 
 
 # netlist pin order of LTspice's built-in symbols

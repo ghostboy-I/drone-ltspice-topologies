@@ -83,7 +83,7 @@ doc.p("Topology 10 described each board as a parts table and wrote its LTspice s
       "signals. Power_System.asc ties it together: each pack feeds its own ESC and motor, and every pack feeds the avionics board.")
 doc.img(P("power_system_top.png"), width=5.6)
 doc.table(["Sheet", "Contents"], [
-    ["ESC_Block (×3)", "181 parts: DC link, LTC7801, 2 × LT1763, 3 × (LTC7063 + 8 FETs)"],
+    ["ESC_Block (×3)", "189 parts: DC link, LTC7801, 2 × LT1763, 3 × (LTC7063 + 8 FETs)"],
     ["Avionics_Block", "fuses + diode-OR, TVS, LTC4366 surge stopper, LTC7801, LT8641, LT3045"],
     ["ACS772 (U7, U8)", "equivalent circuit: 100 µΩ primary, ratiometric output"],
     ["STM32G431_FOC (U9)", "real pins; FOC firmware as signal flow (ADC → PI → SVPWM)"],
@@ -96,14 +96,14 @@ doc.p("A drawn schematic can be wrong in ways a label list cannot: a wire touchi
       "and pins sitting on the middle of a wire. Then LTspice's own netlister (-netlist) is run on the sheet, and every pin of every part "
       "is compared with the net the parts table assigns it. The mapping must be one-to-one: one LTspice net per table net.")
 doc.table(["Sheet", "Parts", "Wires", "Lint", "Pin errors"], [
-    ["ESC_Block", "181", "427", "0", "0"], ["Avionics_Block", "65", "129", "0", "0"], ["STM32G431_FOC", "54", "52", "0", "0"],
+    ["ESC_Block", "189", "443", "0", "0"], ["Avionics_Block", "76", "130", "0", "0"], ["STM32G431_FOC", "54", "52", "0", "0"],
     ["U15XL_Motor", "20", "26", "0", "0"], ["ACS772", "5", "7", "0", "0"]], widths=[0.3, 0.15, 0.15, 0.15, 0.25])
 doc.p("The check found three real errors while the sheets were being drawn: a bootstrap diode placed reversed (its anode, labelled +12V, "
       "landed on the phase node and shorted 12 V to all three phases), and two rails (VIN_AV, VTX_12V) with no label, which left a FET "
       "drain and a load on unnamed islands. It also caught two netlist conventions worth knowing: LTspice names a MOSFET 'M§Q4' and a "
       "block 'X§U7', and a symbol whose pins skip SpiceOrder numbers gets MP_ placeholder nodes in the gaps.")
 doc.img(P("esc_drawn.png"), width=6.6)
-doc.p("ESC_Block as drawn (preview render; LTspice also shows pin names).", size=8.5)
+doc.p("ESC_Block as drawn (preview render; LTspice also shows pin names). Full-size pages of every sheet, one per numbered area, are in section 8.", size=8.5)
 
 doc.h("3. Power-up")
 doc.p("Every pack starts at 0 V and ramps to 88.8 V in Tplug = 1 ms (a stand-in for the anti-spark pre-charge). The ESC bus is "
@@ -170,4 +170,13 @@ doc.bullets([
     "Ratiometric sensors move with their supply: calibrate the zero at boot, or measure the supply. Standstill current limiting is where "
     "the error shows.",
 ])
+doc.h("8. The schematic sheets, full size")
+doc.p("The pages that follow are landscape and high resolution, so zoom in on screen. Each sheet appears once whole, then one page per numbered "
+      "area (the dashed frames). Wires are blue, net labels red, junctions are dots.")
+import esc_draw, avionics_draw
+doc.sheet(P("power_system_top.png"), "Power_System.asc: top sheet")
+for name, mk, pre in (("ESC_Block.asc", esc_draw.esc_sheet, "esc_drawn"), ("Avionics_Block.asc", avionics_draw.sheet, "avionics_drawn")):
+    doc.sheet(P(pre + ".png"), f"{name}: whole sheet")
+    for png, area in mk().render_areas(P(pre)):
+        doc.sheet(png, f"{name}, area {area}")
 n = doc.save(P("11_Whole_System_Schematic_Design.pdf")); print("pages:", n)

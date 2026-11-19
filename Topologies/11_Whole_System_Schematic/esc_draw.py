@@ -347,4 +347,4 @@ if __name__ == "__main__":
         print(f"{sh.name}: {len(sh.parts)} parts, {len(sh.wires)} wires; lint {len(lint)}; netlist errors {len(errs)}")
         for e in (lint + errs)[:25]: print("   ", e)
     if "--png" in sys.argv:
-        s.render("esc_drawn.png", scale=0.22)
+        s.render("esc_drawn.png", scale=0.22, dpi=220); s.render_areas("esc_drawn")
