@@ -3637,3 +3637,68 @@ The best speeds do not move on the 1 m/s grid: hex 21 m/s, tri 25 m/s.
 - Items 45 (T/W-2 section), 42 (serrations) and 61 (co-designed mixed-hex blades) remain in the queue.
 - The deciders are still the user's questions: is 15 m/s fixed, which battery, what noise limit, and whether to run the refined-nose CFD (item 55).
 
+## 56 — Where the layout decision stands: one table combining entries 48–55 (2026-11-19)
+
+**Purpose.** Entries 48–55 each moved the hex-versus-tri payload difference a little: usable pack energy, fairing skins, the tri fairing, and two corrections. This entry applies all of them together to entry 48's chain, so there is one current number per decision scenario. It is not a new model.
+
+**What is combined** (src/explore/e56_current_estimate.py):
+- **Base.** Entry 48's 10 %-reserve chain points: catalogue motors, constant body, hex with entry 14's t/c 0.5 fairing, tri with bare arms, 24xx and 24xx-64 sections, 14–30 m/s.
+- **Entry 50: usable specific energy per layout.** e = e_nameplate × f_age × f_usable, with f_usable = 0.985 for the hex and 0.966 for the tri (I·R loss at mission current). "End of life" means f_age = 0.80.
+- **Entry 55: arm fairings.**
+  - The hex fairing with a 0.15 kg/m² skin, which is −0.39 kg.
+  - The tri may take a t/c 0.5 fairing (0.15 kg/m²) at any speed where it is lighter.
+- **Speed.** "15" holds 15 m/s. "Free" re-picks each layout's best speed for every pack state.
+
+**Current estimate** (hex payload minus tri payload in kg; positive means hex):
+
+| Battery, state | 15 m/s, 24xx | 15 m/s, 24xx-64 | Free speed, 24xx | Free speed, 24xx-64 |
+|---|---|---|---|---|
+| Semi-solid 303, new | **+1.56** | **+0.70** | **−3.47** | **−4.23** |
+| Semi-solid 303, end of life | +4.10 | +3.20 | −2.19 | −2.97 |
+| LiPo 200, new | +6.81 | +5.85 | −0.82 | −1.63 |
+| LiPo 200, end of life | +10.66 | +9.63 | **+1.13** | **+0.28** |
+
+Best speeds stay at hex 21 m/s and tri 25 m/s in every free-speed row.
+
+**Hover noise at 50 m** (entries 46–52, not re-scored here):
+
+| Design | Hover noise |
+|---|---|
+| Hex, MN1123 (the chain's motor class) | ≈ 50.3 dBA |
+| Hex, 4 + 2 mix | 48.9 dBA |
+| Hex, 2 + 4 mix | 47.5 dBA |
+| Hex, MN1320 | 46.3 dBA |
+| Tri, V13828 | ≈ 60 dBA |
+| Tri, U15XL | 55.4 dBA |
+
+**What the table says.**
+1. **If 15 m/s is the cruise speed, the hex wins in every state.** The margin runs from +0.7 kg (a new semi-solid pack with the 24xx-64 section) to more than 10 kg (an old LiPo). It is also about 10 dB quieter. The old "15 m/s / 303 is a tie" (entry 48) is gone, because two small effects both favour the hex:
+   - the tri's higher current costs it about 2 % of its pack (entry 50);
+   - the hex's existing fairing can use a lighter skin (entry 55).
+2. **If the vehicle may cruise at its best speed, the tri wins on the semi-solid pack,** by 2.2–4.2 kg, at about 10 dB more hover noise. On LiPo the result depends on pack age: the tri wins by 0.8–1.6 kg when new, and the hex wins by 0.3–1.1 kg at end of life.
+3. **A noise limit below about 55 dBA removes the tri** whatever the speed. Its quietest option, the U15XL at 55.4 dBA, gives up about 2.7 kg against the V13828 (entry 40). That turns the free-speed semi-solid case to about −0.8 to −1.5 kg, a near tie.
+4. **The unknowns ranked by how much they move the answer:**
+
+   | Question | Swing |
+   |---|---|
+   | Cruise speed: fixed 15 m/s or free | ≈ 5 kg |
+   | Battery chemistry | ≈ 5 kg at 15 m/s, ≈ 2.7 kg at free speed |
+   | Sizing for new or end-of-life pack | ≈ 2.5 kg |
+   | Noise limit | ≈ 2.7 kg on the tri |
+   | CFD calibration (entry 44) | ≈ 1–3 kg |
+   | Section choice (24xx or 24xx-64) | ≈ 0.8 kg |
+
+   No further rotor refinement in this series is likely to move a decision as much as any of the first four.
+
+**Hand check: 24xx, semi-solid new, 15 m/s.**
+- Entry 50 gives +1.19 kg (usable energy per layout).
+- Entry 55's light hex skin adds +0.39 kg.
+- The tri's 15 m/s fairing with a light skin gives the tri +0.02 kg (entry 54: t/c 0.5, 0.15 kg/m² at 15 m/s).
+- Total: 1.19 + 0.39 − 0.02 = **+1.56 kg** ✓.
+
+**Lesson.** After a run of small corrections, put them together in one place. Individually each looked marginal: −0.65, +0.40, −0.25 kg. Together they move the 15 m/s case from a tie to a clear hex win. A clean summary also shows which open questions matter. Here every remaining swing larger than a kilogram is a requirement, not a design variable.
+
+**Next.**
+- The queue's remaining rotor items (45, 42, 61) are each worth under 1 kg.
+- Until the user answers the speed, battery and noise questions, the loop will take the cheaper items and checks first.
+
