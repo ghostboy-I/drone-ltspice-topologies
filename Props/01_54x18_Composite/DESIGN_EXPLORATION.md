@@ -32,7 +32,8 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 18. ~~U15XL torque margin~~ (entry 13: the tri blade re-optimised with the motor gains +1.9 kg and fits the U15XL at T/W 1.99; the hex's lead falls to +0.4 kg)
 19. ~~Y6 blade with the motor in the objective~~ (entry 12: y6 −0.4 kg vs tri; the hex leads by 2.7 kg and 19 % energy)
 20. ~~Tip-Mach sensitivity of the tri~~ (entry 15: 0.71 kg per 0.05 of cap below 0.60; the hex is insensitive down to 0.50, so a stricter cap favours the hex)
-22. Lighter fairing construction (skin < 0.39 kg/m² is the break-even) and thicker sections (t/c 0.5 won at the edge of the sweep)
+62. **Faired arms in the full chain at free speed** (entry 54): re-run entry 48's free-speed optimum with faired arms on both layouts. The re-picked speed, the hover download and the frame mass enter properly; entry 54 is first-order. At 200 Wh/kg the free-speed case may flip to the hex.
+22. ~~Lighter fairing construction~~ (entry 54: at 15 m/s fairings stay marginal, +0.07 to +0.46 kg on the hex. At the free-speed optimum they are worth hex +0.89 to +1.29 kg and tri +0.26 to +0.34 kg, because arm drag energy scales with V². The best section is t/c 0.5 at every speed and skin except 15 m/s with a heavy skin. At 303 Wh/kg the free-speed tri lead shrinks by ≈ 0.6–1.0 kg; at 200 Wh/kg it becomes about a tie.) Original: (skin < 0.39 kg/m² is the break-even) and thicker sections (t/c 0.5 won at the edge of the sweep)
 23. ~~Re-optimise each layout's blade at its own best-range speed~~ (entry 17: −0.14 kg tri, −0.07 kg hex; the blades are set by hover sizing; tri leads by 3.2 kg at free speed). Still open: re-state the 15 m/s requirement as a minimum
 24. ~~Fuselage drag against pitch attitude~~ (entry 18: a bluff body costs the tri 2.5 kg and the hex 1.5 kg at free speed; a body built nose-down at the cruise attitude recovers it; the tri still leads by 2.2–3.4 kg)
 21. ~~Consolidated layout ranking with uncertainty bands~~ (entry 19: the speed requirement decides it; hex wins at 15 m/s for any pack below 338 Wh/kg, tri wins at free speed for any pack above 177 Wh/kg)
@@ -3498,5 +3499,84 @@ Entry 05's diameter splits are the exception, because they change the disc areas
 
 **Next.**
 - Items 45 (T/W-2 section), 42 (serrations) and 61 (co-designed mixed-hex blades) remain in the queue.
+- The deciders are still the user's questions: is 15 m/s fixed, which battery, what noise limit, and whether to run the refined-nose CFD (item 55).
+
+## 54 — Arm fairings at the free-speed cruise: drag energy goes as V², and the hex gains about 1 kg (2026-11-18)
+
+**Question.** Entry 14 priced arm fairings at 15 m/s with a 0.35 kg/m² skin and found them nearly payload-neutral (hex +0.07 kg, tri −0.05 kg). Since then the free-speed case has become one of the two deciding scenarios: the hex flies best at 21 m/s and the tri at about 25 m/s (entry 48). Lighter skins also exist. Do fairings matter there?
+
+**Why speed changes the answer (the technique).**
+- **Drag power and drag energy.** A drag area C_d·S costs power P = ½ρV³·C_d·S/η, and the cruise lasts range/V. So the **energy** spent on the arms over a fixed range scales as **V²**.
+- **What that means here:**
+  - at 21 m/s a fairing saves (21/15)² = **1.96×** the energy it saved at 15 m/s;
+  - for the tri at 25 m/s, (25/15)² = **2.78×**.
+- **Pack per watt.** The mission model's cruise conversion falls as 1/V:
+
+  k_c(V) = (range/V)/3600/η_pack/(1 − reserve) = 0.4884 × 15/V Wh per W.
+
+- **The envelope theorem.** Adding fairings lowers drag, so the best speed itself moves. But at an optimum the payload is stationary with respect to speed. So the first-order effect of a small parameter change can be evaluated *at the old best speed*. Re-optimising the speed adds only a second-order gain, which is why this study can hold V fixed.
+
+**Method.** src/explore/e54_fairings_speed.py, with no new BEMT. It reuses entry 14's model:
+- arm geometry: hex 66 mm × 1.26 m, tri 56 mm × 0.62 m;
+- cross-flow drag with sin³φ;
+- Hoerner's section drag, Cd_c = 2C_f[1 + 2(t/c) + 60(t/c)⁴];
+- hover download on the broadside fairing at Cd 1.5;
+- skin mass = areal mass × 1.15 over (2c − 0.57d).
+
+Hover powers come from entry 48's 10 % chain. The sweep covers t/c 0.33–1.0 and skins of 0.15 kg/m² (one ply of light carbon or aramid over foam), 0.25, 0.35 (entry 14) and 0.50. Pack is priced at 303 Wh/kg.
+
+**Regression.** Hex, 15 m/s, t/c 0.5, 0.35 kg/m² gives **+0.07 kg** with a break-even skin of **0.39 kg/m²**. Both match entry 14 ✓.
+
+**Best fairing per case** (payload change against bare arms, at 303 Wh/kg):
+
+| Layout, speed | Bare arms [W] | Best t/c | Faired arms [W] | Pack saved [Wh] | 0.35 kg/m² skin | 0.15 kg/m² skin | Break-even skin |
+|---|---|---|---|---|---|---|---|
+| hex, 15 m/s | 606 | 0.5 | 84 | 230 | +0.07 kg | +0.46 kg | 0.39 kg/m² |
+| **hex, 21 m/s** | **1663** | 0.5 | 215 | **480** | **+0.89 kg** | **+1.29 kg** | 0.80 kg/m² |
+| tri, 15 m/s | 127 | 0.75 | 49 | 25 | −0.00 kg | +0.05 kg | 0.33 kg/m² |
+| **tri, 25 m/s** | **587** | 0.5 | 76 | **121** | **+0.26 kg** | **+0.34 kg** | 0.97 kg/m² |
+
+**Thickness sweep, hex at 21 m/s** (0.35 kg/m² skin):
+
+| t/c | Cd_t on the tube diameter | Arms [W] | Download [% W] | Payload [kg] |
+|---|---|---|---|---|
+| 0.33 | 0.089 | 124 | 3.83 | +0.51 |
+| **0.50** | 0.155 | 215 | 2.53 | **+0.89** |
+| 0.75 | 0.419 | 581 | 1.68 | +0.79 |
+| 1.00 | 0.977 | 1354 | 1.26 | +0.05 |
+
+**Findings.**
+- **At the free-speed optimum, fairings are worth about a kilogram on the hex:** +0.89 kg with entry 14's skin, +1.29 kg with a light one. At 15 m/s the same fairing is worth only +0.07 to +0.46 kg. The tri gains much less (+0.26 to +0.34 kg): its arms are half as long and lie entirely under its discs.
+- **This narrows the free-speed tri lead.**
+  - At 303 Wh/kg the hex − tri shift is (0.89 − 0.26) = +0.6 kg (0.35 kg/m² skin) to (1.29 − 0.34) = +0.95 kg (0.15 kg/m²). So entry 48's tri +3.96 kg (24xx) becomes **≈ tri +3.0 to +3.4 kg**.
+  - At 200 Wh/kg the saved pack is worth 1.5× more per Wh:
+    - hex 480/200 − 0.29 = +2.11 kg and tri 121/200 − 0.06 = +0.55 kg, a shift of +1.56 kg;
+    - entry 48's tri +1.33 kg (24xx) becomes **≈ hex +0.2 kg, a tie**;
+    - tri +2.14 (-64) becomes ≈ tri +0.6 kg.
+- **t/c 0.5 is the optimum, not an edge artefact.** Entry 14's sweep stopped at 0.5. Thicker sections cut the hover download (1.7 % at 0.75), but past about 0.6 Hoerner's pressure-drag term (60(t/c)⁴) grows faster than the download falls. Only in the low-value case (15 m/s, heavy skin) does 0.75 edge ahead.
+- **At free speed the break-even skin is 0.80 kg/m²** on the hex, more than double any sensible construction. Even a heavy thermoformed skin pays there. The fairing decision therefore depends on the cruise-speed question, not on construction.
+
+**Hand checks.**
+- **Bare-arm drag scales as V³.** 606 × (21/15)³ = 606 × 2.744 = **1663 W** ✓.
+- **Cruise conversion.** The 18.52 km range takes 18520/21 = 882 s. Then 882/3600/0.878/0.8 = **0.349 Wh/W** ✓ (0.4884 × 15/21 = 0.3489).
+- **Hex, 21 m/s, t/c 0.5.**
+  - Cruise saving (1663 − 215) × 0.349 = 505 Wh.
+  - The broadside download (2.53 % against 1.01 % bare) costs the same 25 Wh as at 15 m/s, since hover does not depend on cruise speed.
+  - Net **480 Wh** ✓. That is 480/303.3 = 1.58 kg of battery.
+  - The fairing is 0.35 × 1.15 × 6 × 1.259 × (2 × 0.132 − 0.038) = 0.69 kg, giving **+0.89 kg** ✓.
+- **Section drag at t/c 0.5, 21 m/s.**
+  - c = 0.132 m, Re = 21 × 0.132/1.75×10⁻⁵ = 1.58×10⁵, C_f = 0.074 × Re^−0.2 = 0.00675.
+  - Cd_c = 0.0135 × (1 + 1 + 3.75) = 0.0776, so Cd_t = 0.0776/0.5 = **0.155** ✓.
+
+**Caveats.**
+- First order only. The re-picked speed, which is a little faster with less drag, and the fairing's extra frame mass are left for item 62.
+- Hoerner's formula is for attached flow on streamlined sections. At t/c 1.0 it is an extrapolation, but it lands close to the bare tube's Cd 1.2, as it should.
+- The free-speed tri at 25 m/s flies its disc at a higher advance ratio. Its arm wake environment is not modelled beyond entry 14's.
+
+**Lesson.** A drag term's value is not fixed: its energy cost scales as V² over a fixed range. A fairing that is pointless at 15 m/s is worth a kilogram at 21 m/s. So the cruise-speed requirement does not just pick the layout; it also decides which detail refinements pay. The envelope theorem is what allows a first-order answer without re-optimising the speed.
+
+**Next.**
+- Item 62: the full chain at free speed with faired arms on both layouts, including the 200 Wh/kg case, which may now flip.
+- Items 45, 42 and 61 remain in the queue.
 - The deciders are still the user's questions: is 15 m/s fixed, which battery, what noise limit, and whether to run the refined-nose CFD (item 55).
 
