@@ -66,7 +66,7 @@ study (no CFD), with a script in `src/explore/`, results in `results/explore/`, 
 53. ~~Reserve sweep~~ (entry 45: per 1 % of torque reserve the hex loses ≈ 0.11 kg and 0.19 dB, the tri ≈ 0.21 kg and 0.45 dB. Hex − tri at 15 m/s and 303 Wh/kg crosses zero at a ≈ 9 % reserve. At free speed the V13828 tri wins at every reserve, by 3.8–4.8 kg (303 Wh/kg) or 1.1–2.2 kg (200), at 7.4–10.6 dB more noise. Magnet heating alone justifies ≈ 10 %.) Original: between 0 % reserve (V13828 at 55.9 dBA, +6.87 kg, entry 38) and 12 % (61.4 dBA, +4.37 kg) the reserve moves the tri's noise by 5.5 dB. Sweep the reserve (0–15 %) for both layouts on the free-speed/303 case, and decide on a reserve from a gust/sag requirement rather than a round number.
 44. ~~BEMT calibration on CFD~~ (entry 43: on the toroid session's 2-blade reference, CFD at equal thrust needs 1.16 × the rpm, 1.23 × the torque and 1.42 × the power of plain BEMT. If the CFD torque holds, the hex moves from the MN1123 to the MN1320 and the tri has no 24S motor that holds T/W 2 with a reserve. The additive Δc_d fit, 0.033, does not transfer to other loadings: it doubles the hex's hover power.)
 54. ~~Re-optimise under the CFD factors~~ (entry 44: the hex on the MN1320 keeps its 12 % reserve at 48.0 dBA, losing ≈ 4.3 kg; the tri flies only on the U15XL with no reserve, at tip Mach 0.86 and 57.5 dBA, also losing ≈ 4.3 kg. Hex − tri: +3.4 kg at 15 m/s and 303 Wh/kg, −1.1 at free speed and 303, +1.9 to +8.6 with 200 Wh/kg.) Original: the torque and power factors at equal thrust (×1.23, ×1.42) or a loading-dependent correction. The hex would be on the MN1320 or V13828; the tri on the U15XL with no reserve, or not feasible. This gives new absolute payloads; the old ones are 5–10 kg optimistic.
-57. **Full chain on the 24xx-64 designs at a 10 % reserve** (entry 47): replace the frame-shift estimate with an exact hex − tri across speed and battery.
+57. ~~Full chain on the 10 % designs~~ (entry 48: the frame-shift estimates held to within 0.36 kg. At 15 m/s and 303 Wh/kg it is a tie: hex +0.54 kg with 24xx, tri +0.31 with -64. Break-even batteries at 15 m/s are 322 / 294 Wh/kg, and at free speed 171 / 156 Wh/kg.) Original: (entry 47): replace the frame-shift estimate with an exact hex − tri across speed and battery.
 56. **A hex with mixed motors**, MN1123 on some arms and MN1320 on others: yaw and roll authority need a symmetric layout, so it would be three and three in alternation. This fills the payload–noise curve between 46.3 and 50.3 dBA (entry 46), but the unequal rotors complicate control.
 55. **A second CFD point to separate thrust and torque error** (needs the CFD machine time, so it is the user's and the toroid session's call): a refined leading-edge mesh of the 2-blade reference (the CT validation found coarse noses inflate torque), or the same mesh at a second rpm or loading, to show whether the 23 % torque excess is physical (3-D, root and tip losses) or a mesh artefact.
 
@@ -3111,3 +3111,56 @@ The second route is worth most to the design pressed hardest against its limit (
 - Run entry 41's full chain on the -64 hex and tri at 10 %, to firm up the shifted ranking (item 57).
 - Item 45 proper: a T/W-2 section with transonic polars (MSES-like, or XFOIL's compressibility correction pushed to M 0.8 with care).
 - Item 55: the refined CFD, still the user's call.
+
+## 48 — Full chain at the 10 % reserve: 15 m/s with the semi-solid pack is a tie, and the battery break-even sits right at 300 Wh/kg (2026-11-18)
+
+**Question.** Entry 47 estimated the hex–tri ranking with the 24xx-64 section by shifting frames, which is good to ±0.5 kg. This entry gets the exact numbers from the full vehicle model for the four 10 %-reserve designs:
+- hex MN1123 at cap 0.65, with 24xx (entry 46) and with 24xx-64 (entry 47);
+- tri V13828 at cap 0.80, with 24xx and with 24xx-64 (entry 47).
+
+**Method.** src/explore/e48_chain_10pct.py runs each design with its own polar set (the 24xx-64 set from entry 35's cache, as a 44xx-inboard hybrid on the tri) and its catalogue motor mass through entry 17/18's vehicle model (constant body, 14–30 m/s). Entry 19's ranking then picks each layout's best speed for each battery. It uses plain BEMT and ran on 2 cores at nice 19.
+
+| Section | Scenario | **hex − tri [kg]** | Hex / tri mass sum [kg] | Packs [Wh] | Hardware [kg] | Best V [m/s] | Entry 45/47 estimate |
+|---|---|---|---|---|---|---|---|
+| 24xx | 15 m/s, 303 Wh/kg | **+0.54** | 43.88 / 44.42 | 4995 / 7905 | 27.41 / 18.36 | 15 / 15 | +0.33 |
+| 24xx | free, 303 | **−3.96** | 41.61 / 37.65 | 4307 / 5854 | | 20.9 / 24.8 | −4.13 |
+| 24xx | 15 m/s, 200 | **+5.50** | 52.39 / 57.89 | | | | +5.29 |
+| 24xx | free, 200 | **−1.33** | 48.95 / 47.62 | | | | −1.46 |
+| 24xx-64 | 15 m/s, 303 | **−0.31** | 43.49 / 43.19 | 4963 / 7818 | 27.13 / 17.41 | 15 / 15 | −0.62 |
+| 24xx-64 | free, 303 | **−4.72** | 41.26 / 36.54 | 4286 / 5805 | | 21.0 / 24.7 | −5.08 |
+| 24xx-64 | 15 m/s, 200 | **+4.56** | 51.95 / 56.50 | | | | +4.34 |
+| 24xx-64 | free, 200 | **−2.14** | 48.56 / 46.42 | | | | −2.41 |
+
+Hover noise (hex / tri): 50.3 / 60.4 dBA with 24xx, and 50.0 / 59.7 dBA with 24xx-64.
+
+**Findings.**
+- **The frame-shift estimates were good:** every one is within 0.36 kg of the exact chain, inside the ±0.5 kg quoted in entry 47.
+- **At 15 m/s with the 303 Wh/kg pack the two layouts tie:** the hex leads by 0.54 kg with 24xx sections and the tri by 0.31 kg with 24xx-64. Both margins are smaller than the BEMT and motor-fit uncertainty. **The hex is 10 dB quieter in both.**
+- **The battery break-even at 15 m/s is at 294–322 Wh/kg, right where the semi-solid pack sits (303 Wh/kg).** This is the battery's real role in the decision:
+  - any pack below ≈ 300 Wh/kg favours the hex at 15 m/s;
+  - with a LiPo the hex wins by 4.6–5.5 kg.
+- **At free speed the tri wins with either battery:** by 4.0–4.7 kg (303 Wh/kg) and 1.3–2.1 kg (200 Wh/kg), at 10 dB more hover noise. The free-speed break-even is 156–171 Wh/kg, below any realistic pack.
+- **The consolidated picture** (10 % reserve, plain BEMT, constant body):
+
+  | Requirement | 303 Wh/kg semi-solid | 200 Wh/kg LiPo | Noise (hex / tri) |
+  |---|---|---|---|
+  | 15 m/s fixed | **tie** (−0.3 to +0.5 kg) | **hex** +4.6 to +5.5 kg | 50 / 60 dBA |
+  | free speed | **tri** +4.0 to +4.7 kg | **tri** +1.3 to +2.1 kg | 50 / 60 dBA |
+  | any, with a hover limit below ≈ 55 dBA | **hex** | **hex** | — |
+  | any, if the CFD's +23 % torque is real (entry 44) | **hex**: the tri has no reserved motor | **hex** | — |
+
+**Hand checks.**
+- **Payload difference from hardware and pack:** hex − tri = −(Δhw + Δpack/e_b), with Δ = hex − tri.
+  - 24xx, 15 m/s, 303: −[(27.41 − 18.36) + (4995 − 7905)/303.3] = −(9.05 − 9.59) = **+0.54 kg** ✓.
+  - 24xx-64, free, 303: −[(27.13 − 17.41) + (4286 − 5805)/303.3] = −(9.72 − 5.01) = **−4.71 kg** ✓ (printed −4.72).
+- **Break-even batteries:** e_b* = −Δpack/Δhw.
+  - 15 m/s: 2910/9.05 = **322 Wh/kg** (24xx) and 2855/9.72 = **294 Wh/kg** (24xx-64).
+  - Free speed: 1547/9.05 = **171** and 1519/9.72 = **156 Wh/kg**.
+- **Why the -64 section moves the 15 m/s result toward the tri:** it lowers the tri's hardware by 0.95 kg (17.41 against 18.36) and the hex's by only 0.28 kg. The hardware difference grows by 0.67 kg, while the pack difference shrinks by 55 Wh (0.18 kg at 303). The net shift is 0.85 kg, matching **+0.54 → −0.31** ✓.
+
+**Lesson.** After a long chain of corrections (catalogue motors, a physically justified reserve, a section that helps torque-bound rotors), the 15 m/s case with the semi-solid pack ends as a tie. That is not a non-result: it locates the decision exactly. **At 15 m/s the layout follows the battery (break-even ≈ 300 Wh/kg) and the noise limit; at free speed it follows the noise limit alone.** Neither aerodynamic refinement nor motor choice can move the answer further than the remaining uncertainty (BEMT torque, item 55).
+
+**Next.**
+- Item 55, a refined-nose CFD of the 2-blade, is the only remaining input that could decide the layout without the user's requirements. It needs the CFD machine.
+- The user's three questions (speed requirement, battery chemistry, noise limit) now map directly onto the table above.
+- After that: item 45 proper (a T/W-2 section with transonic polars, mostly for the tri), item 42 (serration effectiveness) and item 13 (re-stating the coaxial case).
