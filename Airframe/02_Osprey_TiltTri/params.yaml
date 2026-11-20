@@ -36,7 +36,9 @@ wing:
   sweep_deg: -6.0           # v22
   dihedral_deg: 3.5         # v22
   taper: 1.0                # v22: constant chord (it carries the nacelles at the tips)
-  airfoils: ["2412", "4412", "4415", "4418", "23012", "23015", "23018", "23021"]   # XFOIL's NACA generator takes 4- and 5-digit sections
+  # NACA 4/5-digit codes (XFOIL's generator) and coordinate files in geometry/airfoils (UIUC database: NASA LS(1)-0417 =
+  # GA(W)-1 and its MOD, NLF(1)-0416). Picked by the largest tripped clmax (smallest wing) at t/c >= t_c_min (sizing.py).
+  airfoils: ["2412", "4412", "4415", "4418", "6415", "6418", "23012", "23015", "23018", "23021", "ls417", "ls417mod", "nlf416"]
   t_c_min: 0.15             # assumption: a spar box needs depth; below 15 % the wing spar mass rises steeply (checked in the sweep)
   e_oswald: 0.80            # assumption: Raymer 12.6 typical straight wing with tip nacelles
   clmax_3d_factor: 0.90     # Raymer eq. 12.15: CLmax ~ 0.9 clmax for an unswept, untwisted wing

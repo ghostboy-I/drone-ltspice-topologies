@@ -5,6 +5,9 @@ FRAME_CAP_W_ = 0.030   # m, as src/fuselage_shell.py FRAME_CAP_W
 here = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(here, "..", "..", "Topologies", "tools"))
 from designdoc import Doc
+sys.path.insert(0, os.path.join(here, "src"))
+import tiltcfg, wing_sections as wsec
+AF = lambda n: wsec.LABEL.get(n, "NACA " + n)
 
 R = os.path.join(here, "results")
 J = lambda n: json.load(open(os.path.join(R, n)))
@@ -45,7 +48,7 @@ doc.img(img("fig_3view.png"), width=6.4)
 doc.table(["Item", "Value", "Item", "Value"], [
     ["Overall width (disks)", f"{G['hover']['overall_width']:.2f} m", "Overall length", f"{G['hover']['overall_length']:.2f} m"],
     ["Wing span / chord", f"{w['b']:.2f} / {w['c']:.3f} m", "Wing area / AR", f"{w['S']:.2f} m^2 / {w['AR']:.1f}"],
-    ["Wing section", f"NACA {w['airfoil']}", "Sweep / dihedral", f"{w['sweep_deg']:+.0f} / {w['dihedral_deg']:.1f} deg (V-22)"],
+    ["Wing section / incidence", f"{AF(w['airfoil'])} / {w['incidence_deg']:.1f} deg", "Sweep / dihedral", f"{w['sweep_deg']:+.0f} / {w['dihedral_deg']:.1f} deg (V-22)"],
     ["Front hubs (hover)", f"x {L['x_front_hub']:+.2f}, y +/-{L['y_front_hub']:.2f} m", "Tail hub", f"x {L['x_tail_hub']:+.2f} m"],
     ["Fuselage L x W x H", f"{S['fuselage']['L']:.2f} x {S['fuselage']['W']:.2f} x {S['fuselage']['H']:.2f} m", "H-tail / fins", f"{st['S_h']:.2f} m^2 / {st['S_v_total']:.2f} m^2"],
     ["Hover CG (= hub centroid)", f"x {L['x_cg_hover']:+.3f} m", "Height (hover)", f"{G['hover']['height_hover']:.2f} m"],
@@ -90,19 +93,55 @@ doc.p(f"Left: wing download against how far the disk reaches inboard of the wing
       "Right: thrust from the two front props against airplane-mode drag (section 5).")
 
 # ------------------------------------------------------------------------------------------------------------------
-doc.h("5. Wing: section and size")
+doc.h("5. Wing: section, size and incidence")
+AT = {a["name"]: a for a in S["airfoil_table"]}; a0 = AT["4415"]; ab = AT[w["airfoil"]]
 doc.p("The wing is the smallest one that cruises at 1.2 x its stall speed (light-aircraft practice, Raymer ch. 5). 3-D CLmax is taken as "
       "0.9 x the section clmax (Raymer eq. 12.15, unswept, untwisted), and the aspect ratio stays at the V-22's:")
 doc.eq(r"C_{L,cr} = \frac{0.9\,c_{l,max}}{1.2^2},\qquad S = \frac{W}{\frac{1}{2}\rho V^2 C_{L,cr}},\qquad b=\sqrt{AR\,S}")
+doc.p("Candidates: NACA 4- and 5-digit sections from XFOIL's generator, and three NASA general-aviation sections read from the UIUC "
+      "coordinate database (src/wing_sections.py converts their Lednicer layout to XFOIL's Selig order and checks t/c from the "
+      "coordinates). Each gets two XFOIL polars at the cruise Re and Mach: free transition (e^N, Ncrit 9) and tripped at 5 % / 10 % "
+      "chord. The wing is sized on the TRIPPED clmax. A wing with bugs, rain or a seam loses its laminar run, and the fully turbulent "
+      "CFD (sec. 10) follows the tripped polar, not the free one. Cruise drag uses the free polar.")
 doc.img(img("fig_polars.png"), width=6.4)
-rows = [[f"NACA {a['name']}", f"{a['tc']:.2f}", f3(a['clmax']), f3(a['CL_cruise']), f2(a['S']), f"{a['cd_cruise']:.5f}", f"{a['cm0']:+.3f}", f"{a['DA_wing']:.4f}"]
-        for a in S["airfoil_table"]]
-doc.table(["Section", "t/c", "clmax", "CL cruise", "S [m^2]", "cd", "cm0", "wing D/q [m^2]"], rows, widths=[0.14, 0.07, 0.1, 0.12, 0.11, 0.12, 0.1, 0.16])
-doc.p(f"Ranking: wing drag area (profile + induced) among sections thick enough for a spar box (t/c >= 15 %). At CL ~1 the induced "
-      f"drag ({dr['induced_m2']:.3f} m^2) is ten times the profile drag ({dr['wing_profile_m2']:.3f} m^2), so the sections score within "
-      f"4 % of each other, and t/c and cm0 decide. NACA {w['airfoil']} wins. Its cm0 of {w['cm0']:+.3f} is a nose-down moment the tail "
-      "trims (it is in the airplane load case). Wing: "
-      f"S = {w['S']:.2f} m^2, b = {w['b']:.2f} m, c = {w['c']:.3f} m, stall {w['v_stall_ms']:.1f} m/s, Re = {S['wing_re']:.2e}.")
+rows = [[AF(a['name']), f"{a['tc']:.3f}", f"{a['clmax_free']:.3f} / {a['clmax']:.3f}" + ("" if a["stall_found"] else " *"), f3(a['CL_cruise']), f2(a['S']),
+         f"{a['cd_cruise']:.5f}", f"{a['cm0']:+.3f}", f"{a['DA_wing']:.4f}"] for a in S["airfoil_table"]]
+doc.table(["Section", "t/c", "clmax free/trip", "CL cr", "S [m^2]", "cd", "cm0", "D/q [m^2]"], rows,
+          widths=[0.25, 0.07, 0.18, 0.08, 0.09, 0.1, 0.09, 0.12])
+doc.p(f"Ranked by tripped clmax. * = the peak is at the 20 deg end of the sweep, not a stall (NACA 6418 tripped), so it is not eligible. "
+      f"Pick: the largest tripped clmax with t/c >= 15 % (spar depth): {AF(w['airfoil'])}, clmax {ab['clmax']:.3f} against {a0['clmax']:.3f} for "
+      f"the NACA 4415 the first version picked. That version ranked by wing drag area instead, so it chose the 4415 for drag, not lift. "
+      "The GA(W) sections get their lift from a large leading-edge radius, which keeps the suction peak attached to a higher angle, and a "
+      "cusped lower surface that loads the aft chord. The MOD variant has less aft loading than the original: cm0 "
+      f"{ab['cm0']:+.3f} against {AT['ls417']['cm0']:+.3f}, close to the 4415's {a0['cm0']:+.3f}, so the tail trims it as before. The NACA 6-digit "
+      f"camber that would match its lift costs twice the nose-down moment (6415: {AT['6415']['cm0']:+.3f}). At 17 % it is also deeper "
+      "than the 4415, so the spar box gains depth.")
+doc.p("What the higher clmax buys, and what it costs. The rule fixes the stall speed at V / 1.2, so a better section shrinks the wing: "
+      f"S {a0['S']:.2f} -> {w['S']:.2f} m^2, span {math.sqrt(w['AR']*a0['S']):.2f} -> {w['b']:.2f} m. The induced drag at fixed weight and speed "
+      "depends only on the span:")
+bi0 = math.sqrt(w['AR'] * a0['S'])
+doc.eq(r"\frac{D_i}{q}=\frac{C_L^2 S}{\pi e\,AR}=\frac{(W/q)^2}{\pi e\,b^2}:\qquad \frac{D_{i}}{D_{i,4415}}=\left(\frac{%.3f}{%.3f}\right)^2=%.3f" % (bi0, w['b'], (bi0 / w['b']) ** 2),
+       note="induced drag area %.4f m^2 (sizing.json: %.4f)" % ((S['W_n'] / S['q_cruise_pa']) ** 2 / (math.pi * 0.80 * w['b'] ** 2), dr['induced_m2']))
+doc.p(f"The section's own profile drag is also higher (cd {ab['cd_cruise']:.4f} at its cruise CL against {a0['cd_cruise']:.4f}). Wing drag area "
+      f"goes from {a0['DA_wing']:.3f} to {ab['DA_wing']:.3f} m^2 (+{100*(ab['DA_wing']/a0['DA_wing']-1):.0f} %), and the vehicle cruise L/D is "
+      f"{dr['L_over_D']:.2f} ({cr['wh_per_km']:.1f} Wh/km). For the NACA 4415 wing it was 7.37 (75.7 Wh/km, commit 2d4d5e4). So the "
+      f"high-lift section gives a smaller, lighter wing (airframe {F['mass_airframe_kg']:.2f} kg against 32.87, mostly wing, its fairings and "
+      "the smaller tail) and it costs ~7 % cruise energy. Keeping the old wing "
+      "area and spending the higher clmax on stall margin is the other option (sec. 10a).")
+inc = w["incidence_deg"]
+doc.p("Incidence. The fuselage should fly level in cruise (cabin floor, payload, drag). For an untwisted wing, CL = a_w (alpha - alpha_L0), "
+      "so the root chord is set at the angle that gives the cruise CL. alpha_L0 comes from the tripped polar, which the CFD follows (sec. 10):")
+doc.eq(r"i_w=\alpha_{L0}+\frac{C_{L,cr}}{a_w}=%.2f^\circ+\frac{%.3f}{%.3f}\,\frac{180}{\pi}=%.1f^\circ,\qquad \alpha_{stall}=\alpha_{L0}+\frac{C_{L,max}}{a_w}=%.1f^\circ" %
+       (w['alpha_L0_deg'], w['CL_cruise'], w['a_per_rad'], inc, w['alpha_stall_3d_deg']), note="a_w = Helmbold slope (sec. 6), 1/rad")
+ft = wsec.spar_feet(S, tiltcfg.params()["wing"])
+dz_ped = ft["front"][1] - ft["rear"][1]
+doc.p(f"The cruise CL is high ({w['CL_cruise']:.2f}: the wing flies at 1.2 x stall speed), so the incidence is large. A V-22 needs only a "
+      "few degrees because it cruises at a much lower CL. Every model applies it the same way (src/wing_sections.py): the section is "
+      "pitched nose-up about the root quarter chord, so the STL, the wing shell FEM, the beam (box axes rotated about the span) and the "
+      f"fuselage interface all use the same contour. The rear spar foot drops: the root lower surface is at z = {ft['front'][1]*1e3:+.0f} mm "
+      f"under the front spar and {ft['rear'][1]*1e3:+.0f} mm under the rear one. The fuselage top now sits at the rear foot, and the "
+      f"wing's front lug brackets drop {dz_ped*1e3:.0f} mm to meet it (sec. 11 has the hand check), so the fuselage frames stay level. "
+      "Before, the fuselage top sat at -c t/c / 2 for both spars, which was already 15-30 mm off the real feet.")
 
 # ------------------------------------------------------------------------------------------------------------------
 doc.h("6. Airplane mode: stability, drag, thrust, gusts")
@@ -243,7 +282,7 @@ if FS:
     xb = st["x_end"]
     doc.p(f"Columns with * leave out the boom-fitting patch (x < {xb + 0.06:.2f} m, the last 0.06 m before the boom at x = {xb:.2f} m). "
           f"Wing-attach frames: x = {st['x_f']:.2f} and {st['x_r']:.2f} m.")
-    l5, l4 = cs["LC5 airplane gust n=2.78"], cs["LC4 hard landing one main"]
+    l5, l4 = next(v for k, v in cs.items() if k.startswith("LC5")), cs["LC4 hard landing one main"]
     l1 = cs["LC1 hover pull-up n=2"]
     peak = l1["hand_F2"]
     doc.p("Where the margins go negative, and why:")
@@ -484,10 +523,17 @@ if FSF:
           "That is a shell-intersection peak which halves within 40 mm. The real frame-to-keel joint there is a bonded clip, a detail "
           f"for drawings. Caps and posts weigh {add:.2f} kg, and the heavier doublers add the rest: the keel, frames and bulkheads went from "
           "12.12 to " + f"{sum(v for k_, v in mf5.items() if k_ != 'ESKIN'):.2f} kg (with the fitting metal). Equilibrium (F1) and the cabin-cut statics (F2) still close.")
+    doc.p("Re-check with the LS(1)-0417MOD wing (sec. 5). The keel, boom and gear were frozen and only the wing and pods re-sized, "
+          "because the global sweep's lighter keel failed the shell check (LC4 web MS -0.17). Two changes followed. The shorter chord "
+          "moved the rear spar frame 15 mm forward and opened an 11 mm undoubled strip between the bay doubler and the gear-frame "
+          "doubler (LC4 web MS -0.03). The bay doubler now runs on to the gear frame when that frame is within 6 DX. The front frame "
+          "junction came out at MS -0.01. The FE junction peak runs ~11 % above the hand ring strain, so the hand target for the heavy "
+          f"frames went from MS 0.10 to 0.15: front {FT['wing_frames']['front']['t_m']*1e3:.1f} mm (was 5.5), rear {FT['wing_frames']['rear']['t_m']*1e3:.1f} mm.")
 
 doc.h("10. Airfoil CFD: lift checked, drag from XFOIL")
 pl = json.load(open(os.path.join(here, "cfd", "airfoil2d", "plan.json")))
-doc.p(f"2-D RANS of both sections (OpenFOAM 13, Spalart-Allmaras): the NACA {w['airfoil']} wing at Re {pl[w['airfoil']]['Re']:.2e}, "
+doc.p(f"2-D RANS of the sections (OpenFOAM 13, Spalart-Allmaras): the {AF(w['airfoil'])} wing at Re {pl[w['airfoil']]['Re']:.2e} (and the "
+      f"first wing's NACA 4415 at Re {pl['4415']['Re']:.2e}), "
       f"alpha {pl[w['airfoil']]['alphas'][0]} to {pl[w['airfoil']]['alphas'][-1]} deg, and the NACA 0012 tail at Re {pl['0012']['Re']:.2e}. "
       f"The mesh is a single-block C-grid with {pl[w['airfoil']]['cells']} cells, written directly by cfd_airfoil2d.c_grid(), "
       f"with the first cell at {pl[w['airfoil']]['dy1_m']*1e6:.0f} um (y+ ~ 1) from the flat-plate estimate:")
@@ -525,6 +571,7 @@ if CFD:
         doc.table([f"{code} alpha", "cl CFD", "cl trip", "diff", "cl free", "diff", "cd XFOIL", "cd CFD (unused)"],
                   rows, widths=[0.15, 0.1, 0.1, 0.1, 0.1, 0.1, 0.15, 0.2])
     doc.img(img("cfd_airfoil2d_polar.png"), width=6.4)
+if CFD and w['airfoil'] in CFD and all(any(r_['alpha'] == a_ and 'cl' in r_ for r_ in CFD[w['airfoil']]['rows']) for a_ in (0, 8, 16)):
     RW = {r_['alpha']: r_ for r_ in CFD[w['airfoil']]["rows"] if 'cl' in r_}
     WS = [r_ for r_ in RW.values() if r_.get('diff_trip_cl_pct') is not None and abs(r_['alpha']) <= 8]
     sl_cfd = (RW[8]['cl'] - RW[0]['cl']) / 8; sl_xf = (RW[8]['xfoil_trip_cl'] - RW[0]['xfoil_trip_cl']) / 8
@@ -551,11 +598,15 @@ doc.bullets([
     "with actuator disks. They give the real wing and boom download (sec. 4) and the fuselage interference. Its forces would "
     "carry the same wall-shear error, so pressure (lift and download) forces only.",
     "Fuselage: section 9.2 (before the fittings) still carries the strain-axis error; re-read it if that run is needed again.",
-    "Wing: the 4415 is set at zero incidence, so the fuselage flies ~9 deg nose-up in cruise; the section was chosen for least drag "
-    "area among NACA 4/5-digit shapes (clmax 1.55-1.67), not for lift. Sizing also used free-transition XFOIL lift, 13-17 % above "
-    "the CFD at cruise angles. Open: a wing incidence of ~9 deg, and a high-lift section that keeps a 15 % spar depth.",
-    "Beam model: the wing box EI is 1.37 x too low (sec. 11), so its wing modes are ~17 % low; re-run the modal check with the "
-    "contour-true box.",
+    f"Wing size trade (sec. 5): the high-lift section shrank the wing and costs ~7 % cruise energy ({cr['wh_per_km']:.1f} against 75.7 Wh/km). "
+    "If range matters more than wing mass, keep the NACA 4415 wing area with the new section and bank the higher clmax as stall "
+    "margin instead (cruise at ~1.27 x stall speed).",
+    "Beam model: the wing box EI is %.2f x too low (sec. 11), so its wing modes are ~%.0f %% low. Re-run the modal check with the "
+    "contour-true box. It matters now: an airplane-mode mode sits at %.1f Hz, at the lower edge of the in-plane 1P band (%.2f Hz), "
+    "and a stiffer wing moves it up into the band." % (J('wing_shell_model.json')['cases']['LC1 hover pull-up n=2']['cuts'][0]['EI_flap'] / J('wing_shell_model.json')['beam_box_EI_flap'],
+        100 * (math.sqrt(J('wing_shell_model.json')['cases']['LC1 hover pull-up n=2']['cuts'][0]['EI_flap'] / J('wing_shell_model.json')['beam_box_EI_flap']) - 1),
+        [m_ for m_ in F['modes']['airplane']['hz'] if 25 < m_ < 40][0],
+        F['bands']['nominal']['airplane']['1'][0]),
     "Whirl flutter of the wing + pod + rotor (the defining tiltrotor aeroelastic check) is not in any model yet.",
 ])
 
@@ -568,10 +619,11 @@ if os.path.exists(os.path.join(R, "wing_shell_model.json")):
           "long plates, clamped at one centre node. Its tightest wing margin is the upper box skin buckling in LC1, MS "
           f"{WS['beam_wing_buckling_MS']:+.2f}. A shell model answers what that beam cannot: panel buckling between real ribs, the pods' load "
           "into the tip rib, the four lug supports, shear lag and the dihedral kink at the root. src/wing_shell.py builds it; the "
-          "solve (fea/wing/wing_static.inp, 110 s, 2.1 GB) was run from the user's terminal.")
+          "solve (fea/wing/wing_static.inp, ~2 min, 2.2 GB) runs on one thread.")
     ne = WS["elements"]
     doc.bullets([
-        f"Box between the spars (15 % and 60 % chord) on the true NACA {w['airfoil']} contour, swept and dihedralled as the STL; "
+        f"Box between the spars (15 % and 60 % chord) on the true {AF(w['airfoil'])} contour, pitched {w['incidence_deg']:.1f} deg nose-up "
+        "about the quarter chord (sec. 5), swept and dihedralled as the STL; "
         f"{sum(v for k, v in ne.items() if k != 'ERIB')} skin and web S8R shells, {ne['ERIB']} rib shells, {WS['nodes']} nodes.",
         "Skins and webs: the selected design's laminates (sandwich, the beam's cap and web faces), so shell and beam are the same structure. "
         f"Ribs (not in the beam): {len(WS['stations_y'])} flat sandwich ribs, {WS['rib_w45']} woven +-45 per face (ASSUMED), at every beam-node "
@@ -605,10 +657,10 @@ if os.path.exists(os.path.join(R, "wing_shell_model.json")):
           f"{ei/1e3:.0f} kN m^2 against the beam's {WS['beam_box_EI_flap']/1e3:.0f} ({ei/WS['beam_box_EI_flap']:.2f} x). The beam takes a flat box of the mean "
           f"spar depth ({WS['beam_box_depth_m']*1e3:.0f} mm); the true contour is thicker between the spars. EI alone would give "
           f"{l1['tip_dz_mm']['beam_L']/(ei/WS['beam_box_EI_flap']):.1f} mm in LC1; the shell's {l1['tip_dz_mm']['fe_L']:.1f} mm adds the sandwich shear and the lug-bay "
-          "flexibility. So the beam is conservative on strain, but its wing bending frequencies are ~17 % low (sqrt 1.37): the modal check "
-          "should be re-run. Lugs: the shell treats the fuselage as rigid and the fuselage model treats the wing as rigid, so the true split "
-          "lies between them. The wing FE gives the larger load in LC1 and now sets the lug design load "
-          f"({FT['lug']['P_design_N']:.0f} N with FF 1.15; shear-out MS {FT['lug']['MS']['shear_out']:+.2f}, still a 3 mm tang).")
+          f"flexibility. So the beam is conservative on strain, but its wing bending frequencies are ~{100*(math.sqrt(ei/WS['beam_box_EI_flap'])-1):.0f} % low "
+          f"(sqrt {ei/WS['beam_box_EI_flap']:.2f}): the modal check should be re-run (sec. 10a). Lugs: the shell treats the fuselage as rigid and the fuselage model treats the wing as rigid, so the true split "
+          f"lies between them. The lug design load is the largest of the three ({FT['lug_design_source']}: "
+          f"{FT['lug']['P_design_N']:.0f} N with FF 1.15; shear-out MS {FT['lug']['MS']['shear_out']:+.2f}, still a 3 mm tang).")
     doc.img(img("fig_wing_shell.png"), width=6.6)
     rows = []
     for n_, o in wc.items():
@@ -623,15 +675,30 @@ if os.path.exists(os.path.join(R, "wing_shell_model.json")):
           "sandwich shear softening and the compression-shear interaction:")
     doc.eq(r"N_{x,cr}=\frac{\pi^2}{b^2}\min_m\left[D_{11}\left(\frac{mb}{a}\right)^2+2(D_{12}+2D_{66})+D_{22}\left(\frac{a}{mb}\right)^2\right],\quad \frac{1}{N}=\frac{1}{N_b}+\frac{1}{G_c d},\quad R_c+R_s^2=1", size=10)
     doc.p(f"The worst panel is the upper skin in the centre bay between the two lug ribs (y = 0 to +-{WS['y_lug']:.3f} m) in LC1: N_x = "
-          f"{pb['Nx']/1e3:.0f} kN/m against {pb['Nx_cr']/1e3:.0f} kN/m, MS {pb['MS']:+.2f}. It is the same margin as the beam's ({WS['beam_wing_buckling_MS']:+.2f}) "
-          "by coincidence: the ribs raise the critical load, but between the lugs the skin load is higher than the beam predicts. The root "
-          "moment stays at its full value there, and the dihedral kink adds to it. Outboard of the lugs the panel load falls with the bending moment.")
+          f"{pb['Nx']/1e3:.0f} kN/m against {pb['Nx_cr']/1e3:.0f} kN/m, MS {pb['MS']:+.2f}, close to the beam's {WS['beam_wing_buckling_MS']:+.2f}. "
+          "The ribs raise the critical load, but between the lugs the skin load is higher than the beam predicts: the root moment "
+          "stays at its full value there, and the dihedral kink adds to it. Outboard of the lugs the panel load falls with the bending "
+          "moment. With the LS(1)-0417MOD wing the design refine (wing and pods only, sec. 7) first thinned the core to the beam's "
+          "buckling limit (beam MS +0.03), and this check then gave -0.001. The beam is ~3 % unconservative for this bay, so the core "
+          f"was set back to {d['wing']['core_mm']:.1f} mm (beam MS {WS['beam_wing_buckling_MS']:+.2f}).")
     pk = l1["strain"]
     doc.p(f"At the lug nodes themselves the FE peaks at {max(pk[k]['eps_max'] for k in ('ELO','EWF','EWR'))*1e6:.0f} ue (LC1). That is the singularity of "
           "a single pinned node, as in the fuselage model, and it grows with mesh refinement. The real wing-side lug bracket is bonded and "
-          "bolted to the spar web over a length L_b and feeds the load in as shear. By hand, with L_b = 80 mm:")
-    doc.eq(r"q=\frac{P}{L_b}=\frac{7208}{0.08}=90\ \mathrm{kN/m},\qquad \gamma=\frac{q}{G_f\,t_f}=\frac{90\,000}{35.2\times10^{6}}=2563\ \mu\varepsilon,\qquad \varepsilon_1=\frac{\gamma}{2}=1282\ \mu\varepsilon\ (MS\ +1.23)", size=10)
-    doc.p("So the existing web carries the bracket; the bracket bolts need potted inserts through the core, like the gear saddles.")
+          "bolted to the spar web over a length L_b along the span and feeds the load in as shear. With the incidence, the front "
+          f"bracket also drops dz = {dz_ped*1e3:.0f} mm below the web foot to the level frame crown (sec. 5). Its lateral force H (the arch "
+          "thrust) then puts a moment H dz about x on the web. That moment lies in the web's own plane, and the bolt line reacts it as a "
+          "vertical couple H dz / L_b. Its fore-aft force F_x puts F_x dz about y into the rib at the lug station, also in that rib's plane. "
+          "Worst front lug (wing FE, rigid fuselage, so the largest H), L_b = 80 mm, web face G t from the laminate:")
+    LB_ = 0.08; GT = 35.2e6
+    worst = max(((n_, k_, o_["lug_reactions_N"][k_]) for n_, o_ in wc.items() for k_ in (0, 1)), key=lambda t_: math.hypot(*t_[2]))
+    Rl = worst[2]; P_ = math.hypot(*Rl); H_ = abs(Rl[1]); Mx_ = H_ * dz_ped; q_ = (P_ + Mx_ / LB_) / LB_; g_ = q_ / GT
+    doc.eq(r"q=\frac{P+H\,dz/L_b}{L_b}=\frac{%.0f+%.0f\times%.3f/0.08}{0.08}=%.0f\ \mathrm{kN/m},\quad \gamma=\frac{q}{G_f\,t_f}=%.0f\ \mu\varepsilon,\quad \varepsilon_1=\frac{\gamma}{2}=%.0f\ \mu\varepsilon\ (MS\ %+.2f)" %
+           (P_, H_, dz_ped, q_ / 1e3, g_ * 1e6, g_ / 2 * 1e6, WS["eps_allow"] / (g_ / 2) - 1), size=10,
+           note="%s, lug %d; G_f t_f = %.1f MN/m (3 x +-45 woven face); the couple is added to the direct shear, conservatively" % (worst[0].split()[0], worst[1] + 1, GT / 1e6))
+    doc.p(f"The rib takes F_x dz = {abs(Rl[0]):.0f} x {dz_ped:.3f} = {abs(Rl[0])*dz_ped:.0f} N m in its plane over its "
+          f"{(wsec.depth_at(w['airfoil'], 0.15)*w['c'])*1e3:.0f} mm depth at the front spar. So the existing web and rib carry the drop bracket; "
+          "its bolts need potted inserts through the core, like the gear saddles. The drop bracket itself (7075, a "
+          "taller lug base) is a detail for drawings.")
     m_ = WS["mass_kg"]
     doc.bullets([
         f"Mass: box skins and webs {sum(v for k, v in m_.items() if k != 'ERIB'):.2f} kg (beam model: {WS['beam_wing_mass_kg']:.2f} kg for the same "
@@ -660,8 +727,12 @@ doc.bullets([
     "strain in the keel flange that Bredt torsion cannot see, "
     "so the saddles need solid core inserts. After the strain-axis correction the spar frames became T sections with web posts "
     "(sec. 9.5): all fuselage margins are positive again.",
+    f"Wing section (sec. 5): the first wing was picked for least drag among NACA sections. Picked for lift (tripped clmax), the NASA "
+    f"LS(1)-0417MOD gives {S['airfoil_table'][0]['clmax']:.2f} against 1.64, a {100*(1-w['S']/[a for a in S['airfoil_table'] if a['name']=='4415'][0]['S']):.0f} % smaller wing and a 17 % deep spar, "
+    f"for ~7 % more cruise energy. It is set at {w['incidence_deg']:.1f} deg incidence so the fuselage flies level.",
     "Wing shell FEM: all strain margins positive, with the worst panel (the centre bay between the lugs) at buckling MS "
-    f"{J('wing_shell_model.json')['cases']['LC1 hover pull-up n=2']['panel_buckling']['MS']:+.2f}. The true-contour box is 1.37 x stiffer than the beam's. "
+    f"{J('wing_shell_model.json')['cases']['LC1 hover pull-up n=2']['panel_buckling']['MS']:+.2f}. The true-contour box is "
+    f"{J('wing_shell_model.json')['cases']['LC1 hover pull-up n=2']['cuts'][0]['EI_flap']/J('wing_shell_model.json')['beam_box_EI_flap']:.2f} x stiffer than the beam's. "
     "Its Bredt check exposed a strain-axis error in the CalculiX post-processing. Corrected, the fuselage failed at the spar frames "
     "in the one-wheel landing, and frame caps plus web posts fixed it (+1.4 kg).",
     "OpenFOAM 13's viscous wall term over-predicts wall shear by ~48 % (a laminar channel shows it). Airfoil CFD checks lift "

@@ -60,6 +60,7 @@ from tiltcfg import ROOT, RESULTS
 import tiltframe as tf
 import materials as mat
 import fuselage_shell as fs
+import wing_sections as wsec
 from geometry import fuselage_station
 
 FF = 1.15                     # fitting factor, FAR 23.625 (on ultimate)
@@ -69,6 +70,7 @@ AL = dict(F_tu=572e6, F_su=331e6, F_bru_over_Ftu=1.30, rho=2810.0)   # 7075-T6 (
 BOLT = dict(F_su=0.6 * 1040e6, rho=7850.0)   # ISO 898-1 class 10.9 alloy steel bolt: F_tu 1040 MPa, F_su ~ 0.6 F_tu
 D_STD = [0.006, 0.008, 0.010, 0.012]   # m; 6 mm minimum for primary-structure bolts (ASSUMED practice rule:
                                         # handling, wear and fatigue, not static strength, set the floor)
+FRAME_MS_HAND = 0.15                 # hand margin target for the heavy wing frames (see the frame section below)
 FRAME_D_MAX = 0.050           # m, payload clearance at the sides
 X_SOCKET = (-0.671, -0.967)   # m, forward and aft collar stations (existing frame stations)
 COLLAR = dict(w=0.040, t=0.004, adhesive_tau=10e6, n_bolts=8)   # ASSUMED collar width and wall, adhesive lap shear
@@ -116,7 +118,7 @@ def main():
     d = tf.merge(tf.DEFAULT, json.load(open(os.path.join(ROOT, "designs", "selected.json"))))
     r, fb = fs.free_body(ctx, d)
     sz = ctx["sz"]; fu = sz["fuselage"]; w = sz["wing"]; p = ctx["p"]; pm = ctx["pm"]
-    z_top = -(w["c"] * w["tc"] / 2); z_boom = z_top - 0.10
+    z_top = wsec.fuselage_top_z(sz, p["wing"]); z_boom = z_top - 0.10
     nfr, nt = p["fuselage"]["nose_frac"], p["fuselage"]["tail_frac"]
     me_st = fs.stations(ctx, d, fu, r["x_payload"])[1]
     x_f, x_r = me_st["x_f"], me_st["x_r"]
@@ -221,14 +223,16 @@ def main():
                   "MS": {"net_tension": t_lug / t_net - 1, "shear_out": t_lug / t_so - 1, "bearing": t_lug / t_br - 1},
                   "mass_each_kg": lug_vol * AL["rho"] + math.pi * d_b ** 2 / 4 * 0.05 * BOLT["rho"]}
 
-    # heavy frame section: depth FRAME_D_MAX, thinnest t (0.5 mm steps) with hand MS >= 0.10 in both frames
+    # heavy frame section: depth FRAME_D_MAX, thinnest t (0.5 mm steps) with hand MS >= FRAME_MS_HAND in both frames.
+    # 0.15, not 0.10: the shell FE peak at the web-foot junction runs ~11 % above the hand pin-ring strain (2821 vs
+    # 2549 ue, LC4), so a 0.10 hand margin left the FE at +0.01 (NACA 4415 wing) and -0.01 (LS(1)-0417MOD wing).
     sec = {}
     for tag in ("front", "rear"):
         Mx_, Nx_ = frame_M[tag], frame_case[tag][1]
         dd = FRAME_D_MAX
         for t_ in np.arange(0.004, 0.030, 0.0005):
             eps = 6 * Mx_ / (E_qi * t_ * dd ** 2) + abs(Nx_) / (E_qi * t_ * dd)
-            if eps_allow / eps - 1 >= 0.10: break
+            if eps_allow / eps - 1 >= FRAME_MS_HAND: break
         perim = float(np.sum(np.hypot(*np.diff(np.vstack([rings[tag]["P"], rings[tag]["P"][:1]]), axis=0).T)))
         sec[tag] = {"t_m": float(round(t_, 4)), "d_m": dd, "M_design_Nm": Mx_, "N_with_M_N": Nx_, "case": frame_case[tag][0],
                     "eps_hand": float(eps), "MS_hand": float(eps_allow / eps - 1), "perimeter_m": perim,

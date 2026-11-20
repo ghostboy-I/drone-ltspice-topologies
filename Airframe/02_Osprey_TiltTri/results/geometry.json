@@ -1,16 +1,16 @@
 {
  "hover": {
-  "z_ground": -0.912284050236575,
-  "overall_length": 3.455248181811686,
-  "overall_width": 6.636914811522474,
-  "height_hover": 1.3960398139470276,
+  "z_ground": -0.9555134319334716,
+  "overall_length": 3.3855159443970053,
+  "overall_width": 6.393180308988289,
+  "height_hover": 1.4318154752458914,
   "tail_disk_ground_clear": 1.0526416664430867
  },
  "airplane": {
-  "z_ground": -0.912284050236575,
-  "overall_length": 3.455248181811686,
-  "overall_width": 6.636914811522474,
-  "height_hover": 1.3960398139470276,
+  "z_ground": -0.9555134319334716,
+  "overall_length": 3.3855159443970053,
+  "overall_width": 6.393180308988289,
+  "height_hover": 1.4318154752458914,
   "tail_disk_ground_clear": 1.0526416664430867
  }
 }

@@ -45,5 +45,27 @@
    12
   ]
  },
+ "ls417mod": {
+  "Re": 1078873.5496294526,
+  "dy1_m": 1.646553500287549e-05,
+  "cells": 64800,
+  "far_field_chords": 15.0,
+  "wake_chords": 20.0,
+  "n_i": 540,
+  "n_j": 120,
+  "dy_wake_outlet_m": 0.0075091641981605275,
+  "mesh": "single-block C-grid, Hermite wall-normal lines (cfd_airfoil2d.c_grid)",
+  "chord": 0.7509164198160527,
+  "U": 25.0,
+  "nu": 1.7400473393614127e-05,
+  "alphas": [
+   -4,
+   0,
+   4,
+   8,
+   12,
+   16
+  ]
+ },
  "run_dir": "/home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/osprey_airfoil2d"
 }

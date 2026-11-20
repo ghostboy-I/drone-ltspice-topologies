@@ -59,15 +59,18 @@ def from_design(d):
     return np.array([float(d[g][k]) for g, k, *_ in SPACE])
 
 
-def sweep(n, rounds=4, workers=2, seed=1, start=None):
-    """Random sweep (start=None) or, with start = a design dict, a local cloud around it; then elite refinement."""
+def sweep(n, rounds=4, workers=2, seed=1, start=None, free=None):
+    """Random sweep (start=None) or, with start = a design dict, a local cloud around it; then elite refinement.
+    free: component names (e.g. ("wing", "pod")) the refine may change; the others stay at start (a shell-FEM-verified
+    fuselage keeps its keel, boom and gear while the wing is resized)."""
     rng = np.random.default_rng(seed)
+    mask = np.array([1.0 if free is None or s_[0] in free else 0.0 for s_ in SPACE])
     lo = np.array([s[2] for s in SPACE], float); hi = np.array([s[3] for s in SPACE], float)
     if start is None:
         X = lo + rng.random((n, len(SPACE))) * (hi - lo)
     else:
         x0 = from_design(start)
-        X = np.clip(x0 + rng.normal(0, 0.08, (n, len(SPACE))) * (hi - lo), lo, hi); X[0] = x0
+        X = np.clip(x0 + rng.normal(0, 0.08, (n, len(SPACE))) * (hi - lo) * mask, lo, hi); X[0] = x0
     t0 = time.time(); allres = []
     ctx = mp.get_context("fork")
     with ProcessPoolExecutor(max_workers=workers, mp_context=ctx, initializer=_init) as ex:
@@ -79,7 +82,7 @@ def sweep(n, rounds=4, workers=2, seed=1, start=None):
             Y = []
             for e in elite:
                 for _ in range(n // (10 * (rounds + 1)) + 4):
-                    Y.append(np.array(e["x"]) + rng.normal(0, scale, len(SPACE)) * (hi - lo))
+                    Y.append(np.array(e["x"]) + rng.normal(0, scale, len(SPACE)) * (hi - lo) * mask)
             res = list(ex.map(evaluate, Y, chunksize=4)); allres += res
             b = min(allres, key=penalised)
             print(f"round {k+1}: {len(Y)} evals, {sum(r['ok'] for r in res)} pass, best {penalised(b):.2f} kg ok={b['ok']} [{time.time()-t0:.0f} s]", flush=True)
@@ -111,5 +114,6 @@ if __name__ == "__main__":
         print(tf.summary(tf.run(ctx, d)))
     elif sys.argv[1] == "sweep":
         sweep(int(sys.argv[2]) if len(sys.argv) > 2 else 1500)
-    elif sys.argv[1] == "refine":                   # python3 src/screen.py refine 400 designs/selected.json
-        sweep(int(sys.argv[2]), start=json.load(open(sys.argv[3])), seed=2)
+    elif sys.argv[1] == "refine":                   # python3 src/screen.py refine 400 designs/selected.json [wing,pod]
+        sweep(int(sys.argv[2]), start=json.load(open(sys.argv[3])), seed=2,
+              free=tuple(sys.argv[4].split(",")) if len(sys.argv) > 4 else None)

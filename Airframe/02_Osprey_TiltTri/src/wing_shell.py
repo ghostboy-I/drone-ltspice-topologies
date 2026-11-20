@@ -15,7 +15,7 @@ A shell model can answer three things the beam cannot:
 
 Model (x forward, y left, z up; the same axes and origin as tiltframe.py and geometry.py):
   * Box: NACA 4415 contour between the front spar (15 % c) and the rear spar (60 % c), 6 deg forward sweep and
-    3.5 deg dihedral, a kink at y = 0. The contour is the STL's (geometry.naca4, chord line 2 % c below the axis).
+    3.5 deg dihedral, a kink at y = 0. The contour is the STL's (wing_sections.surfaces, pitched by the incidence about the qc, chord line 2 % c below the axis).
     The skin mid-surface is inset by half the sandwich thickness from the mould line.
   * Upper and lower box skins: sandwich, faces = the beam's cap laminate (n_ud UD + n_w45 woven +-45 per face), the
     wing core. Spar webs: sandwich, n_w45 woven +-45 per face. Laminates from designs/selected.json, so the shell and
@@ -57,7 +57,7 @@ from tiltcfg import ROOT, RESULTS, G0
 import tiltframe as tf
 import materials as mat
 import fuselage_shell as fs
-from geometry import naca4
+import wing_sections as ws
 
 FEA = os.path.join(ROOT, "fea", "wing")
 JOB = "wing_static"
@@ -72,12 +72,9 @@ NAMES = {"EUP": "upper skin", "ELO": "lower skin", "EWF": "front spar web", "EWR
 
 # ------------------------------------------------------------------ geometry --------------------------------------------
 def contour(code):
-    """Upper and lower surface z/c as functions of x/c (geometry.naca4, the STL's section)."""
-    xs, zs = naca4(code, 400)
-    i = int(np.argmin(xs))
-    xu, zu = xs[:i + 1][::-1], zs[:i + 1][::-1]                  # LE -> TE
-    xl, zl = xs[i:], zs[i:]
-    return (lambda x: np.interp(x, xu, zu)), (lambda x: np.interp(x, xl, zl))
+    """Upper and lower surface z/c as functions of x/c (wing_sections.surfaces, the STL's section)."""
+    xs, zu, zl = ws.surfaces(code)
+    return (lambda x: np.interp(x, xs, zu)), (lambda x: np.interp(x, xs, zl))
 
 
 class WingMesh:
@@ -88,6 +85,7 @@ class WingMesh:
         self.tsw = math.tan(math.radians(-w["sweep_deg"])); self.tdi = math.tan(math.radians(w["dihedral_deg"]))
         self.xf, self.xr = pw["spar_front_xc"], pw["spar_rear_xc"]
         self.zu, self.zl = contour(w["airfoil"])
+        self.inc = w.get("incidence_deg", 0.0)
         self.y_lug = y_lug
         self.X, self.key = [], {}
         self.el = {}
@@ -110,10 +108,9 @@ class WingMesh:
     # x, z of a box point; xc the chord fraction, which = 0 lower / 1 upper surface (mid-surface inset)
     def surf(self, y, xc, upper):
         ay = abs(y)
-        x = ay * self.tsw + 0.25 * self.c - xc * self.c
-        z0 = ay * self.tdi - 0.02 * self.c
-        z = z0 + self.c * (self.zu(xc) if upper else self.zl(xc)) + (-self.inset if upper else self.inset)
-        return np.array([x, y, z])
+        zc = (self.zu(xc) if upper else self.zl(xc)) + (-self.inset if upper else self.inset) / self.c
+        x, z = ws.to_wing(xc, zc, self.c, self.inc)                 # section pitched by the incidence about the qc
+        return np.array([ay * self.tsw + float(x), y, ay * self.tdi + float(z)])
 
     def perim(self, p, y):
         """Perimeter point p (0..np_-1): lower skin front->rear, rear web up, upper skin rear->front, front web down."""
@@ -183,11 +180,22 @@ class WingMesh:
 
 
 # ------------------------------------------------------------------ sections --------------------------------------------
+def cap_plies(wd, k):
+    """UD cap plies in beam segment k (0..11 from the root), the beam model's rule (tiltframe.build):
+    n = round(n_root + (n_tip - n_root) eta), eta at the segment middle."""
+    eta = (k + 0.5) / 12
+    return int(round(wd["n_ud_root"] + (wd["n_ud_tip"] - wd["n_ud_root"]) * eta))
+
+
+def sec_key(me, eset, eid):
+    """Section key of an element: the cap sets carry their ply count, the rest the set kind."""
+    kind = eset if eset == "ERIB" else eset[:-1]
+    return f"{kind}{me.nud[eid]}" if kind in ("EUP", "ELO") else kind
+
+
 def sections(ctx, d):
     pm = ctx["pm"]; foam = pm["materials"]["foam"]
     wd = d["wing"]; ct = wd["core_mm"] * 1e-3
-    if wd["n_ud_root"] != wd["n_ud_tip"]:
-        raise NotImplementedError("tapered caps: the selected design has n_ud_root = n_ud_tip; add a spanwise set split")
     cap = mat.wall(pm, n_ud0=wd["n_ud_root"], n_w45=wd["n_w45"], core_t=ct)
     web = mat.wall(pm, n_w45=wd["n_w45"], core_t=ct)
     rib = mat.wall(pm, n_w45=RIB_W45, core_t=ct)
@@ -197,6 +205,12 @@ def sections(ctx, d):
     for k_, lam, nm in (("EUP", cap, "FCAP"), ("ELO", cap, "FCAP"), ("EWF", web, "FWEB"), ("EWR", web, "FWEB"), ("ERIB", rib, "FRIB")):
         secs[k_] = dict(layers=[(nm, face(lam).h), ("FOAM", ct), (nm, face(lam).h)], mats={nm: fs.face_material(face(lam))},
                         areal=2 * face(lam).h * rho_face(lam) + ct * foam["rho"], lam=lam, face=face(lam))
+    # tapered caps: one section per UD ply count, "EUP3", "ELO2", ... (cap_plies() gives each element's count)
+    for n in sorted({cap_plies(wd, k) for k in range(12)}):
+        lam = mat.wall(pm, n_ud0=n, n_w45=wd["n_w45"], core_t=ct); nm = f"FCAP{n}"
+        for k_ in ("EUP", "ELO"):
+            secs[f"{k_}{n}"] = dict(layers=[(nm, face(lam).h), ("FOAM", ct), (nm, face(lam).h)], mats={nm: fs.face_material(face(lam))},
+                                    areal=2 * face(lam).h * rho_face(lam) + ct * foam["rho"], lam=lam, face=face(lam))
     qi = mat.strain_allowable(pm)
     return secs, foam, qi["eps_allow"]
 
@@ -250,11 +264,19 @@ def map_loads(me, case):
 def write_inp(me, secs, foam, cases_f, lugs, path):
     L = ["*HEADING", "Osprey tilt-tricopter wing shell model (wing_shell.py)", "*NODE"]
     L += [f"{i + 1}, {x[0]:.6f}, {x[1]:.6f}, {x[2]:.6f}" for i, x in enumerate(me.X)]
-    eid = 1; me.eid = {}
+    eid = 1; me.eid = {}; me.nud = {}; ssets = {}
+    seg = me.b / 2 / 12                                          # beam segment length along y
     for eset, els in me.el.items():
         L.append(f"*ELEMENT, TYPE=S8R, ELSET={eset}")
         for ns in els:
-            L.append(f"{eid}, " + ", ".join(map(str, ns))); me.eid.setdefault(eset, []).append(eid); eid += 1
+            L.append(f"{eid}, " + ", ".join(map(str, ns))); me.eid.setdefault(eset, []).append(eid)
+            if eset != "ERIB":
+                ym = abs(float(np.mean(me.Xa[np.array(ns[:4]) - 1][:, 1])))
+                me.nud[eid] = cap_plies(me.d["wing"], min(int(ym / seg), 11))
+            ssets.setdefault(eset + "|" + sec_key(me, eset, eid), []).append(eid)
+            eid += 1
+    for k_, ids in ssets.items():
+        L += [f"*ELSET, ELSET=S{k_.replace('|', '_')}"] + [", ".join(map(str, ids[i:i + 12])) for i in range(0, len(ids), 12)]
     for k_, n in enumerate(lugs):
         L += [f"*NSET, NSET=NLUG{k_ + 1}", f"{n}"]
     L += ["*NSET, NSET=NLUGS", ", ".join(map(str, lugs))]
@@ -273,10 +295,10 @@ def write_inp(me, secs, foam, cases_f, lugs, path):
               f"{m_['G23']:.6g}, 0."]
     L += ["*MATERIAL, NAME=FOAM", "*ELASTIC, TYPE=ENGINEERING CONSTANTS",
           f"{foam['E']:.6g}, {foam['E']:.6g}, {foam['E']:.6g}, 0.3, 0.3, 0.3, {foam['G']:.6g}, {foam['G']:.6g}", f"{foam['G']:.6g}, 0."]
-    for eset in me.el:
-        kind = eset if eset == "ERIB" else eset[:-1]
+    for k_ in ssets:
+        eset, key = k_.split("|")
         ori = "OX" if eset == "ERIB" else ("OL" if eset.endswith("L") else "OR")
-        L += [f"*SHELL SECTION, ELSET={eset}, COMPOSITE"] + [f"{t:.6g},, {m_}, {ori}" for m_, t in secs[kind]["layers"]]
+        L += [f"*SHELL SECTION, ELSET=S{eset}_{key}, COMPOSITE"] + [f"{t:.6g},, {m_}, {ori}" for m_, t in secs[key]["layers"]]
     L += ["*BOUNDARY", "NLUGS, 1, 3"]
     for name, f in cases_f.items():
         L += ["*STEP", "*STATIC", "*CLOAD, OP=NEW"]
@@ -381,7 +403,7 @@ def cut_check(me, f, ef, eps, secs, y_s):
         ns = me.el[eset][me.eid[eset].index(eid)]
         P = X[np.array(ns[:4]) - 1]
         ds = 0.5 * (np.linalg.norm(P[1] - P[0]) + np.linalg.norm(P[2] - P[3]))
-        lam = secs[eset[:-1]]["face"]
+        lam = secs[sec_key(me, eset, eid)]["face"]
         Q11 = lam.Ex * 2 * lam.h / (1 - lam.nuxy * lam.nuxy * lam.Ey / lam.Ex)
         tang = (P[1] - P[0]) / np.linalg.norm(P[1] - P[0])           # along the perimeter
         rows.append(dict(eid=eid, kind=eset[:-1], c=c, ds=ds, w=ds * Q11, nu21=lam.nuxy * lam.Ey / lam.Ex, tang=tang,
@@ -459,7 +481,7 @@ def post(me, secs, foam, eps_allow, cases_f, names, lugs, beam_fb):
             ay = abs(c[1]); i = np.searchsorted(rib_y[rib_y >= 0], ay)
             ry = rib_y[rib_y >= 0]; a = (ry[min(i, len(ry) - 1)] - ry[max(i - 1, 0)]) * math.sqrt(1 + me.tsw ** 2 + me.tdi ** 2)
             bw = (me.xr - me.xf) * me.c
-            lam = secs[kind]["lam"]; e = eps_mid[eid]
+            lam = secs[f"{kind}{me.nud[eid]}"]["lam"]; e = eps_mid[eid]
             N = lam.A @ np.array([e["ss"], e["cc"], e["sc"]])
             lf, Nc, Ns = panel_buckling(lam, a, bw, N[0], N[1], N[2])
             buck.append((lf, eid, kind, float(N[0]), float(N[2]), Nc, Ns))
@@ -467,9 +489,13 @@ def post(me, secs, foam, eps_allow, cases_f, names, lugs, beam_fb):
         lf, eid, kind, Nx, Nxy, Nc, Ns = buck[0]
         o["panel_buckling"] = {"factor": lf, "MS": lf - 1, "kind": kind, "at": [round(float(v), 3) for v in ef[eid][1]], "Nx": Nx, "Nxy": Nxy,
                                "Nx_cr": Nc, "Nxy_cr": Ns}
-        lam = secs["EUP"]["lam"]
-        sw = lam.wrinkling_sigma(); comp = max(-min(eps_mid[eid_]["ss"] for eid_, (k2, _) in emax.items() if k2 in ("EUP", "ELO") and eid_ not in near_lug), 0)
-        o["wrinkling"] = {"sigma_face_Pa": comp * lam.Ex, "sigma_wr_Pa": sw, "MS": sw / max(comp * lam.Ex, 1) - 1}
+        wr = []                                                   # face wrinkling, each cap element with its own face
+        for eid_, (k2, _) in emax.items():
+            if k2 not in ("EUP", "ELO") or eid_ in near_lug: continue
+            lam = secs[f"{k2}{me.nud[eid_]}"]["lam"]; sg = max(-eps_mid[eid_]["ss"], 0) * lam.Ex
+            wr.append((lam.wrinkling_sigma() / max(sg, 1), sg, lam.wrinkling_sigma()))
+        r_, sg, sw = min(wr)
+        o["wrinkling"] = {"sigma_face_Pa": sg, "sigma_wr_Pa": sw, "MS": r_ - 1}
         # W3 / W4 at mid-bay cuts on the left wing
         mids = [0.5 * (a_ + b_) for a_, b_ in zip(rib_y[:-1], rib_y[1:]) if a_ >= me.y_lug - 1e-9]
         o["cuts"] = [cut_check(me, cases_f[name], ef, eps_mid, secs, ym) for ym in mids[:: 3]]
@@ -506,7 +532,7 @@ def figure(me, res, ef, eps_allow):
     from matplotlib.colors import LogNorm
     fig = plt.figure(figsize=(12, 7))
     gs = fig.add_gridspec(3, 2, width_ratios=[2.4, 1], hspace=0.55, wspace=0.22)
-    plots = [("LC1 hover pull-up n=2", "EUP"), ("LC4 hard landing one main", "EUP"), ("LC5 airplane gust n=2.78", "ELO")]
+    plots = [("LC1 hover pull-up n=2", "EUP"), ("LC4 hard landing one main", "EUP"), (next(k for k in res if k.startswith("LC5")), "ELO")]
     for r_, (name, kind) in enumerate(plots):
         a_ = fig.add_subplot(gs[r_, 0])
         em = res[name]["_emax"]
@@ -542,7 +568,7 @@ def main(build_only=False, post_only=False):
     FUS = json.load(open(os.path.join(RESULTS, "fuselage_shell_model.json")))
     y_lug = abs(FIT["lug_points"][0][1])
     secs, foam, eps_allow = sections(ctx, d)
-    me = WingMesh(ctx, d, y_lug)
+    me = WingMesh(ctx, d, y_lug); me.d = d
     me.inset = secs["EUP"]["lam"].h / 2
     me.build()
     lugs = me.lug_nodes()
@@ -560,18 +586,18 @@ def main(build_only=False, post_only=False):
         print(f"ccx: {run_ccx():.0f} s")
     res, ef, near_lug = post(me, secs, foam, eps_allow, cases_f, names, lugs, fb)
     W2 = hand_lugs(res, FIT, FUS)
-    area = {}
+    mass = {}
     for eset, els in me.el.items():
         kind = eset if eset == "ERIB" else eset[:-1]
-        for ns in els:
+        for ns, eid in zip(els, me.eid[eset]):
             P = me.Xa[np.array(ns[:4]) - 1]
-            area[kind] = area.get(kind, 0.0) + 0.5 * np.linalg.norm(np.cross(P[2] - P[0], P[3] - P[1]))
-    mass = {k: float(area[k] * secs[k]["areal"]) for k in area}
+            mass[kind] = mass.get(kind, 0.0) + 0.5 * np.linalg.norm(np.cross(P[2] - P[0], P[3] - P[1])) * secs[sec_key(me, eset, eid)]["areal"]
+    mass = {k: float(v) for k, v in mass.items()}
     out = {"nodes": len(me.X), "elements": {k: len(v) for k, v in me.el.items()}, "stations_y": me.stations, "y_lug": y_lug,
            "rib_w45": RIB_W45, "eps_allow": eps_allow, "mass_kg": mass, "beam_wing_mass_kg": r["mass_breakdown"]["wing"],
            "beam_wing_buckling_MS": r["worst"]["wing"]["buckling"], "beam_wing_strain_MS": r["worst"]["wing"]["strain"],
            "beam_box_EI_flap": float(tf.wing_box(ctx["pm"], ctx["sz"], d["wing"]["n_ud_root"], d["wing"]).EIyy),
-           "beam_box_depth_m": ctx["sz"]["wing"]["c"] * (tf.naca4_half_thickness(ctx["sz"]["wing"]["tc"], ctx["p"]["wing"]["spar_front_xc"]) + tf.naca4_half_thickness(ctx["sz"]["wing"]["tc"], ctx["p"]["wing"]["spar_rear_xc"])) - 0.004,
+           "beam_box_depth_m": ctx["sz"]["wing"]["c"] * (ws.depth_at(ctx["sz"]["wing"]["airfoil"], ctx["p"]["wing"]["spar_front_xc"]) + ws.depth_at(ctx["sz"]["wing"]["airfoil"], ctx["p"]["wing"]["spar_rear_xc"])) / 2 - 0.004,
            "beam_tip_dz_mm_rel_centre": {n: r["cases"][n]["wing_tip_dz_mm"] for n in names},
            "load_patches": used, "W2_lugs": W2,
            "cases": {n: {k: v for k, v in o.items() if not k.startswith("_")} for n, o in res.items()}}

@@ -70,6 +70,7 @@ import json, math, os, re, subprocess, sys, time
 import numpy as np
 from tiltcfg import ROOT, RESULTS, params, af01_params, jload, G0
 import tiltframe as tf
+import wing_sections as wsec
 import materials as mat
 from geometry import fuselage_station, SUPER_N
 
@@ -160,7 +161,7 @@ class Mesh:
 
 def build_mesh(ctx, d, x_pay):
     sz = ctx["sz"]; fu = sz["fuselage"]; w = sz["wing"]; p = ctx["p"]
-    z_top = -(w["c"] * w["tc"] / 2)
+    z_top = wsec.fuselage_top_z(sz, p["wing"])                    # the lower root spar foot (wing_sections.py)
     nfr, nt = p["fuselage"]["nose_frac"], p["fuselage"]["tail_frac"]
     xc, st = stations(ctx, d, fu, x_pay)
     # corner rings at xc, midside rings halfway
@@ -184,6 +185,10 @@ def build_mesh(ctx, d, x_pay):
                                  ((FIT["socket"]["x_fwd"], "fwd"), (FIT["socket"]["x_aft"], "aft"))}
     if FIT and "gear" in FIT: bulk_x[min(st["frames"], key=lambda f_: abs(f_ - st["x_ml"]))] = "gear"
     jw = [st["x_f"], st["x_r"]] if FIT else []                  # keel junctions: socket bulkheads (web, floor, flange)
+    # the bay doubler runs on to the main-gear frame when that frame is within 6 DX aft of the rear spar frame: otherwise
+    # a one-element undoubled strip is left between the two doublers (the LS(1)-0417MOD wing's shorter chord moved the
+    # rear spar frame 15 mm forward and the LC4 web peak, MS -0.03, sat in that 11 mm strip)
+    if FIT and "gear" in FIT and 0 < st["x_r"] - st["x_ml"] < 6 * DX: jw.append(st["x_ml"])
     near = lambda a, xs_, n_=1: any(abs(0.5 * (xa[a] + xa[a + 2]) - xb) < (n_ + 0.05) * DX for xb in xs_)   # and wing frames (web only)
     # (flange doublers at the wing frames: CalculiX 2.21 returned NaN stiffness wherever a thicker flange met a wing frame
     #  on the belly, plain or one-layer-composite frame section alike; the same doubler beside a bulkhead runs. Web and
@@ -802,7 +807,7 @@ def figure(me, res, buck, eps_allow):
     gs = fig.add_gridspec(2, 2, width_ratios=[2.3, 1], hspace=0.35, wspace=0.25)
     ax = [fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[1, 0]), fig.add_subplot(gs[:, 1])]
     what = "skin" if show == ("ESKIN",) else "keel web, flange and frames"
-    for a_, name in zip(ax[:2], ("LC1 hover pull-up n=2", "LC5 airplane gust n=2.78")):
+    for a_, name in zip(ax[:2], ("LC1 hover pull-up n=2", next(k for k in res if k.startswith("LC5")))):
         em = res[name]["_emax"]
         pts = np.array([(ef[e][1][0], ef[e][1][2], v) for e, v in em.items() if ef[e][0] in show and ef[e][1][1] >= 0])
         sc = a_.scatter(pts[:, 0], pts[:, 1], c=np.clip(pts[:, 2], 1e-5, None) / eps_allow, s=9, cmap="viridis", norm=LogNorm(0.02, 2))
@@ -836,7 +841,7 @@ def main(build_only=False, post_only=False):
     if ctx["p"]["fuselage"].get("fittings", False): ctx["fit"] = jload(os.path.join(RESULTS, "fittings.json"))
     r, fb = free_body(ctx, d)
     me = build_mesh(ctx, d, r["x_payload"])
-    sz_ = ctx["sz"]; me.rb = np.array([sz_["fuselage"]["x_tail"] + 0.05, 0, -(sz_["wing"]["c"] * sz_["wing"]["tc"] / 2) - 0.10])
+    sz_ = ctx["sz"]; me.rb = np.array([sz_["fuselage"]["x_tail"] + 0.05, 0, wsec.fuselage_top_z(sz_, ctx["p"]["wing"]) - 0.10])
     tag = "" if ctx.get("fit") else "_nofit"
     secs, qi, foam, eps_allow = sections(ctx, d)
     X = np.array(me.X)

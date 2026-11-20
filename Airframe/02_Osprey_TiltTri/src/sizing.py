@@ -5,8 +5,11 @@ Everything here is a hand calculation (textbook methods, each stated where it is
 
 Coordinates: x forward, y left, z up. Origin at the wing root quarter-chord, on the spar-box axis.
 
-1. Wing section (XFOIL, Re and Mach of the cruise point, hot day). Candidates are NACA 4- and 5-digit sections with
-   t/c >= 15 % (spar depth). The section sets clmax (stall) and cd at the cruise cl (profile drag).
+1. Wing section (XFOIL, Re and Mach of the cruise point, hot day). Candidates are NACA 4- and 5-digit sections and
+   NASA general-aviation sections from coordinate files (wing_sections.py), all with t/c >= 15 % (spar depth). The
+   section with the largest TRIPPED clmax wins (smallest wing); cd at the cruise cl (free transition) is reported.
+   Incidence: the root chord is set at the angle that gives CL_cruise with the fuselage level,
+       i_w = alpha_L0 + CL_cr / a_w   (untwisted wing, a_w Helmbold).
 2. Wing area: the smallest wing that cruises at >= 1.2 x its stall speed (light-aircraft practice, Raymer ch. 5):
        CL_max,3D = 0.9 clmax  (Raymer eq. 12.15, unswept, untwisted),   CL_cr = CL_max,3D / 1.2^2,
        S = W / (q CL_cr),   q = rho V^2 / 2.   b = sqrt(AR S) with the V-22 aspect ratio 5.5.
@@ -37,25 +40,27 @@ import atmosphere as atm   # Props program
 
 # ------------------------------------------------------------------ polars ------------------------------------------
 def _xfoil(args):
-    naca, re, mach, ncrit = args
+    name, re, mach, ncrit, trip = args
     os.nice(19)
-    import airfoils
-    d = airfoils.run_xfoil(naca, re, mach, a_pos=(0.0, 20.0), a_neg=(-0.5, -6.0), step=0.5, ncrit=ncrit, iters=200)
-    return naca, re, (d.tolist() if len(d) else [])
+    import wing_sections as ws
+    d = ws.run(name, re, mach, ncrit=ncrit, xtr=ws.XTR_TRIP if trip else (1.0, 1.0))
+    return name, re, trip, (d.tolist() if len(d) else [])
 
 
-def wing_polars(names, re, mach, ncrit, workers=2):
-    """XFOIL polars (alpha, cl, cd, cdp, cm, xtr_top, xtr_bot), sorted by alpha. Cached by (name, Re rounded to 1e4)."""
+def wing_polars(names, re, mach, ncrit, trip=False, workers=2):
+    """XFOIL polars (alpha, cl, cd, cdp, cm, xtr_top, xtr_bot), sorted by alpha. Cached by (name, Re rounded to 1e4,
+    free or tripped transition). Names are NACA codes or coordinate files in geometry/airfoils (wing_sections.py)."""
     cache = os.path.join(RESULTS, "wing_polars.json")
     data = jload(cache) if os.path.exists(cache) else {}
-    jobs = [(n, re, mach, ncrit) for n in names if f"{n}@{round(re, -4):.0f}" not in data]
+    key = lambda n, r, t: f"{n}@{round(r, -4):.0f}" + ("@trip" if t else "")
+    jobs = [(n, re, mach, ncrit, trip) for n in names if key(n, re, trip) not in data]
     if jobs:
         import multiprocessing as mp
         with ProcessPoolExecutor(max_workers=workers, mp_context=mp.get_context("fork")) as ex:
-            for n, r, rows in ex.map(_xfoil, jobs):
-                data[f"{n}@{round(r, -4):.0f}"] = sorted(rows)
+            for n, r, t, rows in ex.map(_xfoil, jobs):
+                data[key(n, r, t)] = sorted(rows)
         save("wing_polars.json", data)
-    return {n: np.array(data[f"{n}@{round(re, -4):.0f}"]) for n in names}
+    return {n: np.array(data[key(n, re, trip)]) for n in names}
 
 
 def polar_summary(name, P):
@@ -64,8 +69,10 @@ def polar_summary(name, P):
     i = int(np.argmax(cl))
     lin = (a >= -2) & (a <= 4)
     slope, a0 = np.polyfit(a[lin], cl[lin], 1)
-    tc = int(name[-2:]) / 100
+    import wing_sections as ws
+    tc = round(ws.thickness(name), 4)
     return {"name": name, "tc": tc, "clmax": float(cl[i]), "alpha_clmax": float(a[i]), "cl_alpha_per_deg": float(slope),
+            "stall_found": bool(i < len(a) - 2),                     # peak inside the sweep, not at its 20 deg end
             "alpha_L0": float(-a0 / slope), "cm0": float(np.interp(0.0, cl, cm)) if np.all(np.diff(cl[: i + 1]) > -0.05) else float(cm[np.argmin(abs(cl))]),
             "a": a, "cl": cl, "cd": cd, "cm": cm, "i_max": i}
 
@@ -149,38 +156,51 @@ def derive(verbose=True):
                             "source": "Props phase2.json axial_advance_curves (BEMT at hover rpm, hot day)"}
 
     # ---- 1-2. airfoil and wing area
+    # Each section gets two XFOIL polars: free transition (e^N, ncrit 9) and tripped (5 % / 10 % chord). The wing is
+    # sized on the TRIPPED clmax (a dirty or rain-wet wing must still lift; for these sections it is 0-3 % below the
+    # free value), cruise drag uses the free polar (a clean composite wing). Pick: the largest tripped clmax among the
+    # sections thick enough for the spar box, i.e. the smallest wing, with the stall found inside the sweep.
     w = p["wing"]
     AR = w["aspect_ratio"]
     S_guess = 4.0
-    for _ in range(3):
+    for _ in range(4):
         c_guess = math.sqrt(S_guess / AR)
         re = rho * V * c_guess / mu
         pol = wing_polars(w["airfoils"], re, V / a_snd, w["ncrit"])
+        pol_t = wing_polars(w["airfoils"], re, V / a_snd, w["ncrit"], trip=True)
         cands = []
         for n, P in pol.items():
-            s = polar_summary(n, P)
-            if s is None: continue
-            CLmax = w["clmax_3d_factor"] * s["clmax"]
+            s, st_ = polar_summary(n, P), polar_summary(n, pol_t[n])
+            if s is None or st_ is None: continue
+            CLmax = w["clmax_3d_factor"] * st_["clmax"]
             CL = CLmax / w["stall_margin"] ** 2
             S = W / (q * CL)
-            cands.append(dict(s, CLmax3d=CLmax, CL_cruise=CL, S=S, cd_cruise=cd_at_cl(s, CL)))
-        ok = [c_ for c_ in cands if c_["tc"] >= w["t_c_min"]]
-        # pick: least wing drag area (S cd + induced) among the sections thick enough for the spar
+            cands.append(dict(s, clmax_free=s["clmax"], clmax=st_["clmax"], stall_found=st_["stall_found"],
+                              alpha_clmax=st_["alpha_clmax"], alpha_L0_trip=st_["alpha_L0"], cm0_trip=st_["cm0"],
+                              CLmax3d=CLmax, CL_cruise=CL, S=S, cd_cruise=cd_at_cl(s, CL), cd_cruise_trip=cd_at_cl(st_, CL)))
         for c_ in cands:
             c_["DA_wing"] = c_["S"] * (c_["cd_cruise"] + c_["CL_cruise"] ** 2 / (math.pi * w["e_oswald"] * AR))
-        best = min(ok, key=lambda c_: c_["DA_wing"])
+        ok = [c_ for c_ in cands if c_["tc"] >= w["t_c_min"] and c_["stall_found"]]
+        best = max(ok, key=lambda c_: c_["clmax"])
         if abs(best["S"] / S_guess - 1) < 0.01: break
         S_guess = best["S"]
     S, CL = best["S"], best["CL_cruise"]
     b = math.sqrt(AR * S); c = S / b
+    # Incidence: the fuselage flies level at the cruise point, so the wing root chord is set at the wing angle of attack
+    # that gives CL_cruise. Untwisted wing: CL = a_w (alpha - alpha_L0), alpha_L0 of the section (tripped polar: the
+    # fully turbulent CFD agrees with it, the free polar sits 13-17 % high in lift), a_w the Helmbold 3-D slope.
+    aw_ = helmbold(AR)
+    inc = best["alpha_L0_trip"] + math.degrees(CL / aw_)
     out["wing_re"] = re
-    out["airfoil_table"] = [{k: c_[k] for k in ("name", "tc", "clmax", "alpha_clmax", "cm0", "CLmax3d", "CL_cruise", "S", "cd_cruise", "DA_wing")}
-                            for c_ in sorted(cands, key=lambda c_: c_["DA_wing"])]
+    out["airfoil_table"] = [{k: c_[k] for k in ("name", "tc", "clmax", "clmax_free", "stall_found", "alpha_clmax", "alpha_L0_trip",
+                                                 "cm0", "CLmax3d", "CL_cruise", "S", "cd_cruise", "cd_cruise_trip", "DA_wing")}
+                            for c_ in sorted(cands, key=lambda c_: -c_["clmax"])]
     out["wing"] = {"airfoil": best["name"], "tc": best["tc"], "S": S, "b": b, "c": c, "AR": AR, "CL_cruise": CL,
                    "CLmax3d": best["CLmax3d"], "v_stall_ms": math.sqrt(2 * W / (rho * S * best["CLmax3d"])),
                    "cd_profile": best["cd_cruise"], "cm0": best["cm0"], "wing_loading_n_m2": W / S,
                    "sweep_deg": w["sweep_deg"], "dihedral_deg": w["dihedral_deg"],
-                   "a_per_rad": helmbold(AR)}
+                   "a_per_rad": aw_, "incidence_deg": inc, "alpha_L0_deg": best["alpha_L0_trip"],
+                   "alpha_stall_3d_deg": best["alpha_L0_trip"] + math.degrees(best["CLmax3d"] / aw_)}
 
     # ---- 5 + 7. layout and airplane-mode stability, solved together
     # Given the tail volume (Raymer), the neutral point is fixed; the CG must sit SM ahead of it in airplane mode. The
@@ -358,8 +378,8 @@ def report(o):
           f" -> needs {o['v22_scaled']['speed_for_CL1_ms']:.0f} m/s at CL 1.0;  prop zero thrust at {o['prop_airplane']['v_zero_thrust_at_rpm_max']:.1f} m/s")
     print("Airfoils (Re %.2e):" % o["wing_re"])
     for r in o["airfoil_table"]:
-        print(f"  NACA {r['name']:6s} t/c {r['tc']:.2f} clmax {r['clmax']:.3f} CL_cr {r['CL_cruise']:.3f} S {r['S']:.2f} m2 cd {r['cd_cruise']:.5f} cm0 {r['cm0']:+.3f} DA {r['DA_wing']:.4f}")
-    print(f"Wing NACA {w['airfoil']}: S {w['S']:.2f} m2, b {w['b']:.2f} m, c {w['c']:.3f} m, CL {w['CL_cruise']:.3f}, Vs {w['v_stall_ms']:.1f} m/s, W/S {w['wing_loading_n_m2']:.0f} N/m2")
+        print(f"  {r['name']:9s} t/c {r['tc']:.2f} clmax {r['clmax']:.3f} CL_cr {r['CL_cruise']:.3f} S {r['S']:.2f} m2 cd {r['cd_cruise']:.5f} cm0 {r['cm0']:+.3f} DA {r['DA_wing']:.4f}")
+    print(f"Wing {w['airfoil']} (incidence {w['incidence_deg']:.1f} deg): S {w['S']:.2f} m2, b {w['b']:.2f} m, c {w['c']:.3f} m, CL {w['CL_cruise']:.3f}, Vs {w['v_stall_ms']:.1f} m/s, W/S {w['wing_loading_n_m2']:.0f} N/m2")
     ch = o["download"]["chosen"]
     print(f"Download: overlap {ch['overlap']:.2f} R -> {ch['download_n']:.0f} N ({100*ch['frac']:.1f} %); V-22 hub on the tip spar -> {100*o['download']['v22_like']['frac']:.1f} %")
     dt = o["download_tail"]

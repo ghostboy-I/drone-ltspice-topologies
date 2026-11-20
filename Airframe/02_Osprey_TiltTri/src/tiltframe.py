@@ -31,6 +31,7 @@ import numpy as np
 from tiltcfg import params, af01_params, jload, RESULTS, AF01, PROPS, G0, LB
 import materials as mat
 import sections as sx
+import wing_sections as wsec
 from frame_fem import Model
 import airframe as af01                                   # landing_case, gear_section, keel_section
 
@@ -76,9 +77,9 @@ def wing_box(pm, sz, n_ud, wd):
 
 def _wing_box(pm, sz, n_ud, wd):
     """Spar box between the spars: depth = mean of the contour thickness at the two spars minus the skin."""
-    w = sz["wing"]; c = w["c"]; tc = w["tc"]
+    w = sz["wing"]; c = w["c"]
     xf, xr = pm["wing"]["spar_front_xc"], pm["wing"]["spar_rear_xc"]
-    depth = c * (naca4_half_thickness(tc, xf) + naca4_half_thickness(tc, xr)) - 0.004
+    depth = c * (wsec.depth_at(w["airfoil"], xf) + wsec.depth_at(w["airfoil"], xr)) / 2 - 0.004   # mean spar depth - skins
     width = (xr - xf) * c
     kd = pm["materials"]["shell_knockdown"]
     side = mat.wall(pm, n_w45=wd["n_w45"], core_t=wd["core_mm"] * 1e-3)
@@ -118,16 +119,18 @@ def build(ctx, d, mode="hover", x_payload=None):
     ys = np.linspace(-b / 2, b / 2, 2 * nseg + 1)
     wn = [M.node((abs(y) * tsw + x_spar, y, abs(y) * tdi)) for y in ys]
     wd = d["wing"]
+    inc = math.radians(w.get("incidence_deg", 0.0))
+    vref_w = (-math.sin(inc), 0.0, math.cos(inc))                # box depth axis = chord normal, pitched by the incidence
     for i in range(2 * nseg):
         eta = abs((ys[i] + ys[i + 1]) / 2) / (b / 2)
         n_ud = int(round(wd["n_ud_root"] + (wd["n_ud_tip"] - wd["n_ud_root"]) * eta))
-        M.beam(wn[i], wn[i + 1], wing_box(pm, sz, n_ud, wd), (0, 0, 1), "wing", "wing")
+        M.beam(wn[i], wn[i + 1], wing_box(pm, sz, n_ud, wd), vref_w, "wing", "wing")
     info["wing_nodes"], info["wing_y"] = wn, ys
     centre = wn[nseg]; M.tags["centre"] = centre
 
     # ---- keel along the cabin floor
     k = d["keel"]
-    z_top = -(c * w["tc"] / 2)                                   # fuselage top just under the wing
+    z_top = wsec.fuselage_top_z(sz, p["wing"])                     # fuselage top at the lower root spar foot
     z_floor = z_top - fu["H"] + 0.04
     zk = z_floor - k["depth"] / 2
     x_nose, x_tail = fu["x_nose"], fu["x_tail"]

@@ -98,18 +98,21 @@ def figs(sz, r, final):
     # airfoil polars
     pol = jload(os.path.join(RESULTS, "wing_polars.json"))
     fig, ax = plt.subplots(1, 2, figsize=(10, 3.8))
+    re_key = f"{round(sz['wing_re'], -4):.0f}"
     for k, P in pol.items():
-        P = np.array(P); name = k.split("@")[0]
-        if len(P) < 5: continue
+        P = np.array(P); parts = k.split("@"); name = parts[0]
+        if len(P) < 5 or parts[1] != re_key: continue
+        trip = len(parts) > 2
         sel = name == sz["wing"]["airfoil"]
-        kw = dict(color=ACC if sel else "#9a9a9a", lw=2.2 if sel else 0.9, zorder=3 if sel else 1)
+        if trip and not sel: continue
+        kw = dict(color=ACC if sel else "#9a9a9a", lw=2.2 if sel else 0.9, zorder=3 if sel else 1, ls="--" if trip else "-")
         ax[0].plot(P[:, 0], P[:, 1], **kw); ax[1].plot(P[:, 2], P[:, 1], **kw)
-        if sel: ax[0].plot([], [], color=ACC, lw=2.2, label=f"NACA {name} (selected)")
+        if sel: ax[0].plot([], [], color=ACC, lw=2.2, ls=kw["ls"], label=f"{name} (selected){', tripped' if trip else ''}")
     ax[0].plot([], [], color="#9a9a9a", lw=0.9, label="other candidates")
     ax[0].axhline(sz["wing"]["CL_cruise"] / 1.0, color=ACC2, ls="--", lw=1); ax[0].text(-5.5, sz["wing"]["CL_cruise"] + 0.04, "cruise CL", color=ACC2, fontsize=8)
     ax[0].set_xlabel("alpha [deg]"); ax[0].set_ylabel("cl"); ax[0].legend(fontsize=8, frameon=False); ax[0].grid(alpha=0.25)
     ax[1].set_xlabel("cd"); ax[1].set_ylabel("cl"); ax[1].set_xlim(0, 0.03); ax[1].grid(alpha=0.25)
-    fig.suptitle(f"XFOIL polars at Re {sz['wing_re']:.2e}, Ncrit 9 (hot day, 25 m/s, wing chord)", fontsize=10)
+    fig.suptitle(f"XFOIL polars at Re {sz['wing_re']:.2e}, Ncrit 9, free transition; tripped 5/10 % dashed (hot day, 25 m/s, wing chord)", fontsize=10)
     fig.tight_layout(); fig.savefig(os.path.join(RESULTS, "fig_polars.png"), dpi=150); plt.close(fig)
 
     # download vs overlap, and prop thrust vs speed

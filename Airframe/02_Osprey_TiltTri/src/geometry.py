@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from tiltcfg import ROOT, RESULTS, params, af01_params, jload
 import tiltframe as tf
+import wing_sections as wsec
 
 GEO = os.path.join(ROOT, "geometry")
 os.makedirs(GEO, exist_ok=True)
@@ -130,7 +131,7 @@ def build(mode="hover"):
     S = {}
 
     # fuselage: super-ellipse loft. Top line level at z_top; the aft 30 % ramps the belly up to the boom.
-    z_top = -(c * tc / 2); H, Wd, Lf = fu["H"], fu["W"], fu["L"]
+    z_top = wsec.fuselage_top_z(sz, p["wing"]); H, Wd, Lf = fu["H"], fu["W"], fu["L"]   # at the lower root spar foot
     x0, x1 = fu["x_nose"], fu["x_tail"]
     nfr, nt = p["fuselage"]["nose_frac"], p["fuselage"]["tail_frac"]
     ne = SUPER_N; th = np.linspace(0, 2 * math.pi, 48, endpoint=False)
@@ -147,11 +148,13 @@ def build(mode="hover"):
         S[nm] = surface_of_revolution((x_ml + 0.35, side * (Wd / 2 + 0.02), z_top - H + 0.12), (-1, 0, 0),
                                       np.linspace(0, 0.75, 12), 0.09 * np.sin(np.linspace(0.05, math.pi - 0.05, 12)) ** 0.6 + 0.0)
 
-    # wing: NACA section, LE line = qc line + c/4, with sweep and dihedral; split at the root for the dihedral kink
-    code = w["airfoil"]
+    # wing: the sized section (wing_sections.contour), pitched nose-up by the incidence about the quarter-chord, qc line
+    # swept and dihedralled; split at the root for the dihedral kink
+    xs_, zs_ = wsec.contour(w["airfoil"], 40)
+    xw, zw = wsec.to_wing(xs_, zs_, c, w.get("incidence_deg", 0.0))
     for side, nm in ((1, "wing_L"), (-1, "wing_R")):
-        root = np.array([0.25 * c, 0.0, -0.02 * c]); tip = np.array([b / 2 * tsw + 0.25 * c, side * b / 2, b / 2 * tdi - 0.02 * c])
-        S[nm] = lifting_surface(code, root, tip, c, c)
+        rings = [np.c_[xw + ay * tsw, np.full_like(xw, side * ay), zw + ay * tdi] for ay in (0.0, b / 2)]
+        S[nm] = loft(rings)
 
     # pods (fixed) and rotor heads (tilting)
     arm = p["nacelle"]["head_arm_m"]; dp = p["nacelle"]["pod_diameter_m"]
@@ -289,9 +292,9 @@ def main():
             draw2d(fig.add_subplot(gs[1, 1]), S, disks, R, "front", "Front")
             fig.tight_layout(); fig.savefig(os.path.join(RESULTS, "fig_3view.png"), dpi=150); plt.close(fig)
     sz = jload(os.path.join(RESULTS, "sizing.json"))
-    xs, zs = naca4(sz["wing"]["airfoil"], 100)
+    xs, zs = wsec.contour(sz["wing"]["airfoil"], 100)
     with open(os.path.join(GEO, "wing_section.dat"), "w") as f:
-        f.write(f"NACA {sz['wing']['airfoil']}\n")
+        f.write(f"{wsec.LABEL.get(sz['wing']['airfoil'], 'NACA ' + sz['wing']['airfoil'])}\n")
         for x, z in zip(xs, zs): f.write(f"{x:.6f} {z:.6f}\n")
     with open(os.path.join(RESULTS, "geometry.json"), "w") as f: json.dump(out, f, indent=1)
     print(json.dumps(out, indent=1))

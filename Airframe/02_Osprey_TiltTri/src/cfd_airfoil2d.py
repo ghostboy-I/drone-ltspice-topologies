@@ -86,6 +86,20 @@ SUMMARY = os.path.join(REPO, "CFD_Results", "02_Osprey_TiltTri", "airfoil2d")
 HDR = 'FoamFile {{ format ascii; class {cls}; {loc}object {obj}; }}\n'
 
 
+def section_closed(code, n):
+    """Upper and lower surface (LE->TE), unit chord, single TE point. NACA codes: naca4_closed. Coordinate files
+    (wing_sections.py): the finite TE gap g is closed by moving each surface by -/+ (g/2) x/c (a linear thickness taper,
+    0.4 % of the chord at the TE for the LS(1)-0417MOD; the C-grid needs one TE point)."""
+    if code.isdigit(): return naca4_closed(code, n)
+    import wing_sections as ws
+    x, zu, zl = ws.surfaces(code, n)
+    g = zu[-1] - zl[-1]
+    zu, zl = zu - g / 2 * x, zl + g / 2 * x
+    up, lo = np.c_[x, zu], np.c_[x, zl]
+    up[0] = lo[0] = [0.0, 0.5 * (zu[0] + zl[0])]
+    return up, lo
+
+
 def naca4_closed(code, n):
     """NACA 4-digit with the closed-TE coefficient (-0.1036). Returns upper (LE->TE) and lower (LE->TE) at unit chord."""
     m, p_, t = int(code[0]) / 100, int(code[1]) / 10, int(code[2:]) / 100
@@ -138,7 +152,7 @@ def c_grid(code, c, U, nu, dz, Ro=15.0, Lw=20.0, nf=70, na=90, nn=120, nw=110, y
     R, L = Ro * c, Lw * c
     xs = 0.30
     # dense surface, arc-length parametrised, unit chord
-    up, lo = naca4_closed(code, 4001)
+    up, lo = section_closed(code, 4001)
     def arc(p): return np.r_[0, np.cumsum(np.linalg.norm(np.diff(p, axis=0), axis=1))]
     def place(p, f):                                              # points at arc fractions f of curve p
         s = arc(p); t = f * s[-1]
@@ -315,13 +329,15 @@ potentialFlow { nNonOrthogonalCorrectors 3; }          // potentialFoam start, i
     return files
 
 
-def setup(codes=("4415", "0012")):
+def setup(codes=None):
     sz = jload(os.path.join(RESULTS, "sizing.json"))
+    codes = codes or (sz["wing"]["airfoil"], "0012")
     U, nu = sz["cruise"]["V"], sz["air"]["mu"] / sz["air"]["rho"]
-    plan = {}
+    pf = os.path.join(CFD, "plan.json")                           # keep the cases of sections not set up again (the
+    plan = {k: v for k, v in (jload(pf) if os.path.exists(pf) else {}).items() if k != "run_dir"}   # NACA 4415 record)
     for code in codes:
         c = sz["wing"]["c"] if code == sz["wing"]["airfoil"] else sz["stability"]["c_h"]
-        alphas = [-4, 0, 2, 4, 6, 8, 10, 12, 14, 16] if code != "0012" else [0, 4, 8, 12]
+        alphas = [-4, 0, 4, 8, 12, 16] if code != "0012" else [0, 4, 8, 12]   # ~27 min per case on 1 core
         dz = 0.01 * c
         mesh_files, info = c_grid(code, c, U, nu, dz)
         for a in alphas:
@@ -371,23 +387,11 @@ def mesh(code):
     print(subprocess.run(["bash", "-c", cmd], capture_output=True, text=True).stdout)
 
 
-def xfoil_polar(naca, re, mach, xtr=1.0, ncrit=9.0):
-    """XFOIL polar at one Re, free transition (xtr 1) or tripped (xtr 0.05). Rows (alpha, cl, cd, cdp, cm)."""
-    import tempfile, airfoils
-    with tempfile.TemporaryDirectory() as td:
-        cmds = (f"PLOP\nG F\n\nNACA {naca}\nPPAR\nN 200\n\n\nOPER\nVISC {re:.0f}\nMACH {mach:.3f}\nVPAR\nN {ncrit}\n"
-                f"XTR {xtr} {xtr}\n\nITER 300\nPACC\np.txt\n\nASEQ 0 18 0.5\nINIT\nASEQ -0.5 -6 -0.5\nPACC\n\nQUIT\n")
-        env = dict(os.environ); env.pop("DISPLAY", None)
-        if os.path.exists(airfoils.SHIM):
-            shutil.copy(airfoils.SHIM, os.path.join(td, "nofpe_shim.so")); env["LD_PRELOAD"] = "./nofpe_shim.so"
-        subprocess.run([airfoils.xfoil_version_and_path()], input=cmds, text=True, capture_output=True, cwd=td, env=env,
-                       timeout=300, errors="replace")
-        rows = []
-        for ln in open(os.path.join(td, "p.txt"), errors="replace"):
-            try: v = [float(x) for x in ln.split()[:5]]
-            except ValueError: continue
-            if len(v) == 5: rows.append(v)
-    return np.array(sorted(rows))
+def xfoil_polar(code, re, mach, xtr=1.0, ncrit=9.0):
+    """XFOIL polar at one Re, free transition (xtr 1) or tripped (xtr 0.05 both sides). Rows (alpha, cl, cd, cdp, cm, ...).
+    NACA codes and coordinate files alike (wing_sections.run)."""
+    import wing_sections as ws
+    return ws.run(code, re, mach, ncrit=ncrit, xtr=(xtr, xtr), a_pos=(0.0, 18.0), iters=300)
 
 
 def post():
@@ -459,6 +463,6 @@ def plot(out):
 
 if __name__ == "__main__":
     cmd = sys.argv[1]
-    if cmd == "setup": setup(tuple(sys.argv[2:]) or ("4415", "0012"))
+    if cmd == "setup": setup(tuple(sys.argv[2:]) or None)
     elif cmd == "mesh": mesh(sys.argv[2])
     elif cmd == "post": post()
