@@ -192,6 +192,7 @@ doc.p("The LTC4366 needs about 0.1 s to ramp Q4's gate, far longer than the 8 ms
 
 # =====================================================================================================================
 kd = os.path.join(here, "kicad", "Avionics_Board")
+PITCH_ROW = 12.0                                   # ESC FET row pitch (pcb_esc.PITCH)
 ls = json.load(open(os.path.join(kd, "layout_stats.json")))
 doc.pagebreak()
 doc.h("8. Avionics PCB layout (KiCad, for JLCPCB)")
@@ -250,11 +251,14 @@ doc.p(f"Kelvin sense. R1 = 10 mΩ gives 10 mV/A. A shared 5 mm × 0.8 mm run of 
 # --- router
 doc.p("Router. kicad_route.py is a small A* router on a 0.05 mm grid with two layers and vias (cost 2.5 mm of track). For each "
       "net it computes, with a Euclidean distance transform per voltage group, the cells where a track of the chosen width would come "
-      "closer than that pair's clearance, then searches the free cells. A cell counts as copper when its centre is inside the copper, "
-      "so a real copper edge can be up to half a cell diagonal closer than the grid says:", size=9.5)
-doc.eq(r"e_{max} = \frac{\sqrt{2}}{2}\,\Delta = 0.035\ \mathrm{mm} \;\Rightarrow\; \mathrm{blocked\ if}\; d < s_{pair} + \frac{w}{2} + 0.75\,\Delta", size=12)
+      "closer than that pair's clearance, then searches the free cells. A cell counts as copper when its centre is inside the copper. "
+      "The real edge then lies beyond the outermost marked centre by up to one cell in each axis, so near a corner it can be a full "
+      "cell diagonal closer than the grid says:", size=9.5)
+doc.eq(r"e_{max} = \sqrt{2}\,\Delta = 0.071\ \mathrm{mm}, \qquad \mathrm{blocked\ if}\; d < s_{pair} + \frac{w}{2} + 0.75\,\Delta", size=12)
 doc.p("The first version used a 0.1 mm grid and no margin; KiCad's DRC found 51 places 0.03–0.1 mm too close, which is exactly that "
-      "error. Order matters too: the gate drive and the Kelvin pair go first, then a ground via beside every ground pad, then the "
+      "error. The 0.75 Δ (0.04 mm) margin is a compromise: the full 0.071 mm would stop a 0.2 mm track from leaving a 0.5 mm-pitch pin "
+      "(0.1 + 0.2 + 0.071 > 0.35 mm to the next pad), so the rest is left to KiCad's DRC. On the ESC board the DRC caught one via "
+      "0.196 mm from an LQFP pin, so there the fan-out vias beside fine-pitch pads keep the full √2 Δ (all vias at √2 Δ cost too many via spots for the router to finish). Order matters too: the gate drive and the Kelvin pair go first, then a ground via beside every ground pad, then the "
       "small-signal nets (they need the short paths between IC pins), then the power taps, ground last. A track wider than a "
       "fine-pitch pin cannot reach it, so each connection retries at 0.4, 0.3, 0.25 and 0.2 mm.", size=9.5)
 doc.p("Checking the checker. The first full run reported 0 DRC errors, and that was wrong. The rules were correct in the files, "
@@ -285,7 +289,142 @@ doc.p("Fabrication files (python3 pcb_avionics.py fab → kicad/Avionics_Board/j
       "(placement) in JLC's column format. Check each part's rotation in JLC's preview before ordering: footprint zero "
       "orientations differ between KiCad and JLC's library for some packages (SOT-23, diodes, electrolytics).", size=9.5)
 
-doc.h("9. What went wrong first (and what each taught)")
+# =====================================================================================================================
+kq = os.path.join(here, "kicad", "ESC_Board")
+lq = json.load(open(os.path.join(kq, "layout_stats.json")))
+doc.pagebreak()
+doc.h("9. ESC PCB layout (KiCad, for JLCPCB)")
+doc.p("pcb_esc.py lays out one ESC board the same way (same stackup, router and checks), %.0f × %.0f mm. The floorplan follows "
+      "the current: a bank of 24 polymer capacitors in three rows of eight at the top, the battery pigtail J1 to the right of it, "
+      "then three identical legs side by side, each a column of four high-side D2PAKs, a phase lane, four low-side D2PAKs and a "
+      "ground lane. Below the legs is the low-current band: gate drivers, current sensors, motor-lead pads, MCU, LDOs and "
+      "connectors. The aux 12 V buck sits in the top-right corner, where VBUS is. Battery current flows top to bottom and "
+      "motor current leaves at the bottom, so no high current crosses the MCU's area and one solid ground plane (In1) serves "
+      "both power and signal ground. A split ground is not needed." % tuple(lq["size_mm"]), size=9.5)
+# --- clearance groups
+doc.p("Clearance. 24S is 100.8 V full. Every net class that can sit 31–150 V away from another copper class gets 0.6 mm on the "
+      "outer layers (IPC-2221B B2), and 0.3 mm on the inner ones (B1 asks 0.2 mm). Each phase is its own group, because two "
+      "phases can be the full bus voltage apart. A phase, its bootstrap supply (phase + 12 V) and its high-side gates move "
+      "together, so they share a group at 0.2 mm:", size=9.5)
+doc.table(["Group", "Nets", "Voltage", "Outer clearance"], [
+    ["HVBUS", "VBUS", "0–100.8 V", "0.6 mm to every other class"],
+    ["SW_A/B/C", "PH_x, BST_x, TG_x, HS gates, MOT_x", "−1 to 113 V", "0.6 mm (0.2 mm inside a phase)"],
+    ["SW_AUX", "aux SW, BST, TG", "0–113 V", "0.6 mm"],
+    ["HVDIV1 / HVDIV2", "bus divider taps", "67 V / 34 V", "0.6 mm"],
+    ["LV", "GND, +12V, +5V, +3V3, LS gates, signals", "≤ 13 V", "0.2 mm"],
+], widths=[0.17, 0.4, 0.14, 0.29])
+doc.p("The LTC7063's own pinout puts SW 0.25 mm from the unused NC pin and from BG, about 113 V apart, so each driver's pin field "
+      "(and the LTC7801's) is an exempt rule area, checked by pinfield_audit() as on the avionics board. Conformal coating is "
+      "required, as it is for any 100 V MSOP.", size=9.5)
+# --- currents and copper
+iq_t, id_t = es["iq_true"], es["id_true"]
+iph_hand = math.hypot(iq_t, id_t) / math.sqrt(2); iph_p = me["iq_p"] / math.sqrt(2)
+idc_hand = p_in_hand / me["vbus_h"]
+doc.p("Currents. With amplitude-invariant Park transforms the phase current's RMS is |i_dq|/√2, and the DC current is the "
+      "input power over the bus voltage:", size=9.5)
+doc.eq(r"I_{ph,rms} = \frac{\sqrt{i_q^2+i_d^2}}{\sqrt{2}} = \frac{%.1f\ \mathrm{A}}{\sqrt{2}} = %.1f\ \mathrm{A} \qquad I_{DC} = \frac{P_{in}}{V_{bus}} = \frac{%.0f\ \mathrm{W}}{%.1f\ \mathrm{V}} = %.1f\ \mathrm{A}" % (math.hypot(iq_t, id_t), iph_hand, p_in_hand, me["vbus_h"], idc_hand), size=11)
+doc.table(["Current", "Hand", "LTspice", "Δ"], [
+    ["Phase, RMS, hover (A)", f"{iph_hand:.1f}", f"{me['iph_rms']:.1f}", pct(iph_hand, me["iph_rms"])],
+    ["Phase, RMS, punch (A, seconds)", f"{iph_p:.1f} (from LTspice iq)", "—", ""],
+    ["DC link, hover (A)", f"{idc_hand:.1f}", f"{me['iesc_h']:.1f}", pct(idc_hand, me["iesc_h"])],
+    ["DC link, punch (A)", "—", f"{me['iesc_p']:.1f}", ""],
+    ["DC-link capacitor ripple, RMS (A)", f"{h09.kolar(iq_h, mp['vd'], mp['vq'], me['vbus_h']):.1f}", f"{me['icap_rms']:.1f}", ""],
+], widths=[0.4, 0.24, 0.18, 0.18])
+doc.p("LTspice's phase RMS is a little higher: its 4–7 ms window still holds the end of the flying-start transient, and it "
+      "includes the PWM ripple. For copper the 2 %% does not matter. IPC-2221's chart, for 2 oz outer copper and a 30 °C rise, "
+      "asks for a %.0f mm wide trace at %.0f A. That is why the phases and the DC link are pours on all four layers, with a "
+      "soldered bar on top." % (((iph_hand / (0.048 * 30 ** 0.44)) ** (1 / 0.725)) / (2 * 1.378) * 0.0254, iph_hand), size=9.5)
+rs2, rs1 = 1.72e-8 / 70e-6, 1.72e-8 / 35e-6
+rsq = 1 / (2 / rs2 + 1 / rs1)
+w_lane, s_row, n_exit = 20.0, PITCH_ROW, 0.8
+n_lane = s_row / w_lane * (1 + 4 + 9) / 16 + n_exit
+p_lane = me["iph_rms"] ** 2 * rsq * n_lane
+r_bar = 1.72e-8 / 8e-6 * 1e3                                     # 8 mm^2 bar: Ohm/m * 1e3 = uOhm/mm
+r_lane = rsq / w_lane * 1e6                                      # lane: R_sq / w, uOhm per mm of length
+k_bar = r_lane / (r_lane + r_bar)                                # the bar's share of the current
+n_in2, n_br = 0.4, 2.8
+r_feed = 1 / (1 / (rs1 * n_in2) + 1 / (rs2 * n_br)); r_bar_feed = 1.72e-8 / 8e-6 * 28e-3
+r_feed_bar = 1 / (1 / r_feed + 1 / r_bar_feed)
+doc.p("Counting squares. A sheet of copper of thickness t has a sheet resistance R_sq = ρ/t (ohms per square) whatever its size: %.3f mΩ for 2 oz, %.3f mΩ for 1 oz. A "
+      "path l long and w wide is l/w squares. The phase lane is F.Cu + In2 + B.Cu in parallel, %.3f mΩ/□, about %.0f mm wide. "
+      "Each of the four FET rows feeds a quarter of the phase current, so the three gaps between rows (%.0f mm each) carry I/4, "
+      "I/2 and 3I/4, and the exit to the sensor carries all of it (≈ %.1f □):" % (rs2 * 1e3, rs1 * 1e3, rsq * 1e3, w_lane, s_row, n_exit), size=9.5)
+doc.eq(r"P_{lane} = I^2 R_{\mathrm{sq}}\left[\frac{s}{w}\cdot\frac{1+4+9}{16} + n_{exit}\right] = %.0f^2\cdot %.3f\,\mathrm{m\Omega}\cdot %.2f = %.2f\ \mathrm{W\ per\ leg}" % (me["iph_rms"], rsq * 1e3, n_lane, p_lane), size=11)
+doc.p("A 4 × 2 mm copper bar (8 mm², about the motor lead's 8 AWG) soldered on the lane is %.2f µΩ/mm against the lane's "
+      "%.2f µΩ/mm, so it takes %.0f %% of the current and cuts the lane loss to about %.2f W. The DC feed from J1 runs through In2 "
+      "(the whole top band, ≈ %.1f □) and the F.Cu bridge right of the bank (10 × 28 mm, %.1f □): %.2f mΩ, %.1f W at hover. A bar "
+      "on the bridge brings that to %.2f mΩ, %.2f W." % (r_bar, r_lane, k_bar * 100, p_lane * (1 - k_bar),
+      n_in2, n_br, r_feed * 1e3, me["iesc_h"] ** 2 * r_feed, r_feed_bar * 1e3, me["iesc_h"] ** 2 * r_feed_bar), size=9.5)
+# --- thermal vias
+k_cu, t_pl, d_via, t_pcb = 390.0, 25e-6, 0.3e-3, 1.6e-3
+r_via = t_pcb / (k_cu * math.pi * d_via * t_pl); n_tab = 30
+r_pad = 0.5e-3 / (3.0 * 9.4e-3 * 10.8e-3); r_jc = 0.5
+p_fet1 = me["pfet"] / 24
+dT = p_fet1 * (r_jc + r_via / n_tab + r_pad)
+doc.p("Heat. %.0f W of FET loss at hover is %.1f W per D2PAK. Its tab is soldered to F.Cu; the heat sink presses on the opened "
+      "B.Cu under each column through an insulating pad (B.Cu is at VBUS or phase potential). The path through the board is the "
+      "via barrels, plated %.0f µm thick:" % (me["pfet"], p_fet1, t_pl * 1e6), size=9.5)
+doc.eq(r"R_{via} = \frac{t_{PCB}}{k_{Cu}\,\pi d\,t_{pl}} = \frac{1.6\,\mathrm{mm}}{390\cdot\pi\cdot 0.3\,\mathrm{mm}\cdot 25\,\mu\mathrm{m}} = %.0f\ \mathrm{K/W}, \quad \frac{R_{via}}{%d} = %.1f\ \mathrm{K/W}" % (r_via, n_tab, r_via / n_tab), size=11)
+doc.eq(r"\Delta T_{j-sink} = P\,(R_{jc} + R_{vias} + R_{pad}) = %.2f\,(%.1f + %.1f + %.1f) = %.0f\ \mathrm{K}" % (p_fet1, r_jc, r_via / n_tab, r_pad, dT), size=11)
+doc.p("The pad is 0.5 mm at 3 W/m·K over the 9.4 × 10.8 mm tab. The FR-4 between the vias (0.3 W/m·K) adds a parallel path of about "
+      "50 K/W and the inner planes spread the heat sideways; both are ignored, so the estimate is on the safe side. With the sink at "
+      "60 °C the junctions run near %.0f °C, far from 175 °C. The vias sit in the solder pads, so order them epoxy-filled and capped "
+      "(JLC 'POFV'), or the solder wicks down them." % (60 + dT), size=9.5)
+# --- hot loop
+l_hl, w_hl = 44e-3, 4 * PITCH_ROW * 1e-3
+L_hl = mu0 * 0.21e-3 * l_hl / w_hl
+doc.p("Commutation loop. Per leg the loop is ceramic → HS tab → HS source → phase lane → LS tab → LS source → ground lane, and "
+      "back through In1, 0.21 mm under all of it, to the ceramic's ground pad. It is %.0f mm long but only 0.21 mm high and as "
+      "wide as the four-row column (%.0f mm):" % (l_hl * 1e3, w_hl * 1e3), size=9.5)
+doc.eq(r"L_{board} \approx \frac{\mu_0\,h\,l}{w} = \frac{4\pi\cdot10^{-7}\cdot 0.21\,\mathrm{mm}\cdot %.0f\,\mathrm{mm}}{%.0f\,\mathrm{mm}} = %.2f\ \mathrm{nH}" % (l_hl * 1e3, w_hl * 1e3, L_hl * 1e9), size=11)
+doc.p("That is small next to the D2PAK leads themselves, so the overshoot is set by the packages. The next leg's ceramics sit on "
+      "the other side of each ground lane, so every leg has capacitors at both ends of its loop. Gate drive: each FET has its "
+      "series and pull-down resistors at the gate lead; the four of a column are joined by a B.Cu run under the phase copper (the "
+      "high side) or the ground lane (the low side). The return is the copper directly above, so the gate loop is also flat.", size=9.5)
+# --- routing
+doc.p("Routing. The same A* router, with the hard spots planned by hand. (1) Pin order is topology: around an IC the "
+      "destinations must come in the same cyclic order as the pins, or some connection has to change layer. The LTC7801's left "
+      "row (0.65 mm pitch) has VBUS between NDRV and EXTVCC, and INTVCC must reach the far side of the chip, so pins 17–23 leave "
+      "through a two-column via fan-out: alternate pins go 1.22 and 2.27 mm out, so each stub to the outer column passes between "
+      "two inner vias with 0.225 mm to spare. VBUS drops straight into the In2 plane and the rest continue on B.Cu. (2) FAULT_N and "
+      "DRV_EN are both buses along the three drivers, on neighbouring pins, so whichever is routed first walls in the other. "
+      "FAULT_N drops to B.Cu through a via straight under its pin, between the EN and DT stubs. (3) The NTC divider's +3V3 is "
+      "routed before the encoder bus to J5, which would otherwise wall R5 in. (4) After routing, tidy() necks every segment that "
+      "ends in a pad down to the pad's narrow side less one cell: the router walks cell centres and then snaps the last point onto "
+      "the exact pad centre, up to 25 µm off the grid it checked. It also removes vias that two fan-outs put on the same spot. "
+      "Rip-up and retry did not help here: with the failed net routed first, a neighbour failed instead (+3V3, then PWM_B, then "
+      "DT_B, then DRV_EN), so each crossing was fixed at its cause.", size=9.5)
+# --- results
+drq = lq["drc"]
+errq = sum(v for k, v in drq.items() if k.startswith("error")); warnq = {k.split(":")[1]: v for k, v in drq.items() if k.startswith("warning")}
+doc.table(["Result", "Value"], [
+    ["Board", f"{lq['size_mm'][0]:.0f} × {lq['size_mm'][1]:.0f} mm, 4 layers, 2 oz / 1 oz, {lq['parts']} parts + 4 M3 holes"],
+    ["Tracks", f"{lq['tracks']}  (F.Cu {lq['length_mm']['F.Cu']:.0f} mm, B.Cu {lq['length_mm']['B.Cu']:.0f} mm)"],
+    ["Vias", f"{lq['vias']}  ({sum(lq['hand_vias'].values())} placed by hand, {lq['hand_vias']['tab']} of them in FET tabs)"],
+    ["Unrouted connections (KiCad DRC)", f"{lq['unconnected']}"],
+    ["DRC errors", f"{errq}" + ("" if not errq else "  (" + ", ".join(f"{k.split(':')[1]} {v}" for k, v in drq.items() if k.startswith('error')) + ")")],
+    ["DRC warnings", ", ".join(f"{k} {v}" for k, v in warnq.items()) or "0"],
+    ["Schematic ↔ PCB parity issues", f"{lq['schematic_parity']}"],
+    ["Pin-field audit failures (U1, U4–U6)", f"{len(lq['pinfield_audit'])}"],
+    ["Smallest HV gap, measured", "%.3f mm outer, %.3f mm inner (rules 0.6 / 0.3)" % (
+        min(v[0] for L in ("F.Cu", "B.Cu") for v in lq["measured_gaps"][L].values() if v[0] is not None),
+        min(v[0] for L in ("In1.GND", "In2.PWR") for v in lq["measured_gaps"][L].values() if v[0] is not None))],
+    ["References on F.Fab only", f"{len(lq['hidden_refs'])} of {lq['parts']}"],
+], widths=[0.36, 0.64])
+doc.p("The measured gaps come from measure_gaps(), which does not use KiCad's DRC engine: per layer, all copper of each "
+      "voltage group (pads, tracks, vias, zone fills) becomes one polygon set; one set is grown by d and intersected with the "
+      "other, and d is bisected to 1 µm. Items are polygonised with at most 0.5 µm error. With KiCad's default 5 µm the "
+      "first measurement showed slivers 0.595 mm from a 0.6 mm rule: the measuring tool's own error, not the board's.", size=9.5)
+doc.img(os.path.join(kq, "layout_routed.png"), width=5.9)
+doc.img(os.path.join(kq, "layout_routed_B.png"), width=5.9)
+doc.img(os.path.join(kq, "board_3d_top.png"), width=5.6)
+doc.p("Assembly notes. (1) Solder a 4 × 2 mm copper bar (or flattened 8 AWG wire) on each mask-free strip: the three phase lanes, "
+      "the VBUS strip along the tops of the legs and the bridge from J1. (2) Put an insulating thermal pad (≥ 0.5 mm, ≥ 3 W/m·K, "
+      "rated for 150 V) between the opened B.Cu and the heat sink. The NTC R6 sits on F.Cu at the bottom of leg B's ground lane, so it "
+      "reads the board next to the FETs, not the sink. (3) Conformal-coat "
+      "the board. (4) Order 2 oz outer copper and filled, capped vias, and check every part's rotation in JLC's preview.", size=9.5)
+
+doc.h("10. What went wrong first (and what each taught)")
 doc.bullets([
     "Units: the .asc files were first written as UTF-8 with 'µ'. LTspice read it as two Latin-1 characters and dropped the unit, so 47µ became 47 H and 0.1µ became 0.1 F, and nothing started. Write 'u', or write the file in Latin-1.",
     "Library models: a test from a bare .cir file said the vendor FETs were missing. From a schematic they load, because LTspice adds its standard libraries only for .asc files. Confirm a model by measuring it (here: Ron with 1 V / 1 mΩ), not by the absence of an error.",
@@ -299,13 +438,15 @@ doc.bullets([
     "Driver enable dipped the first ESC's +12V to 7.4 V: all three bootstrap capacitors (3 × 1 µF) charge from the rail at once, and it had only ~10 µF. A 47 µF X7R (≈22 µF at 12 V) brings the minimum to 9.9 V. Charge sharing, ΔV ≈ 3·Cboot·12 V / C12, predicts 11.0 V; the rest is the drivers' own start-up current before the loop responds.",
     "A sensor model can lie too: the first ACS770 model got its 120 kHz bandwidth from 1 kΩ + 1.3 nF, and that 1 kΩ, loaded by the 30 kΩ ADC divider, lost 3 % of the signal. The real part's output impedance is a few ohms, so the model now uses 10 Ω + 133 nF.",
     "The first 'drive efficiency' read 76.6 %. It was not an efficiency: the rotor was still speeding up after the coast, so ½Jω² was absorbing about 0.9 kW. Write the energy balance before you trust a ratio.",
+    "ESC layout: the router drew thin VBUS tracks from the high-side tabs to the capacitor bank, alongside the pours that already joined them. Its connectivity check counted two overlapping pours of the same net as separate islands when no pad or via sat in the overlap. Touching fills on the same layer now count as connected.",
+    "ESC layout: the LTC7801's left pin row could not escape on one layer however the router ordered it. VBUS sits between NDRV and EXTVCC, and INTVCC has to reach the far side of the chip, so the destinations around the IC are not in the same cyclic order as its pins and some connection must change layer. A two-column via fan-out (alternate pins 1.22 and 2.27 mm out) is the standard answer for a 0.65 mm TSSOP.",
 ])
 
-doc.h("10. Takeaways")
+doc.h("11. Takeaways")
 doc.bullets([
     "Clearance is set by the voltage between two conductors, not by the voltage of either one. Group the nets by peak voltage (from the surge simulation) and give KiCad one rule per pair of groups.",
     "Close the hot loop through the plane directly underneath it: L ≈ µ0·h·l/w with h = 0.21 mm is about 1 nH, a tenth of a loop drawn side by side.",
-    "A grid router must add the grid's own error (half a cell diagonal) to every clearance, or the real copper ends up closer than the rule. KiCad's DRC is the check that catches it.",
+    "A grid router has its own error: with centre-sampled cells, copper can be up to a cell diagonal closer than the grid says. Add as much of it as the finest pin pitch allows (all of it for the fan-out vias beside fine-pitch pads), and let KiCad's DRC check the rest.",
     "Test the checker as well as the board: a DRC that reports 0 errors may simply not have loaded the rules. A deliberately bad case, or an independent clearance measurement, shows whether it is working.",
     "Describe the board once (a parts table) and generate the simulation, BOM and net list from it. That way what you simulated is what you build.",
     "A current-mode buck is a Type II loop on a single pole, plus about one switching period of delay. The delay costs ~25° of phase at fc ≈ fsw/13.",

@@ -1,0 +1,339 @@
+{
+ "tracks": 1061,
+ "vias": 2147,
+ "hand_vias": {
+  "tab": 720,
+  "source": 468,
+  "lane": 429,
+  "bank": 288,
+  "J1": 24,
+  "aux": 23,
+  "EP": 15,
+  "U1 fan-out": 7
+ },
+ "length_mm": {
+  "F.Cu": 1598.5,
+  "B.Cu": 1161.1
+ },
+ "routed_by_router": 1044,
+ "failed": [],
+ "hidden_refs": [
+  "Q8",
+  "Q25",
+  "Q17",
+  "R12",
+  "R15",
+  "R14"
+ ],
+ "unconnected": 0,
+ "drc": {},
+ "schematic_parity": 0,
+ "parts": 197,
+ "pinfield_audit": [],
+ "size_mm": [
+  175.0,
+  130.0
+ ],
+ "measured_gaps": {
+  "F.Cu": {
+   "HVBUS|HVDIV1": [
+    1.8,
+    0.6
+   ],
+   "HVBUS|HVDIV2": [
+    null,
+    0.6
+   ],
+   "HVBUS|LV": [
+    0.6,
+    0.6
+   ],
+   "HVBUS|SW_A": [
+    0.6,
+    0.6
+   ],
+   "HVBUS|SW_AUX": [
+    0.658,
+    0.6
+   ],
+   "HVBUS|SW_B": [
+    0.6,
+    0.6
+   ],
+   "HVBUS|SW_C": [
+    0.6,
+    0.6
+   ],
+   "HVDIV1|HVDIV2": [
+    1.8,
+    0.6
+   ],
+   "HVDIV1|LV": [
+    0.6,
+    0.6
+   ],
+   "HVDIV1|SW_A": [
+    null,
+    0.6
+   ],
+   "HVDIV1|SW_AUX": [
+    null,
+    0.6
+   ],
+   "HVDIV1|SW_B": [
+    null,
+    0.6
+   ],
+   "HVDIV1|SW_C": [
+    null,
+    0.6
+   ],
+   "HVDIV2|LV": [
+    0.6,
+    0.6
+   ],
+   "HVDIV2|SW_A": [
+    null,
+    0.6
+   ],
+   "HVDIV2|SW_AUX": [
+    null,
+    0.6
+   ],
+   "HVDIV2|SW_B": [
+    null,
+    0.6
+   ],
+   "HVDIV2|SW_C": [
+    null,
+    0.6
+   ],
+   "LV|SW_A": [
+    0.6,
+    0.6
+   ],
+   "LV|SW_AUX": [
+    0.6,
+    0.6
+   ],
+   "LV|SW_B": [
+    0.6,
+    0.6
+   ],
+   "LV|SW_C": [
+    0.6,
+    0.6
+   ],
+   "SW_A|SW_AUX": [
+    null,
+    0.6
+   ],
+   "SW_A|SW_B": [
+    null,
+    0.6
+   ],
+   "SW_A|SW_C": [
+    null,
+    0.6
+   ],
+   "SW_AUX|SW_B": [
+    null,
+    0.6
+   ],
+   "SW_AUX|SW_C": [
+    null,
+    0.6
+   ],
+   "SW_B|SW_C": [
+    null,
+    0.6
+   ]
+  },
+  "In1.GND": {
+   "HVBUS|LV": [
+    0.3,
+    0.3
+   ],
+   "HVBUS|SW_A": [
+    null,
+    0.3
+   ],
+   "HVBUS|SW_AUX": [
+    2.704,
+    0.3
+   ],
+   "HVBUS|SW_B": [
+    null,
+    0.3
+   ],
+   "HVBUS|SW_C": [
+    null,
+    0.3
+   ],
+   "LV|SW_A": [
+    0.3,
+    0.3
+   ],
+   "LV|SW_AUX": [
+    0.3,
+    0.3
+   ],
+   "LV|SW_B": [
+    0.3,
+    0.3
+   ],
+   "LV|SW_C": [
+    0.3,
+    0.3
+   ],
+   "SW_A|SW_AUX": [
+    null,
+    0.3
+   ],
+   "SW_A|SW_B": [
+    null,
+    0.3
+   ],
+   "SW_A|SW_C": [
+    null,
+    0.3
+   ],
+   "SW_AUX|SW_B": [
+    null,
+    0.3
+   ],
+   "SW_AUX|SW_C": [
+    null,
+    0.3
+   ],
+   "SW_B|SW_C": [
+    null,
+    0.3
+   ]
+  },
+  "In2.PWR": {
+   "HVBUS|LV": [
+    0.3,
+    0.3
+   ],
+   "HVBUS|SW_A": [
+    0.6,
+    0.3
+   ],
+   "HVBUS|SW_AUX": [
+    0.3,
+    0.3
+   ],
+   "HVBUS|SW_B": [
+    0.6,
+    0.3
+   ],
+   "HVBUS|SW_C": [
+    0.6,
+    0.3
+   ],
+   "LV|SW_A": [
+    0.3,
+    0.3
+   ],
+   "LV|SW_AUX": [
+    1.064,
+    0.3
+   ],
+   "LV|SW_B": [
+    0.3,
+    0.3
+   ],
+   "LV|SW_C": [
+    0.3,
+    0.3
+   ],
+   "SW_A|SW_AUX": [
+    null,
+    0.3
+   ],
+   "SW_A|SW_B": [
+    null,
+    0.3
+   ],
+   "SW_A|SW_C": [
+    null,
+    0.3
+   ],
+   "SW_AUX|SW_B": [
+    null,
+    0.3
+   ],
+   "SW_AUX|SW_C": [
+    null,
+    0.3
+   ],
+   "SW_B|SW_C": [
+    null,
+    0.3
+   ]
+  },
+  "B.Cu": {
+   "HVBUS|LV": [
+    0.6,
+    0.6
+   ],
+   "HVBUS|SW_A": [
+    0.6,
+    0.6
+   ],
+   "HVBUS|SW_AUX": [
+    2.075,
+    0.6
+   ],
+   "HVBUS|SW_B": [
+    0.6,
+    0.6
+   ],
+   "HVBUS|SW_C": [
+    0.6,
+    0.6
+   ],
+   "LV|SW_A": [
+    0.6,
+    0.6
+   ],
+   "LV|SW_AUX": [
+    0.6,
+    0.6
+   ],
+   "LV|SW_B": [
+    0.6,
+    0.6
+   ],
+   "LV|SW_C": [
+    0.6,
+    0.6
+   ],
+   "SW_A|SW_AUX": [
+    null,
+    0.6
+   ],
+   "SW_A|SW_B": [
+    null,
+    0.6
+   ],
+   "SW_A|SW_C": [
+    null,
+    0.6
+   ],
+   "SW_AUX|SW_B": [
+    null,
+    0.6
+   ],
+   "SW_AUX|SW_C": [
+    null,
+    0.6
+   ],
+   "SW_B|SW_C": [
+    null,
+    0.6
+   ]
+  }
+ }
+}

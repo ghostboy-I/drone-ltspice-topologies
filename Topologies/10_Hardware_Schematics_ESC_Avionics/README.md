@@ -20,8 +20,8 @@
 | `*_Netlist.csv` | Every net with every `REF.pin` on it, the wiring list for KiCad (simulation-only parts removed) |
 | `plot_results.py`, `make_design_doc.py` | Plots and the design PDF |
 | `kicad_footprints.py`, `kicad_export.py`, `kicad_check.py` | KiCad: footprint library, both projects with PCBs, and the checks (see below) |
-| `kicad_draw.py`, `kicad_avionics.py`, `sexpr.py` | The avionics board as a drawn, hierarchical KiCad schematic (five sheets), checked against the parts table |
-| `pcb_avionics.py`, `kicad_route.py` | The avionics PCB layout for JLCPCB: placement, pours, a grid router, DRC, Gerbers / BOM / CPL (see below) |
+| `kicad_draw.py`, `kicad_avionics.py`, `kicad_esc.py`, `sexpr.py` | Both boards as drawn, hierarchical KiCad schematics (avionics five sheets, ESC eight), checked against the parts tables |
+| `pcb_avionics.py`, `pcb_esc.py`, `kicad_route.py` | The two PCB layouts for JLCPCB: placement, pours, a grid router, DRC, Gerbers / BOM / CPL (see below) |
 
 ## Running the simulations
 Open the `.asc` in LTspice and press Run, or in batch:
@@ -61,13 +61,13 @@ python3 kicad_check.py          # ERC, net list vs parts table, footprints, sche
 | Folder | What it is |
 |---|---|
 | `kicad/Drone_Power.pretty/` | **Every footprint both boards use (39).** 35 are KiCad 9 stock footprints, copied in under their KiCad names (`kicad_footprints.py`). 4 are not in KiCad's library and are generated from the manufacturers' drawings (table below) |
-| `kicad/ESC_Board/` | Schematic (197 parts), `ESC_Board.kicad_pcb` with all 197 footprints loaded and every pad on its net, `fp-lib-table` / `sym-lib-table` |
+| `kicad/ESC_Board/` | The ESC board (197 parts): drawn schematic on eight sheets, and the **laid-out, routed PCB** (section below) |
 | `kicad/Avionics_Board/` | The avionics board (77 parts): drawn schematic on five sheets, and the **laid-out, routed PCB** (next section) |
 | `kicad/*_footprints.png` | KiCad's plot of each imported PCB: footprints parked by schematic block, ready for placement |
 
 The PCBs are what **Tools → Update PCB from Schematic** would give: each footprint is linked to its symbol (same UUID path),
-the nets come from KiCad's own net list of the schematic, and attributes (DNP, BOM) follow the symbols. The ESC board has no
-outline yet (draw it on Edge.Cuts, then place and route); the avionics board is laid out by `pcb_avionics.py`.
+the nets come from KiCad's own net list of the schematic, and attributes (DNP, BOM) follow the symbols. The boards are laid
+out by `pcb_avionics.py` and `pcb_esc.py`.
 
 | Generated footprint | Part | Source |
 |---|---|---|
@@ -138,6 +138,85 @@ Open items before ordering:
   it (the TVS and LTC4366 clamp downstream), but a 250 V DC-rated fuse in the same footprint removes the question.
 - C26 is the 250 V 1206 part (it sits on the 100–121 V node).
 
+## ESC PCB layout (JLCPCB, 4 layers + bus bars)
+```bash
+python3 pcb_esc.py              # schematic -> placed, poured, routed, filled board + DRC + renders + stats (~6 min)
+python3 pcb_esc.py place        # placement only, with layout_place.png
+python3 pcb_esc.py copper       # power copper and hand vias only, filled, with layout_copper.png and DRC
+python3 pcb_esc.py check        # independent clearance measurement of the saved board, into layout_stats.json
+python3 pcb_esc.py fab          # kicad/ESC_Board/jlcpcb/: Gerber zip, BOM and CPL for JLC
+```
+**Board:** 175 × 130 mm, 4 layers, 1.6 mm, 2 oz outer / 1 oz inner (JLC04161H-7628), four M3 holes. The floorplan follows
+the current. At the top is the DC link: 24 polymer capacitors in three rows of eight, with the battery pigtail J1 to their
+right. Below them sit the three legs side by side, each a column of four high-side D2PAKs, a phase lane, four low-side
+D2PAKs and a ground lane. The next leg's DC-link ceramics sit across each ground lane. Along the bottom is the low-current
+band (drivers, current sensors, motor-lead pads, MCU, LDOs, connectors), and the aux 12 V buck is in the top-right corner.
+Battery current flows top to bottom and motor current leaves at the bottom, so no high current crosses the MCU, and one
+solid ground plane (In1) serves power and signal ground.
+
+**Power copper.** VBUS, the phases and ground are pours on all four layers, sized by counting squares (design doc sec. 9).
+Mask-free strips take a soldered copper bar (4 × 2 mm, or flattened 8 AWG): the three phase lanes, the VBUS strip along
+the tops of the legs and the bridge from J1. Every FET tab has 30 thermal vias. The B.Cu under each FET column is opened
+for the heat sink, which needs an insulating pad, because that copper is at VBUS or phase potential.
+
+**Clearance rules** (`ESC_Board.kicad_dru`). These are the avionics board's groups, extended to 24S (100.8 V):
+
+| Group (net class) | Nets | Voltage | Outer clearance |
+|---|---|---|---|
+| HVBUS | VBUS | 0–100.8 V | 0.6 mm to every other class |
+| SW_A / SW_B / SW_C | PH_x, BST_x, TG_x, HS gates, MOT_x | −1 to 113 V | 0.6 mm (0.2 mm inside one phase) |
+| SW_AUX | aux SW, BST, TG | 0–113 V | 0.6 mm |
+| HVDIV1 / HVDIV2 | bus divider taps | 67 V / 34 V | 0.6 mm |
+| LV (PWR, DRV, signal) | GND, +12V, +5V, +3V3, LS gates, control | ≤ 13 V | 0.2 mm |
+
+Each phase is its own group: two phases can be the full bus apart, while a phase, its bootstrap supply and its high-side
+gates move together. Inner layers use 0.3 mm (B1 asks only 0.2 mm). The LTC7063s and the LTC7801 put 100 V pins 0.2–0.25 mm from
+low-voltage ones, so their pin fields are exempt rule areas (0.2 mm), checked by `pinfield_audit()`. **Conformal-coat the board.**
+
+**Routing.** This uses the same A* router (`kicad_route.py`), with the hard spots planned by hand:
+- **The LTC7801's left pin row escapes through a two-column via fan-out** (alternate pins 1.22 / 2.27 mm out). VBUS sits
+  between NDRV and EXTVCC there, so no single-layer order works (What went wrong, 13).
+- **FAULT_N drops to B.Cu through a via under each driver's pin 3.** It and DRV_EN are buses on neighbouring pins of all
+  three drivers, so whichever routes first walls in the other.
+- **R5's +3V3 routes before the encoder bus**, which would otherwise wall it in.
+- **`tidy()` necks a track down to the pad's narrow side less 0.05 mm where it ends in a pad.** The router snaps the
+  last point onto the exact pad centre, up to 25 µm off the grid it checked. `tidy()` also removes vias that two
+  fan-outs put on the same spot.
+- **Fan-out vias keep the full grid error** (cell × √2). KiCad's DRC caught one placed with only 0.75 cell, 0.196 mm from
+  an LQFP pin.
+
+**How it is checked**
+- KiCad's DRC with schematic parity, with the HV rules loaded: `ESC_Board_drc.json`.
+- `pinfield_audit()`: the exemptions must not reach copper outside the pin fields.
+- `measure_gaps()` is an independent measurement that doesn't use KiCad's DRC engine. Per layer, all copper of each group
+  (pads, tracks, vias, zone fills) becomes one polygon set. One set is grown by d (Clipper) and intersected with the
+  other, bisecting d to 1 µm.
+
+**Results** (`layout_stats.json`): 197 parts + 4 M3 holes; 1061 tracks (F.Cu 1598 mm, B.Cu
+1161 mm) and 2147 vias (1974 placed by hand: 720 in FET tabs, 468 at the FET sources,
+429 in the ground lanes, 288 in the capacitor bank). **0 unrouted, KiCad DRC 0 errors / 0 warnings, schematic parity 0,
+pin-field audit 0.** Measured independently, every HV group keeps at least 0.600 mm from the other groups on F.Cu and B.Cu
+and 0.300 mm on In1/In2. The closest pairs sit exactly at the rule, where the zone filler puts a pour.
+6 references (Q8, Q25, Q17, R12, R15, R14) are on F.Fab only, because there was no room on the silkscreen.
+
+![layout](kicad/ESC_Board/layout_routed.png)
+![3D](kicad/ESC_Board/board_3d_top.png)
+
+**Ordering at JLCPCB** (`kicad/ESC_Board/jlcpcb/`): upload `ESC_Board_gerbers.zip` and choose:
+- 4 layers, 1.6 mm, outer copper 2 oz, inner 1 oz.
+- **Via covering "epoxy filled & capped"**: the thermal vias sit in the D2PAK tab pads, so open vias would wick the solder away.
+
+For assembly, add `ESC_Board_BOM_JLC.csv` and `ESC_Board_CPL_JLC.csv`. The LCSC column is empty, so pick each part in JLC's
+matcher, and check every rotation in JLC's 3D preview (D2PAKs, diodes, polarised capacitors, SOT-223).
+
+Fit by hand after assembly:
+1. Solder the copper bars on the mask-free strips.
+2. Fit J1 (AS150 pigtails) and the 8 AWG motor leads.
+3. Fit the heat sink over a ≥ 0.5 mm, ≥ 3 W/m·K, 150 V-rated insulating pad.
+4. Conformal-coat the board.
+
+R6 (the NTC) sits at the bottom of leg B's ground lane, on the board copper next to the FETs, not on the sink.
+
 ## Porting to KiCad by hand
 1. **One schematic per board**, with one hierarchical sheet per numbered block (the framed areas in the `.asc`): e.g. ESC = 1 power input, 2 aux supply, 3 logic supplies, 4–6 legs A/B/C, 7 current sense, 8 MCU and connectors. Use global labels for the nets that cross sheets (`VBUS`, `+12V`, `+5V`, `+3V3`, `PWM_A`…).
 2. **Symbols.** KiCad's stock library has the STM32G431CBTx, the ACS770/ACS772 CB-package symbol, the LT3045 and the AS5047. The **LTC7801, LTC7063, LT8641, LT1763 and LTC4366 are not in KiCad's library**: use the generated ones in `kicad/<Board>/<Board>_custom.kicad_sym`. Pin names in the net list are LTspice's names (`SENSE+`, `BGRTN`, `_FLT` = FLT-bar, `_SHDN` = SHDN-bar); match them to the datasheet pin names, not to pin numbers.
@@ -147,12 +226,12 @@ Open items before ordering:
 
 ## Layout rules that the schematic can't show
 - **Power loop first.** Per leg, the loop from the DC-link ceramics (C17–C26) through the high-side and low-side FETs must be as small as possible. Put the ceramics right across each leg, with the polymer capacitors next to them.
-- **Current.** 110 A punch, 74 A hover: use 3 oz copper or bus bars on VBUS, GND and the phases. The motor leads need about 6–8 AWG.
+- **Current.** Per phase 116 A rms at hover and about 149 A rms in a punch; on the DC link 83 A at hover and 112 A in a punch (ESC_Board.log). That needs bus bars or very heavy copper on VBUS, GND and the phases. The motor leads need about 6–8 AWG. (An earlier version of this line gave 110 A / 74 A without saying which current; those were rough DC-link figures.)
 - **100 V spacing.** Keep at least 0.6 mm clearance between 100 V nets and logic. Keep the bootstrap nodes (`BST_x`, `PH_x`) away from the MCU.
 - **Gate drive.** Each LTC7063 goes next to its leg. Route TG with its return SW (and BG with BGRTN) as tight pairs, put one gate resistor at each FET, and place the bootstrap diode and capacitor at the driver.
 - **Grounds.** Power ground (FET sources, DC link) and signal ground (MCU, ADC dividers, LDOs) join at one point near the DC-link negative. The ACS772 is isolated, so its output side belongs to signal ground.
 - **Sense lines.** Use a Kelvin connection on R1 / R7 (current sense) to SENSE+ / SENSE−, and route the ADC lines (ISNS_x, VBUS_SNS) as guarded traces away from the switch nodes.
-- **Thermal.** About 70 W of FET loss at hover, so the 24 D2PAKs need a heatsink. The NTC (R6) goes on it.
+- **Thermal.** About 105 W of FET loss at hover (4.4 W per D2PAK, ESC_Board.log), so the 24 D2PAKs need a heatsink. The NTC (R6) goes on it.
 
 ## Results (hand → LTspice)
 **Avionics board**
@@ -192,6 +271,11 @@ Open items before ordering:
 9. **The sensor model lied**: a 1 kΩ bandwidth resistor in the ACS770 model lost 3 % into the ADC divider (now 10 Ω + 133 nF).
 10. **"Efficiency" of 76.6 %** was the rotor still accelerating after the coast (649–867 W into ½Jω²). The energy balance closes once that is counted.
 11. **`ltraw.read_meas`** returned the threshold of WHEN measurements instead of the time. Fixed for every topology.
+12. **Same-net pours looked unconnected** to the ESC router's island check when they overlapped without a pad or via in the overlap, so it drew
+    thin VBUS tracks beside the pours. Touching fills on the same layer now count as connected.
+13. **Pin order is topology.** The LTC7801's left row (VBUS between NDRV and EXTVCC, INTVCC heading to the far side) cannot escape
+    on one layer. When the destinations around a chip are not in the cyclic order of its pins, something must change layer:
+    U1 now has a two-column via fan-out, the usual escape for a 0.65 mm TSSOP.
 
 ## Assumptions to replace with measurements
 Inherited from 09: motor Lph 25 µH, 21 pole pairs, rotor inertia 0.15 kg·m², pack resistance 30 mΩ, and the avionics currents. New here: the LTC7801's ITH gain (assumed 1/12, measured ≈ 1/13), the supply currents of the STM32 / ACS772 / AS5047, and the derated capacitances of the ceramics at their bias voltage.
