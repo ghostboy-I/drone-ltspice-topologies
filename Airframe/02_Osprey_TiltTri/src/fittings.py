@@ -40,6 +40,19 @@ the same free-body loads fuselage_shell.free_body() applies), and the shell mode
    collar-to-bulkhead bolts are checked by hand. The bulkhead itself is checked in the shell model.
    Mould line: the tail cone ends at a 0.196 x 0.124 m section, smaller than the boom. The floating fairing's aft
    closure has to open around the boom (geometry change, reported).
+3. Main gear: a bow in two saddle clamps.
+   The beam model starts both main legs at the keel centre, which is one continuous bow (spring-gear style). It passes
+   under the keel and is clamped by two aluminium saddles under the keel web feet (y = +-w/2), with a sandwich gear
+   diaphragm across the section at x_ml (just aft of the payload) so the keel box keeps its shape where the loads enter.
+   * Saddle loads: the bow on two clamps. The left clamp takes the force along the bow, the right one slides, and each
+     takes half the bow torsion (about y): 6 unknowns, 6 equations (fuselage_shell.gear_split). For a wheel load P at
+     lateral arm a outside the near clamp, clamp spacing b, the lever rule gives
+         near clamp  P (1 + a/b)  (into the keel),   far clamp  -P a/b  (pulls the keel down: bolts in tension)
+   * Saddle bolts in tension (uplift side) and shear; the saddle base pressure against the sandwich flange's foam core:
+         p = P / A_pad  vs  the core's compressive strength  ->  solid inserts where p exceeds it.
+   * Keel torsion between the gear and the rear spar frame: closed-box shear flow q = T / (2 A_box), web face shear
+     strain gamma = q / (G t_faces). This shows whether torsion itself or its introduction loads the keel.
+   * Landing loads are vertical only (Airframe/01's energy method): no spin-up or drag load (FAR 23.479). Reported.
 """
 import json, math, os, sys
 import numpy as np
@@ -248,7 +261,52 @@ def main():
         x, hw, hh, zc = fuselage_station((fu["x_nose"] - xk) / fu["L"], fu, z_top, nfr, nt)
         ws.append({"x": xk, "top_gap_m": (zc + hh) - (z_boom + boom_D / 2), "half_width": hw, "half_height": hh, "zc": zc})
     out["socket"]["stations"] = ws
+    # ---------------- main gear saddles
+    x_ml = me_st["x_ml"]
+    xg, Pg, gg = fs.ring((fu["x_nose"] - x_ml) / fu["L"], fu, z_top, nfr, nt, d["keel"])
+    SL = np.array([x_ml, *Pg[2 * fs.NB]]) if Pg[2 * fs.NB, 0] > 0 else np.array([x_ml, *Pg[0]])
+    SR = np.array([x_ml, -SL[1], SL[2]])
+    gear = {"x_ml": x_ml, "saddle_L": SL.tolist(), "saddle_R": SR.tolist(), "cases": {}}
+    worst_up = worst_dn = worst_res = 0.0
+    A_box = 2 * gg["wk"] * gg["dk"]
+    for name, cs in fb.items():
+        F = np.zeros(3); Mo = np.zeros(3); wheels = []
+        for ld in cs["loads"]:
+            if ld["group"] == "gear_main" and abs(ld["root_x"][0] - x_ml) < 1e-3:
+                F += ld["L"][:3]; Mo += ld["L"][3:] + np.cross(ld["x"], ld["L"][:3])
+                if np.linalg.norm(ld["L"][:3]) > 100: wheels.append((ld["x"].tolist(), ld["L"][:3].tolist()))
+        PL, PR, Ty = fs.gear_split(F, Mo, SL, SR)
+        res = np.r_[PL + PR - F, np.cross(SL, PL) + np.cross(SR, PR) + [0, Ty, 0] - Mo]
+        T_keel = float(Mo[0] - (np.cross(SL, PL) + np.cross(SR, PR))[0] * 0 - 0)   # roll moment about the x axis
+        T_keel = float((np.cross(SL - [0, 0, gg["zc"] - gg["hh"] + gg["dk"] / 2], PL) + np.cross(SR - [0, 0, gg["zc"] - gg["hh"] + gg["dk"] / 2], PR))[0])
+        gear["cases"][name] = {"F_bow_N": F.round(1).tolist(), "M_bow_Nm": Mo.round(1).tolist(), "wheels": wheels,
+                               "P_L_N": PL.round(1).tolist(), "P_R_N": PR.round(1).tolist(), "T_y_Nm": Ty,
+                               "statics_residual": float(abs(res).max()), "keel_torque_Nm": T_keel}
+        worst_up = max(worst_up, PL[2], PR[2]); worst_dn = min(worst_dn, PL[2], PR[2])
+        worst_res = max(worst_res, np.linalg.norm(PL), np.linalg.norm(PR))
+    # saddle base: 80 mm (x) by 60 mm (y) pad on the flange/web foot; four bolts
+    A_pad = 0.080 * 0.060
+    p_pad = worst_up * FF / A_pad
+    n_b = 4
+    d_s = next(dd for dd in D_STD if n_b * 0.78 * math.pi * dd ** 2 / 4 * 1040e6 >= -worst_dn * FF and n_b * math.pi * dd ** 2 / 4 * BOLT["F_su"] >= worst_res * FF)
+    foam = pm["materials"]["foam"]
+    T_max = max(abs(c["keel_torque_Nm"]) for c in gear["cases"].values())
+    q = T_max / (2 * A_box)
+    lam_w = mat.wall(pm, n_w45=d["keel"]["n_w45"] + 2, core_t=d["keel"]["core_mm"] * 1e-3)    # web in the bay (doubler)
+    t_face = mat.Laminate(lam_w.plies).h
+    G_face = mat.Laminate(lam_w.plies).Gxy
+    gam = q / (G_face * 2 * t_face)
+    gear.update({"P_up_max_N": worst_up, "P_down_max_N": worst_dn, "pad_m2": A_pad, "pad_pressure_Pa": p_pad,
+                 "core_comp_strength_Pa": foam["comp_strength"], "pad_MS_on_core": foam["comp_strength"] / p_pad - 1,
+                 "bolts": {"n": n_b, "d_m": d_s, "tension_MS": n_b * 0.78 * math.pi * d_s ** 2 / 4 * 1040e6 / (-worst_dn * FF) - 1,
+                           "shear_MS": n_b * math.pi * d_s ** 2 / 4 * BOLT["F_su"] / (worst_res * FF) - 1},
+                 "keel_torsion": {"T_max_Nm": T_max, "A_box_m2": A_box, "q_N_per_m": q, "t_face_m": t_face, "G_face_Pa": G_face,
+                                  "gamma": gam, "eps_principal": gam / 2},
+                 "saddle_mass_each_kg": 2 * (0.08 * 0.06 * 0.006 + 0.08 * 0.04 * 0.005) * AL["rho"] + n_b * math.pi * d_s ** 2 / 4 * 0.06 * BOLT["rho"]})
+    out["gear"] = gear
     with open(os.path.join(RESULTS, "fittings.json"), "w") as f: json.dump(out, f, indent=1)
+    print(json.dumps({k: v for k, v in gear.items() if k != "cases"}, indent=1))
+    for n_, c in gear["cases"].items(): print(n_, c["P_L_N"], c["P_R_N"], round(c["T_y_Nm"], 1), "T_keel", round(c["keel_torque_Nm"]), "res", c["statics_residual"])
     print(json.dumps({k: out[k] for k in ("self_test", "lug", "wing_frames")}, indent=1))
     print(json.dumps({k: v for k, v in out["socket"].items() if k != "cases"}, indent=1))
     for n_, c in socket.items(): print(n_, c)

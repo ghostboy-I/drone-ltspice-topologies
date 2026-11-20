@@ -80,13 +80,17 @@ DX = 0.025                          # m, element length along x
 NB, NR, NV = 8, 72, 6               # elements: belly between the keel webs, rest of the perimeter, keel web height
 S0 = 0.03                           # the mesh starts 3 % of the length behind the nose tip (an open 0.28 m hole)
 UF = 1.5
-STRAIN_SETS = ("ESKIN", "EFLANGE", "EWEB", "EFLOOR", "EFRAME", "EFRAMEF", "EFRAMER", "EBULK", "EWEBD", "EFLOORD", "EFLANGED")
-CORE_SETS = ("EWEB", "EFLOOR", "EFLANGE", "EBULK", "EWEBD", "EFLOORD", "EFLANGED")
+STRAIN_SETS = ("ESKIN", "EFLANGE", "EWEB", "EFLOOR", "EFRAME", "EFRAMEF", "EFRAMER", "EBULK", "EBULKG", "EWEBD", "EFLOORD", "EFLANGED")
+CORE_SETS = ("EWEB", "EFLOOR", "EFLANGE", "EBULK", "EBULKG", "EWEBD", "EFLOORD", "EFLANGED")
 DBL_W45 = 2                         # +-45 woven plies added per face on the keel next to each fitting frame (socket
                                     # bulkheads and wing frames): a bonded-joint doubler. Without it the socket junction ran
                                     # 4,300-5,100 ue with the bulkhead tied in, and the keel beside the wing frames 3,200 ue
 BULK_W45 = 5                        # +-45 woven plies per bulkhead face (1, the keel web lay-up, failed the ligament above
                                     # the boom hole at 4,400 ue; see fittings check H3)
+GEAR_HOLE_R = 0.05                  # m, systems pass-through in the gear diaphragm (ASSUMED)
+SADDLE_HALF = 0.040                 # m, saddle clamp half-length along x (an 80 mm clamp, ASSUMED)
+SADDLE_R = 0.035                    # m, radius around the web foot that the saddle base bears on
+GEAR_BULK_W45 = 2                   # +-45 woven plies per face, gear diaphragm (sized in the FE: see fittings check G)
 TIE_TOL = 0.006                     # m, bulkhead-to-keel node merge distance (well under the ~10-18 mm element size)
 NBR = 10                            # element rows across a bulkhead, perimeter to hole
 
@@ -170,6 +174,7 @@ def build_mesh(ctx, d, x_pay):
     FIT = ctx.get("fit")
     bulk_x = {} if not FIT else {min(st["frames"], key=lambda f_: abs(f_ - xs)): tag for xs, tag in
                                  ((FIT["socket"]["x_fwd"], "fwd"), (FIT["socket"]["x_aft"], "aft"))}
+    if FIT and "gear" in FIT: bulk_x[min(st["frames"], key=lambda f_: abs(f_ - st["x_ml"]))] = "gear"
     jw = [st["x_f"], st["x_r"]] if FIT else []                  # keel junctions: socket bulkheads (web, floor, flange)
     near = lambda a, xs_, n_=1: any(abs(0.5 * (xa[a] + xa[a + 2]) - xb) < (n_ + 0.05) * DX for xb in xs_)   # and wing frames (web only)
     # (flange doublers at the wing frames: CalculiX 2.21 returned NaN stiffness wherever a thicker flange met a wing frame
@@ -178,7 +183,7 @@ def build_mesh(ctx, d, x_pay):
     # carry-through bay: the one-wheel landing (LC4) roll torque runs through the keel between the wing frames, so the web
     # and floor doublers cover the whole bay, x_r - 2 DX to x_f + 2 DX
     bay = lambda a: bool(jw) and min(jw) - 2.05 * DX < 0.5 * (xa[a] + xa[a + 2]) < max(jw) + 2.05 * DX
-    dbl = lambda a, web=False: "D" if near(a, list(bulk_x), 2) or (web and bay(a)) else ""
+    dbl = lambda a, web=False, flange=False: "D" if near(a, [b_ for b_, t_ in bulk_x.items() if not (flange and t_ == "gear")], 2) or (web and bay(a)) else ""
     for a, (x, P, g) in enumerate(rings):
         for b in range(np_):
             if corner(a, b): me.node(("s", a, b), (x, P[b, 0], P[b, 1]))
@@ -197,7 +202,7 @@ def build_mesh(ctx, d, x_pay):
     q8 = lambda g_: [g_(0, 0), g_(2, 0), g_(2, 2), g_(0, 2), g_(1, 0), g_(2, 1), g_(1, 2), g_(0, 1)]
     for a in range(0, len(xa) - 2, 2):
         for b in range(0, np_, 2):
-            eset = "EFLANGE" + dbl(a) if (b < 2 * NB and in_keel(xa[a]) and in_keel(xa[a + 2])) else "ESKIN"
+            eset = "EFLANGE" + dbl(a, flange=True) if (b < 2 * NB and in_keel(xa[a]) and in_keel(xa[a + 2])) else "ESKIN"
             me.elem(eset, q8(lambda i, j: me.idx[("s", a + i, (b + j) % np_)]))
         if in_keel(xa[a]) and in_keel(xa[a + 2]):
             for side in ("L", "R"):
@@ -213,7 +218,9 @@ def build_mesh(ctx, d, x_pay):
         me.frame_rings.append(a)
         x, P, g = rings[a]
         if xf in bulk_x:                                         # sandwich bulkhead with the boom hole
-            zb, rh = FIT["z_boom"], FIT["socket"]["boom_D_m"] / 2 + 0.008
+            tag_b = bulk_x[xf]
+            if tag_b == "gear": zb, rh = g["zc"], GEAR_HOLE_R                 # gear diaphragm: a small systems hole
+            else: zb, rh = FIT["z_boom"], FIT["socket"]["boom_D_m"] / 2 + 0.008
             for b in range(np_):
                 ph = math.atan2(P[b, 1] - zb, P[b, 0]); C = np.array([rh * math.cos(ph), zb + rh * math.sin(ph)])
                 for k_ in range(1, 2 * NBR + 1):
@@ -239,9 +246,19 @@ def build_mesh(ctx, d, x_pay):
             bn = lambda b_, k_: me.idx[("bk", a, b_ % np_, k_)]
             for b in range(0, np_, 2):
                 for k_ in range(0, 2 * NBR, 2):
-                    me.elem("EBULK", [bn(b, k_), bn(b + 2, k_), bn(b + 2, k_ + 2), bn(b, k_ + 2),
+                    me.elem("EBULKG" if tag_b == "gear" else "EBULK", [bn(b, k_), bn(b + 2, k_), bn(b + 2, k_ + 2), bn(b, k_ + 2),
                                       bn(b + 1, k_), bn(b + 2, k_ + 1), bn(b + 1, k_ + 2), bn(b, k_ + 1)])
-            me.collars[bulk_x[xf]] = dict(x=x, ids=[bn(b, 2 * NBR) for b in range(np_)], centre=np.array([x, 0.0, zb]))
+            if tag_b != "gear":
+                me.collars[tag_b] = dict(x=x, ids=[bn(b, 2 * NBR) for b in range(np_)], centre=np.array([x, 0.0, zb]))
+            else:                                                # saddle clamps under the two web feet
+                me.saddles = {"x": x}
+                kids = {n for s_ in ("EWEB", "EWEBD", "EFLANGE", "EFLANGED") for _, ns in me.el.get(s_, []) for n in ns} | \
+                       {me.idx[("s", a_, b_)] for a_ in range(len(xa)) for b_ in (0, 2 * NB) if ("s", a_, b_) in me.idx}
+                for tg, b0 in (("L", 0), ("R", 2 * NB)):
+                    pt = np.array([x, P[b0, 0], P[b0, 1]])
+                    ids = sorted(i for i in kids if abs(me.X[i - 1][0] - x) <= SADDLE_HALF + 1e-9
+                                 and np.hypot(me.X[i - 1][1] - pt[1], me.X[i - 1][2] - pt[2]) <= SADDLE_R)
+                    me.saddles["L" if P[b0, 0] > 0 else "R"] = dict(pt=pt, ids=ids)
             continue
         hv = heavy.get(round(xf, 6))
         fset = "EFRAME" if hv is None else ("EFRAMEF" if abs(xf - st["x_f"]) < 1e-6 else "EFRAMER")
@@ -292,6 +309,9 @@ def sections(ctx, d):
         secs[k_] = dict(layers=[(nm, face(lam).h), ("FOAM", ct), (nm, face(lam).h)], mats={nm: face_material(face(lam))},
                         areal=2 * face(lam).h * rho_face(lam) + ct * foam["rho"])
     secs["EFLANGED"] = dict(secs["EFLOORD"])
+    bg = mat.wall(pm, n_w45=GEAR_BULK_W45, core_t=ct)            # gear diaphragm
+    secs["EBULKG"] = dict(layers=[("FBULKG", face(bg).h), ("FOAM", ct), ("FBULKG", face(bg).h)], mats={"FBULKG": face_material(face(bg))},
+                          areal=2 * face(bg).h * rho_face(bg) + ct * foam["rho"])
     bk = mat.wall(pm, n_w45=BULK_W45, core_t=ct)                 # socket bulkheads: +-45 woven faces, keel core
     secs["EBULK"] = dict(layers=[("FBULK", face(bk).h), ("FOAM", ct), ("FBULK", face(bk).h)], mats={"FBULK": face_material(face(bk))},
                          areal=2 * face(bk).h * rho_face(bk) + ct * foam["rho"])
@@ -361,6 +381,20 @@ def socket_split(F, M, rb, x_fwd, x_aft, z_boom):
     return Fa, F - Fa, Mf[0]
 
 
+def gear_split(F, M, SL, SR):
+    """Main gear (one bow through two saddle clamps under the keel web feet SL, SR): the bow's total load (F, M about
+    the origin) -> forces on the fuselage at each saddle and the bow torsion about y, shared equally by the two clamps.
+    The left saddle takes the force along the bow (y); the right one slides. 6 unknowns, 6 equations: determinate.
+    Returns P_L, P_R (3 each) and T_y."""
+    SL, SR = np.asarray(SL, float), np.asarray(SR, float)
+    cols = []
+    for S, e in ((SL, [1, 0, 0]), (SL, [0, 1, 0]), (SL, [0, 0, 1]), (SR, [1, 0, 0]), (SR, [0, 0, 1])):
+        e = np.array(e, float); cols.append(np.r_[e, np.cross(S, e)])
+    cols.append(np.r_[0, 0, 0, 0, 1, 0])
+    u = np.linalg.solve(np.array(cols).T, np.r_[F, M])
+    return np.array(u[0:3]), np.array([u[3], 0.0, u[4]]), float(u[5])
+
+
 def map_loads(me, case, st):
     """Group the beam loads by where they enter the fuselage and spread each group's resultant over its patch."""
     X = np.array(me.X)
@@ -385,6 +419,15 @@ def map_loads(me, case, st):
             ids = [i for i in floor_ids if abs(X[i - 1, 0] - xk) <= 0.11]
         elif kind == "bat_link":
             ids = [i for i in floor_ids if abs(X[i - 1, 0] - xk) <= 0.15]
+        elif kind == "gear" and getattr(me, "saddles", None) and abs(xk - me.saddles["x"]) < 1e-3:   # main-gear saddles
+            sd = me.saddles
+            PL, PR, Ty = gear_split(grp["F"], grp["M"], sd["L"]["pt"], sd["R"]["pt"])
+            for tag, Pc in (("L", PL), ("R", PR)):
+                ids = sd[tag]["ids"]
+                fi = patch_forces(X[np.array(ids) - 1], Pc, np.array([0.0, Ty / 2, 0.0]), sd[tag]["pt"])
+                for i, v in zip(ids, fi): f[i - 1] += v
+                used[f"saddle_{tag}"] = dict(n_nodes=len(ids), F=Pc.tolist(), T_y=Ty / 2)
+            continue
         elif kind == "gear":
             ids = [i for i in keel_ids if abs(X[i - 1, 0] - xk) <= 0.06]
         elif me.collars:                                         # boom socket: collar forces on the hole edges
@@ -678,7 +721,7 @@ def figure(me, res, buck, eps_allow):
     import matplotlib.pyplot as plt
     from matplotlib.colors import LogNorm
     ef = element_frames(me)
-    show = ("ESKIN",) if "ESKIN" not in me.skip else ("EWEB", "EFRAME", "EFLANGE", "EFRAMEF", "EFRAMER", "EBULK", "EWEBD", "EFLANGED")
+    show = ("ESKIN",) if "ESKIN" not in me.skip else ("EWEB", "EFRAME", "EFLANGE", "EFRAMEF", "EFRAMER", "EBULK", "EBULKG", "EWEBD", "EFLANGED")
     fig = plt.figure(figsize=(12, 6.2))
     gs = fig.add_gridspec(2, 2, width_ratios=[2.3, 1], hspace=0.35, wspace=0.25)
     ax = [fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[1, 0]), fig.add_subplot(gs[:, 1])]
@@ -698,7 +741,7 @@ def figure(me, res, buck, eps_allow):
         ax[2].axhline(1, color="k", lw=0.8); ax[2].set_yscale("log")
         ax[2].set_title("skin buckling factor at ultimate (hand, FE loads)", fontsize=9)
     else:
-        groups = [g for g in ("EFLANGE", "EWEB", "EFLOOR", "EFRAMEF", "EFRAMER", "EBULK", "EWEBD", "EFLOORD") if g in res[names[0]]["strain"]] \
+        groups = [g for g in ("EFLANGE", "EWEB", "EFLOOR", "EFRAMEF", "EFRAMER", "EBULK", "EBULKG", "EWEBD", "EFLOORD") if g in res[names[0]]["strain"]] \
             if me.fit_elems else ["EFLANGE", "EWEB", "EFLOOR", "EFRAME"]
         wdt = 0.8 / len(groups)
         key = "strain_clear" if me.fit_elems else "strain"
@@ -740,6 +783,7 @@ def main(build_only=False, post_only=False):
             fixed += [me.idx[("s", a, b)] for b in range(me.np) if ("s", a, b) in me.idx and P[b, 1] > g["zc"] + 0.7 * g["hh"]]
     # elements touching a support or collar node: load introduction into the fittings, reported apart ("clear" excludes them)
     fit_n = set(fixed) | {i for c_ in me.collars.values() for i in c_["ids"]}
+    if getattr(me, "saddles", None): fit_n |= set(me.saddles["L"]["ids"]) | set(me.saddles["R"]["ids"])
     write_inp(me, *sections(ctx, d)[:1], {"E": 1, "nu": 0.3}, {"E": 1, "G": 1}, {}, fixed, None)   # numbers the elements
     me.fit_elems = {eid for s_, ids in me.eid.items() for eid, (_, ns) in zip(ids, me.el[s_]) if fit_n & set(ns)} if ctx.get("fit") else set()
     cases_f, used = {}, {}
@@ -757,7 +801,8 @@ def main(build_only=False, post_only=False):
     def area(ns): P = X[np.array(ns[:4]) - 1]; return 0.5 * (np.linalg.norm(np.cross(P[1] - P[0], P[3] - P[0])) + np.linalg.norm(np.cross(P[1] - P[2], P[3] - P[2])))
     mass = {k_: sum(area(ns) for _, ns in me.el[k_]) * secs[k_]["areal"] for k_ in ("ESKIN", "EWEB", "EFLOOR", "EFLANGE", "EWEBD", "EFLOORD", "EFLANGED") if k_ in me.el}
     for fset, t_ in me.frame_set.items(): mass[fset] = sum(area(ns) for _, ns in me.el[fset]) * t_ * qi["rho"]
-    if "EBULK" in me.el: mass["EBULK"] = sum(area(ns) for _, ns in me.el["EBULK"]) * secs["EBULK"]["areal"]
+    for k_ in ("EBULK", "EBULKG"):
+        if k_ in me.el: mass[k_] = sum(area(ns) for _, ns in me.el[k_]) * secs[k_]["areal"]
     if ctx.get("fit"):
         F_ = ctx["fit"]
         mass["fittings_metal"] = 4 * F_["lug"]["mass_each_kg"] + 2 * F_["socket"]["collar_mass_each_kg"]

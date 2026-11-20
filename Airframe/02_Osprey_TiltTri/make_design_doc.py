@@ -382,14 +382,68 @@ if FS:
             f"Mass: keel, frames and bulkheads {m_new:.2f} kg against {m_old:.2f} kg before the fittings, plus {mf['fittings_metal']:.2f} kg of "
             f"lugs, bolts and collars and {mf['boom_extension']:.2f} kg for the {sk['boom_extension_m']:.2f} m of boom inside the socket: "
             f"+{m_new - m_old + mf['fittings_metal'] + mf['boom_extension']:.2f} kg in all. Not yet in the beam model's mass.",
-            f"OPEN: LC4 keel flange beside the rear spar frame, MS {l4f['MS']:+.2f} at x = {l4f['at'][0]:.2f} m. It sits between that frame and "
-            "the main-gear patch, where the gear load is still smeared over +-60 mm of keel (no gear fitting yet). A flange doubler there "
-            "could not be checked: CalculiX 2.21 returned NaN stiffness wherever a thicker flange met a wing frame on the belly, with a plain "
-            "or a one-layer-composite frame section. The same doubler beside a bulkhead runs. A main-gear fitting is the next design item, "
-            "and it should carry this flange.",
+            "The LC4 keel flange beside the rear spar frame was still over-strained here; 9.4 adds the main-gear fitting and deals with it.",
             "F2 between the collars (x = -0.83 m) closes in pitch but not in yaw: the lateral collar forces bend the sandwich webs as plates, "
             "and the check integrates membrane strain only. That is a limit of the check, not an equilibrium error.",
             "The frames could be thinner: FE margins are +0.9 or more, because the hand ring is an upper bound (about 0.3 kg).",
+        ])
+
+    if FSF and FT and "gear" in FT:
+        G = FT["gear"]; g4 = G["cases"]["LC4 hard landing one main"]; g3 = G["cases"]["LC3 hard landing 3 wheels"]
+        kt = G["keel_torsion"]; bo = G["bolts"]; c4 = CF["LC4 hard landing one main"]["strain_clear"]
+        doc.h("9.4 Main-gear fitting")
+        doc.p(f"The main gear is a transverse bow (one beam, both wheels at y = +-{abs(g4['wheels'][0][0][1]):.2f} m, "
+              f"{abs(g4['wheels'][0][0][2] - G['saddle_L'][2]):.2f} m below the keel) at x = {G['x_ml']:.3f} m, between the gear diaphragm and the "
+              "rear spar frame. Until now its load was smeared over +-60 mm of keel. The fitting is two aluminium saddles, one under each keel "
+              f"web foot (y = +-{abs(G['saddle_L'][1]):.3f} m), each with {bo['n']} x M{bo['d_m']*1e3:.0f} bolts through potted inserts, and a "
+              f"+-45 sandwich diaphragm ({2} plies per face) across the keel at the saddle station, with a {0.10*1e3:.0f} mm hole for systems.")
+        doc.p("Saddle split. The bow is a rigid beam on two supports, so its root force F and moment M about the keel centre split by statics "
+              "alone (6 equations, 6 unknowns: two vertical and two fore-aft forces, one lateral force, one pitch couple shared by the saddles). "
+              "For one wheel loaded at a distance a outboard of the near saddle, with saddle spacing b, the lever rule gives:")
+        doc.eq(r"P_{near}=P\left(1+\frac{a}{b}\right),\qquad P_{far}=-P\,\frac{a}{b},\qquad T_{keel}=M_x", size=12)
+        a_ = abs(g4['wheels'][0][0][1]) - abs(G['saddle_L'][1]); b_ = 2 * abs(G['saddle_L'][1]); P_ = g4["wheels"][0][1][2]
+        doc.p(f"LC4: P = {P_:.0f} N, a = {a_:.3f} m, b = {b_:.3f} m, so P(1 + a/b) = {P_*(1+a_/b_):.0f} N and -P a/b = {-P_*a_/b_:.0f} N by hand; "
+              f"gear_split() gives {g4['P_L_N'][2]:.0f} and {g4['P_R_N'][2]:.0f} N (statics residual {g4['statics_residual']:.0e} N). The difference is "
+              "the bow-root moment the beam model adds. The far saddle is pulled down, so its bolts work in tension. "
+              "The shell model applies exactly these saddle forces, so the FE checks the structure behind the saddles, not the split.")
+        doc.table(["Case", "P left [N]", "P right [N]", "keel torque [N m]"],
+                  [[n_.split()[0], f"{c['P_L_N'][2]:.0f}", f"{c['P_R_N'][2]:.0f}", f"{c['keel_torque_Nm']:.0f}"] for n_, c in G["cases"].items()],
+                  widths=[0.2, 0.25, 0.25, 0.3])
+        doc.p("Hand checks on the saddle and the keel:")
+        doc.eq(r"p=\frac{P_{max}}{A_{pad}},\qquad q=\frac{T}{2A_{box}},\qquad \gamma=\frac{q}{G\,t_{face}},\qquad \varepsilon_1=\frac{\gamma}{2}", size=12)
+        doc.table(["Item", "Hand value", "Allowable / FE", "MS"], [
+            ["Saddle pad on the foam core", f"{G['pad_pressure_Pa']/1e6:.2f} MPa ({G['pad_m2']*1e4:.0f} cm^2)", f"{G['core_comp_strength_Pa']/1e6:.1f} MPa crush", f"{G['pad_MS_on_core']:+.2f}"],
+            [f"Bolts {bo['n']} x M{bo['d_m']*1e3:.0f}, tension", f"{-G['P_down_max_N']:.0f} N", "", f"{bo['tension_MS']:+.1f}"],
+            ["Bolts, shear", "", "", f"{bo['shear_MS']:+.1f}"],
+            ["Keel box torsion, LC4 (Bredt)", f"q = {kt['q_N_per_m']/1e3:.1f} kN/m, eps1 = {kt['eps_principal']*1e6:.0f} ue",
+             f"FE flange peak {c4['EFLANGE']['eps_max']*1e6:.0f} ue", ""],
+            ["Gear diaphragm (FE)", "", f"{c4['EBULKG']['eps_max']*1e6:.0f} ue", f"{c4['EBULKG']['MS']:+.2f}"],
+            ["Saddle mass, each (estimate)", f"{G['saddle_mass_each_kg']*1e3:.0f} g", "", ""],
+        ], widths=[0.36, 0.3, 0.2, 0.14])
+        ea = FSF["eps_allow"]; e4 = c4["EFLANGE"]["eps_max"]; need = e4 / ea
+        doc.p(f"Two results need action. First, the pad pressure is {G['pad_pressure_Pa']/1e6:.1f} MPa against 0.9 MPa foam crush, so the core "
+              "under each saddle must be replaced by a solid insert (high-density foam or a G10 block, potted) over the pad area. That is "
+              "standard practice for any bolted sandwich hard point. Second, the LC4 keel flange beside the rear spar frame: "
+              f"{e4*1e6:.0f} ue (MS {c4['EFLANGE']['MS']:+.2f}) at x = {c4['EFLANGE']['at'][0]:.2f} m, and the web doubler there at MS "
+              f"{c4['EWEBD']['MS']:+.2f}. Bredt's formula gives only {kt['eps_principal']*1e6:.0f} ue for the torque, so most of the peak is "
+              "restrained warping: the keel box is twisted by the one-wheel torque, but the gear diaphragm (x = -0.375) and the rear spar "
+              "frame (x = -0.278) are 0.1 m apart and both stop its cross-section from warping. That forces axial strain into the flanges, "
+              "which a Bredt check cannot see.")
+        doc.p(f"The fix is a flange doubler over that bay. The strain has to come down by a factor of {e4*1e6:.0f}/{ea*1e6:.0f} = {need:.2f}. "
+              "The strain is axial, so +-45 plies barely help (+2 per face adds 5 % to E_x h). The flange face is 7 UD + 1 +-45; by CLT, "
+              "+2 UD per face raises E_x h by 28 % and +2 UD + 2 +-45 by 33 %. A stiffer flange also attracts load, so strain falls by less "
+              "than the stiffness rises. The design therefore takes +2 UD and +2 +-45 per face on both flanges and webs from x = -0.40 to "
+              f"-0.25 m. That gives a hand MS of {ea/(e4/1.33)-1:+.2f}. It adds about 0.1 kg.")
+        doc.p("This doubler could not be checked in the FE. CalculiX 2.21 returns NaN stiffness (spooles error) whenever the flange section "
+              "changes at a wing frame or at the gear diaphragm. Four variants failed: a plain doubled section, a one-layer composite frame "
+              "section, full-integration S8 elements (ccx accepts COMPOSITE sections only on S8R/S6), and a separate +-45 overlay shell on "
+              "the same nodes. The same doubler at the socket bulkheads runs. So this is a hand-sized item, and it is the first thing to "
+              "check with another solver or a refined local model.")
+        doc.bullets([
+            "Still not modelled: landing drag and wheel spin-up loads (fore-aft at the wheel, which would add pitch moment at the saddles), "
+            "and the nose gear, which is still smeared over the keel.",
+            f"Mass: 2 x {G['saddle_mass_each_kg']:.2f} kg saddles, the diaphragm (in the FE mass) and ~0.1 kg of flange doubler, on top of 9.3's fittings. "
+            "Not yet in the beam model.",
         ])
 
 doc.h("10. Airfoil CFD: lift checked, drag from XFOIL")
@@ -476,8 +530,10 @@ doc.bullets([
     "floats. Equilibrium checks close; plane-sections beam theory does not hold in this short fuselage.",
     "The fittings close: four bolted lugs on two heavy spar frames carry the fuselage, and a two-bulkhead socket carries the boom (+3.0 kg). "
     "The checks earned their keep twice: the arch thrust between the lugs only matched the FE once the keel box was in the hand ring, "
-    "and the cabin-cut statics exposed offset FE ties that had hidden a third of the one-wheel-landing torque. One flange margin, at "
-    "the main gear, stays open for the gear fitting.",
+    "and the cabin-cut statics exposed offset FE ties that had hidden a third of the one-wheel-landing torque. The main gear "
+    "hangs on two bolted saddles and a diaphragm; the one-wheel landing then over-strains the keel flange by restrained warping "
+    "between the diaphragm and the rear spar frame, which Bredt torsion cannot see. A UD flange doubler is sized by hand there, "
+    "because CalculiX 2.21 cannot run it; the saddles need solid core inserts.",
     "OpenFOAM 13's viscous wall term over-predicts wall shear by ~48 % (a laminar channel shows it). Airfoil CFD checks lift "
     "and stall; section drag comes from XFOIL.",
     f"Modal rule: nominal operating-point bands (user, 2026-11-18). Open decisions: the tail-boom download ({100*S['download_tail']['frac']:.0f} % of the tail rotor), the real mass against the 280 lb sizing weight, "
