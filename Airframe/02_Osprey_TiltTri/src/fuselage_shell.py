@@ -544,9 +544,14 @@ def element_frames(me):
     return out
 
 
-def inplane(E, t1, t2):
-    """In-plane 2x2 part of a symmetric 3x3 tensor in the tangent basis; principal values, (along-x, hoop) components."""
-    T = np.array([t1, t2]); A = T @ E @ T.T
+def inplane(E, t1=None, t2=None):
+    """In-plane principal strains and the (along-x, hoop) components of a shell strain tensor as CalculiX 2.21 writes it
+    in the .dat file: in each element's OWN system (rows end with "OX_shell_<eid>" or "_shell_<eid>"), axis 1 = the
+    orientation's x projected onto the shell, axis 2 in the plane, axis 3 = the normal. The first version of this
+    function treated the rows as global and projected them on geometric tangents: right for the floor, flange and skin
+    (local = global there), wrong for the keel webs, frames and bulkheads (found by the wing model's Bredt check,
+    2026-11-20). t1, t2 are no longer used."""
+    A = E[:2, :2]
     return np.linalg.eigvalsh(A), (A[0, 0], A[1, 1])
 
 
@@ -615,7 +620,7 @@ def skin_buckling(me, B, t, ef, lam, kd):
     acc = {}
     for row in rows:
         eid = int(row[0]); _, c, n, t1, t2 = ef[eid]
-        T = np.array([t1, t2]); Ein = T @ tensor(row[2:8]) @ T.T
+        Ein = tensor(row[2:8])[:2, :2]                           # element-local rows (see inplane)
         acc.setdefault(eid, []).append(Ein)
     out = []
     ids = me.eid["ESKIN"]
@@ -684,7 +689,7 @@ def post(me, secs, eps_allow, foam, cases_f, names, pm_kd):
             for row in A:
                 if (int(row[1]) - 1) // 8 != 1: continue
                 _, c, n, t1, t2 = ef[int(row[0])]
-                tr = tensor(row[2:8]) @ n; tau = np.linalg.norm(tr - (tr @ n) * n)
+                S_ = tensor(row[2:8]); tau = math.hypot(S_[0, 2], S_[1, 2])   # local: transverse shear = (13, 23)
                 if tau > tmax: tmax, at = tau, c
             out["core"][eset] = {"tau_max_Pa": tmax, "MS": foam["shear_strength"] / max(tmax, 1e-9) - 1, "at": [round(v, 3) for v in at]}
         gaps = [(a_, b_) for a_, b_ in zip(me.st["frames"][:-1], me.st["frames"][1:]) if b_ < me.st["x_ml"] - 1e-6]

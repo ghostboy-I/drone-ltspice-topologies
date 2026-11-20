@@ -296,6 +296,18 @@ if FS:
     if FSF:
         CF = FSF["cases"]; HH = FSF["hand_H"]; lg = FT["lug"]; wf = FT["wing_frames"]; sk = FT["socket"]; mf = FSF["mass_kg"]
         doc.h("9.3 The fittings: wing carry-through and boom socket")
+        cF = CF["LC4 hard landing one main"]["strain_clear"]
+        doc.p("Correction (2026-11-20). The wing shell model (sec. 11) showed that CalculiX 2.21 writes composite-shell strains in each "
+              "element's own axes (1 along the orientation's x, 2 in the plane, 3 normal), not in global x, y, z. A one-element test confirmed it. "
+              "The fuselage post-processing had read them as global. That is harmless for the floor and flange, whose local and global axes "
+              "nearly coincide, but wrong for the keel webs, frames and bulkheads: there it mixed the through-thickness strain and the "
+              "transverse shear into the in-plane values and missed the in-plane shear. The FE solutions were fine; only the reading was wrong. "
+              "The tables below use the corrected reading. It re-opens LC4 (one-wheel landing): web doubler beside the spar frames MS "
+              f"{cF['EWEBD']['MS']:+.2f}, front and rear spar frames {cF['EFRAMEF']['MS']:+.2f} / {cF['EFRAMER']['MS']:+.2f}, keel web "
+              f"{cF['EWEB']['MS']:+.2f}, keel flange {cF['EFLANGE']['MS']:+.2f}; also the web doubler in LC1 "
+              f"({CF['LC1 hover pull-up n=2']['strain_clear']['EWEBD']['MS']:+.2f}) and LC5 ({CF['LC5 airplane gust n=2.78']['strain_clear']['EWEBD']['MS']:+.2f}). "
+              "Section 9.2's numbers (the run before the fittings) were not re-read and still carry the error. "
+              "The fuselage therefore needs a resize of the keel-web doublers and the spar frames at the web feet; that is the next fuselage item.")
         doc.p("Both are sized by hand in fittings.py at the ultimate free-body loads the shell model applies, then built into the shell "
               "model (params fuselage.fittings) and checked there. Fitting factor 1.15 (FAR 23.625) on the metal parts.")
         doc.p("Wing carry-through. The spar box runs unbroken over the fuselage. The fuselage hangs from it by four bolted 7075-T6 lugs, "
@@ -330,9 +342,10 @@ if FS:
         doc.p("Front spar frame; forces in N, strains in ue. H ring / H keel: arch thrust from the plain ring and from the ring with a "
               "rigid keel arc; H FE: the FE lug's lateral reaction. The plain ring over-predicts the arch thrust by ~40 %. Treating the frame's lower "
               "arc between the web feet as rigid (it is the bottom of the keel box) brings the thrust to within 3-10 % of the FE in the four cases "
-              "that load the lugs (20 % in LC3, the lightest). That verifies the lug load path. The peak frame moment then sits where that rigid arc meets the frame, and the FE "
-              "strain there is about a third of the hand value, because the keel webs also resist the frame's rotation along their length, "
-              "which a planar ring cannot represent. So the hand sizing is an upper bound: "
+              "that load the lugs (20 % in LC3, the lightest). That verifies the lug load path. The peak frame moment then sits where that rigid arc meets the frame. "
+              "In LC1 the FE strain there is about half the hand value, but in LC4 (one-wheel landing) it is about 1.8 times the hand value: the keel's roll "
+              "torque enters the frame at the web feet, a load the planar ring does not carry. (An earlier version of this page said the FE was a third of "
+              "the hand value everywhere; that came from the strain-axis error described in the correction note below.) Sizing: "
               f"frames {wf['front']['t_m']*1e3:.1f} mm (front) and {wf['rear']['t_m']*1e3:.1f} mm (rear) x {wf['front']['d_m']*1e3:.0f} mm "
               "quasi-isotropic carbon, against 4 x 40 mm before. The FE split also differs from equal stiffness (LC4: the stiffer front "
               "frame takes more), so the lug design load is the larger of the two.")
@@ -385,7 +398,7 @@ if FS:
             "The LC4 keel flange beside the rear spar frame was still over-strained here; 9.4 adds the main-gear fitting and deals with it.",
             "F2 between the collars (x = -0.83 m) closes in pitch but not in yaw: the lateral collar forces bend the sandwich webs as plates, "
             "and the check integrates membrane strain only. That is a limit of the check, not an equilibrium error.",
-            "The frames could be thinner: FE margins are +0.9 or more, because the hand ring is an upper bound (about 0.3 kg).",
+            "The frames are NOT oversized: with the corrected strain axes they fail in LC4 at the keel-web junction (see the correction note).",
         ])
 
     if FSF and FT and "gear" in FT:
@@ -434,6 +447,9 @@ if FS:
               "+2 UD per face raises E_x h by 28 % and +2 UD + 2 +-45 by 33 %. A stiffer flange also attracts load, so strain falls by less "
               "than the stiffness rises. The design therefore takes +2 UD and +2 +-45 per face on both flanges and webs from x = -0.40 to "
               f"-0.25 m. That gives a hand MS of {ea/(e4/1.33)-1:+.2f}. It adds about 0.1 kg.")
+        doc.p(f"With the corrected strain axes (9.3 note) the flange sits at MS {c4['EFLANGE']['MS']:+.2f}, so the UD doubler above has margin to spare, "
+              f"but the web doubler beside it is at {c4['EWEBD']['eps_max']*1e6:.0f} ue (MS {c4['EWEBD']['MS']:+.2f}), in shear. Two more +-45 plies per web face "
+              "do not close that; the web lay-up there is part of the fuselage resize.")
         doc.p("This doubler could not be checked in the FE. CalculiX 2.21 returns NaN stiffness (spooles error) whenever the flange section "
               "changes at a wing frame or at the gear diaphragm. Four variants failed: a plain doubled section, a one-layer composite frame "
               "section, full-integration S8 elements (ccx accepts COMPOSITE sections only on S8R/S6), and a separate +-45 overlay shell on "
@@ -511,13 +527,96 @@ doc.bullets([
     "3-D CFD: geometry/airframe_hover.stl and rotor_disks_hover.stl (named solids, metres, FE axes) are ready for snappyHexMesh "
     "with actuator disks. They give the real wing and boom download (sec. 4) and the fuselage interference. Its forces would "
     "carry the same wall-shear error, so pressure (lift and download) forces only.",
-    "Fuselage FEM: done (sec. 9), with the fairing floated. Next: the boom fitting and the wing carry-through fitting, then a "
-    "rerun with the keel position fixed in the beam model.",
+    "Fuselage: resize the keel-web doublers and spar frames at the web feet for LC4 (sec. 9.3 correction), and re-read 9.2.",
+    "Beam model: the wing box EI is 1.37 x too low (sec. 11), so its wing modes are ~17 % low; re-run the modal check with the "
+    "contour-true box.",
     "Whirl flutter of the wing + pod + rotor (the defining tiltrotor aeroelastic check) is not in any model yet.",
 ])
 
 # ------------------------------------------------------------------------------------------------------------------
-doc.h("11. Takeaways")
+# ------------------------------------------------------------------------------------------------------------------
+if os.path.exists(os.path.join(R, "wing_shell_model.json")):
+    WS = J("wing_shell_model.json"); wc = WS["cases"]; l1 = wc["LC1 hover pull-up n=2"]
+    doc.h("11. Wing shell FEM (CalculiX)")
+    doc.p("The frame screen (sec. 7) models the wing as one beam: a box between the spars with no ribs, panels checked as infinitely "
+          "long plates, clamped at one centre node. Its tightest wing margin is the upper box skin buckling in LC1, MS "
+          f"{WS['beam_wing_buckling_MS']:+.2f}. A shell model answers what that beam cannot: panel buckling between real ribs, the pods' load "
+          "into the tip rib, the four lug supports, shear lag and the dihedral kink at the root. src/wing_shell.py builds it; the "
+          "solve (fea/wing/wing_static.inp, 110 s, 2.1 GB) was run from the user's terminal.")
+    ne = WS["elements"]
+    doc.bullets([
+        f"Box between the spars (15 % and 60 % chord) on the true NACA {w['airfoil']} contour, swept and dihedralled as the STL; "
+        f"{sum(v for k, v in ne.items() if k != 'ERIB')} skin and web S8R shells, {ne['ERIB']} rib shells, {WS['nodes']} nodes.",
+        "Skins and webs: the selected design's laminates (sandwich, the beam's cap and web faces), so shell and beam are the same structure. "
+        f"Ribs (not in the beam): {len(WS['stations_y'])} flat sandwich ribs, {WS['rib_w45']} woven +-45 per face (ASSUMED), at every beam-node "
+        f"station, the two lug stations (y = +-{WS['y_lug']:.3f} m) and the tips.",
+        "LE and TE shells: fairings, mass only, as in the beam model.",
+        "Support: the four lugs of sec. 9.3, each one pinned node at a spar-web foot. Loads: the beam model's wing free body (box, pods, "
+        "heads) with inertia relief, L = F + M Phi (g - a), x 1.5, spread over the box perimeter at each station as least-norm nodal "
+        "forces with the same resultant force and moment.",
+    ])
+    doc.p("Hand checks. W3 cuts the left wing between ribs and compares the FE spanwise strain at mid-chord of the upper and lower skins with "
+          "beam theory of the shell's own cross-section. W4 compares the shear flow at mid-chord of the upper skin with Bredt's formula, "
+          "where the vertical-shear flow is zero by symmetry:")
+    doc.eq(r"\varepsilon=\frac{N}{EA}+\kappa_c\,a+\kappa_n\,b,\qquad q=\frac{T}{2A_{enc}}", size=12)
+    rows = []
+    for n_, o in wc.items():
+        c_ = o["cuts"][1]
+        rows.append([n_.split()[0], f"{c_['y_cut']:.2f}", f"{c_['M_flap_statics']:.0f} / {c_['M_flap_fe']:.0f}",
+                     f"{c_['upper']['beam']*1e6:.0f} / {c_['upper']['fe']*1e6:.0f}", f"{c_['lower']['beam']*1e6:.0f} / {c_['lower']['fe']*1e6:.0f}",
+                     f"{abs(c_['q_bredt']):.0f} / {abs(c_['q_fe_mid']['upper']):.0f}"])
+    doc.table(["Case", "y cut", "M flap stat./FE", "upper beam/FE", "lower beam/FE", "|q| Bredt/FE"], rows, widths=[0.09, 0.1, 0.2, 0.2, 0.2, 0.21])
+    doc.p("Moments in N m, strains in ue, shear flow in N/m. The FE strains follow beam theory within ~5 % and Bredt within a few per cent "
+          "away from the root in LC1 and LC2. Where the torque at the cut is small (LC3-LC5), the mid-chord shear flow is no longer torsion "
+          "alone: shear lag and the chordwise load spread add a few hundred N/m. The FE moment resultant "
+          "runs ~6 % above statics: the check weights each element by its CLT Q11, which is slightly stiffer than the transversely "
+          "isotropic material written to CalculiX. W1 (lug reactions against the applied total) closes to the round-off of the patches.")
+    rows = [[n_.split()[0], f"{o['tip_dz_mm']['beam_L']:.1f}", f"{o['tip_dz_mm']['fe_L']:.1f}", f"{WS['W2_lugs'][n_]['max_hand_N']:.0f}",
+             f"{WS['W2_lugs'][n_]['max_fuselage_fe_N']:.0f}", f"{WS['W2_lugs'][n_]['max_wing_fe_N']:.0f}"] for n_, o in wc.items()]
+    doc.table(["Case", "tip dz beam", "tip dz shell", "lug hand", "lug fus. FE", "lug wing FE"], rows, widths=[0.1, 0.18, 0.18, 0.18, 0.18, 0.18])
+    ei = WS["cases"]["LC1 hover pull-up n=2"]["cuts"][0]["EI_flap"]
+    doc.p(f"Tip deflection in mm (left tip, relative to the lugs, ultimate); lug loads in N. The shell is stiffer than the beam: its flapwise EI is "
+          f"{ei/1e3:.0f} kN m^2 against the beam's {WS['beam_box_EI_flap']/1e3:.0f} ({ei/WS['beam_box_EI_flap']:.2f} x). The beam takes a flat box of the mean "
+          f"spar depth ({WS['beam_box_depth_m']*1e3:.0f} mm); the true contour is thicker between the spars. EI alone would give "
+          f"{l1['tip_dz_mm']['beam_L']/(ei/WS['beam_box_EI_flap']):.1f} mm in LC1; the shell's {l1['tip_dz_mm']['fe_L']:.1f} mm adds the sandwich shear and the lug-bay "
+          "flexibility. So the beam is conservative on strain, but its wing bending frequencies are ~17 % low (sqrt 1.37): the modal check "
+          "should be re-run. Lugs: the shell treats the fuselage as rigid and the fuselage model treats the wing as rigid, so the true split "
+          "lies between them. The wing FE gives the larger load in LC1 and now sets the lug design load "
+          f"({FT['lug']['P_design_N']:.0f} N with FF 1.15; shear-out MS {FT['lug']['MS']['shear_out']:+.2f}, still a 3 mm tang).")
+    doc.img(img("fig_wing_shell.png"), width=6.6)
+    rows = []
+    for n_, o in wc.items():
+        sc = o["strain_clear"]; pb = o["panel_buckling"]
+        rows.append([n_.split()[0]] + [f"{sc[k]['MS']:+.2f}" for k in ("EUP", "ELO", "EWF", "EWR", "ERIB")]
+                    + [f"{min(c['MS'] for c in o['core'].values()):+.1f}", f"{pb['MS']:+.2f}", f"{o['wrinkling']['MS']:+.1f}"])
+    doc.table(["Case", "upper", "lower", "front web", "rear web", "ribs", "core", "panel buckl.", "wrinkl."], rows,
+              widths=[0.09, 0.1, 0.1, 0.12, 0.12, 0.1, 0.1, 0.15, 0.12])
+    pb = l1["panel_buckling"]
+    doc.p("Strain MS at ultimate outside 60 mm of the lug nodes; core shear; and W6, the hand panel-buckling check on the FE membrane "
+          "loads of every box-skin element: an orthotropic plate between its two ribs and the two spars, simply supported, with the "
+          "sandwich shear softening and the compression-shear interaction:")
+    doc.eq(r"N_{x,cr}=\frac{\pi^2}{b^2}\min_m\left[D_{11}\left(\frac{mb}{a}\right)^2+2(D_{12}+2D_{66})+D_{22}\left(\frac{a}{mb}\right)^2\right],\quad \frac{1}{N}=\frac{1}{N_b}+\frac{1}{G_c d},\quad R_c+R_s^2=1", size=10)
+    doc.p(f"The worst panel is the upper skin in the centre bay between the two lug ribs (y = 0 to +-{WS['y_lug']:.3f} m) in LC1: N_x = "
+          f"{pb['Nx']/1e3:.0f} kN/m against {pb['Nx_cr']/1e3:.0f} kN/m, MS {pb['MS']:+.2f}. It is the same margin as the beam's ({WS['beam_wing_buckling_MS']:+.2f}) "
+          "by coincidence: the ribs raise the critical load, but between the lugs the skin load is higher than the beam predicts. The root "
+          "moment stays at its full value there, and the dihedral kink adds to it. Outboard of the lugs the panel load falls with the bending moment.")
+    pk = l1["strain"]
+    doc.p(f"At the lug nodes themselves the FE peaks at {max(pk[k]['eps_max'] for k in ('ELO','EWF','EWR'))*1e6:.0f} ue (LC1). That is the singularity of "
+          "a single pinned node, as in the fuselage model, and it grows with mesh refinement. The real wing-side lug bracket is bonded and "
+          "bolted to the spar web over a length L_b and feeds the load in as shear. By hand, with L_b = 80 mm:")
+    doc.eq(r"q=\frac{P}{L_b}=\frac{7208}{0.08}=90\ \mathrm{kN/m},\qquad \gamma=\frac{q}{G_f\,t_f}=\frac{90\,000}{35.2\times10^{6}}=2563\ \mu\varepsilon,\qquad \varepsilon_1=\frac{\gamma}{2}=1282\ \mu\varepsilon\ (MS\ +1.23)", size=10)
+    doc.p("So the existing web carries the bracket; the bracket bolts need potted inserts through the core, like the gear saddles.")
+    m_ = WS["mass_kg"]
+    doc.bullets([
+        f"Mass: box skins and webs {sum(v for k, v in m_.items() if k != 'ERIB'):.2f} kg (beam model: {WS['beam_wing_mass_kg']:.2f} kg for the same "
+        f"laminates on its flat box) plus ribs {m_['ERIB']:.2f} kg. The beam budgets the ribs as +25 % on the LE/TE shells.",
+        "Not modelled: the LE/TE shells as structure (bonded, they would add torsion stiffness), the tilt-actuator and pod fittings in the "
+        "tip rib (load spread over the tip ring here), and whirl flutter.",
+        "Method lesson: the Bredt check is what exposed CalculiX's element-local strain output. Without a hand check that depends on the "
+        "in-plane shear, the error would have stayed hidden, as it had in the fuselage model.",
+    ])
+
+doc.h("12. Takeaways")
 doc.bullets([
     f"A true V-22 scale-down can't fly wing-borne on fixed-pitch 54 in props: its wing needs {S['v22_scaled']['speed_for_CL1_ms']:.0f} m/s and "
     f"the props stop pulling at {S['prop_airplane']['v_zero_thrust_at_rpm_max']:.0f} m/s. The Osprey look survives with a longer wing.",
@@ -528,12 +627,17 @@ doc.bullets([
     f"Gusts, not manoeuvres, size the wing: n = {g['n_gust']:.2f} at 25 m/s, because the wing loading is light ({w['wing_loading_n_m2']:.0f} N/m^2).",
     "The fuselage shell FEM shows the one-ply skin, bonded to the keel and frames, buckles far below ultimate, so the fairing "
     "floats. Equilibrium checks close; plane-sections beam theory does not hold in this short fuselage.",
-    "The fittings close: four bolted lugs on two heavy spar frames carry the fuselage, and a two-bulkhead socket carries the boom (+3.0 kg). "
+    "The fittings (sec. 9.3-9.4): four bolted lugs on two heavy spar frames carry the fuselage, and a two-bulkhead socket carries the boom (+3.0 kg). "
     "The checks earned their keep twice: the arch thrust between the lugs only matched the FE once the keel box was in the hand ring, "
     "and the cabin-cut statics exposed offset FE ties that had hidden a third of the one-wheel-landing torque. The main gear "
     "hangs on two bolted saddles and a diaphragm; the one-wheel landing then over-strains the keel flange by restrained warping "
     "between the diaphragm and the rear spar frame, which Bredt torsion cannot see. A UD flange doubler is sized by hand there, "
-    "because CalculiX 2.21 cannot run it; the saddles need solid core inserts.",
+    "because CalculiX 2.21 cannot run it; the saddles need solid core inserts. The 9.3 correction re-opens the keel-web doublers and "
+    "spar frames in that same landing case.",
+    "Wing shell FEM: all strain margins positive, with the worst panel (the centre bay between the lugs) at buckling MS "
+    f"{J('wing_shell_model.json')['cases']['LC1 hover pull-up n=2']['panel_buckling']['MS']:+.2f}. The true-contour box is 1.37 x stiffer than the beam's. "
+    "Its Bredt check exposed a strain-axis error in the CalculiX post-processing; corrected, it re-opens the fuselage keel webs and "
+    "spar frames in the one-wheel landing.",
     "OpenFOAM 13's viscous wall term over-predicts wall shear by ~48 % (a laminar channel shows it). Airfoil CFD checks lift "
     "and stall; section drag comes from XFOIL.",
     f"Modal rule: nominal operating-point bands (user, 2026-11-18). Open decisions: the tail-boom download ({100*S['download_tail']['frac']:.0f} % of the tail rotor), the real mass against the 280 lb sizing weight, "

@@ -202,13 +202,19 @@ def main():
         hh_ = jl = json.load(open(shell)).get("hand_H", {})
         fe_lug = max((v["lug_max_fe_N"] for v in hh_.values()), default=0.0)
     out["lug_fe_max_N"] = fe_lug
+    wing = os.path.join(RESULTS, "wing_shell_model.json")     # the wing shell model (wing_shell.py) is the other bound:
+    fe_wing = 0.0                                             # it treats the fuselage as rigid, the fuselage model the wing
+    if os.path.exists(wing):
+        fe_wing = max(v["max_wing_fe_N"] for v in json.load(open(wing))["W2_lugs"].values())
+    out["lug_wing_fe_max_N"] = fe_wing
+    fe_lug = max(fe_lug, fe_wing)
     P_ = max(worst_lug, fe_lug) * FF
     d_b = next(dd for dd in D_STD if 2 * math.pi * dd ** 2 / 4 * BOLT["F_su"] >= P_)
     e_, w_ = 1.5 * d_b, 3.0 * d_b
     t_net = P_ / ((w_ - d_b) * AL["F_tu"]); t_so = P_ / (2 * (e_ - d_b / 2) * AL["F_su"]); t_br = P_ / (d_b * AL["F_bru_over_Ftu"] * AL["F_tu"])
     t_lug = max(t_net, t_so, t_br, 0.003)
     t_lug = math.ceil(t_lug * 1e3) * 1e-3
-    out["lug_design_source"] = "FE" if fe_lug > worst_lug else "hand"
+    out["lug_design_source"] = ("wing FE" if fe_wing >= fe_lug else "fuselage FE") if fe_lug > worst_lug else "hand"
     lug_vol = 2.5 * w_ * (e_ + 2 * d_b) * t_lug + 0.06 * 0.04 * 0.004   # tang (x2.5 for the clevis root) + base plate (ASSUMED)
     out["lug"] = {"P_ult_max_N": max(worst_lug, fe_lug), "P_hand_N": worst_lug, "P_design_N": P_, "bolt_d_m": d_b, "bolt_MS": 2 * math.pi * d_b ** 2 / 4 * BOLT["F_su"] / P_ - 1,
                   "e_m": e_, "w_m": w_, "t_required_m": {"net_tension": t_net, "shear_out": t_so, "bearing": t_br}, "t_m": t_lug,

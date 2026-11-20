@@ -28,6 +28,8 @@ python3 src/cfd_airfoil2d.py setup    # 2-D OpenFOAM airfoil cases (wing NACA 44
 python3 src/fittings.py               # hand sizing of the wing lugs, spar frames, boom socket and main-gear saddles -> results/fittings.json
 python3 src/fuselage_shell.py         # CalculiX shell model of the fuselage with the fittings, five load cases (~1 min, 1 thread)
 python3 src/fittings.py               # again: the lug design load takes the FE split if it is larger
+python3 src/wing_shell.py             # CalculiX shell model of the wing box + ribs on the four lugs (~2 min, 2.1 GB RAM)
+python3 src/fittings.py               # once more: the lug design load takes the wing FE split if it is larger
 python3 make_design_doc.py
 ```
 
@@ -51,6 +53,7 @@ python3 src/cfd_airfoil2d.py post                         # CFD vs XFOIL -> resu
 | `src/geometry.py` | Outer-mould-line STL + figures |
 | `src/make_results.py` | Selected design, hand checks (H1-H3), figures, `results/final.json` |
 | `src/fuselage_shell.py` | Fuselage shell FEM (CalculiX): keel, floor, frames (+ skin if `fuselage.skin: bonded`), fittings if `fuselage.fittings`; loads cut from the beam model; hand checks F1-F3, H1-H3 |
+| `src/wing_shell.py` | Wing shell FEM (CalculiX): box skins, spar webs and ribs on the true 4415 contour, four pinned lugs, beam-model free-body loads; hand checks W1-W6 (equilibrium, lug split, beam theory, Bredt, tip deflection, panel buckling between ribs). `--build` writes `fea/wing/wing_static.inp` for running ccx elsewhere, `--post` reads the results back |
 | `src/fittings.py` | Wing carry-through (four bolted lugs, heavy spar frames by a closed-ring unit-load solution with arch thrust) boom socket (two collars, two bulkheads) and main-gear saddles + diaphragm (lever-rule split, core crush, bolts, Bredt torsion) sized by hand |
 | `src/cfd_airfoil2d.py` | 2-D RANS airfoil cases: orthogonal Hermite C-grid, Spalart-Allmaras, polar plot against XFOIL. Lift only: OpenFOAM 13's wall shear is +48 % (channel test), so section drag comes from XFOIL |
 | `geometry/` | `airframe_hover.stl`, `airframe_airplane.stl`, `rotor_disks_hover.stl`, `wing_section.dat` |
@@ -74,6 +77,12 @@ python3 src/cfd_airfoil2d.py post                         # CFD vs XFOIL -> resu
 - Tail-boom + aft-cone download, 8.6 % of the tail rotor's thrust: an airfoil-section boom is the fix.
 - Real vehicle mass (~185 kg) against the 280 lb (127 kg) sizing weight: the wing stalls at ~25 m/s at the real mass.
 - Whirl flutter, prop normal force in airplane mode, transition corridor: not modelled yet.
+- **Strain-axis correction (2026-11-20):** CalculiX 2.21 writes composite-shell strains in each element's own axes. The
+  fuselage post-processing read them as global; corrected, LC4 re-opens the keel-web doubler beside the spar frames
+  (MS -0.62), the spar frames at the web feet (-0.37 / -0.40), keel web and flange (-0.06). Resize next. Results of the run
+  before the fittings (`*_nofit.json`) still carry the error.
+- Wing (src/wing_shell.py): all strain margins positive; centre-bay panel buckling MS +0.15 (LC1). The true-contour box is
+  1.37 x stiffer than the beam's flat box, so the beam's wing modes are ~17 % low: re-run the modal check.
 - LC4 keel flange beside the rear spar frame (MS -0.22, web doubler -0.00): restrained warping between the gear diaphragm
   and the rear spar frame. A +2 UD +2 +-45 per-face doubler over x = -0.40 to -0.25 m is sized by hand (MS +0.03) but cannot
   be checked: CalculiX 2.21 gives NaN stiffness for any flange section change at a wing frame or the gear diaphragm.
