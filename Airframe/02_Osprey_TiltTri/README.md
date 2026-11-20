@@ -77,15 +77,15 @@ python3 src/cfd_airfoil2d.py post                         # CFD vs XFOIL -> resu
 - Tail-boom + aft-cone download, 8.6 % of the tail rotor's thrust: an airfoil-section boom is the fix.
 - Real vehicle mass (~185 kg) against the 280 lb (127 kg) sizing weight: the wing stalls at ~25 m/s at the real mass.
 - Whirl flutter, prop normal force in airplane mode, transition corridor: not modelled yet.
-- **Strain-axis correction (2026-11-20):** CalculiX 2.21 writes composite-shell strains in each element's own axes. The
-  fuselage post-processing read them as global; corrected, LC4 re-opens the keel-web doubler beside the spar frames
-  (MS -0.62), the spar frames at the web feet (-0.37 / -0.40), keel web and flange (-0.06). Resize next. Results of the run
-  before the fittings (`*_nofit.json`) still carry the error.
+- **Strain-axis correction and resize (2026-11-20):** CalculiX 2.21 writes composite-shell strains in element-local
+  axes; read correctly, LC4 failed at the spar frames' web feet. Fixed with 30 mm caps on the spar frames (T sections),
+  vertical web posts at those frames and +3 +-45 keel-web doublers (also over the socket bay and the nose gear), +1.4 kg.
+  All fuselage margins positive; tightest LC4 frame web-foot junction +0.01 (a shell-intersection peak; bonded clip in
+  the drawings). `*_nofit.json` still carries the old reading.
+- Wing shape: the 4415 is at zero incidence (fuselage ~9 deg nose-up in cruise) and was picked for least drag area among
+  NACA 4/5-digit sections, not for lift; sizing used free-transition XFOIL lift, 13-17 % above the CFD. Open.
 - Wing (src/wing_shell.py): all strain margins positive; centre-bay panel buckling MS +0.15 (LC1). The true-contour box is
   1.37 x stiffer than the beam's flat box, so the beam's wing modes are ~17 % low: re-run the modal check.
-- LC4 keel flange beside the rear spar frame (MS -0.22, web doubler -0.00): restrained warping between the gear diaphragm
-  and the rear spar frame. A +2 UD +2 +-45 per-face doubler over x = -0.40 to -0.25 m is sized by hand (MS +0.03) but cannot
-  be checked: CalculiX 2.21 gives NaN stiffness for any flange section change at a wing frame or the gear diaphragm.
 - Main-gear saddles need solid core inserts (pad 2.2 MPa vs 0.9 MPa foam crush). Landing drag/spin-up loads and the nose
   gear are not modelled.
 - Fittings mass (+3.0 kg, +0.7 kg for the gear saddles and doubler) and the boom extension are not in the beam model's mass yet.

@@ -1,6 +1,7 @@
 """Builds 02_Osprey_TiltTri_Design.pdf from results/*.json and the figures. No number here is typed in: everything comes
 from sizing.json, final.json, geometry.json and (when the runs exist) cfd_airfoil2d.json."""
 import json, math, os, sys
+FRAME_CAP_W_ = 0.030   # m, as src/fuselage_shell.py FRAME_CAP_W
 here = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(here, "..", "..", "Topologies", "tools"))
 from designdoc import Doc
@@ -298,16 +299,11 @@ if FS:
         doc.h("9.3 The fittings: wing carry-through and boom socket")
         cF = CF["LC4 hard landing one main"]["strain_clear"]
         doc.p("Correction (2026-11-20). The wing shell model (sec. 11) showed that CalculiX 2.21 writes composite-shell strains in each "
-              "element's own axes (1 along the orientation's x, 2 in the plane, 3 normal), not in global x, y, z. A one-element test confirmed it. "
-              "The fuselage post-processing had read them as global. That is harmless for the floor and flange, whose local and global axes "
-              "nearly coincide, but wrong for the keel webs, frames and bulkheads: there it mixed the through-thickness strain and the "
-              "transverse shear into the in-plane values and missed the in-plane shear. The FE solutions were fine; only the reading was wrong. "
-              "The tables below use the corrected reading. It re-opens LC4 (one-wheel landing): web doubler beside the spar frames MS "
-              f"{cF['EWEBD']['MS']:+.2f}, front and rear spar frames {cF['EFRAMEF']['MS']:+.2f} / {cF['EFRAMER']['MS']:+.2f}, keel web "
-              f"{cF['EWEB']['MS']:+.2f}, keel flange {cF['EFLANGE']['MS']:+.2f}; also the web doubler in LC1 "
-              f"({CF['LC1 hover pull-up n=2']['strain_clear']['EWEBD']['MS']:+.2f}) and LC5 ({CF['LC5 airplane gust n=2.78']['strain_clear']['EWEBD']['MS']:+.2f}). "
-              "Section 9.2's numbers (the run before the fittings) were not re-read and still carry the error. "
-              "The fuselage therefore needs a resize of the keel-web doublers and the spar frames at the web feet; that is the next fuselage item.")
+              "element's own axes (1 along the orientation's x, 2 in the plane, 3 normal), not in global x, y, z; a one-element test "
+              "confirmed it. The fuselage post-processing had read them as global: harmless for the floor and flange, wrong for the keel "
+              "webs, frames and bulkheads. Corrected, the one-wheel landing failed at the spar frames' web feet, and section 9.5 resizes "
+              "the structure there. Everything below is the corrected, resized design. Section 9.2 (before the fittings) still carries "
+              "the error.")
         doc.p("Both are sized by hand in fittings.py at the ultimate free-body loads the shell model applies, then built into the shell "
               "model (params fuselage.fittings) and checked there. Fitting factor 1.15 (FAR 23.625) on the metal parts.")
         doc.p("Wing carry-through. The spar box runs unbroken over the fuselage. The fuselage hangs from it by four bolted 7075-T6 lugs, "
@@ -343,9 +339,9 @@ if FS:
               "rigid keel arc; H FE: the FE lug's lateral reaction. The plain ring over-predicts the arch thrust by ~40 %. Treating the frame's lower "
               "arc between the web feet as rigid (it is the bottom of the keel box) brings the thrust to within 3-10 % of the FE in the four cases "
               "that load the lugs (20 % in LC3, the lightest). That verifies the lug load path. The peak frame moment then sits where that rigid arc meets the frame. "
-              "In LC1 the FE strain there is about half the hand value, but in LC4 (one-wheel landing) it is about 1.8 times the hand value: the keel's roll "
-              "torque enters the frame at the web feet, a load the planar ring does not carry. (An earlier version of this page said the FE was a third of "
-              "the hand value everywhere; that came from the strain-axis error described in the correction note below.) Sizing: "
+              "With the frame caps of 9.5 the FE peak there is within about 10 % of the hand value in LC4 (one-wheel landing, the sizing case) "
+              "and below it in the others. (An earlier version of this page said the FE was a third of the hand value everywhere; that came "
+              "from the strain-axis error.) Sizing: "
               f"frames {wf['front']['t_m']*1e3:.1f} mm (front) and {wf['rear']['t_m']*1e3:.1f} mm (rear) x {wf['front']['d_m']*1e3:.0f} mm "
               "quasi-isotropic carbon, against 4 x 40 mm before. The FE split also differs from equal stiffness (LC4: the stiffer front "
               "frame takes more), so the lug design load is the larger of the two.")
@@ -380,7 +376,7 @@ if FS:
         doc.bullets([
             "Bulkheads: one +-45 ply per face (the keel web lay-up) failed the 33 mm ligament between the boom hole and the crown at 4,400 ue; "
             "the design has 5 per face.",
-            "Keel doublers (+2 +-45 plies per face): on the web, floor and flange two elements either side of each bulkhead, and on the web "
+            "Keel doublers (+2 +-45 plies per face, +3 since 9.5): on the web, floor and flange two elements either side of each bulkhead, and on the web "
             "and floor over the whole carry-through bay between the spar frames, where the one-wheel landing's roll torque runs through the keel.",
             "Lug model: pinning every frame node within 25 mm of a lug made a moment clamp; a lug turns on its bolt, so it is now one pinned "
             "node on the frame's mid-depth line.",
@@ -395,10 +391,8 @@ if FS:
             f"Mass: keel, frames and bulkheads {m_new:.2f} kg against {m_old:.2f} kg before the fittings, plus {mf['fittings_metal']:.2f} kg of "
             f"lugs, bolts and collars and {mf['boom_extension']:.2f} kg for the {sk['boom_extension_m']:.2f} m of boom inside the socket: "
             f"+{m_new - m_old + mf['fittings_metal'] + mf['boom_extension']:.2f} kg in all. Not yet in the beam model's mass.",
-            "The LC4 keel flange beside the rear spar frame was still over-strained here; 9.4 adds the main-gear fitting and deals with it.",
             "F2 between the collars (x = -0.83 m) closes in pitch but not in yaw: the lateral collar forces bend the sandwich webs as plates, "
             "and the check integrates membrane strain only. That is a limit of the check, not an equilibrium error.",
-            "The frames are NOT oversized: with the corrected strain axes they fail in LC4 at the keel-web junction (see the correction note).",
         ])
 
     if FSF and FT and "gear" in FT:
@@ -434,33 +428,62 @@ if FS:
             ["Saddle mass, each (estimate)", f"{G['saddle_mass_each_kg']*1e3:.0f} g", "", ""],
         ], widths=[0.36, 0.3, 0.2, 0.14])
         ea = FSF["eps_allow"]; e4 = c4["EFLANGE"]["eps_max"]; need = e4 / ea
-        doc.p(f"Two results need action. First, the pad pressure is {G['pad_pressure_Pa']/1e6:.1f} MPa against 0.9 MPa foam crush, so the core "
-              "under each saddle must be replaced by a solid insert (high-density foam or a G10 block, potted) over the pad area. That is "
-              "standard practice for any bolted sandwich hard point. Second, the LC4 keel flange beside the rear spar frame: "
-              f"{e4*1e6:.0f} ue (MS {c4['EFLANGE']['MS']:+.2f}) at x = {c4['EFLANGE']['at'][0]:.2f} m, and the web doubler there at MS "
-              f"{c4['EWEBD']['MS']:+.2f}. Bredt's formula gives only {kt['eps_principal']*1e6:.0f} ue for the torque, so most of the peak is "
-              "restrained warping: the keel box is twisted by the one-wheel torque, but the gear diaphragm (x = -0.375) and the rear spar "
-              "frame (x = -0.278) are 0.1 m apart and both stop its cross-section from warping. That forces axial strain into the flanges, "
-              "which a Bredt check cannot see.")
-        doc.p(f"The fix is a flange doubler over that bay. The strain has to come down by a factor of {e4*1e6:.0f}/{ea*1e6:.0f} = {need:.2f}. "
-              "The strain is axial, so +-45 plies barely help (+2 per face adds 5 % to E_x h). The flange face is 7 UD + 1 +-45; by CLT, "
-              "+2 UD per face raises E_x h by 28 % and +2 UD + 2 +-45 by 33 %. A stiffer flange also attracts load, so strain falls by less "
-              "than the stiffness rises. The design therefore takes +2 UD and +2 +-45 per face on both flanges and webs from x = -0.40 to "
-              f"-0.25 m. That gives a hand MS of {ea/(e4/1.33)-1:+.2f}. It adds about 0.1 kg.")
-        doc.p(f"With the corrected strain axes (9.3 note) the flange sits at MS {c4['EFLANGE']['MS']:+.2f}, so the UD doubler above has margin to spare, "
-              f"but the web doubler beside it is at {c4['EWEBD']['eps_max']*1e6:.0f} ue (MS {c4['EWEBD']['MS']:+.2f}), in shear. Two more +-45 plies per web face "
-              "do not close that; the web lay-up there is part of the fuselage resize.")
-        doc.p("This doubler could not be checked in the FE. CalculiX 2.21 returns NaN stiffness (spooles error) whenever the flange section "
-              "changes at a wing frame or at the gear diaphragm. Four variants failed: a plain doubled section, a one-layer composite frame "
-              "section, full-integration S8 elements (ccx accepts COMPOSITE sections only on S8R/S6), and a separate +-45 overlay shell on "
-              "the same nodes. The same doubler at the socket bulkheads runs. So this is a hand-sized item, and it is the first thing to "
-              "check with another solver or a refined local model.")
+        doc.p(f"The pad pressure is {G['pad_pressure_Pa']/1e6:.1f} MPa against 0.9 MPa foam crush, so the core under each saddle must be "
+              "replaced by a solid insert (high-density foam or a G10 block, potted) over the pad area. That is standard practice for "
+              "any bolted sandwich hard point.")
+        doc.p(f"The keel flange beside the rear spar frame is the one-wheel landing's other hot spot: {e4*1e6:.0f} ue (MS {c4['EFLANGE']['MS']:+.2f}) "
+              f"at x = {c4['EFLANGE']['at'][0]:.2f} m in the resized design, against {kt['eps_principal']*1e6:.0f} ue from Bredt's formula. The "
+              "difference is restrained warping: the gear diaphragm (x = -0.375) and the rear spar frame (x = -0.278) are 0.1 m apart and "
+              "both stop the twisted keel's cross-section from warping, which forces axial strain into the flanges. Bredt cannot see it. "
+              "Before the resize this spot read MS -0.22. Part of that was the strain-axis error, and most of the rest came from the "
+              "uncapped frames bending out of plane next to it. A UD flange doubler (+2 UD +2 +-45 per face over x = -0.40 to -0.25 m) "
+              "was sized by hand for it, because CalculiX 2.21 returns NaN stiffness whenever the flange section changes at a wing frame "
+              "or the gear diaphragm. Four model variants failed: a plain doubled section, a one-layer composite frame section, S8 "
+              "elements and an overlay shell. With the 9.5 resize the flange no longer needs it, and the doubler is dropped.")
         doc.bullets([
             "Still not modelled: landing drag and wheel spin-up loads (fore-aft at the wheel, which would add pitch moment at the saddles), "
             "and the nose gear, which is still smeared over the keel.",
-            f"Mass: 2 x {G['saddle_mass_each_kg']:.2f} kg saddles, the diaphragm (in the FE mass) and ~0.1 kg of flange doubler, on top of 9.3's fittings. "
+            f"Mass: 2 x {G['saddle_mass_each_kg']:.2f} kg saddles and the diaphragm (in the FE mass), on top of 9.3's fittings. "
             "Not yet in the beam model.",
         ])
+
+if FSF:
+    doc.h("9.5 Resize after the strain-axis correction")
+    c4 = FSF["cases"]["LC4 hard landing one main"]["strain_clear"]
+    doc.p("With the strains read in the right axes, the one-wheel landing (LC4) failed at the spar frames where they meet the keel "
+          "webs: web doubler MS -0.62, front and rear frames -0.37 / -0.40, keel web and flange -0.06; the web doubler was also "
+          "negative in LC1 (-0.45) and LC5 (-0.25). Splitting each strain into its components showed two mechanisms:")
+    doc.bullets([
+        "Frames: the strain at the eight integration points of the worst frame element fits e = a eta + b zeta, a in-plane gradient across the "
+        "frame depth (eta) and one through its thickness (zeta). Here a ~ 2,200 ue, which is the ring bending of the hand model (2,549 ue), "
+        "and b ~ 2,200-2,600 ue, which is the flat frame bending out of its own plane. The model's frame is a bare 50 mm plate, and the "
+        "keel's roll torque twists it.",
+        "Web doubler: direct vertical strain (2,300-3,900 ue mean) in the one element row at each frame's web foot, falling to ~1,100 ue "
+        "one row up. The frame's vertical load entered the web through a single shared node.",
+    ])
+    doc.p("Fixes, each run in the full model:")
+    doc.bullets([
+        f"Cap flange on the inner edge of both spar frames, {FRAME_CAP_W_*1e3:.0f} mm wide, same laminate and thickness: the frames become T sections. "
+        "Out-of-plane bending stiffness rises by w^3 / (d t^2) ~ 34. Frame strain away from the web feet fell from ~4,800 to 700-1,300 ue.",
+        "Vertical web posts at both spar frames: the frame continued up each keel web as a ~36 mm strip, joined to the web, the flange "
+        "and the floor. This spreads the frame's vertical load over the web height.",
+        "Keel web doublers: +3 +-45 plies per face (was +2) and, on the webs only, over the whole boom-socket bay and +-75 mm around "
+        "the nose gear (LC1 web at MS -0.01 between the collars).",
+        "Tried and rejected: a full sandwich diaphragm closing the keel box at each spar frame. It made the web-foot corner a hard "
+        "point (LC4 frame MS -0.81, flange -0.65); the code keeps it behind KEEL_DIA = False. Also tried: moving the frame's radial "
+        "edge onto the web line, which folded the adjacent frame elements (nonpositive Jacobians).",
+    ])
+    rows = []
+    for n_, o in FSF["cases"].items():
+        sc = o["strain_clear"]
+        rows.append([n_.split()[0]] + [f"{sc[k]['MS']:+.2f}" for k in ("EWEBD", "EFRAMEF", "EFRAMER", "EFRAMEFC", "EFRAMEFP", "EFLANGE", "EWEB")])
+    doc.table(["Case", "web dbl", "front fr.", "rear fr.", "front cap", "front post", "flange", "web"], rows,
+              widths=[0.09, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13, 0.13])
+    mf5 = FSF["mass_kg"]; add = sum(mf5.get(k, 0) for k in ("EFRAMEFC", "EFRAMERC", "EFRAMEFP", "EFRAMERP"))
+    doc.p(f"All margins are now positive. The tightest are the frames at the web-foot junction in LC4 ({c4['EFRAMEF']['MS']:+.2f} / {c4['EFRAMER']['MS']:+.2f}). "
+          "That is a shell-intersection peak which halves within 40 mm. The real frame-to-keel joint there is a bonded clip, a detail "
+          f"for drawings. Caps and posts weigh {add:.2f} kg, and the heavier doublers add the rest: the keel, frames and bulkheads went from "
+          "12.12 to " + f"{sum(v for k_, v in mf5.items() if k_ != 'ESKIN'):.2f} kg (with the fitting metal). Equilibrium (F1) and the cabin-cut statics (F2) still close.")
 
 doc.h("10. Airfoil CFD: lift checked, drag from XFOIL")
 pl = json.load(open(os.path.join(here, "cfd", "airfoil2d", "plan.json")))
@@ -527,7 +550,10 @@ doc.bullets([
     "3-D CFD: geometry/airframe_hover.stl and rotor_disks_hover.stl (named solids, metres, FE axes) are ready for snappyHexMesh "
     "with actuator disks. They give the real wing and boom download (sec. 4) and the fuselage interference. Its forces would "
     "carry the same wall-shear error, so pressure (lift and download) forces only.",
-    "Fuselage: resize the keel-web doublers and spar frames at the web feet for LC4 (sec. 9.3 correction), and re-read 9.2.",
+    "Fuselage: section 9.2 (before the fittings) still carries the strain-axis error; re-read it if that run is needed again.",
+    "Wing: the 4415 is set at zero incidence, so the fuselage flies ~9 deg nose-up in cruise; the section was chosen for least drag "
+    "area among NACA 4/5-digit shapes (clmax 1.55-1.67), not for lift. Sizing also used free-transition XFOIL lift, 13-17 % above "
+    "the CFD at cruise angles. Open: a wing incidence of ~9 deg, and a high-lift section that keeps a 15 % spar depth.",
     "Beam model: the wing box EI is 1.37 x too low (sec. 11), so its wing modes are ~17 % low; re-run the modal check with the "
     "contour-true box.",
     "Whirl flutter of the wing + pod + rotor (the defining tiltrotor aeroelastic check) is not in any model yet.",
@@ -630,14 +656,14 @@ doc.bullets([
     "The fittings (sec. 9.3-9.4): four bolted lugs on two heavy spar frames carry the fuselage, and a two-bulkhead socket carries the boom (+3.0 kg). "
     "The checks earned their keep twice: the arch thrust between the lugs only matched the FE once the keel box was in the hand ring, "
     "and the cabin-cut statics exposed offset FE ties that had hidden a third of the one-wheel-landing torque. The main gear "
-    "hangs on two bolted saddles and a diaphragm; the one-wheel landing then over-strains the keel flange by restrained warping "
-    "between the diaphragm and the rear spar frame, which Bredt torsion cannot see. A UD flange doubler is sized by hand there, "
-    "because CalculiX 2.21 cannot run it; the saddles need solid core inserts. The 9.3 correction re-opens the keel-web doublers and "
-    "spar frames in that same landing case.",
+    "hangs on two bolted saddles and a diaphragm; restrained warping between that diaphragm and the rear spar frame puts axial "
+    "strain in the keel flange that Bredt torsion cannot see, "
+    "so the saddles need solid core inserts. After the strain-axis correction the spar frames became T sections with web posts "
+    "(sec. 9.5): all fuselage margins are positive again.",
     "Wing shell FEM: all strain margins positive, with the worst panel (the centre bay between the lugs) at buckling MS "
     f"{J('wing_shell_model.json')['cases']['LC1 hover pull-up n=2']['panel_buckling']['MS']:+.2f}. The true-contour box is 1.37 x stiffer than the beam's. "
-    "Its Bredt check exposed a strain-axis error in the CalculiX post-processing; corrected, it re-opens the fuselage keel webs and "
-    "spar frames in the one-wheel landing.",
+    "Its Bredt check exposed a strain-axis error in the CalculiX post-processing. Corrected, the fuselage failed at the spar frames "
+    "in the one-wheel landing, and frame caps plus web posts fixed it (+1.4 kg).",
     "OpenFOAM 13's viscous wall term over-predicts wall shear by ~48 % (a laminar channel shows it). Airfoil CFD checks lift "
     "and stall; section drag comes from XFOIL.",
     f"Modal rule: nominal operating-point bands (user, 2026-11-18). Open decisions: the tail-boom download ({100*S['download_tail']['frac']:.0f} % of the tail rotor), the real mass against the 280 lb sizing weight, "

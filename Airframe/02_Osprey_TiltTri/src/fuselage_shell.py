@@ -80,9 +80,9 @@ DX = 0.025                          # m, element length along x
 NB, NR, NV = 8, 72, 6               # elements: belly between the keel webs, rest of the perimeter, keel web height
 S0 = 0.03                           # the mesh starts 3 % of the length behind the nose tip (an open 0.28 m hole)
 UF = 1.5
-STRAIN_SETS = ("ESKIN", "EFLANGE", "EWEB", "EFLOOR", "EFRAME", "EFRAMEF", "EFRAMER", "EBULK", "EBULKG", "EWEBD", "EFLOORD", "EFLANGED")
-CORE_SETS = ("EWEB", "EFLOOR", "EFLANGE", "EBULK", "EBULKG", "EWEBD", "EFLOORD", "EFLANGED")
-DBL_W45 = 2                         # +-45 woven plies added per face on the keel next to each fitting frame (socket
+STRAIN_SETS = ("ESKIN", "EFLANGE", "EWEB", "EFLOOR", "EFRAME", "EFRAMEF", "EFRAMER", "EFRAMEFC", "EFRAMERC", "EFRAMEFP", "EFRAMERP", "EBULK", "EBULKG", "EKDIA", "EWEBD", "EFLOORD", "EFLANGED")
+CORE_SETS = ("EWEB", "EFLOOR", "EFLANGE", "EBULK", "EBULKG", "EKDIA", "EWEBD", "EFLOORD", "EFLANGED")
+DBL_W45 = 3                         # (2 until the 2026-11-20 resize) +-45 woven plies added per face on the keel next to each fitting frame (socket
                                     # bulkheads and wing frames): a bonded-joint doubler. Without it the socket junction ran
                                     # 4,300-5,100 ue with the bulkhead tied in, and the keel beside the wing frames 3,200 ue
 BULK_W45 = 5                        # +-45 woven plies per bulkhead face (1, the keel web lay-up, failed the ligament above
@@ -91,6 +91,14 @@ GEAR_HOLE_R = 0.05                  # m, systems pass-through in the gear diaphr
 SADDLE_HALF = 0.040                 # m, saddle clamp half-length along x (an 80 mm clamp, ASSUMED)
 SADDLE_R = 0.035                    # m, radius around the web foot that the saddle base bears on
 GEAR_BULK_W45 = 2                   # +-45 woven plies per face, gear diaphragm (sized in the FE: see fittings check G)
+KEEL_DIA = False                    # keel diaphragms at the spar frames: TRIED in the 2026-11-20 resize and switched off.
+KEEL_DIA_W45 = 2                    #   They made the web-foot corner a hard point (LC4 frame MS -0.81, flange -0.65)
+WEB_POST = True                     # vertical posts on the keel webs at the spar frames, web to flange and floor, ~36 mm wide,
+                                    #   frame laminate (resize 2026-11-20): the frame's vertical load entered the web at one
+                                    #   node per web foot (LC4 web doubler 3,900 ue mean, 7,400 peak, in direct vertical strain)
+FRAME_CAP_W = 0.030                 # m, cap flange on the inner edge of the two spar frames (a T section; resize 2026-11-20).
+                                    #   The flat frame bent out of its plane in LC4 (~2,400 ue of the 4,800 ue peak); a
+                                    #   30 mm cap raises the out-of-plane bending stiffness ~34 x. Same QI laminate and t
 TIE_TOL = 0.006                     # m, bulkhead-to-keel node merge distance (well under the ~10-18 mm element size)
 NBR = 10                            # element rows across a bulkhead, perimeter to hole
 
@@ -183,7 +191,13 @@ def build_mesh(ctx, d, x_pay):
     # carry-through bay: the one-wheel landing (LC4) roll torque runs through the keel between the wing frames, so the web
     # and floor doublers cover the whole bay, x_r - 2 DX to x_f + 2 DX
     bay = lambda a: bool(jw) and min(jw) - 2.05 * DX < 0.5 * (xa[a] + xa[a + 2]) < max(jw) + 2.05 * DX
-    dbl = lambda a, web=False, flange=False: "D" if near(a, [b_ for b_, t_ in bulk_x.items() if not (flange and t_ == "gear")], 2) or (web and bay(a)) else ""
+    # nose gear: its load enters the keel webs over +-60 mm, so the web and floor doublers also cover that station
+    nose = [st["x_nl"]] if FIT else []
+    # boom-socket bay: the web doubler covers the whole bay between the two socket bulkheads (LC1 web MS -0.01 mid-bay)
+    sock = sorted(x_ for x_, t_ in bulk_x.items() if t_ in ("fwd", "aft"))
+    sbay = lambda a: len(sock) == 2 and sock[0] - 2.05 * DX < 0.5 * (xa[a] + xa[a + 2]) < sock[1] + 2.05 * DX
+    dbl = lambda a, web=False, flange=False, floor=False: "D" if near(a, [b_ for b_, t_ in bulk_x.items() if not (flange and t_ == "gear")], 2) \
+        or (web and bay(a)) or (web and not floor and (sbay(a) or near(a, nose, 3))) else ""     # socket bay, nose gear: webs only
     for a, (x, P, g) in enumerate(rings):
         for b in range(np_):
             if corner(a, b): me.node(("s", a, b), (x, P[b, 0], P[b, 1]))
@@ -209,7 +223,7 @@ def build_mesh(ctx, d, x_pay):
                 for v in range(0, 2 * NV, 2):
                     me.elem("EWEB" + dbl(a, web=True), q8(lambda i, j: web(side, a + i, v + j)))
             for f in range(0, 2 * NB, 2):
-                me.elem("EFLOOR" + dbl(a, web=True), q8(lambda i, j: flo(a + i, f + j)))
+                me.elem("EFLOOR" + dbl(a, web=True, floor=True), q8(lambda i, j: flo(a + i, f + j)))
     # frames: one row of shells from the skin ring inward, in the frame plane
     me.frame_rings = []; me.collars = {}; me.frame_set = {}
     heavy = {} if not FIT else {round(st["x_f"], 6): FIT["wing_frames"]["front"], round(st["x_r"], 6): FIT["wing_frames"]["rear"]}
@@ -264,7 +278,31 @@ def build_mesh(ctx, d, x_pay):
         fset = "EFRAME" if hv is None else ("EFRAMEF" if abs(xf - st["x_f"]) < 1e-6 else "EFRAMER")
         me.frame_set[fset] = FRAME_SEC[0] if hv is None else hv["t_m"]
         depth = min(FRAME_SEC[1] if hv is None else hv["d_m"], 0.35 * min(g["hw"], g["hh"]))
+        # Spar frames (resize 2026-11-20): inside the keel the frame becomes a sandwich diaphragm that closes the keel box,
+        # sharing nodes with both webs, the floor and the flange. Before, frame and keel shared one node per web foot: the lug load and the LC4 roll torque went
+        # through that point (frame out-of-plane bending 4,500-4,800 ue, web-foot direct strain 7,400 ue).
+        kdia = KEEL_DIA and hv is not None and in_keel(x)
+        if kdia:
+            def kd_key(i, k):
+                if k == 0: return ("s", a, i)
+                if k == 2 * NV: return ("f", a, i)
+                if i == 0: return ("w", "L", a, k)
+                if i == 2 * NB: return ("w", "R", a, k)
+                return ("kd", a, i, k)
+            for i in range(1, 2 * NB):
+                for k in range(1, 2 * NV):
+                    if corner(i, k):
+                        lo, hi = me.X[me.idx[("s", a, i)] - 1], me.X[me.idx[("f", a, i)] - 1]
+                        me.node(("kd", a, i, k), lo + (hi - lo) * k / (2 * NV))
+            kn_ = lambda i, k: me.idx[kd_key(i, k)]
+            for i in range(0, 2 * NB, 2):
+                for k in range(0, 2 * NV, 2):
+                    me.elem("EKDIA", [kn_(i, k), kn_(i + 2, k), kn_(i + 2, k + 2), kn_(i, k + 2),
+                                      kn_(i + 1, k), kn_(i + 2, k + 1), kn_(i + 1, k + 2), kn_(i, k + 1)])
+            # (Tried: also moving the frame's radial edge at each web foot onto the web line. The frame elements next to
+            #  it folded over: nonpositive Jacobians. The diaphragm alone joins frame and web along the keel depth.)
         for b in range(np_):
+            if kdia and 0 < b < 2 * NB: continue                  # inside the keel: the diaphragm is the frame
             tng = P[(b + 1) % np_] - P[b - 1]
             nrm = np.array([-tng[1], tng[0]]); nrm /= np.linalg.norm(nrm)
             if nrm @ (np.array([0.0, g["zc"]]) - P[b]) < 0: nrm = -nrm          # point inward
@@ -275,8 +313,38 @@ def build_mesh(ctx, d, x_pay):
                     me.node(("fr", a, b, k_), (x, q[0], q[1]))
         fn = lambda a_, b_, k_: me.idx[("fr", a_, b_ % np_, k_)]
         for b in range(0, np_, 2):
+            if kdia and b < 2 * NB: continue
             me.elem(fset, [fn(a, b, 0), fn(a, b + 2, 0), fn(a, b + 2, 2), fn(a, b, 2),
                                fn(a, b + 1, 0), fn(a, b + 2, 1), fn(a, b + 1, 2), fn(a, b, 1)])
+        if hv is not None and in_keel(x) and WEB_POST:          # web posts: the frame continued up each keel web
+            pset = fset[:-1] + ("FP" if fset.endswith("F") else "RP"); me.frame_set[pset] = hv["t_m"]
+            for sd, b0, bi in (("L", 0, 2), ("R", 2 * NB, 2 * NB - 2)):
+                def pk(i, k):
+                    if i == 0: return ("w", sd, a, k)
+                    if k == 0: return ("s", a, (b0 + bi) // 2 if i == 1 else bi)
+                    if k == 2 * NV: return ("f", a, (b0 + bi) // 2 if i == 1 else bi)
+                    return ("post", a, sd, i, k)
+                for i in (1, 2):
+                    for k in range(1, 2 * NV):
+                        if corner(i, k):
+                            lo, hi = me.X[me.idx[pk(i, 0)] - 1], me.X[me.idx[pk(i, 2 * NV)] - 1]
+                            me.node(("post", a, sd, i, k), lo + (hi - lo) * k / (2 * NV))
+                for k in range(0, 2 * NV, 2):
+                    nn = lambda i, k_: me.idx[pk(i, k_)]
+                    me.elem(pset, [nn(0, k), nn(2, k), nn(2, k + 2), nn(0, k + 2), nn(1, k), nn(2, k + 1), nn(1, k + 2), nn(0, k + 1)])
+        if hv is not None and FRAME_CAP_W > 0:                  # cap flange: shells normal to the frame on its inner edge
+            cset = fset + "C"; me.frame_set[cset] = hv["t_m"]
+            for b in range(np_):
+                if kdia and 0 < b < 2 * NB: continue
+                q = me.X[fn(a, b, 2) - 1]
+                for j in ((-2, -1, 1, 2) if b % 2 == 0 else (-2, 2)):
+                    me.node(("cap", a, b, j), q + np.array([j * FRAME_CAP_W / 4, 0, 0]))
+            cn = lambda b_, j: fn(a, b_, 2) if j == 0 else me.idx[("cap", a, b_ % np_, j)]
+            for b in range(0, np_, 2):
+                if kdia and b < 2 * NB: continue
+                for sg in (1, -1):                               # forward half and aft half of the cap
+                    me.elem(cset, [cn(b, 0), cn(b + 2, 0), cn(b + 2, 2 * sg), cn(b, 2 * sg),
+                                   cn(b + 1, 0), cn(b + 2, sg), cn(b + 1, 2 * sg), cn(b, sg)])
     return me
 
 
@@ -310,6 +378,9 @@ def sections(ctx, d):
                         areal=2 * face(lam).h * rho_face(lam) + ct * foam["rho"])
     secs["EFLANGED"] = dict(secs["EFLOORD"])
     bg = mat.wall(pm, n_w45=GEAR_BULK_W45, core_t=ct)            # gear diaphragm
+    kdl = mat.wall(pm, n_w45=KEEL_DIA_W45, core_t=ct)          # keel diaphragms at the spar frames
+    secs["EKDIA"] = dict(layers=[("FKDIA", face(kdl).h), ("FOAM", ct), ("FKDIA", face(kdl).h)], mats={"FKDIA": face_material(face(kdl))},
+                         areal=2 * face(kdl).h * rho_face(kdl) + ct * foam["rho"])
     secs["EBULKG"] = dict(layers=[("FBULKG", face(bg).h), ("FOAM", ct), ("FBULKG", face(bg).h)], mats={"FBULKG": face_material(face(bg))},
                           areal=2 * face(bg).h * rho_face(bg) + ct * foam["rho"])
     bk = mat.wall(pm, n_w45=BULK_W45, core_t=ct)                 # socket bulkheads: +-45 woven faces, keel core
@@ -726,7 +797,7 @@ def figure(me, res, buck, eps_allow):
     import matplotlib.pyplot as plt
     from matplotlib.colors import LogNorm
     ef = element_frames(me)
-    show = ("ESKIN",) if "ESKIN" not in me.skip else ("EWEB", "EFRAME", "EFLANGE", "EFRAMEF", "EFRAMER", "EBULK", "EBULKG", "EWEBD", "EFLANGED")
+    show = ("ESKIN",) if "ESKIN" not in me.skip else ("EWEB", "EFRAME", "EFLANGE", "EFRAMEF", "EFRAMER", "EBULK", "EBULKG", "EKDIA", "EWEBD", "EFLANGED")
     fig = plt.figure(figsize=(12, 6.2))
     gs = fig.add_gridspec(2, 2, width_ratios=[2.3, 1], hspace=0.35, wspace=0.25)
     ax = [fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[1, 0]), fig.add_subplot(gs[:, 1])]
@@ -746,7 +817,7 @@ def figure(me, res, buck, eps_allow):
         ax[2].axhline(1, color="k", lw=0.8); ax[2].set_yscale("log")
         ax[2].set_title("skin buckling factor at ultimate (hand, FE loads)", fontsize=9)
     else:
-        groups = [g for g in ("EFLANGE", "EWEB", "EFLOOR", "EFRAMEF", "EFRAMER", "EBULK", "EBULKG", "EWEBD", "EFLOORD") if g in res[names[0]]["strain"]] \
+        groups = [g for g in ("EFLANGE", "EWEB", "EFLOOR", "EFRAMEF", "EFRAMER", "EBULK", "EBULKG", "EKDIA", "EWEBD", "EFLOORD") if g in res[names[0]]["strain"]] \
             if me.fit_elems else ["EFLANGE", "EWEB", "EFLOOR", "EFRAME"]
         wdt = 0.8 / len(groups)
         key = "strain_clear" if me.fit_elems else "strain"
@@ -806,7 +877,7 @@ def main(build_only=False, post_only=False):
     def area(ns): P = X[np.array(ns[:4]) - 1]; return 0.5 * (np.linalg.norm(np.cross(P[1] - P[0], P[3] - P[0])) + np.linalg.norm(np.cross(P[1] - P[2], P[3] - P[2])))
     mass = {k_: sum(area(ns) for _, ns in me.el[k_]) * secs[k_]["areal"] for k_ in ("ESKIN", "EWEB", "EFLOOR", "EFLANGE", "EWEBD", "EFLOORD", "EFLANGED") if k_ in me.el}
     for fset, t_ in me.frame_set.items(): mass[fset] = sum(area(ns) for _, ns in me.el[fset]) * t_ * qi["rho"]
-    for k_ in ("EBULK", "EBULKG"):
+    for k_ in ("EBULK", "EBULKG", "EKDIA"):
         if k_ in me.el: mass[k_] = sum(area(ns) for _, ns in me.el[k_]) * secs[k_]["areal"]
     if ctx.get("fit"):
         F_ = ctx["fit"]
