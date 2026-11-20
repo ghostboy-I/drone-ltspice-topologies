@@ -1,0 +1,16 @@
+{
+ "hover": {
+  "z_ground": -0.9485073146713848,
+  "overall_length": 4.383847088690373,
+  "overall_width": 7.073240308988289,
+  "height_hover": 1.4248093579838046,
+  "tail_disk_ground_clear": 1.0456355491809999
+ },
+ "airplane": {
+  "z_ground": -0.9485073146713848,
+  "overall_length": 4.383847088690373,
+  "overall_width": 7.073240308988289,
+  "height_hover": 1.4248093579838046,
+  "tail_disk_ground_clear": 1.0456355491809999
+ }
+}

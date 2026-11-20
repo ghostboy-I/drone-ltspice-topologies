@@ -1,0 +1,133 @@
+# Airframe 03: Osprey-style tilt-HEX frame (wing-attached fuselage, six 54 in rotors). Single source of truth for inputs.
+# kind: requirement = user / brief;  v22 = proportion taken from the Bell-Boeing V-22 (published data, cited below);
+#       derived = computed;  assumption = my choice, logged with the reason.
+# Rotor, motor, mission and material numbers are READ from Props/01_54x18_Composite and Airframe/01_Tricopter_Fuselage,
+# never copied (src/sizing.py). The fuselage, wing and tail follow Airframe 02 (same weight, same cruise).
+#
+# User decisions (2026-11-20, this session):
+#   * "a wing attached fuselage for a hex copter ... the one highlighted in the report": the decision matrix
+#     (Props/02_Toroidal_Rotor/DECISION_MATRIX.md) ranks "Hexacopter, 2-blade 54 in" first. Its rotor is the Props
+#     entry-46 hex design: 54 in, 2 blades, 24xx sections, MN1123 KV53 motor, torque cap 0.65 (results/explore/e46...).
+#   * "I don't care if the shape was the same and multiple props in one area": the Airframe 02 shape is kept and the
+#     rotors are grouped.
+#   * "4 tilt + 2 fixed": four tilting rotors on the wing + two fixed lift rotors aft, side by side on a tail
+#     cross-beam (stopped in airplane mode).
+#   * "4 planar on the wing": a coaxial pair per wing tip was costed first (Props coax_pair: +45 % power on the pair,
+#     whole vehicle 16.7 kW hover = no better than the tri), so each wing half carries two side-by-side tilting heads:
+#     one at the tip (the Osprey head) and one inboard on a pylon far enough ahead that its disk clears the leading edge.
+#   * "Same as Osprey": 280 lb MTOW / 225 lb payload, 25 m/s cruise, hot day.
+#   * "Sizing + model + trim": sizing, 3-D model, beam FEM screen, forward-flight trim with the BEMT; no shell FEM yet.
+
+vehicle:
+  rotation: [1, -1, -1, 1, 1, -1]   # tip L, tip R, inboard L, inboard R, aft L, aft R (+1 = CCW from above); sums to 0
+  mtow_lb: 280.0            # requirement
+  drone_lb: 55.0            # requirement (known not to close; reported, never re-decided)
+  payload_lb: 225.0         # requirement: five 45 lb bumper plates (Airframe/01 params)
+  cruise_speed_ms: 25.0     # requirement (user choice 2026-11-18)
+  n_rotors: 6
+
+# V-22 proportions (Bell-Boeing V-22 Osprey, NAVAIR fact file / Jane's All the World's Aircraft):
+#   rotor diameter 38 ft (11.58 m), width with rotors turning 84 ft 7 in (25.78 m), fuselage length 57 ft 4 in (17.48 m),
+#   wing span 45 ft 10 in (13.97 m), wing area 382 ft^2 (35.49 m^2), forward sweep 6 deg, dihedral 3.5 deg (approximate).
+# These set the LOOK only where physics does not decide; each use is listed in the design doc.
+v22:
+  rotor_D_m: 11.58
+  width_rotors_m: 25.78
+  fuselage_L_m: 17.48
+  wing_span_m: 13.97
+  wing_area_m2: 35.49
+  wing_sweep_deg: -6.0      # forward sweep (the V-22 sweeps forward so the blades clear the wing when they flap)
+  wing_dihedral_deg: 3.5
+
+wing:
+  aspect_ratio: 5.5         # v22: 13.97^2 / 35.49 = 5.50. Kept so the wing reads as an Osprey wing at any size
+  sweep_deg: -6.0           # v22
+  dihedral_deg: 3.5         # v22
+  taper: 1.0                # v22: constant chord (it carries the nacelles at the tips)
+  # NACA 4/5-digit codes (XFOIL's generator) and coordinate files in geometry/airfoils (UIUC database: NASA LS(1)-0417 =
+  # GA(W)-1 and its MOD, NLF(1)-0416). Picked by the largest tripped clmax (smallest wing) at t/c >= t_c_min (sizing.py).
+  airfoils: ["2412", "4412", "4415", "4418", "6415", "6418", "23012", "23015", "23018", "23021", "ls417", "ls417mod", "nlf416"]
+  t_c_min: 0.15             # assumption: a spar box needs depth; below 15 % the wing spar mass rises steeply (checked in the sweep)
+  e_oswald: 0.80            # assumption: Raymer 12.6 typical straight wing with tip nacelles
+  clmax_3d_factor: 0.90     # Raymer eq. 12.15: CLmax ~ 0.9 clmax for an unswept, untwisted wing
+  stall_margin: 1.20        # assumption: cruise at >= 1.2 x the airplane-mode stall speed (gust and turn margin)
+  ncrit: 9.0
+  spar_front_xc: 0.15       # assumption: front and rear spar at 15 % and 60 % chord (wingbox; standard light-aircraft practice)
+  spar_rear_xc: 0.60
+  flaperon_download_cd: 1.0 # not used in sizing (see nacelle.overlap): placeholder for the CFD download study
+
+nacelle:
+  # V-280-style (the Osprey family's newer member): a FIXED pod at each wing tip, only the rotor head (motor + rotor) tilts,
+  # at the pod's front end. Why: equal thrust on three rotors puts the hover CG at the hub-triangle centroid; with the
+  # hubs on the wing spar (V-22) that CG sits at ~81 % chord and the airplane mode then needs V_h ~1.6 (a 1.8 m^2 tail).
+  # A forward head moves the centroid forward, so a normal tail works. sizing.py solves the head position.
+  # Overlap = how far the disk reaches inboard of the wing tip, in rotor radii (1.0 = hub on the tip, as on the V-22).
+  download_cd_wing: 2.0     # Viterna-Corrigan Cd at 90 deg for an AR > 50 strip (2.01); conservative (no flaperon)
+  download_max_frac: 0.05   # assumption: wing download <= 5 % of front-rotor thrust (V-22 ~10 % with flaperons at 60-70 deg)
+  head_arm_m: 0.35          # assumption: tilt pivot to hub (motor + tilt gearbox + clearance stack); hub above the pivot in
+                            # hover, ahead of it in airplane mode (all four heads)
+  pod_diameter_m: 0.16      # assumption: MN1123 is ~0.13 m across plus structure
+  pylon_diameter_m: 0.12    # assumption: inboard head pylon (tube from the wing spar box forward to the pivot)
+  tilt_actuator_kg: 0.60    # assumption: geared servo; the MN1123 head is ~0.4 x the tri head's moment (checked in sizing.py)
+  pivot_bearing_kg: 0.35    # assumption: pair of flanged bearings + aluminium trunnion
+  head_fairing_kg: 0.25     # assumption: spinner / head cowl (moves with the head)
+
+rotors:
+  # Hex rotor (Props entry 46, cap 0.65, MN1123 KV53): read from Props/01_54x18_Composite/results/explore/e46_hex_noise_curve.json
+  source_entry: e46_hex_noise_curve
+  motor: MN1123 KV53
+  cap: 0.65
+  section_family: "24"      # the entry-46 blade uses the 24xx section family polars (Props airfoils.build_db, family 24)
+  coax_spacing_over_D: 0.20 # Props params config_study.coax.design_spacing_over_D: used only for the coax comparison
+  rotor_gap_m: 0.10         # assumption: tip-to-tip gap between neighbouring disks in plan
+  inboard_le_gap_m: 0.10    # assumption: plan gap between an inboard disk and the wing leading edge (no download)
+  esc_mass_scale: 0.6       # Props params config_study.coax.coax_esc_mass_scale: half-current ESC vs the U15XL ESC
+  tilt_blade: hex           # hex = the entry-46 blade on the tilting rotors too; "54x18" = the Phase 2 final blade there
+                            # (higher pitch: pulls to ~33 m/s instead of ~18 m/s); transition.py runs both
+
+tail:
+  # Two fixed vertical lift rotors aft, side by side on a cross-beam through the boom (no tilt servo: hover yaw comes
+  # from the counter-rotating pairs' torque difference). Stopped and parked fore-aft in airplane mode.
+  rotor_gap_m: 0.10         # assumption: plan-view gap between the tail disk and any lifting surface (no download)
+  pylon_height_m: 0.30      # assumption: disk above the boom axis
+  aft_rotor_gap_m: 0.10     # assumption: tip gap between the two aft disks (and over the boom)
+  horizontal_AR: 4.0        # v22-ish: H-stab span 5.61 m on ~1.6 m chord gives ~3.5-4
+  vertical_volume: 0.07     # Raymer table 6.4, twin-engine GA (the wingtip motors are an engine-out yaw case)
+  eta_tail: 0.90            # assumption: dynamic pressure ratio at the tail
+  horizontal_volume: 0.80  # Raymer table 6.4, twin-engine GA
+  static_margin: 0.10       # assumption: 10 % MAC, airplane mode; prop normal force (destabilising) is NOT modelled
+  tc_tail: 0.12             # NACA 0012 tail surfaces
+
+fuselage:
+  # Envelope from the payload (five 450 mm plates, 425 mm stack), the 24.6 kg battery and avionics; length from the V-22
+  # ratio L_fus / D_rotor = 17.48 / 11.58 = 1.51.
+  length_over_D: 1.51       # v22
+  width_m: 0.56             # derived: 450 mm plates + 2 x 55 mm (frame + skin)
+  height_m: 0.62            # derived: 425 mm stack + floor + keel + skin
+  nose_frac: 0.25           # assumption: ogive nose, 25 % of the length
+  tail_frac: 0.30           # assumption: upswept tail cone (V-22 style ramp), 30 %
+  gear: tricycle            # v22 look: nose leg + two main legs in sponsons; fixed (no retraction mass)
+  fittings: true            # boom socket + four-lug wing carry-through (src/fittings.py, user request 2026-11-19);
+                            # false = the earlier load-smear + crown-clamp model (results/*_nofit.*)
+  skin: floating            # requirement (user, 2026-11-19): the fairing floats on compliant mounts and carries no
+                            # load; the bonded one-ply skin buckled at 0.01-0.15 of ultimate (fuselage_shell.py)
+
+masses:                     # kg; catalogue values come via Airframe/01 params.yaml (read)
+  avionics_kg: 2.0
+  battery_kg: 24.64         # Airframe/01 (Phase 2 mission pack); kept for comparability, re-checked against the tilt mission later
+
+loads:                      # same philosophy as Airframe/01 (FAR 27 style), plus the airplane-mode cases (FAR 23 style)
+  ultimate_factor: 1.5
+  n_z_hover: 2.0            # Airframe/01: T/W 2.0 pull-up in helicopter mode
+  gust_ms: 15.24            # FAR 23.333(c): 50 ft/s cruise gust at V_C
+  n_z_maneuver_airplane: 2.5  # assumption: below FAR 23 normal 3.8 (an unmanned cargo vehicle); the gust case usually governs
+  landing_sink_ms: 1.5      # Airframe/01
+  landing_rotor_lift_frac: 0.667
+  landing_stroke_max_m: 0.10
+  shaft_tilt_max_deg: 1.0
+
+modal:
+  margin: 0.15
+  band_rule: nominal         # requirement (user, 2026-11-18): deviates from Airframe/01's envelope band (16.6-78.6 Hz); no 6.6 m frame keeps
+                            # every hub mode out of the merged envelope band; nominal = +-15 % at MTOW hover and cruise rpm
+  participation_min: 0.05
