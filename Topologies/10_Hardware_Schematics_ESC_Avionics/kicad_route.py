@@ -14,9 +14,12 @@ power board, where most connections are short; the power paths are pours drawn b
 Every route is written into the board as PCB_TRACK / PCB_VIA objects and rasterised, so later routes avoid it.
 
 Grid error. A cell is marked as copper when its centre lies inside the copper, so the distance transform measures from
-a cell centre to the nearest marked centre. The true copper edge can sit up to half a cell diagonal (cell / sqrt 2)
-closer than that, so every clearance test adds `slack` = 0.75 cell. At 0.05 mm that is 0.04 mm, small enough that a
-0.2 mm track still reaches a 0.5 mm-pitch pin (0.375 mm from its centre to the next pin: 0.1 + 0.2 + 0.04 = 0.34).
+a cell centre to the nearest marked centre. The true copper edge lies beyond the outermost marked centre by less than
+one cell in each axis, so in the worst case (a corner) it is up to a full cell diagonal (cell * sqrt 2 = 0.071 mm)
+closer than measured. Every clearance test adds `slack` = 0.75 cell (0.04 mm): enough for the usual case, and small
+enough that a 0.2 mm track still leaves a 0.5 mm-pitch pin (0.375 mm from its centre to the next pin: 0.1 + 0.2 +
+0.04 = 0.34); the full worst case would block that. KiCad's DRC checks the rest. `via_extra` (default 0) adds to the
+slack for new vias only (the ESC board sets it for its fan-out vias).
 """
 import math, heapq
 import numpy as np
@@ -39,6 +42,7 @@ class Router:
         self.b, self.cell, self.via, self.edge_clear = board, cell, via, edge_clear
         self.via_cost, self.turn_cost = via_cost / cell, turn_cost / cell          # in cells
         self.slack = 0.75 * cell
+        self.via_extra = 0.0
         self.ox, self.oy = origin
         self.W, self.H = int(round(size[0] / cell)) + 1, int(round(size[1] / cell)) + 1
         self.group, self.clear, self.min_clear = group, clear, min_clear
@@ -202,6 +206,7 @@ class Router:
         r = self.via[0] / 2
         pm = self.padmask[win[0]:win[1], win[2]:win[3]]
         near_pad = (ndimage.distance_transform_edt(~pm) * self.cell < r + 0.1 + self.slack) if pm.any() else np.zeros(pm.shape, bool)
+        r += self.via_extra
         return (room[pcbnew.F_Cu] >= r - 1e-9) & (room[pcbnew.B_Cu] >= r - 1e-9) & ~near_pad
 
     # ------------------------------------------------------------------ search

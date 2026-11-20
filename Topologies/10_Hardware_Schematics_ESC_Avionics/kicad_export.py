@@ -141,10 +141,10 @@ class Resolver:
         if p.sym in CUSTOM or p.value in CUSTOM:
             n = p.sym if p.sym in CUSTOM else p.value
             key, sym = self.get(self.prefix, n); return key, sym, CUSTOM[n]["pins"]
-        if p.sym == "res" and p.ref.startswith("F"):
+        if p.sym == "res" and p.ref.startswith("F") and not p.ref.startswith("FB"):      # FB = ferrite bead, not a fuse
             key, sym = self.get("Device", "Fuse"); return key, sym, {"1": ["1"], "2": ["2"]}
         if p.sym == "res":
-            if "NTC" in p.desc: lib = ("Device", "Thermistor_NTC")
+            if "NTC" in p.pn: lib = ("Device", "Thermistor_NTC")              # the part itself, not "NTC pull-up"
             elif p.ref.startswith("FB"): lib = ("Device", "FerriteBead")
             else: lib = ("Device", "R")
             key, sym = self.get(*lib); return key, sym, {"1": ["1"], "2": ["2"]}
@@ -426,17 +426,12 @@ def plot_overview(name, outdir, png):
 
 
 def run(which):
-    import kicad_footprints
-    here = os.path.dirname(os.path.abspath(__file__))
+    """Both boards are drawn, hierarchical schematics (kicad_esc.py, kicad_avionics.py); each export also writes the
+    netted, unplaced PCB. export() above is the older flat form (every pin on a net label), kept for reference."""
     if which == "esc":
-        import esc; B = esc.build(); name = "ESC_Board"
-    else:                                   # the avionics board is a drawn, hierarchical schematic (kicad_avionics.py)
-        import kicad_avionics; print("Avionics_Board", kicad_avionics.export()); return
-    info = export(B, name, os.path.join(here, "kicad", name))
-    json.dump({k: sorted(map(list, v)) for k, v in info.pop("expected").items()},
-              open(os.path.join(here, "kicad", name, "expected_nets.json"), "w"), indent=0)
-    plot_overview(name, os.path.join(here, "kicad", name), os.path.join(here, "kicad", f"{name}_footprints.png"))
-    print(name, info)
+        import kicad_esc; print("ESC_Board", kicad_esc.export())
+    else:
+        import kicad_avionics; print("Avionics_Board", kicad_avionics.export())
 
 
 if __name__ == "__main__":

@@ -117,21 +117,21 @@
       },
       "rules": {
         "max_error": 0.005,
-        "min_clearance": 0.0,
+        "min_clearance": 0.2,
         "min_connection": 0.0,
-        "min_copper_edge_clearance": 0.5,
+        "min_copper_edge_clearance": 0.4,
         "min_groove_width": 0.0,
         "min_hole_clearance": 0.25,
-        "min_hole_to_hole": 0.25,
+        "min_hole_to_hole": 0.5,
         "min_microvia_diameter": 0.2,
         "min_microvia_drill": 0.1,
         "min_resolved_spokes": 2,
         "min_silk_clearance": 0.0,
         "min_text_height": 0.8,
-        "min_text_thickness": 0.08,
+        "min_text_thickness": 0.12,
         "min_through_hole_diameter": 0.3,
-        "min_track_width": 0.0,
-        "min_via_annular_width": 0.1,
+        "min_track_width": 0.2,
+        "min_via_annular_width": 0.13,
         "min_via_diameter": 0.5,
         "solder_mask_to_copper_clearance": 0.0,
         "use_height_for_length_calcs": true
@@ -180,7 +180,15 @@
           "td_width_to_size_filter_ratio": 0.9
         }
       ],
-      "track_widths": [],
+      "track_widths": [
+        0.0,
+        0.25,
+        0.4,
+        0.5,
+        0.8,
+        1.0,
+        1.5
+      ],
       "tuning_pattern_settings": {
         "diff_pair_defaults": {
           "corner_radius_percentage": 80,
@@ -207,7 +215,16 @@
           "spacing": 0.6
         }
       },
-      "via_dimensions": [],
+      "via_dimensions": [
+        {
+          "diameter": 0.0,
+          "drill": 0.0
+        },
+        {
+          "diameter": 0.6,
+          "drill": 0.3
+        }
+      ],
       "zones_allow_external_fillets": false
     },
     "ipc2581": {
@@ -248,7 +265,169 @@
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "priority": 2147483647,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.2,
+        "track_width": 0.25,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "HVBUS",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 0,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 1.0,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "HVDIV1",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 1,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.3,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "HVDIV2",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 2,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.3,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "SW_A",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 3,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.5,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "SW_B",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 4,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.5,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "SW_C",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 5,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.5,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "SW_AUX",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 6,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.4,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "PWR",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 7,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.5,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "DRV",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 8,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.4,
         "via_diameter": 0.6,
         "via_drill": 0.3,
         "wire_width": 6
@@ -259,7 +438,220 @@
     },
     "net_colors": null,
     "netclass_assignments": null,
-    "netclass_patterns": []
+    "netclass_patterns": [
+      {
+        "netclass": "HVBUS",
+        "pattern": "VBUS"
+      },
+      {
+        "netclass": "HVDIV1",
+        "pattern": "Net-(R1-Pad2)"
+      },
+      {
+        "netclass": "HVDIV2",
+        "pattern": "Net-(R2-Pad2)"
+      },
+      {
+        "netclass": "SW_A",
+        "pattern": "PH_A"
+      },
+      {
+        "netclass": "SW_A",
+        "pattern": "/Leg_A/BST_A"
+      },
+      {
+        "netclass": "SW_A",
+        "pattern": "/Leg_A/TG_A"
+      },
+      {
+        "netclass": "SW_A",
+        "pattern": "/Current_Sense/MOT_A"
+      },
+      {
+        "netclass": "SW_A",
+        "pattern": "Net-(Q4-G)"
+      },
+      {
+        "netclass": "SW_A",
+        "pattern": "Net-(Q5-G)"
+      },
+      {
+        "netclass": "SW_A",
+        "pattern": "Net-(Q6-G)"
+      },
+      {
+        "netclass": "SW_A",
+        "pattern": "Net-(Q7-G)"
+      },
+      {
+        "netclass": "SW_B",
+        "pattern": "PH_B"
+      },
+      {
+        "netclass": "SW_B",
+        "pattern": "/Leg_B/BST_B"
+      },
+      {
+        "netclass": "SW_B",
+        "pattern": "/Leg_B/TG_B"
+      },
+      {
+        "netclass": "SW_B",
+        "pattern": "/Current_Sense/MOT_B"
+      },
+      {
+        "netclass": "SW_B",
+        "pattern": "Net-(Q12-G)"
+      },
+      {
+        "netclass": "SW_B",
+        "pattern": "Net-(Q13-G)"
+      },
+      {
+        "netclass": "SW_B",
+        "pattern": "Net-(Q14-G)"
+      },
+      {
+        "netclass": "SW_B",
+        "pattern": "Net-(Q15-G)"
+      },
+      {
+        "netclass": "SW_C",
+        "pattern": "PH_C"
+      },
+      {
+        "netclass": "SW_C",
+        "pattern": "/Leg_C/BST_C"
+      },
+      {
+        "netclass": "SW_C",
+        "pattern": "/Leg_C/TG_C"
+      },
+      {
+        "netclass": "SW_C",
+        "pattern": "Net-(Q20-G)"
+      },
+      {
+        "netclass": "SW_C",
+        "pattern": "Net-(Q21-G)"
+      },
+      {
+        "netclass": "SW_C",
+        "pattern": "Net-(Q22-G)"
+      },
+      {
+        "netclass": "SW_C",
+        "pattern": "Net-(Q23-G)"
+      },
+      {
+        "netclass": "SW_AUX",
+        "pattern": "/Aux_12V/SW_AUX"
+      },
+      {
+        "netclass": "SW_AUX",
+        "pattern": "/Aux_12V/BST_AUX"
+      },
+      {
+        "netclass": "SW_AUX",
+        "pattern": "/Aux_12V/TG_AUX"
+      },
+      {
+        "netclass": "PWR",
+        "pattern": "GND"
+      },
+      {
+        "netclass": "PWR",
+        "pattern": "+12V"
+      },
+      {
+        "netclass": "PWR",
+        "pattern": "+5V"
+      },
+      {
+        "netclass": "PWR",
+        "pattern": "+3V3"
+      },
+      {
+        "netclass": "PWR",
+        "pattern": "/Aux_12V/SNS_AUX"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "/Leg_A/BG_A"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "/Leg_B/BG_B"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "/Leg_C/BG_C"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "/Aux_12V/BG_AUX"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "/Aux_12V/DRVCC_AUX"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "/Aux_12V/INTVCC_AUX"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "/Aux_12V/NDRV_AUX"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "Net-(Q8-G)"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "Net-(Q9-G)"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "Net-(Q10-G)"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "Net-(Q11-G)"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "Net-(Q16-G)"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "Net-(Q17-G)"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "Net-(Q18-G)"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "Net-(Q19-G)"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "Net-(Q24-G)"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "Net-(Q25-G)"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "Net-(Q26-G)"
+      },
+      {
+        "netclass": "DRV",
+        "pattern": "Net-(Q27-G)"
+      }
+    ]
   },
   "pcbnew": {
     "last_paths": {
@@ -281,8 +673,40 @@
   },
   "sheets": [
     [
-      "bf98d85b-ce3a-54c5-b021-d8ee38c323e8",
+      "a0b049e5-5136-5aca-8b7c-408839897643",
       "Root"
+    ],
+    [
+      "2cbe5da8-cbd0-5b11-9b48-e945f915c43c",
+      "Power_Input"
+    ],
+    [
+      "e079b177-1f29-5955-9f6f-82e1e08cfcff",
+      "Aux_12V"
+    ],
+    [
+      "ea6ef932-b652-5c64-a47c-51828e35d0ac",
+      "LDOs"
+    ],
+    [
+      "b23848d1-51d0-5294-a990-8a35c87f48be",
+      "Leg_A"
+    ],
+    [
+      "47a92adb-a59d-5220-8970-04c040e3d593",
+      "Leg_B"
+    ],
+    [
+      "e9ca6084-f028-5bc2-b207-19e347fdab1d",
+      "Leg_C"
+    ],
+    [
+      "5e1ddec4-09f4-5be2-bb23-cb7d03aff36e",
+      "Current_Sense"
+    ],
+    [
+      "0d67e6a7-8198-59dc-9653-1120a8d90a0a",
+      "MCU"
     ]
   ],
   "text_variables": {}

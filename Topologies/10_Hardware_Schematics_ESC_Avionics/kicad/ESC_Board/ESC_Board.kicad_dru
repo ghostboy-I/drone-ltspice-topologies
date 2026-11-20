@@ -1,0 +1,36 @@
+(version 1)
+
+(rule "HV group to any other copper: 0.6 mm (IPC-2221B B2, 31-150 V)"
+  (layer outer)
+  (condition "(A.NetClass == 'HVBUS' || A.NetClass == 'HVDIV1' || A.NetClass == 'HVDIV2' || A.NetClass == 'SW_A' || A.NetClass == 'SW_B' || A.NetClass == 'SW_C' || A.NetClass == 'SW_AUX') && A.NetClass != B.NetClass && B.Net != '' && B.Type != 'Footprint'")
+  (constraint clearance (min 0.6mm)))
+
+(rule "HV group to unconnected copper: 0.6 mm"
+  (layer outer)
+  (condition "(A.NetClass == 'HVBUS' || A.NetClass == 'HVDIV1' || A.NetClass == 'HVDIV2' || A.NetClass == 'SW_A' || A.NetClass == 'SW_B' || A.NetClass == 'SW_C' || A.NetClass == 'SW_AUX') && B.Net == '' && B.Type == 'Pad'")
+  (constraint clearance (min 0.6mm)))
+
+(rule "HV on inner layers: 0.3 mm (IPC-2221B B1 asks 0.2 mm)"
+  (layer inner)
+  (condition "(A.NetClass == 'HVBUS' || A.NetClass == 'HVDIV1' || A.NetClass == 'HVDIV2' || A.NetClass == 'SW_A' || A.NetClass == 'SW_B' || A.NetClass == 'SW_C' || A.NetClass == 'SW_AUX') && A.NetClass != B.NetClass")
+  (constraint clearance (min 0.3mm)))
+
+(rule "U1 pin field: the IC's own pin pitch"
+  (layer "F.Cu")
+  (condition "A.intersectsArea('U1_PINS') && B.intersectsArea('U1_PINS') && A.Type != 'Zone' && B.Type != 'Zone'")
+  (constraint clearance (min 0.2mm)))
+
+(rule "U4 pin field: the IC's own pin pitch"
+  (layer "F.Cu")
+  (condition "A.intersectsArea('U4_PINS') && B.intersectsArea('U4_PINS') && A.Type != 'Zone' && B.Type != 'Zone'")
+  (constraint clearance (min 0.2mm)))
+
+(rule "U5 pin field: the IC's own pin pitch"
+  (layer "F.Cu")
+  (condition "A.intersectsArea('U5_PINS') && B.intersectsArea('U5_PINS') && A.Type != 'Zone' && B.Type != 'Zone'")
+  (constraint clearance (min 0.2mm)))
+
+(rule "U6 pin field: the IC's own pin pitch"
+  (layer "F.Cu")
+  (condition "A.intersectsArea('U6_PINS') && B.intersectsArea('U6_PINS') && A.Type != 'Zone' && B.Type != 'Zone'")
+  (constraint clearance (min 0.2mm)))

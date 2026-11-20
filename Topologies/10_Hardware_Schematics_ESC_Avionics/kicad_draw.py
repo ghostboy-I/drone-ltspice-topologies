@@ -500,8 +500,10 @@ class Project:
             for li, line in enumerate(_wrap(s.title, 34)[:6]):
                 items.append([Sym("text"), line, [Sym("exclude_from_sim"), Sym("no")], [Sym("at"), x + 2.54, round(y + 5.08 + li * 3.3, 3), 0],
                               eff(size=1.6, justify="left"), [Sym("uuid"), self.U()]])
+        rows = (len(self.sheets) + 2) // 3
+        ny = 120 if rows <= 2 else y0 + rows * (h + gap * 2) + 4          # notes below the last row of sheet boxes
         for li, line in enumerate(self.root_notes):
-            items.append([Sym("text"), line, [Sym("exclude_from_sim"), Sym("no")], [Sym("at"), 25.4, round(120 + li * 4.2, 3), 0],
+            items.append([Sym("text"), line, [Sym("exclude_from_sim"), Sym("no")], [Sym("at"), 25.4, round(ny + li * 4.2, 3), 0],
                           eff(size=1.8, justify="left", bold=li == 0), [Sym("uuid"), self.U()]])
         sch = [Sym("kicad_sch"), [Sym("version"), Sym("20250114")], [Sym("generator"), "eeschema"], [Sym("generator_version"), "9.0"],
                [Sym("uuid"), self.root_uuid], [Sym("paper"), "A4"], self._title_block(self.title, 1, total, comments),

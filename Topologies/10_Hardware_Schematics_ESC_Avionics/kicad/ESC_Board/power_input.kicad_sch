@@ -1,0 +1,8861 @@
+(kicad_sch
+  (version 20250114)
+  (generator "eeschema")
+  (generator_version "9.0")
+  (uuid "fca8bc79-8dec-5438-93b5-7347cfc7bf08")
+  (paper "A3")
+  (title_block
+    (title "1  POWER INPUT + DC LINK")
+    (rev "A")
+    (company "ESC BOARD (one per motor)")
+    (comment 1 "Drawn from esc.py (topology 10) by kicad_esc.py")
+    (comment 2 "LTC7801, LTC7063, LT1763 symbols: ADI pin drawings")
+    (comment 3 "Footprints: Drone_Power.pretty")
+  )
+  (lib_symbols
+    (symbol "Connector_Generic:Conn_01x02"
+      (pin_names
+        (offset 1.016)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "J"
+        (at 0 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Value" "Conn_01x02"
+        (at 0 -5.08 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "connector"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "Connector*:*_1x??_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "Conn_01x02_1_1"
+        (rectangle
+          (start -1.27 1.27)
+          (end 1.27 -3.81)
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type background)
+          )
+        )
+        (rectangle
+          (start -1.27 0.127)
+          (end 0 -0.127)
+          (stroke
+            (width 0.1524)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (rectangle
+          (start -1.27 -2.413)
+          (end 0 -2.667)
+          (stroke
+            (width 0.1524)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (pin passive line
+          (at -5.08 0 0)
+          (length 3.81)
+          (name "Pin_1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at -5.08 -2.54 0)
+          (length 3.81)
+          (name "Pin_2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "Device:C_Polarized"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0.254)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "C"
+        (at 0.635 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (justify left)
+        )
+      )
+      (property "Value" "C_Polarized"
+        (at 0.635 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (justify left)
+        )
+      )
+      (property "Footprint" ""
+        (at 0.9652 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Polarized capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "cap capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "CP_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "C_Polarized_0_1"
+        (rectangle
+          (start -2.286 0.508)
+          (end 2.286 1.016)
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy -1.778 2.286)
+            (xy -0.762 2.286)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy -1.27 2.794)
+            (xy -1.27 1.778)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (rectangle
+          (start 2.286 -0.508)
+          (end -2.286 -1.016)
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type outline)
+          )
+        )
+      )
+      (symbol "C_Polarized_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "Device:C"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0.254)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "C"
+        (at 0.635 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (justify left)
+        )
+      )
+      (property "Value" "C"
+        (at 0.635 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (justify left)
+        )
+      )
+      (property "Footprint" ""
+        (at 0.9652 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Unpolarized capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "cap capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "C_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "C_0_1"
+        (polyline
+          (pts
+            (xy -2.032 0.762)
+            (xy 2.032 0.762)
+          )
+          (stroke
+            (width 0.508)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy -2.032 -0.762)
+            (xy 2.032 -0.762)
+          )
+          (stroke
+            (width 0.508)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "C_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "Device:R"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "R"
+        (at 2.032 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Value" "R"
+        (at 0 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at -1.778 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Resistor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "R res resistor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "R_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "R_0_1"
+        (rectangle
+          (start -1.016 -2.54)
+          (end 1.016 2.54)
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "R_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "Device:Thermistor_NTC"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "TH"
+        (at -4.445 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Value" "Thermistor_NTC"
+        (at 3.175 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 1.27 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 1.27 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Temperature dependent resistor, negative temperature coefficient"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "thermistor NTC resistor sensor RTD"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "R_* RV_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "Thermistor_NTC_0_1"
+        (arc
+          (start -3.175 2.413)
+          (mid -3.0506 2.3165)
+          (end -3.048 2.159)
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (arc
+          (start -3.048 2.794)
+          (mid -2.9736 2.9736)
+          (end -2.794 3.048)
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (arc
+          (start -2.794 3.048)
+          (mid -2.6144 2.9736)
+          (end -2.54 2.794)
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (arc
+          (start -2.794 2.54)
+          (mid -2.9736 2.6144)
+          (end -3.048 2.794)
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (arc
+          (start -2.794 1.905)
+          (mid -2.9736 1.9794)
+          (end -3.048 2.159)
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (arc
+          (start -2.54 2.159)
+          (mid -2.6144 1.9794)
+          (end -2.794 1.905)
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (arc
+          (start -2.159 2.794)
+          (mid -2.434 2.5608)
+          (end -2.794 2.54)
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy -2.54 2.159)
+            (xy -2.54 2.794)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy -2.54 -3.683)
+            (xy -2.54 -1.397)
+            (xy -2.794 -2.159)
+            (xy -2.286 -2.159)
+            (xy -2.54 -1.397)
+            (xy -2.54 -1.651)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type outline)
+          )
+        )
+        (polyline
+          (pts
+            (xy -1.778 2.54)
+            (xy -1.778 1.524)
+            (xy 1.778 -1.524)
+            (xy 1.778 -2.54)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy -1.778 -1.397)
+            (xy -1.778 -3.683)
+            (xy -2.032 -2.921)
+            (xy -1.524 -2.921)
+            (xy -1.778 -3.683)
+            (xy -1.778 -3.429)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type outline)
+          )
+        )
+        (rectangle
+          (start -1.016 2.54)
+          (end 1.016 -2.54)
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "Thermistor_NTC_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "power:VBUS"
+      (power)
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "#PWR"
+        (at 0 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Value" "VBUS"
+        (at 0 3.556 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Power symbol creates a global label with name \"VBUS\""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "global power"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "VBUS_0_1"
+        (polyline
+          (pts
+            (xy -0.762 1.27)
+            (xy 0 2.54)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0 2.54)
+            (xy 0.762 1.27)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0 0)
+            (xy 0 2.54)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "VBUS_1_1"
+        (pin power_in line
+          (at 0 0 90)
+          (length 0)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "power:PWR_FLAG"
+      (power)
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "#FLG"
+        (at 0 1.905 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Value" "PWR_FLAG"
+        (at 0 3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Special symbol for telling ERC where power comes from"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "flag power"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "PWR_FLAG_0_0"
+        (pin power_out line
+          (at 0 0 90)
+          (length 0)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (symbol "PWR_FLAG_0_1"
+        (polyline
+          (pts
+            (xy 0 0)
+            (xy 0 1.27)
+            (xy -1.016 1.905)
+            (xy 0 2.54)
+            (xy 1.016 1.905)
+            (xy 0 1.27)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "power:GND"
+      (power)
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "#PWR"
+        (at 0 -6.35 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Value" "GND"
+        (at 0 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "global power"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "GND_0_1"
+        (polyline
+          (pts
+            (xy 0 0)
+            (xy 0 -1.27)
+            (xy 1.27 -1.27)
+            (xy 0 -2.54)
+            (xy -1.27 -1.27)
+            (xy 0 -1.27)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "GND_1_1"
+        (pin power_in line
+          (at 0 0 270)
+          (length 0)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "power:+3V3"
+      (power)
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "#PWR"
+        (at 0 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Value" "+3V3"
+        (at 0 3.556 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Power symbol creates a global label with name \"+3V3\""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "global power"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "+3V3_0_1"
+        (polyline
+          (pts
+            (xy -0.762 1.27)
+            (xy 0 2.54)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0 2.54)
+            (xy 0.762 1.27)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0 0)
+            (xy 0 2.54)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "+3V3_1_1"
+        (pin power_in line
+          (at 0 0 90)
+          (length 0)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+  )
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x02")
+    (at 30.48 63.5 0)
+    (mirror y)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "1cccc594-39dd-51de-9c55-ef19b754f7b4")
+    (property "Reference" "J1"
+      (at 30.48 60.96 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Value" "AS150 with factory 8 AWG pigtail"
+      (at 30.48 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" "Drone_Power:AMASS_AS150_Pigtail_2x8AWG_P15mm"
+      (at 30.48 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 30.48 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Battery input, anti-spark"
+      (at 30.48 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "AMASS AS150 with factory 8 AWG pigtail (male)"
+      (at 30.48 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "150 A, 24S"
+      (at 30.48 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "90fb1caa-ada9-5a43-bfe6-d194db7a68c9")
+    )
+    (pin "2"
+      (uuid "29570a32-7125-59d4-aa13-f7e160619491")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "J1")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 50.8 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "b270cf64-ed59-561f-877f-2c80895ef418")
+    (property "Reference" "C1"
+      (at 53.34 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 53.34 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 50.8 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 50.8 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 50.8 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 50.8 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 50.8 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "476dfe97-bf5b-57c0-8535-441da5a63afd")
+    )
+    (pin "2"
+      (uuid "669d8929-8a46-5ecc-b651-b8a74e18595a")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C1")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 60.96 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "f4731ba6-bf48-56a3-9214-5ecebfd583e5")
+    (property "Reference" "C2"
+      (at 63.5 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 63.5 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 60.96 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 60.96 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 60.96 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 60.96 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 60.96 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "26d34e89-e3ee-5aa4-bf74-d49264850d7d")
+    )
+    (pin "2"
+      (uuid "50fefce8-658f-5f41-af72-cfac755ab8a8")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C2")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 71.12 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "7bdd2ab2-b1ce-5781-82b9-b74cfbacc8d7")
+    (property "Reference" "C3"
+      (at 73.66 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 73.66 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 71.12 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 71.12 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 71.12 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 71.12 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 71.12 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "2871eb49-2ecf-5473-952b-20b58d99c694")
+    )
+    (pin "2"
+      (uuid "198e3297-9e07-5a1f-a050-0fdfb9073a4f")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C3")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 81.28 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "1360cb88-8424-5c2a-87fd-32a27f6ff35d")
+    (property "Reference" "C4"
+      (at 83.82 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 83.82 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 81.28 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 81.28 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 81.28 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 81.28 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 81.28 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "c3a2d6cc-c3ad-5ba1-bc1b-429b89d970ba")
+    )
+    (pin "2"
+      (uuid "4dabbeeb-50c3-5273-8949-4169b8a9e55a")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C4")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 91.44 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "ca097fba-f3fd-5bfb-9c05-9180356d5258")
+    (property "Reference" "C5"
+      (at 93.98 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 93.98 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 91.44 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 91.44 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 91.44 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 91.44 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 91.44 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "38d7e4b5-dfff-5b59-a48e-e3a4b9cd46a8")
+    )
+    (pin "2"
+      (uuid "6f2b225b-e4f1-5702-a93f-0a074be7fd47")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C5")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 101.6 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "dc182ed8-1241-550b-882c-fc65aff276d5")
+    (property "Reference" "C6"
+      (at 104.14 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 104.14 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 101.6 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 101.6 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 101.6 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 101.6 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 101.6 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "fb3021ed-7221-54e0-bba5-0f328d43b1a0")
+    )
+    (pin "2"
+      (uuid "a4885529-6ba4-5248-9256-34adf0659245")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C6")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 111.76 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "f4b19d58-ee0a-569f-a79c-28e5023ae6b4")
+    (property "Reference" "C7"
+      (at 114.3 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 114.3 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 111.76 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 111.76 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 111.76 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 111.76 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 111.76 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "cd92615b-7864-5c18-ad00-5dc90acfaa4a")
+    )
+    (pin "2"
+      (uuid "55df3494-a90e-5d51-b3f9-025b7c78caa0")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C7")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 121.92 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "39d7ebe2-93a9-5ad4-aaac-8f02e4ba8d59")
+    (property "Reference" "C8"
+      (at 124.46 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 124.46 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 121.92 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 121.92 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 121.92 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 121.92 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 121.92 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "b79de167-8a6a-5e6b-bde5-9c7a92dbf2de")
+    )
+    (pin "2"
+      (uuid "99124183-630c-5e01-9db5-e2a7fc8954cf")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C8")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 132.08 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "f38ac2ac-43ef-5259-941f-d19976038f25")
+    (property "Reference" "C9"
+      (at 134.62 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 134.62 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 132.08 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 132.08 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 132.08 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 132.08 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 132.08 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "19d6e9f9-19ce-573b-ac9f-0274a514a542")
+    )
+    (pin "2"
+      (uuid "c2788362-d680-5bb4-a28a-40be714ef929")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C9")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 142.24 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "8f425950-7ed3-5e54-aa24-1ced10d65788")
+    (property "Reference" "C10"
+      (at 144.78 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 144.78 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 142.24 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 142.24 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 142.24 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 142.24 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 142.24 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "a102e92a-139b-5e6e-843a-1d74be362ec4")
+    )
+    (pin "2"
+      (uuid "27d8ef98-87cc-598a-8fa1-cae9561f265f")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C10")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 152.4 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "65ee5be7-794f-564b-935a-5a27110a5be6")
+    (property "Reference" "C11"
+      (at 154.94 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 154.94 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 152.4 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 152.4 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 152.4 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 152.4 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 152.4 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "cfcc2e42-a57c-5ef1-9b47-c26ec19826ea")
+    )
+    (pin "2"
+      (uuid "02db449e-afe4-5aac-a34f-98c936d64320")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C11")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 162.56 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "0fe828a6-db0c-5bd0-aa6c-3edde4dbaa22")
+    (property "Reference" "C12"
+      (at 165.1 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 165.1 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 162.56 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 162.56 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 162.56 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 162.56 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 162.56 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "e07ad4b1-1525-538c-86b9-b4420c1c340e")
+    )
+    (pin "2"
+      (uuid "40a78638-0e66-59db-8b65-8052e5165de4")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C12")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 172.72 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "faee2147-2765-5f59-9736-931bf30c10be")
+    (property "Reference" "C13"
+      (at 175.26 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 175.26 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 172.72 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 172.72 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 172.72 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 172.72 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 172.72 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "8a3d11de-719a-5442-8831-465229127809")
+    )
+    (pin "2"
+      (uuid "fc72b083-f160-51b2-9f9f-dbac3e0ffc7a")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C13")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 182.88 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "b889d288-b09c-5c35-808d-59b18f89fe0c")
+    (property "Reference" "C14"
+      (at 185.42 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 185.42 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 182.88 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 182.88 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 182.88 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 182.88 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 182.88 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "d33c6621-b3e6-5ef1-863b-233ac0954f05")
+    )
+    (pin "2"
+      (uuid "49724fc0-a82d-5b7b-9298-fe888cfff3c1")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C14")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 193.04 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "b80f58f0-5c1a-57ed-a778-38aa9f49f17b")
+    (property "Reference" "C15"
+      (at 195.58 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 195.58 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 193.04 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 193.04 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 193.04 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 193.04 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 193.04 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "35836b55-8da4-5669-bd37-59c0b0417b2e")
+    )
+    (pin "2"
+      (uuid "9dad1514-7ba9-52c4-a2e3-a26e2e730994")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C15")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 203.2 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "355492e9-558c-5090-8e4e-c46c5274b785")
+    (property "Reference" "C16"
+      (at 205.74 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 205.74 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 203.2 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 203.2 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer"
+      (at 203.2 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 203.2 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 203.2 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "881c0ce6-be4a-5d22-b9a7-6948e3d6ba4c")
+    )
+    (pin "2"
+      (uuid "e6b7d750-3148-59c1-94cc-fe91902f8d44")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C16")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 213.36 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "7db35bfe-5f25-5b21-a248-0e6d40729f55")
+    (property "Reference" "C65"
+      (at 215.9 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 215.9 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 213.36 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 213.36 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer (ripple: 24 caps share 61.7 A rms at hover)"
+      (at 213.36 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 213.36 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 213.36 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "8c88e3fe-b6a1-55f6-861f-13fe168ff551")
+    )
+    (pin "2"
+      (uuid "cffed211-1827-5d1d-8b78-824cb084b799")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C65")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 223.52 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "3f54948d-59e9-5028-b4bb-bd22dc134f29")
+    (property "Reference" "C66"
+      (at 226.06 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 226.06 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 223.52 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 223.52 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer (ripple: 24 caps share 61.7 A rms at hover)"
+      (at 223.52 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 223.52 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 223.52 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "a33b1f09-4c0b-5613-a841-5950a4fb62a8")
+    )
+    (pin "2"
+      (uuid "fca33b64-c1de-5aca-8103-7d91fb5e32d9")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C66")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 233.68 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "f63b0142-df85-522b-9041-4d813a097bfc")
+    (property "Reference" "C67"
+      (at 236.22 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 236.22 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 233.68 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 233.68 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer (ripple: 24 caps share 61.7 A rms at hover)"
+      (at 233.68 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 233.68 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 233.68 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "57498cae-2d80-5923-b989-6094db3bccfc")
+    )
+    (pin "2"
+      (uuid "f61112d6-a128-5e8e-813b-b82694e1f41e")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C67")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 243.84 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "24cd98b6-03ad-57f6-afc7-8499cca1879d")
+    (property "Reference" "C68"
+      (at 246.38 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 246.38 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 243.84 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 243.84 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer (ripple: 24 caps share 61.7 A rms at hover)"
+      (at 243.84 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 243.84 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 243.84 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "56d7bc0d-da9a-5350-8d2e-9ebfc157188e")
+    )
+    (pin "2"
+      (uuid "c6f03351-a1e5-5837-ae4c-1af8f689e762")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C68")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 254 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "6b6fc0c4-03ba-5df8-9541-8a834a94ba92")
+    (property "Reference" "C69"
+      (at 256.54 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 256.54 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 254 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 254 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer (ripple: 24 caps share 61.7 A rms at hover)"
+      (at 254 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 254 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 254 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "d380d052-12e4-56f3-b1a4-46cf5ca4f701")
+    )
+    (pin "2"
+      (uuid "bd36f329-70b9-541d-8c8d-dba713bb4bb6")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C69")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 264.16 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "ba0ad8c0-90bc-5368-999c-b3332fe1f542")
+    (property "Reference" "C70"
+      (at 266.7 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 266.7 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 264.16 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 264.16 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer (ripple: 24 caps share 61.7 A rms at hover)"
+      (at 264.16 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 264.16 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 264.16 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "659b94b8-567c-5697-a306-896457b18293")
+    )
+    (pin "2"
+      (uuid "5a57b511-92e5-5d6f-8b68-38b97d4916e5")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C70")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 274.32 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "16368a52-0ef0-5145-b067-8d37eb511109")
+    (property "Reference" "C71"
+      (at 276.86 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 276.86 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 274.32 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 274.32 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer (ripple: 24 caps share 61.7 A rms at hover)"
+      (at 274.32 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 274.32 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 274.32 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "1a686d7f-9501-54f1-bf17-58c9fa72da56")
+    )
+    (pin "2"
+      (uuid "15562927-5441-5400-9e51-3f66cc1a1856")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C71")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C_Polarized")
+    (at 284.48 67.31 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "3adc1bbd-b865-5bb4-8626-fb0edda09762")
+    (property "Reference" "C72"
+      (at 287.02 66.04 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150µ"
+      (at 287.02 68.58 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:CP_Elec_10x12.5"
+      (at 284.48 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 284.48 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link bulk, hybrid polymer (ripple: 24 caps share 61.7 A rms at hover)"
+      (at 284.48 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "150 µF 125 V hybrid polymer, ≥3.5 A ripple, ESR ≤ 20 mΩ"
+      (at 284.48 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "125 V"
+      (at 284.48 67.31 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "bcfd6a8f-6507-55ab-bc4f-af50c2b2f154")
+    )
+    (pin "2"
+      (uuid "5730f6c0-1e03-5f6c-b57e-b3464ed6926e")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C72")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 60.96 102.87 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "e03ee8e5-9c2e-5739-b996-b7483b033f40")
+    (property "Reference" "C17"
+      (at 63.5 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "2.2µ"
+      (at 63.5 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_1210_3225Metric"
+      (at 60.96 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 60.96 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link ceramic, at the FETs"
+      (at 60.96 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "2.2 µF X7R 1210 (≈1.1 µF at 90 V)"
+      (at 60.96 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "250 V"
+      (at 60.96 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "ec8743a2-55db-5445-8700-57d4ac45bd0f")
+    )
+    (pin "2"
+      (uuid "997a42af-2115-5e95-8a68-768f693fe17e")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C17")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 71.12 102.87 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "d650b08d-30ec-51ec-8abf-eccb734cd0d1")
+    (property "Reference" "C18"
+      (at 73.66 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "2.2µ"
+      (at 73.66 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_1210_3225Metric"
+      (at 71.12 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 71.12 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link ceramic, at the FETs"
+      (at 71.12 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "2.2 µF X7R 1210 (≈1.1 µF at 90 V)"
+      (at 71.12 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "250 V"
+      (at 71.12 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "e759e022-5b62-5050-b7e9-bb7a924c24ab")
+    )
+    (pin "2"
+      (uuid "15420cae-19d4-534a-be7f-c85a9bc44e48")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C18")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 81.28 102.87 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "47f2387c-43b9-51f5-a086-e8369a1fe6b8")
+    (property "Reference" "C19"
+      (at 83.82 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "2.2µ"
+      (at 83.82 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_1210_3225Metric"
+      (at 81.28 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 81.28 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link ceramic, at the FETs"
+      (at 81.28 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "2.2 µF X7R 1210 (≈1.1 µF at 90 V)"
+      (at 81.28 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "250 V"
+      (at 81.28 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "ee30207c-22af-584e-a9b5-5ac084c129d5")
+    )
+    (pin "2"
+      (uuid "2b2718c1-fd31-52bf-9953-a7127a24ef33")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C19")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 91.44 102.87 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "57ecd30f-183d-58f5-80c5-129767a32eb1")
+    (property "Reference" "C20"
+      (at 93.98 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "2.2µ"
+      (at 93.98 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_1210_3225Metric"
+      (at 91.44 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 91.44 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link ceramic, at the FETs"
+      (at 91.44 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "2.2 µF X7R 1210 (≈1.1 µF at 90 V)"
+      (at 91.44 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "250 V"
+      (at 91.44 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "53c5a853-2322-52cc-85a0-16573dcb001c")
+    )
+    (pin "2"
+      (uuid "27cec83f-e643-5f9e-8bde-f7e3dbc8d517")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C20")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 101.6 102.87 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "5476ff30-53d4-55ac-a9f3-086317818895")
+    (property "Reference" "C21"
+      (at 104.14 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "2.2µ"
+      (at 104.14 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_1210_3225Metric"
+      (at 101.6 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 101.6 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link ceramic, at the FETs"
+      (at 101.6 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "2.2 µF X7R 1210 (≈1.1 µF at 90 V)"
+      (at 101.6 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "250 V"
+      (at 101.6 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "6b9bfbce-f2c9-5a5f-99e3-0cab4d124e96")
+    )
+    (pin "2"
+      (uuid "2bc50cee-15a8-5600-9ab7-5cca692ea89e")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C21")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 111.76 102.87 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "0b43d59a-6a01-5698-a953-8aa24f620a1f")
+    (property "Reference" "C22"
+      (at 114.3 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "2.2µ"
+      (at 114.3 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_1210_3225Metric"
+      (at 111.76 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 111.76 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link ceramic, at the FETs"
+      (at 111.76 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "2.2 µF X7R 1210 (≈1.1 µF at 90 V)"
+      (at 111.76 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "250 V"
+      (at 111.76 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "3300b30b-5917-5b2a-8e4b-c7e75dc58a55")
+    )
+    (pin "2"
+      (uuid "38e3a891-2dbc-5e5b-a742-a914f8f21a64")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C22")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 121.92 102.87 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "4e77dbce-0bc5-5e62-80ab-534ba0e14c3b")
+    (property "Reference" "C23"
+      (at 124.46 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "2.2µ"
+      (at 124.46 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_1210_3225Metric"
+      (at 121.92 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 121.92 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link ceramic, at the FETs"
+      (at 121.92 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "2.2 µF X7R 1210 (≈1.1 µF at 90 V)"
+      (at 121.92 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "250 V"
+      (at 121.92 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "3a2e9e81-b47f-5626-a909-a7a3352e062f")
+    )
+    (pin "2"
+      (uuid "dd163e60-c479-5264-a469-80a1927c8336")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C23")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 132.08 102.87 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "4910a14f-1cf1-514f-ad55-1de677345a6a")
+    (property "Reference" "C24"
+      (at 134.62 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "2.2µ"
+      (at 134.62 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_1210_3225Metric"
+      (at 132.08 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 132.08 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link ceramic, at the FETs"
+      (at 132.08 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "2.2 µF X7R 1210 (≈1.1 µF at 90 V)"
+      (at 132.08 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "250 V"
+      (at 132.08 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "2160803e-8097-5b4d-b676-d8a5b97dc158")
+    )
+    (pin "2"
+      (uuid "8e731864-3e14-50ad-8dee-43a378b18396")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C24")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 142.24 102.87 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "d7aa3dfb-312c-5c32-96f8-02c0faf312ce")
+    (property "Reference" "C25"
+      (at 144.78 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "2.2µ"
+      (at 144.78 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_1210_3225Metric"
+      (at 142.24 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 142.24 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link ceramic, at the FETs"
+      (at 142.24 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "2.2 µF X7R 1210 (≈1.1 µF at 90 V)"
+      (at 142.24 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "250 V"
+      (at 142.24 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "a22fa145-50f8-5e32-9f3e-d25a6a38b25f")
+    )
+    (pin "2"
+      (uuid "4015f68f-97f5-55ce-9f9b-6a6bd4593660")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C25")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 152.4 102.87 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "4cbd1ac7-b518-59ba-bc22-94384339b25e")
+    (property "Reference" "C26"
+      (at 154.94 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "2.2µ"
+      (at 154.94 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_1210_3225Metric"
+      (at 152.4 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 152.4 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "DC-link ceramic, at the FETs"
+      (at 152.4 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "2.2 µF X7R 1210 (≈1.1 µF at 90 V)"
+      (at 152.4 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "250 V"
+      (at 152.4 102.87 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "c2e2ceb1-b6c6-589d-9b09-ea96d33fa529")
+    )
+    (pin "2"
+      (uuid "3f9f2ae7-5102-5055-ba59-788fc09475dc")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C26")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 187.96 100.33 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "4fba52c7-f711-5444-b26f-5a631d80d8e8")
+    (property "Reference" "R1"
+      (at 190.5 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "330k"
+      (at 190.5 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_1206_3216Metric"
+      (at 187.96 100.33 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 187.96 100.33 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Bus sense divider (3 in series for voltage rating)"
+      (at 187.96 100.33 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %, thick film"
+      (at 187.96 100.33 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "200 V"
+      (at 187.96 100.33 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "bf662649-b04e-50ae-8b18-f13ead0e2715")
+    )
+    (pin "2"
+      (uuid "fb0198ab-2ace-56d9-8ce0-7147e1f56b5a")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "R1")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 187.96 107.95 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "10bc5378-90c1-5c7a-ba6a-1d04b8448d9c")
+    (property "Reference" "R2"
+      (at 190.5 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "330k"
+      (at 190.5 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_1206_3216Metric"
+      (at 187.96 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 187.96 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Bus sense divider (3 in series for voltage rating)"
+      (at 187.96 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %, thick film"
+      (at 187.96 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "200 V"
+      (at 187.96 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "9a83942a-873f-587d-a00f-e2fe878dfd61")
+    )
+    (pin "2"
+      (uuid "556d4807-7077-59f8-8474-fc9e18d81dd2")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "R2")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 187.96 115.57 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "933dda7d-4317-5a47-ab9c-7e5ddba11ce7")
+    (property "Reference" "R3"
+      (at 190.5 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "330k"
+      (at 190.5 116.84 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_1206_3216Metric"
+      (at 187.96 115.57 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 187.96 115.57 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Bus sense divider (3 in series for voltage rating)"
+      (at 187.96 115.57 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %, thick film"
+      (at 187.96 115.57 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "200 V"
+      (at 187.96 115.57 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "b0cb8ea7-c8c3-58e9-acaf-46d43c9bc6a5")
+    )
+    (pin "2"
+      (uuid "88805632-849c-57c8-bc70-3da949be012d")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "R3")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 187.96 123.19 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "f7dcc53b-a5da-53a5-9ccc-26536f5d2079")
+    (property "Reference" "R4"
+      (at 190.5 121.92 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "33k"
+      (at 190.5 124.46 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 187.96 123.19 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 187.96 123.19 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Bus sense divider bottom (100.8 V -> 3.25 V)"
+      (at 187.96 123.19 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %, thick film"
+      (at 187.96 123.19 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 187.96 123.19 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "290d79be-f716-5175-a6ea-1b518a001765")
+    )
+    (pin "2"
+      (uuid "2ed7aea6-2fc8-506a-b1f1-825fb004f242")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "R4")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 200.66 123.19 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "6f22c735-eae4-53e4-916c-4c2553e681d2")
+    (property "Reference" "C27"
+      (at 203.2 121.92 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10n"
+      (at 203.2 124.46 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_0603_1608Metric"
+      (at 200.66 123.19 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 200.66 123.19 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "ADC filter"
+      (at 200.66 123.19 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "X7R"
+      (at 200.66 123.19 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 200.66 123.19 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "ecb73aa4-7eef-54a4-8f7f-c2f11b1b4f26")
+    )
+    (pin "2"
+      (uuid "09f89ee2-e31b-5694-9178-07c58fad794b")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C27")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 241.3 100.33 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "3c764790-4fff-555c-b1e7-eee40874264f")
+    (property "Reference" "R5"
+      (at 243.84 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10k"
+      (at 243.84 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 241.3 100.33 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 241.3 100.33 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "NTC pull-up"
+      (at 241.3 100.33 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %, thick film"
+      (at 241.3 100.33 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 241.3 100.33 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "5952f19b-e9d7-59c6-80d8-40e496e3bce3")
+    )
+    (pin "2"
+      (uuid "a1a9d105-1f0f-529f-bed4-e85a5eef1ebd")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "R5")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:Thermistor_NTC")
+    (at 241.3 107.95 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "2896480c-2b76-5a4c-a8f7-b42f7f333a71")
+    (property "Reference" "R6"
+      (at 243.84 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10k"
+      (at 243.84 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 241.3 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 241.3 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "NTC thermistor 10k B3950 (on the FET heatsink)"
+      (at 241.3 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "NTC 10 kΩ B3950"
+      (at 241.3 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 241.3 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "d7fd2ab7-6470-5216-9f6b-99be502c4e4c")
+    )
+    (pin "2"
+      (uuid "aaee3179-2bf7-54d6-a77a-84be8690fd8d")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "R6")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 254 107.95 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "48bd00aa-d95c-5ae4-af42-b21f29a9ec18")
+    (property "Reference" "C28"
+      (at 256.54 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "100n"
+      (at 256.54 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_0603_1608Metric"
+      (at 254 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 254 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "ADC filter"
+      (at 254 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "X7R"
+      (at 254 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 254 107.95 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "166a2ef7-8f18-5ddf-ba74-9e9368e6525c")
+    )
+    (pin "2"
+      (uuid "1fbbd1a5-db10-5ee9-a432-52cf0fb40f9c")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "C28")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:VBUS")
+    (at 48.26 63.5 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "589b775a-5fcc-5438-b315-4db97338eea1")
+    (property "Reference" "#PWR001"
+      (at 48.26 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "VBUS"
+      (at 48.26 59.69 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 48.26 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 48.26 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 48.26 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "96452b43-4471-5655-a4c9-5d4f146d4fd5")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR001")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:PWR_FLAG")
+    (at 40.64 63.5 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "fe3d7d7c-8ea7-5c6d-9211-ad4c90bd34c3")
+    (property "Reference" "#FLG002"
+      (at 40.64 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "PWR_FLAG"
+      (at 40.64 59.69 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 40.64 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 40.64 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 40.64 63.5 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "e8f9b4ea-5774-558a-ada9-f4c01838d567")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#FLG002")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 38.1 76.2 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "ec005c3c-c322-5e7f-ba10-e2fed04138de")
+    (property "Reference" "#PWR003"
+      (at 38.1 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 38.1 80.01 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 38.1 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 38.1 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 38.1 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "87094dad-057d-51ff-bb67-53c83c32eb62")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR003")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:PWR_FLAG")
+    (at 38.1 71.12 270)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "622759ae-59bd-5342-9734-70d8af47ce1a")
+    (property "Reference" "#FLG004"
+      (at 38.1 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "PWR_FLAG"
+      (at 44.196 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 38.1 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 38.1 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 38.1 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "d8d7f7d1-bf3a-5250-8f76-12943940e7de")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#FLG004")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 50.8 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "a01e6825-cef5-5cab-be9d-c853ead80b8f")
+    (property "Reference" "#PWR005"
+      (at 50.8 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 50.8 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 50.8 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 50.8 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 50.8 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "53ad6c22-f66c-56fa-88f1-5ec3e87e4550")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR005")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 60.96 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "2508c05d-2103-5467-8e9e-798fd486cfc6")
+    (property "Reference" "#PWR006"
+      (at 60.96 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 60.96 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 60.96 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 60.96 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 60.96 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "82222b98-ffff-50fd-8090-f828a6893b95")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR006")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 71.12 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "c3e7adbb-4bcd-5ad2-9007-578fbc397096")
+    (property "Reference" "#PWR007"
+      (at 71.12 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 71.12 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 71.12 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 71.12 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 71.12 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "e479c957-047e-59be-a9ba-71d2219e69c8")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR007")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 81.28 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "5f91c54c-5e90-5b00-a6e1-4708ac9fa405")
+    (property "Reference" "#PWR008"
+      (at 81.28 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 81.28 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 81.28 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 81.28 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 81.28 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "0e9efbf0-d571-5179-ae6c-6b0c4b773c46")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR008")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 91.44 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "381fa0f7-8a66-5942-9c63-bf98302cdcc1")
+    (property "Reference" "#PWR009"
+      (at 91.44 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 91.44 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 91.44 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 91.44 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 91.44 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "6ad5dc84-86a3-5872-93fa-65ad6e899c83")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR009")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 101.6 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "0915bd9a-9f4b-538e-97fc-1a247ad16eda")
+    (property "Reference" "#PWR010"
+      (at 101.6 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 101.6 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 101.6 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 101.6 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 101.6 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "10ca7061-3cfb-5292-8070-331a7541fc2f")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR010")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 111.76 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "67e3f6f7-4f9c-5ded-b17a-3c5f48b32a3a")
+    (property "Reference" "#PWR011"
+      (at 111.76 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 111.76 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 111.76 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 111.76 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 111.76 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "cf03ff79-0a88-5803-b8f4-8bb0c27893e3")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR011")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 121.92 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "9541ac45-c9cc-5f41-a80f-e830e8b6bc25")
+    (property "Reference" "#PWR012"
+      (at 121.92 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 121.92 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 121.92 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 121.92 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 121.92 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "0a49e468-ef01-50bf-a897-a3e3c86ddb43")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR012")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 132.08 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "02f874db-0e1c-5a65-9ba2-25b3cceede7b")
+    (property "Reference" "#PWR013"
+      (at 132.08 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 132.08 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 132.08 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 132.08 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 132.08 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "30527272-5061-5cfd-b467-86e1453bfae3")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR013")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 142.24 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "21055fbc-6727-53e3-a009-9f2cad3ccd90")
+    (property "Reference" "#PWR014"
+      (at 142.24 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 142.24 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 142.24 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 142.24 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 142.24 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "c6fe5620-bc5f-5b20-b7f9-cd211142c2e6")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR014")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 152.4 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "cca01d7f-93b3-5b83-84a8-664e47fa1c9a")
+    (property "Reference" "#PWR015"
+      (at 152.4 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 152.4 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 152.4 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 152.4 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 152.4 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "169a12a9-ca3c-50d6-a70f-62900a27bde3")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR015")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 162.56 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "be1513b8-5495-572d-8eba-bf20a4eb6510")
+    (property "Reference" "#PWR016"
+      (at 162.56 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 162.56 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 162.56 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 162.56 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 162.56 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "8c8e220c-1229-5147-b3e6-b856e8790186")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR016")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 172.72 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "5938e81f-f3a4-5382-bb71-6de02063e9a8")
+    (property "Reference" "#PWR017"
+      (at 172.72 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 172.72 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 172.72 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 172.72 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 172.72 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "2599af8f-1def-5a3f-9f1b-bdf5640b02f6")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR017")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 182.88 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "f7778ac1-7f9d-503e-accc-00ea8f9f2525")
+    (property "Reference" "#PWR018"
+      (at 182.88 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 182.88 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 182.88 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 182.88 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 182.88 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "f65f30fe-5563-53fb-a68e-103d5af86b63")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR018")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 193.04 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "0bd5ecfd-a837-5123-a1dc-bebe3173af23")
+    (property "Reference" "#PWR019"
+      (at 193.04 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 193.04 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 193.04 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 193.04 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 193.04 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "333452f9-9199-5b08-a405-2ffd1e53551e")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR019")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 203.2 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "cf29148d-fbba-5273-b2af-deebe16f1ee4")
+    (property "Reference" "#PWR020"
+      (at 203.2 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 203.2 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 203.2 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 203.2 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 203.2 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "8d450c0e-c8dd-5b8d-ac73-e814b25ce38b")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR020")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 213.36 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "b0ea9cff-5d79-5228-a323-15ab20ccaba7")
+    (property "Reference" "#PWR021"
+      (at 213.36 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 213.36 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 213.36 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 213.36 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 213.36 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "3735f291-f108-55b9-9a4a-573aa56986be")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR021")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 223.52 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "e14d5cad-f688-5924-9088-34ecfd941c98")
+    (property "Reference" "#PWR022"
+      (at 223.52 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 223.52 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 223.52 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 223.52 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 223.52 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "7ca9d083-e1ae-51c6-8cca-569d5f3ac78a")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR022")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 233.68 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "5bf2d2be-25f3-5f1f-9c85-36b44054e36c")
+    (property "Reference" "#PWR023"
+      (at 233.68 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 233.68 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 233.68 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 233.68 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 233.68 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "dd13bfe3-b8d5-5bcc-a262-c76fb08aec3e")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR023")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 243.84 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "a57deaa6-db94-5e51-b95b-7c697bed12c4")
+    (property "Reference" "#PWR024"
+      (at 243.84 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 243.84 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 243.84 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 243.84 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 243.84 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "86cc2a48-60a4-5474-95ef-1a56ded282fc")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR024")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 254 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "4d001278-0ca8-56f4-8b33-d74ce2af591f")
+    (property "Reference" "#PWR025"
+      (at 254 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 254 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 254 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 254 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 254 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "6c445b61-0cde-5cce-95a8-40ad0f371e48")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR025")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 264.16 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "c15de27a-cbb2-5ffe-a809-92dc27b46a43")
+    (property "Reference" "#PWR026"
+      (at 264.16 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 264.16 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 264.16 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 264.16 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 264.16 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "08e0d543-c53d-551a-91b8-8f203f191aab")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR026")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 274.32 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "5a0dad72-5724-54cf-954a-6bc5137836c7")
+    (property "Reference" "#PWR027"
+      (at 274.32 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 274.32 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 274.32 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 274.32 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 274.32 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "5fc629b4-01f9-5b9d-9734-f2003eb51b72")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR027")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 284.48 71.12 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "b8ad879f-10cb-5599-8eb9-ef2ebe7ff737")
+    (property "Reference" "#PWR028"
+      (at 284.48 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 284.48 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 284.48 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 284.48 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 284.48 71.12 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "366721a4-dbed-5450-ae65-d28dd7954c9e")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR028")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:VBUS")
+    (at 50.8 99.06 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "2e1f788f-7ae7-5aa4-bb49-da0555e6f6c4")
+    (property "Reference" "#PWR029"
+      (at 50.8 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "VBUS"
+      (at 50.8 95.25 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 50.8 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 50.8 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 50.8 99.06 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "a9a4a04d-6239-5e78-86bd-50b15887beca")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR029")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 60.96 106.68 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "2721c885-b646-5d1f-ac22-dfa5847cb812")
+    (property "Reference" "#PWR030"
+      (at 60.96 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 60.96 110.49 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 60.96 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 60.96 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 60.96 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "26bffc2b-d238-5af7-b0bd-9f7586bac616")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR030")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 71.12 106.68 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "5297e13c-0bd8-575b-8b23-80e2ee38a020")
+    (property "Reference" "#PWR031"
+      (at 71.12 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 71.12 110.49 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 71.12 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 71.12 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 71.12 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "0963bee2-b04d-52ff-bdd8-efcd5524ee20")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR031")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 81.28 106.68 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "7a6832b7-e45d-5f52-b15f-63474c677d98")
+    (property "Reference" "#PWR032"
+      (at 81.28 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 81.28 110.49 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 81.28 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 81.28 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 81.28 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "178fb0e5-07ec-538d-9a37-010863f01b4c")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR032")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 91.44 106.68 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "8abd0fd4-f9f6-533a-b90b-45dcaf8727bc")
+    (property "Reference" "#PWR033"
+      (at 91.44 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 91.44 110.49 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 91.44 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 91.44 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 91.44 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "ff073f22-945e-57ed-9a94-0ab97f8d3446")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR033")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 101.6 106.68 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "b3f36bdd-7dde-592f-bd14-5228bf937f8b")
+    (property "Reference" "#PWR034"
+      (at 101.6 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 101.6 110.49 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 101.6 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 101.6 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 101.6 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "a20530f9-cd72-52cb-a030-e550f1cd9914")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR034")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 111.76 106.68 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "d108eafa-369d-571d-a313-b747220906db")
+    (property "Reference" "#PWR035"
+      (at 111.76 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 111.76 110.49 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 111.76 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 111.76 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 111.76 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "f4d12f1e-9447-56b1-9fd4-cd8376097639")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR035")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 121.92 106.68 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "94a67e31-c7e4-5f6c-b658-26ee16ac69ea")
+    (property "Reference" "#PWR036"
+      (at 121.92 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 121.92 110.49 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 121.92 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 121.92 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 121.92 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "f8a18e3c-0aec-5ac7-8d99-ca2378035375")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR036")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 132.08 106.68 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "65536f7a-da8f-5848-9126-d75ffb1b38db")
+    (property "Reference" "#PWR037"
+      (at 132.08 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 132.08 110.49 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 132.08 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 132.08 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 132.08 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "46d1339e-07e9-528c-bf79-016d09d089f3")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR037")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 142.24 106.68 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "40c1212c-99f0-5844-b967-cef7634d1cef")
+    (property "Reference" "#PWR038"
+      (at 142.24 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 142.24 110.49 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 142.24 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 142.24 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 142.24 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "d551a296-a3b9-5b20-a15c-5ee3320988d9")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR038")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 152.4 106.68 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "d8c58a3f-98a0-5a9d-99ce-2edcbeae34df")
+    (property "Reference" "#PWR039"
+      (at 152.4 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 152.4 110.49 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 152.4 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 152.4 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 152.4 106.68 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "d89667b6-ee34-53bc-816c-0c87b8fe3580")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR039")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:VBUS")
+    (at 187.96 96.52 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "d66d874e-a213-544b-9a6a-7c4db002f593")
+    (property "Reference" "#PWR040"
+      (at 187.96 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "VBUS"
+      (at 187.96 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 187.96 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 187.96 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 187.96 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "3866bbc4-7db1-5eb2-bafd-1857a72ed8b9")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR040")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 187.96 127 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "bafce263-c89e-50e2-9ac1-ebe077421660")
+    (property "Reference" "#PWR041"
+      (at 187.96 127 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 187.96 130.81 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 187.96 127 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 187.96 127 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 187.96 127 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "d8c98875-59ba-5d7c-ae74-65795948e47c")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR041")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 200.66 127 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "2461fb59-b77c-545b-b682-bfd2f9e58d93")
+    (property "Reference" "#PWR042"
+      (at 200.66 127 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 200.66 130.81 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 200.66 127 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 200.66 127 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 200.66 127 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "1bace4fc-7c12-5d3d-927c-990754f6add3")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR042")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:+3V3")
+    (at 241.3 96.52 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "f2865d4f-6105-59ea-8276-9803370cf7b2")
+    (property "Reference" "#PWR043"
+      (at 241.3 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "+3V3"
+      (at 241.3 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 241.3 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 241.3 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 241.3 96.52 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "4447e7e2-1a6e-5d20-985c-783fffa9c7ff")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR043")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 241.3 111.76 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "3a9a2a22-81fd-5a79-8bc3-223dfc16ed1b")
+    (property "Reference" "#PWR044"
+      (at 241.3 111.76 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 241.3 115.57 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 241.3 111.76 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 241.3 111.76 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 241.3 111.76 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "1cebf354-babd-50c7-b7cd-d3e31cd5916d")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR044")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 254 111.76 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "5948578d-1335-572b-9843-6c850b671cab")
+    (property "Reference" "#PWR045"
+      (at 254 111.76 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 254 115.57 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 254 111.76 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 254 111.76 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 254 111.76 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "ded2ec25-88e6-5388-ba56-42efd516234a")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/2cbe5da8-cbd0-5b11-9b48-e945f915c43c"
+          (reference "#PWR045")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (wire
+    (pts
+      (xy 35.56 63.5)
+      (xy 40.64 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "a5d4a1d6-e7c9-5aad-8663-f9b21979671e")
+  )
+  (wire
+    (pts
+      (xy 40.64 63.5)
+      (xy 48.26 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "c07aa1e3-fbe2-51b5-93e3-fd77721263ce")
+  )
+  (wire
+    (pts
+      (xy 48.26 63.5)
+      (xy 50.8 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "a8d28537-eda6-578b-b1d8-9ebfa445644a")
+  )
+  (wire
+    (pts
+      (xy 50.8 63.5)
+      (xy 60.96 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "b1335804-578e-594f-b6c6-621872c035f0")
+  )
+  (wire
+    (pts
+      (xy 60.96 63.5)
+      (xy 71.12 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "095920d8-a430-5b6c-8cce-a72f2c1408d5")
+  )
+  (wire
+    (pts
+      (xy 71.12 63.5)
+      (xy 81.28 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "edf0be61-0d77-5d1e-835c-ca87aa494661")
+  )
+  (wire
+    (pts
+      (xy 81.28 63.5)
+      (xy 91.44 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "d49ede51-c719-56b2-8c80-4794ec2550d1")
+  )
+  (wire
+    (pts
+      (xy 91.44 63.5)
+      (xy 101.6 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "a600a7dc-1a7b-5bbf-b38e-d15036813c9c")
+  )
+  (wire
+    (pts
+      (xy 101.6 63.5)
+      (xy 111.76 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "a8bec0f2-34ea-5ee5-a52e-a3dfcf1a9f4c")
+  )
+  (wire
+    (pts
+      (xy 111.76 63.5)
+      (xy 121.92 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "22949ca3-af89-5131-9e7f-8119e428f529")
+  )
+  (wire
+    (pts
+      (xy 121.92 63.5)
+      (xy 132.08 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "321a81a0-7044-541a-9c5b-b39ab4a36fe8")
+  )
+  (wire
+    (pts
+      (xy 132.08 63.5)
+      (xy 142.24 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "b2a83a73-a471-5375-a6e4-87a99a0093cb")
+  )
+  (wire
+    (pts
+      (xy 142.24 63.5)
+      (xy 152.4 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "49b11738-5fcd-591a-be3d-03e146c24d77")
+  )
+  (wire
+    (pts
+      (xy 152.4 63.5)
+      (xy 162.56 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "dfdb8d41-194c-5527-aace-fa1cbcd4c399")
+  )
+  (wire
+    (pts
+      (xy 162.56 63.5)
+      (xy 172.72 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "33b88b7d-b7d5-5815-94ba-947355b91679")
+  )
+  (wire
+    (pts
+      (xy 172.72 63.5)
+      (xy 182.88 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "2eb38742-9ba1-5c4d-901e-5a1ac72979e4")
+  )
+  (wire
+    (pts
+      (xy 182.88 63.5)
+      (xy 193.04 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "50b0bb9b-5124-5bd3-80dd-11b13d597f57")
+  )
+  (wire
+    (pts
+      (xy 193.04 63.5)
+      (xy 203.2 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "14b64609-f080-5dc9-a67d-fe366b9d341f")
+  )
+  (wire
+    (pts
+      (xy 203.2 63.5)
+      (xy 213.36 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "5a84bbae-1181-5c2e-8f36-ae697f483d1b")
+  )
+  (wire
+    (pts
+      (xy 213.36 63.5)
+      (xy 223.52 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "5dd5df70-6c5e-5166-8329-95c75db3fbaa")
+  )
+  (wire
+    (pts
+      (xy 223.52 63.5)
+      (xy 233.68 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "7ee0b5c6-d389-5094-a301-614f128a0176")
+  )
+  (wire
+    (pts
+      (xy 233.68 63.5)
+      (xy 243.84 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "805b8b4c-900e-5fe8-a22e-61c38c56200a")
+  )
+  (wire
+    (pts
+      (xy 243.84 63.5)
+      (xy 254 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "5eae13b3-fd8a-5128-add4-3bcae5bc58d4")
+  )
+  (wire
+    (pts
+      (xy 254 63.5)
+      (xy 264.16 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "a7d524e6-177f-5921-b86a-774d98eedb24")
+  )
+  (wire
+    (pts
+      (xy 264.16 63.5)
+      (xy 274.32 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "cb548576-eff6-556a-a024-95c63ad82110")
+  )
+  (wire
+    (pts
+      (xy 274.32 63.5)
+      (xy 284.48 63.5)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "05597b8e-d356-5d32-a3d0-f52961fe8c7c")
+  )
+  (wire
+    (pts
+      (xy 35.56 66.04)
+      (xy 38.1 66.04)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "3ce5ad94-41fc-5259-b43c-879d67a8ad64")
+  )
+  (wire
+    (pts
+      (xy 38.1 66.04)
+      (xy 38.1 71.12)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "3179ebc6-a539-50ae-86f3-76c54eb35e4f")
+  )
+  (wire
+    (pts
+      (xy 38.1 71.12)
+      (xy 38.1 76.2)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "8aae616d-0e49-55e0-bcc6-8b7c804ae7a0")
+  )
+  (wire
+    (pts
+      (xy 50.8 99.06)
+      (xy 60.96 99.06)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "66d0438b-69ec-55a9-935a-cc75258bf670")
+  )
+  (wire
+    (pts
+      (xy 60.96 99.06)
+      (xy 71.12 99.06)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "208b9849-bb71-51d7-ae7d-879b3e5d6a3f")
+  )
+  (wire
+    (pts
+      (xy 71.12 99.06)
+      (xy 81.28 99.06)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "49b21a0f-786b-546c-85bc-6ce5a0f78192")
+  )
+  (wire
+    (pts
+      (xy 81.28 99.06)
+      (xy 91.44 99.06)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "973b83c1-bfe0-55b5-b66c-7dd790d71e47")
+  )
+  (wire
+    (pts
+      (xy 91.44 99.06)
+      (xy 101.6 99.06)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "c66c5ed1-2cd6-5496-8512-187e05ee0a2d")
+  )
+  (wire
+    (pts
+      (xy 101.6 99.06)
+      (xy 111.76 99.06)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "637c53e7-ba07-532b-9883-2d51774ff4d9")
+  )
+  (wire
+    (pts
+      (xy 111.76 99.06)
+      (xy 121.92 99.06)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "e2d8ec55-a0eb-529b-bb04-dfd9213f6fc3")
+  )
+  (wire
+    (pts
+      (xy 121.92 99.06)
+      (xy 132.08 99.06)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "1da2f7ca-c1da-54d3-b580-dc857e150af3")
+  )
+  (wire
+    (pts
+      (xy 132.08 99.06)
+      (xy 142.24 99.06)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "60d788f5-1db9-580e-9ced-5a9da4004cd6")
+  )
+  (wire
+    (pts
+      (xy 142.24 99.06)
+      (xy 152.4 99.06)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "2987fd08-23db-55bd-975d-809a0bd67ef1")
+  )
+  (wire
+    (pts
+      (xy 187.96 119.38)
+      (xy 200.66 119.38)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "65c988d0-d625-5ca8-a77c-de90f0f4a01f")
+  )
+  (wire
+    (pts
+      (xy 200.66 119.38)
+      (xy 215.9 119.38)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "7c27b147-d940-5e9d-8a12-803a252b4b7d")
+  )
+  (wire
+    (pts
+      (xy 241.3 104.14)
+      (xy 254 104.14)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "5b8198de-5289-56bc-8bf6-7cb12a33cc3d")
+  )
+  (wire
+    (pts
+      (xy 254 104.14)
+      (xy 266.7 104.14)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "d6bb868d-19db-5bb2-b53e-df01012ced77")
+  )
+  (junction
+    (at 38.1 71.12)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "045c99fe-ff1e-598d-a96a-be94ab4ebdb3")
+  )
+  (junction
+    (at 40.64 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "f5935be5-32ab-58a9-81e1-c089fca826c9")
+  )
+  (junction
+    (at 48.26 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "ce9c712a-4981-57ca-b48f-f6baca2363fe")
+  )
+  (junction
+    (at 50.8 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "094044a7-6aa9-5cdc-b6b8-aae6a653434b")
+  )
+  (junction
+    (at 60.96 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "9c9847b0-58bd-5eaf-888e-36a363836ee6")
+  )
+  (junction
+    (at 60.96 99.06)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "5d69d66f-d17e-5151-a4a4-ca28de061e1d")
+  )
+  (junction
+    (at 71.12 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "5778e79e-86b0-5472-9da1-419132613631")
+  )
+  (junction
+    (at 71.12 99.06)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "99199645-1fe0-5e72-94ab-7664acf7cd5a")
+  )
+  (junction
+    (at 81.28 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "043d4591-101d-572a-bb3b-ed4f70102c35")
+  )
+  (junction
+    (at 81.28 99.06)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "9e8ec887-f5a5-5277-bf9e-f3bf38b57360")
+  )
+  (junction
+    (at 91.44 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "cee6e692-45e8-5282-b57b-85813a5624ba")
+  )
+  (junction
+    (at 91.44 99.06)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "5da57f0e-9f70-5ab2-b139-619a493124df")
+  )
+  (junction
+    (at 101.6 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "eceacb37-0d65-51e3-959f-31b5a61c61e0")
+  )
+  (junction
+    (at 101.6 99.06)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "d8981cb8-ec61-52c8-ae1a-b21b8a43e610")
+  )
+  (junction
+    (at 111.76 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "335f53c2-22a1-520d-9426-d289c56cdd30")
+  )
+  (junction
+    (at 111.76 99.06)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "9e1193a6-f6c8-54e0-a5bc-22ea65295791")
+  )
+  (junction
+    (at 121.92 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "f2a56f79-415e-5b44-89e0-ece5193d4b38")
+  )
+  (junction
+    (at 121.92 99.06)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "469d503d-b2d7-5ae5-9ef6-fe1866cacb5f")
+  )
+  (junction
+    (at 132.08 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "100a9227-96e6-59df-a509-74e3a549a832")
+  )
+  (junction
+    (at 132.08 99.06)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "020e33b9-7dff-564d-84db-f8af0aefc814")
+  )
+  (junction
+    (at 142.24 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "921f1004-4d63-530e-a535-be64eed01290")
+  )
+  (junction
+    (at 142.24 99.06)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "fd0cebd7-2d92-5f43-a6da-812b22377eb0")
+  )
+  (junction
+    (at 152.4 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "8f181d39-a7f5-55fd-a1ab-faa436d9dc4b")
+  )
+  (junction
+    (at 162.56 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "581aa148-d521-5e68-9374-ddabcef3932c")
+  )
+  (junction
+    (at 172.72 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "7e699489-9f9e-5752-99d1-ba36b02f6072")
+  )
+  (junction
+    (at 182.88 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "df6c912f-0ab9-53b8-8768-6b5eb0f51d57")
+  )
+  (junction
+    (at 187.96 119.38)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "40a99a59-6dc1-5e60-ad46-ddecc55102b8")
+  )
+  (junction
+    (at 193.04 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "b4718e40-c06c-5e32-8c23-4c9a8b62bca0")
+  )
+  (junction
+    (at 200.66 119.38)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "0658fb69-fc19-594f-b226-cfb65ad1ec81")
+  )
+  (junction
+    (at 203.2 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "739fbd50-bd01-5aad-b5ea-e48b8d64d3ac")
+  )
+  (junction
+    (at 213.36 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "8bf0ae0f-7028-515b-93e1-fc87d2a2e425")
+  )
+  (junction
+    (at 223.52 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "c7a63aaf-a7d8-54d5-94cd-1493a20a9c26")
+  )
+  (junction
+    (at 233.68 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "fe660c22-2c15-5939-91b4-f0599974d5c4")
+  )
+  (junction
+    (at 241.3 104.14)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "54e53813-3bf7-5803-bf19-8e2a0bdaf630")
+  )
+  (junction
+    (at 243.84 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "4a196ddf-51ff-529c-a2d1-2540adf826b2")
+  )
+  (junction
+    (at 254 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "9a7cb88e-741a-5eb5-8188-ac2805ad5111")
+  )
+  (junction
+    (at 254 104.14)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "44c2e7b2-00f9-5dd4-859a-bd5977c06e9b")
+  )
+  (junction
+    (at 264.16 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "dc0e0b14-0a15-54c9-bcd2-5b2141984160")
+  )
+  (junction
+    (at 274.32 63.5)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "bd1c7243-d869-524e-bb03-ce41a766135c")
+  )
+  (global_label "VBUS_SNS"
+    (shape bidirectional)
+    (at 215.9 119.38 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "9e6fba67-0942-52a8-8ecb-6e34d124d19f")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 215.9 119.38 0)
+      (effects
+        (font
+          (size 1 1)
+        )
+        (justify left)
+        (hide yes)
+      )
+    )
+  )
+  (global_label "TEMP"
+    (shape bidirectional)
+    (at 266.7 104.14 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "d68f37ad-efef-58a2-bf8a-f82f044611dd")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 266.7 104.14 0)
+      (effects
+        (font
+          (size 1 1)
+        )
+        (justify left)
+        (hide yes)
+      )
+    )
+  )
+  (text "1  POWER INPUT + DC LINK"
+    (exclude_from_sim no)
+    (at 20.32 20.32 0)
+    (effects
+      (font
+        (size 3 3)
+        (bold yes)
+      )
+      (justify left)
+    )
+    (uuid "ada74ece-9fd5-5639-8aba-d613abaf885f")
+  )
+  (text "J1 AMASS AS150 (anti-spark) on 8 AWG pigtails. The DC link carries 61.7 A rms of ripple at hover: 24 hybrid polymer"
+    (exclude_from_sim no)
+    (at 20.32 26.67 0)
+    (effects
+      (font
+        (size 1.6 1.6)
+      )
+      (justify left)
+    )
+    (uuid "a4b927d7-d499-5214-ae66-6ac24dfa655b")
+  )
+  (text "caps share it (2.57 A each, rated 3.5 A); the 2.2 µF 250 V ceramics sit right at the FET legs for the switching edges."
+    (exclude_from_sim no)
+    (at 20.32 29.97 0)
+    (effects
+      (font
+        (size 1.6 1.6)
+      )
+      (justify left)
+    )
+    (uuid "23e01559-572a-5243-a531-a7cf500c3926")
+  )
+  (text "C1-C16, C65-C72: 150 µF 125 V hybrid polymer, ESR ≤ 20 mΩ, ≥ 3.5 A ripple each"
+    (exclude_from_sim no)
+    (at 50.8 81.28 0)
+    (effects
+      (font
+        (size 1.4 1.4)
+      )
+      (justify left)
+    )
+    (uuid "59a2e2ed-5440-50fd-b119-5c3535cf9d3f")
+  )
+  (text "C17-C26: 2.2 µF X7R 1210 250 V (≈1.1 µF at 90 V), spread over the three legs' VBUS-GND pads"
+    (exclude_from_sim no)
+    (at 50.8 116.84 0)
+    (effects
+      (font
+        (size 1.4 1.4)
+      )
+      (justify left)
+    )
+    (uuid "3c12dac7-6e7e-5a7e-8b61-14648f830eac")
+  )
+  (text "VBUS_SNS = VBUS × 33k / 1023k: 100.8 V -> 3.25 V at the ADC"
+    (exclude_from_sim no)
+    (at 177.8 142.24 0)
+    (effects
+      (font
+        (size 1.4 1.4)
+      )
+      (justify left)
+    )
+    (uuid "76c5a5a6-6071-57fa-87e8-b6d1ac11df57")
+  )
+  (text "R6: 10 kΩ NTC (B3950) on the FET heatsink area"
+    (exclude_from_sim no)
+    (at 236.22 127 0)
+    (effects
+      (font
+        (size 1.4 1.4)
+      )
+      (justify left)
+    )
+    (uuid "cc2b7519-a902-528b-9799-8e0865b5be32")
+  )
+  (embedded_fonts no)
+)
