@@ -1,0 +1,45 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  13
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+Build  : 13-18870c24d21c
+Exec   : potentialFoam -initialiseUBCs
+Date   : Nov 20 2026
+Time   : 04:04:27
+Host   : "elijah-callahan-Victus-by-HP-Gaming-Laptop-15t-fa000"
+PID    : 2168027
+I/O    : uncollated
+Case   : /home/elijah-callahan/OpenFOAM/elijah-callahan-13/run/osprey_airfoil2d/ls417mod/a+14
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 10)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+Reading velocity field U
+
+Constructing pressure field p
+
+Constructing velocity potential field Phi
+
+No MRF models present
+
+
+Calculating potential flow
+GAMG:  Solving for Phi, Initial residual = 1, Final residual = 0.0097537589, No Iterations 31
+GAMG:  Solving for Phi, Initial residual = 0.029298355, Final residual = 0.0002915599, No Iterations 201
+GAMG:  Solving for Phi, Initial residual = 0.0051011437, Final residual = 5.0826705e-05, No Iterations 330
+GAMG:  Solving for Phi, Initial residual = 0.0018933091, Final residual = 1.8912223e-05, No Iterations 423
+Continuity error = 7.2436153e-05
+Interpolated velocity error = 1.3160498e-05
+ExecutionTime = 4.59175 s  ClockTime = 5 s
+
+End
+

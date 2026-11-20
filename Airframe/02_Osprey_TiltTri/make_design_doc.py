@@ -564,7 +564,7 @@ doc.p("Every OpenFOAM 13 solver that computes the viscous term through the momen
 if CFD:
     for code, blk in CFD.items():
         pct = lambda v: f"{v:+.1f} %" if v is not None else "-"
-        rows = [[f"{r_['alpha']:+d}", f3(r_['cl']) if 'cl' in r_ else r_.get("status", ""),
+        rows = [[f"{r_['alpha']:+d}", (f3(r_['cl']) if r_.get('steady', True) else "unsteady") if 'cl' in r_ else r_.get("status", ""),
                  f3(r_['xfoil_trip_cl']) if 'xfoil_trip_cl' in r_ else "-", pct(r_.get('diff_trip_cl_pct')),
                  f3(r_['xfoil_cl']) if 'xfoil_cl' in r_ else "-", pct(r_.get('diff_cl_pct')),
                  f"{r_['xfoil_cd']:.4f}" if 'xfoil_cd' in r_ else "-", f"{r_['cd']:.4f}" if 'cd' in r_ else ""] for r_ in blk["rows"]]
@@ -576,18 +576,29 @@ if CFD and w['airfoil'] in CFD and all(any(r_['alpha'] == a_ and 'cl' in r_ for 
     WS = [r_ for r_ in RW.values() if r_.get('diff_trip_cl_pct') is not None and abs(r_['alpha']) <= 8]
     sl_cfd = (RW[8]['cl'] - RW[0]['cl']) / 8; sl_xf = (RW[8]['xfoil_trip_cl'] - RW[0]['xfoil_trip_cl']) / 8
     doc.eq(r"a=\frac{c_l(8^\circ)-c_l(0^\circ)}{8^\circ}:\quad a_{CFD}=%.4f,\; a_{XFOIL,trip}=%.4f\ \mathrm{per\ deg}\ (%+.1f\ \%%)" % (sl_cfd, sl_xf, 100 * (sl_cfd / sl_xf - 1)),
-           note="lift slope of the NACA %s, alpha 0-8 deg (thin-airfoil theory: 2 pi / rad = 0.110 per deg)" % w['airfoil'])
+           note="lift slope of the %s, alpha 0-8 deg (thin-airfoil theory: 2 pi / rad = 0.110 per deg)" % AF(w['airfoil']))
+    ok_ = {a_: r_ for a_, r_ in RW.items() if r_.get('steady', True)}
+    a_top = max(ok_); cl_top = ok_[a_top]['cl']; uns = sorted(a_ for a_ in RW if a_ not in ok_)
+    aL0_cfd = -RW[0]['cl'] / sl_cfd
+    R4 = {r_['alpha']: r_ for r_ in CFD['4415']['rows'] if 'cl' in r_} if '4415' in CFD else {}
+    ab_ = [a for a in S['airfoil_table'] if a['name'] == w['airfoil']][0]
+    vs_ratio = math.sqrt(ab_['clmax'] / cl_top)
     doc.bullets([
-        f"Linear range (alpha -4 to 8): CFD cl is {-max(r_['diff_trip_cl_pct'] for r_ in WS):.1f} to {-min(r_['diff_trip_cl_pct'] for r_ in WS):.1f} % below "
-        f"tripped XFOIL on the NACA {w['airfoil']}, but the lift slope agrees to {100*abs(sl_cfd/sl_xf-1):.1f} %. The gap is an offset at zero lift "
-        f"(cl {RW[0]['cl']:.3f} vs {RW[0]['xfoil_trip_cl']:.3f}): less effective camber, as a thicker trailing-edge boundary layer gives, which the "
-        "inflated wall shear also produces. The NASA TMR case puts the solver's own lift error at -4.8 %. Sizing used the free-transition "
-        "XFOIL cl, 13-17 % above this CFD over alpha 0-6 deg. Treat it as the optimistic end, and note that it sets the cruise "
-        "angle of attack and the 1.2 x stall-speed margin.",
-        f"Stall: the CFD has not stalled by 16 deg (cl {RW[16]['cl']:.3f} and still rising, above XFOIL's "
-        f"{max(c_[1] for c_ in CFD[w['airfoil']]['xfoil']['trip05']):.3f} tripped maximum). 2-D steady SA is known to over-predict cl_max, so the CFD "
-        "does NOT confirm the stall speed. That stays on XFOIL and the 0.9 x 3-D factor.",
-        "Table columns: cl trip / cl free = XFOIL tripped at 5 % chord / free transition (Ncrit 9); cd XFOIL is the free-transition value sizing uses.",
+        f"Linear range (alpha -4 to 8): CFD cl is {-max(r_['diff_trip_cl_pct'] for r_ in WS if r_['alpha'] >= 0):.1f} to {-min(r_['diff_trip_cl_pct'] for r_ in WS if r_['alpha'] >= 0):.1f} % below "
+        f"tripped XFOIL on the {AF(w['airfoil'])} (the NACA 4415 showed 4-9 %), and the lift slope is {100*abs(sl_cfd/sl_xf-1):.1f} % lower. "
+        f"The zero-lift angle, which sets the incidence, agrees: {aL0_cfd:+.2f} deg from the CFD against {w['alpha_L0_deg']:+.2f} deg from "
+        "tripped XFOIL. The NASA TMR case puts the solver's own lift error at -4.8 %, and the inflated wall shear thickens the "
+        "trailing-edge boundary layer, which takes away effective camber; a section that loads its aft chord loses more from that.",
+        f"Near stall: the steady solution holds up to {a_top} deg (cl {cl_top:.3f}, still rising) and breaks into a non-converging "
+        f"oscillation at {', '.join(str(a_) for a_ in uns)} deg: separation that a steady solver cannot settle, so no number there. "
+        f"The last steady cl is {100*(1-cl_top/ab_['clmax']):.0f} % below the tripped XFOIL clmax that sized the wing ({ab_['clmax']:.3f}). "
+        f"If it were the true clmax, the stall speed would rise by sqrt({ab_['clmax']:.3f} / {cl_top:.3f}) = {vs_ratio:.3f}, to "
+        f"{w['v_stall_ms']*vs_ratio:.1f} m/s, and the cruise margin would fall from 1.20 to {1.2/vs_ratio:.2f} x stall speed.",
+        (f"The first wing's NACA 4415 stayed steady to 16 deg (cl {R4[16]['cl']:.3f}), above its own XFOIL clmax (1.645). So near "
+         "stall the two methods rank the sections differently: XFOIL gives the LS(1)-0417MOD a 13 % higher clmax; this CFD gives "
+         "the two about the same lift at 15-16 deg. 2-D steady SA is not a reliable stall predictor (it over-predicted the 4415), "
+         "so sizing stays on XFOIL. A wind-tunnel polar of the LS(1)-0417MOD at Re ~1e6 would settle it.") if 16 in R4 else "",
+        "Table columns: cl trip / cl free = XFOIL tripped at 5 % chord / free transition (Ncrit 9); cd XFOIL is the free-transition value.",
         "NACA 0012 tail: cl 3-8 % below tripped XFOIL, the same pattern. The tail volume coefficients have margin for that.",
     ])
 doc.h("10a. Still to run")
@@ -599,8 +610,8 @@ doc.bullets([
     "carry the same wall-shear error, so pressure (lift and download) forces only.",
     "Fuselage: section 9.2 (before the fittings) still carries the strain-axis error; re-read it if that run is needed again.",
     f"Wing size trade (sec. 5): the high-lift section shrank the wing and costs ~7 % cruise energy ({cr['wh_per_km']:.1f} against 75.7 Wh/km). "
-    "If range matters more than wing mass, keep the NACA 4415 wing area with the new section and bank the higher clmax as stall "
-    "margin instead (cruise at ~1.27 x stall speed).",
+    "Decided (user, 2026-11-20): keep the smaller wing. The alternative was the NACA 4415 wing area with the new section, banking "
+    "the higher clmax as stall margin (cruise at ~1.27 x stall speed).",
     "Beam model: the wing box EI is %.2f x too low (sec. 11), so its wing modes are ~%.0f %% low. Re-run the modal check with the "
     "contour-true box. It matters now: an airplane-mode mode sits at %.1f Hz, at the lower edge of the in-plane 1P band (%.2f Hz), "
     "and a stiffer wing moves it up into the band." % (J('wing_shell_model.json')['cases']['LC1 hover pull-up n=2']['cuts'][0]['EI_flap'] / J('wing_shell_model.json')['beam_box_EI_flap'],

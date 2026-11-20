@@ -337,7 +337,7 @@ def setup(codes=None):
     plan = {k: v for k, v in (jload(pf) if os.path.exists(pf) else {}).items() if k != "run_dir"}   # NACA 4415 record)
     for code in codes:
         c = sz["wing"]["c"] if code == sz["wing"]["airfoil"] else sz["stability"]["c_h"]
-        alphas = [-4, 0, 4, 8, 12, 16] if code != "0012" else [0, 4, 8, 12]   # ~27 min per case on 1 core
+        alphas = [-4, 0, 4, 8, 10, 12, 13, 14, 15, 16] if code != "0012" else [0, 4, 8, 12]   # ~27 min per case on 1 core
         dz = 0.01 * c
         mesh_files, info = c_grid(code, c, U, nu, dz)
         for a in alphas:
@@ -413,8 +413,9 @@ def post():
             tail = data[-200:]
             cl, cd, cm = (float(tail[:, col[k]].mean()) for k in ("Cl", "Cd", "Cm"))
             osc = float(tail[:, col["Cl"]].std())
+            rng = float(np.ptp(data[-1000:, col["Cl"]]))                # steady test: cl range over the last 1000 iterations (< 0.2; low-alpha runs wobble 0.05-0.08, separated ones swing > 1)
             log = open(os.path.join(d, "log.foamRun")).read() if os.path.exists(os.path.join(d, "log.foamRun")) else ""
-            rows.append({"alpha": a, "cl": cl, "cd": cd, "cm": cm, "cl_std_last200": osc, "iterations": int(data[-1, 0]),
+            rows.append({"alpha": a, "cl": cl, "cd": cd, "cm": cm, "cl_std_last200": osc, "cl_range_last1000": rng, "steady": rng < 0.2, "iterations": int(data[-1, 0]),
                          "converged": "SIMPLE solution converged" in log})
         sz = jload(os.path.join(RESULTS, "sizing.json"))
         mach = pl["U"] / sz["air"]["a"]
@@ -447,16 +448,21 @@ def plot(out):
     import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
     fig, ax = plt.subplots(len(out), 2, figsize=(10, 3.6 * len(out)), squeeze=False)
     for k, (code, blk) in enumerate(out.items()):
-        r = [x for x in blk["rows"] if "cl" in x]
+        r = [x for x in blk["rows"] if "cl" in x and x.get("steady", True)]   # steady runs only
+        un = [x["alpha"] for x in blk["rows"] if "cl" in x and not x.get("steady", True)]
+        import wing_sections as ws
+        nm = ws.LABEL.get(code, "NACA " + code)
         A, CL, CD = (np.array([x[q] for x in r]) for q in ("alpha", "cl", "cd"))
         for name, sty in (("free", "-"), ("trip05", "--")):
             P = np.array(blk["xfoil"][name])
             lab = "XFOIL free (Ncrit 9)" if name == "free" else "XFOIL tripped 5 % c"
             ax[k, 0].plot(P[:, 0], P[:, 1], "k" + sty, lw=1, label=lab); ax[k, 1].plot(P[:, 2], P[:, 1], "k" + sty, lw=1, label=lab)
         ax[k, 0].plot(A, CL, "o", color="C0", label="OpenFOAM SA (cl used)")
+        for a_ in un: ax[k, 0].axvline(a_, color="C3", ls=":", lw=1)
+        if un: ax[k, 0].plot([], [], color="C3", ls=":", lw=1, label="SA unsteady (no steady solution)")
         ax[k, 1].plot(CD, CL, "x", color="C3", label="OpenFOAM SA (cd NOT used: item 7)")
-        ax[k, 0].set(xlabel="alpha [deg]", ylabel="cl", title=f"NACA {code}, Re {blk['plan']['Re']:.2e}: lift")
-        ax[k, 1].set(xlabel="cd", ylabel="cl", title=f"NACA {code}: drag polar")
+        ax[k, 0].set(xlabel="alpha [deg]", ylabel="cl", title=f"{nm}, Re {blk['plan']['Re']:.2e}: lift")
+        ax[k, 1].set(xlabel="cd", ylabel="cl", title=f"{nm}: drag polar")
         for a_ in ax[k]: a_.grid(alpha=0.3); a_.legend(fontsize=7)
     fig.tight_layout(); fig.savefig(os.path.join(RESULTS, "cfd_airfoil2d_polar.png"), dpi=130); plt.close(fig)
 

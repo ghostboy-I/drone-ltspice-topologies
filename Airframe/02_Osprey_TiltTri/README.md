@@ -94,8 +94,10 @@ python3 src/cfd_airfoil2d.py post                         # CFD vs XFOIL -> resu
   front lug brackets drop 64 mm to the level fuselage (hand check MS +0.77). The true-contour box is 1.54 x stiffer than
   the beam's flat box, so the beam's wing modes are ~24 % low. **Re-run the modal check with it**: an airplane-mode mode
   sits at 31.65 Hz, just under the in-plane 1P band (31.73 Hz).
-- Wing size trade: the high-lift section shrank the wing for ~7 % more cruise energy; keeping the old area and banking the
-  clmax as stall margin is the alternative.
+- Wing size trade: decided (user, 2026-11-20): keep the smaller high-lift wing (~7 % more cruise energy, 2.2 kg lighter).
+- LS(1)-0417MOD CFD (SA, steady): lift steady and rising to cl 1.76 at 15 deg, unsteady at 16; 5 % below the tripped-XFOIL
+  clmax that sized the wing (stall 20.8 -> 21.4 m/s if the CFD were right). Zero-lift angle agrees (-3.47 vs -3.49 deg).
+  A wind-tunnel polar at Re ~1e6 would settle the clmax.
 - Main-gear saddles need solid core inserts (pad 2.2 MPa vs 0.9 MPa foam crush). Landing drag/spin-up loads and the nose
   gear are not modelled.
 - Fittings mass (+3.0 kg, +0.7 kg for the gear saddles and doubler) and the boom extension are not in the beam model's mass yet.
