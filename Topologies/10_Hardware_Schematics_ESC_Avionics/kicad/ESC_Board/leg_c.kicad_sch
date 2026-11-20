@@ -1,0 +1,6108 @@
+(kicad_sch
+  (version 20250114)
+  (generator "eeschema")
+  (generator_version "9.0")
+  (uuid "93a2cef1-08be-576a-9dc4-f6f26eb0fa07")
+  (paper "A3")
+  (title_block
+    (title "6  LEG C")
+    (rev "A")
+    (company "ESC BOARD (one per motor)")
+    (comment 1 "Drawn from esc.py (topology 10) by kicad_esc.py")
+    (comment 2 "LTC7801, LTC7063, LT1763 symbols: ADI pin drawings")
+    (comment 3 "Footprints: Drone_Power.pretty")
+  )
+  (lib_symbols
+    (symbol "ESC_Board_custom:LTC7063"
+      (pin_names
+        (offset 1.016)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "U"
+        (at 0 20.32 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Value" "LTC7063"
+        (at 0 -20.32 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "150 V half-bridge driver, MSE-12 (pin 13 = exposed pad, SGND)"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "LTC7063_0_1"
+        (rectangle
+          (start -10.16 17.78)
+          (end 10.16 -17.78)
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type background)
+          )
+        )
+      )
+      (symbol "LTC7063_1_1"
+        (pin passive line
+          (at -12.7 15.24 0)
+          (length 2.54)
+          (name "Vcc"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "5"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at -12.7 10.16 0)
+          (length 2.54)
+          (name "BGVcc"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "6"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at -12.7 5.08 0)
+          (length 2.54)
+          (name "PWM"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at -12.7 0 0)
+          (length 2.54)
+          (name "EN"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at -12.7 -5.08 0)
+          (length 2.54)
+          (name "~{FLT}"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at -12.7 -10.16 0)
+          (length 2.54)
+          (name "DT"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "4"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at -12.7 -15.24 0)
+          (length 2.54)
+          (name "SGND"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "13"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 12.7 15.24 180)
+          (length 2.54)
+          (name "BST"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "12"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 12.7 10.16 180)
+          (length 2.54)
+          (name "TG"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "11"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 12.7 5.08 180)
+          (length 2.54)
+          (name "SW"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "10"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin no_connect line
+          (at 12.7 0 180)
+          (length 2.54)
+          (name "NC"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "9"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 12.7 -5.08 180)
+          (length 2.54)
+          (name "BG"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "8"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 12.7 -10.16 180)
+          (length 2.54)
+          (name "BGRTN"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "7"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+    )
+    (symbol "Device:C"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0.254)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "C"
+        (at 0.635 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (justify left)
+        )
+      )
+      (property "Value" "C"
+        (at 0.635 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (justify left)
+        )
+      )
+      (property "Footprint" ""
+        (at 0.9652 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Unpolarized capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "cap capacitor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "C_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "C_0_1"
+        (polyline
+          (pts
+            (xy -2.032 0.762)
+            (xy 2.032 0.762)
+          )
+          (stroke
+            (width 0.508)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy -2.032 -0.762)
+            (xy 2.032 -0.762)
+          )
+          (stroke
+            (width 0.508)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "C_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 2.794)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "Device:R"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "R"
+        (at 2.032 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Value" "R"
+        (at 0 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at -1.778 0 90)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Resistor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "R res resistor"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "R_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "R_0_1"
+        (rectangle
+          (start -1.016 -2.54)
+          (end 1.016 2.54)
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "R_1_1"
+        (pin passive line
+          (at 0 3.81 270)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 0 -3.81 90)
+          (length 1.27)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "Device:D"
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 1.016)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "D"
+        (at 0 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Value" "D"
+        (at 0 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Diode"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Sim.Device" "D"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Sim.Pins" "1=K 2=A"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "diode"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "TO-???* *_Diode_* *SingleDiode* D_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "D_0_1"
+        (polyline
+          (pts
+            (xy -1.27 1.27)
+            (xy -1.27 -1.27)
+          )
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 1.27 1.27)
+            (xy 1.27 -1.27)
+            (xy -1.27 0)
+            (xy 1.27 1.27)
+          )
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 1.27 0)
+            (xy -1.27 0)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "D_1_1"
+        (pin passive line
+          (at -3.81 0 0)
+          (length 2.54)
+          (name "K"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 3.81 0 180)
+          (length 2.54)
+          (name "A"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "Transistor_FET:Q_NMOS_GDS"
+      (pin_names
+        (offset 0)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "Q"
+        (at 5.08 1.905 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (justify left)
+        )
+      )
+      (property "Value" "Q_NMOS_GDS"
+        (at 5.08 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (justify left)
+        )
+      )
+      (property "Footprint" ""
+        (at 5.08 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "N-MOSFET transistor, gate/drain/source"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "transistor NMOS N-MOS N-MOSFET"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "Q_NMOS_GDS_0_1"
+        (polyline
+          (pts
+            (xy 0.254 1.905)
+            (xy 0.254 -1.905)
+          )
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0.254 0)
+            (xy -2.54 0)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0.762 2.286)
+            (xy 0.762 1.27)
+          )
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0.762 0.508)
+            (xy 0.762 -0.508)
+          )
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0.762 -1.27)
+            (xy 0.762 -2.286)
+          )
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0.762 -1.778)
+            (xy 3.302 -1.778)
+            (xy 3.302 1.778)
+            (xy 0.762 1.778)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 1.016 0)
+            (xy 2.032 0.381)
+            (xy 2.032 -0.381)
+            (xy 1.016 0)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type outline)
+          )
+        )
+        (circle
+          (center 1.651 0)
+          (radius 2.794)
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 2.54 2.54)
+            (xy 2.54 1.778)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (circle
+          (center 2.54 1.778)
+          (radius 0.254)
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type outline)
+          )
+        )
+        (circle
+          (center 2.54 -1.778)
+          (radius 0.254)
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type outline)
+          )
+        )
+        (polyline
+          (pts
+            (xy 2.54 -2.54)
+            (xy 2.54 0)
+            (xy 0.762 0)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 2.921 0.381)
+            (xy 3.683 0.381)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 3.302 0.381)
+            (xy 2.921 -0.254)
+            (xy 3.683 -0.254)
+            (xy 3.302 0.381)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "Q_NMOS_GDS_1_1"
+        (pin input line
+          (at -5.08 0 0)
+          (length 2.54)
+          (name "G"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 2.54 5.08 270)
+          (length 2.54)
+          (name "D"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "2"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+        (pin passive line
+          (at 2.54 -5.08 90)
+          (length 2.54)
+          (name "S"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "3"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "Connector_Generic:Conn_01x01"
+      (pin_names
+        (offset 1.016)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "J"
+        (at 0 2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Value" "Conn_01x01"
+        (at 0 -2.54 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" "~"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Generic connector, single row, 01x01, script generated (kicad-library-utils/schlib/autogen/connector/)"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "connector"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_fp_filters" "Connector*:*_1x??_*"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "Conn_01x01_1_1"
+        (rectangle
+          (start -1.27 1.27)
+          (end 1.27 -1.27)
+          (stroke
+            (width 0.254)
+            (type default)
+          )
+          (fill
+            (type background)
+          )
+        )
+        (rectangle
+          (start -1.27 0.127)
+          (end 0 -0.127)
+          (stroke
+            (width 0.1524)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (pin passive line
+          (at -5.08 0 0)
+          (length 3.81)
+          (name "Pin_1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "power:+12V"
+      (power)
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "#PWR"
+        (at 0 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Value" "+12V"
+        (at 0 3.556 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Power symbol creates a global label with name \"+12V\""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "global power"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "+12V_0_1"
+        (polyline
+          (pts
+            (xy -0.762 1.27)
+            (xy 0 2.54)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0 2.54)
+            (xy 0.762 1.27)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0 0)
+            (xy 0 2.54)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "+12V_1_1"
+        (pin power_in line
+          (at 0 0 90)
+          (length 0)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "power:GND"
+      (power)
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "#PWR"
+        (at 0 -6.35 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Value" "GND"
+        (at 0 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "global power"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "GND_0_1"
+        (polyline
+          (pts
+            (xy 0 0)
+            (xy 0 -1.27)
+            (xy 1.27 -1.27)
+            (xy 0 -2.54)
+            (xy -1.27 -1.27)
+            (xy 0 -1.27)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "GND_1_1"
+        (pin power_in line
+          (at 0 0 270)
+          (length 0)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+    (symbol "power:VBUS"
+      (power)
+      (pin_numbers
+        (hide yes)
+      )
+      (pin_names
+        (offset 0)
+        (hide yes)
+      )
+      (exclude_from_sim no)
+      (in_bom yes)
+      (on_board yes)
+      (property "Reference" "#PWR"
+        (at 0 -3.81 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Value" "VBUS"
+        (at 0 3.556 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+        )
+      )
+      (property "Footprint" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Datasheet" ""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "Description" "Power symbol creates a global label with name \"VBUS\""
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (property "ki_keywords" "global power"
+        (at 0 0 0)
+        (effects
+          (font
+            (size 1.27 1.27)
+          )
+          (hide yes)
+        )
+      )
+      (symbol "VBUS_0_1"
+        (polyline
+          (pts
+            (xy -0.762 1.27)
+            (xy 0 2.54)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0 2.54)
+            (xy 0.762 1.27)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+        (polyline
+          (pts
+            (xy 0 0)
+            (xy 0 2.54)
+          )
+          (stroke
+            (width 0)
+            (type default)
+          )
+          (fill
+            (type none)
+          )
+        )
+      )
+      (symbol "VBUS_1_1"
+        (pin power_in line
+          (at 0 0 90)
+          (length 0)
+          (name "~"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+          (number "1"
+            (effects
+              (font
+                (size 1.27 1.27)
+              )
+            )
+          )
+        )
+      )
+      (embedded_fonts no)
+    )
+  )
+  (symbol
+    (lib_id "ESC_Board_custom:LTC7063")
+    (at 76.2 101.6 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "fee8fd10-4e19-5eab-94c1-e7cde74f1a36")
+    (property "Reference" "U6"
+      (at 76.2 81.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Value" "LTC7063"
+      (at 76.2 121.92 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" "Drone_Power:MSOP-12-1EP_3x4.039mm_P0.65mm_EP1.651x2.845mm"
+      (at 76.2 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 76.2 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "150 V half-bridge gate driver, floating grounds"
+      (at 76.2 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "LTC7063EMSE (MSOP-12)"
+      (at 76.2 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "150 V"
+      (at 76.2 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "5"
+      (uuid "30dcc557-2feb-545e-9b31-d75aae8e2a70")
+    )
+    (pin "6"
+      (uuid "6f255ba0-b64e-5cef-8a73-bff2e92765a2")
+    )
+    (pin "1"
+      (uuid "ecb5123a-5585-5edf-9ff0-e704c76ec32e")
+    )
+    (pin "2"
+      (uuid "d13246fb-b327-54c9-a4b0-008542a9a384")
+    )
+    (pin "3"
+      (uuid "28944a5e-be2b-5ab1-81e0-6b20cc578c83")
+    )
+    (pin "4"
+      (uuid "a82860e0-fa94-5c07-b1ad-c8076153db64")
+    )
+    (pin "13"
+      (uuid "76b3673a-b7d2-5a66-9ee0-310e0e0e15a6")
+    )
+    (pin "12"
+      (uuid "0d7abce1-0ef6-54a5-bfed-c3accb289618")
+    )
+    (pin "11"
+      (uuid "4e400b25-2471-5947-8dbc-9249d286dd72")
+    )
+    (pin "10"
+      (uuid "7791c0bc-11e9-52af-8573-d7fd0411db16")
+    )
+    (pin "9"
+      (uuid "ee54bcb9-2b59-5296-ba50-251305b59638")
+    )
+    (pin "8"
+      (uuid "3e79ce61-d9d4-59f5-9970-f1e4bf98ba5e")
+    )
+    (pin "7"
+      (uuid "ac32384f-1def-5693-97a6-068013f3eb9c")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "U6")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 45.72 80.01 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "2377e737-9cea-5684-9f83-54e8f51804f4")
+    (property "Reference" "C51"
+      (at 48.26 78.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "1µ"
+      (at 48.26 81.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_0805_2012Metric"
+      (at 45.72 80.01 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 45.72 80.01 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Driver Vcc / BGVcc decoupling"
+      (at 45.72 80.01 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "X7R"
+      (at 45.72 80.01 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "25 V"
+      (at 45.72 80.01 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "1da47076-dbdc-5ed2-acb7-f5fd589c568d")
+    )
+    (pin "2"
+      (uuid "1b09737c-dc3a-5708-9708-2fba665e4506")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "C51")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 55.88 115.57 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "de37c281-7bc6-5b93-a2e2-90f73220bbd0")
+    (property "Reference" "R52"
+      (at 58.42 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "150k"
+      (at 58.42 116.84 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 55.88 115.57 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 55.88 115.57 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Dead-time resistor (≈140 ns at the FET threshold)"
+      (at 55.88 115.57 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %, thick film"
+      (at 55.88 115.57 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 55.88 115.57 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "82472426-88cb-5b7d-9c25-bea95ccf2825")
+    )
+    (pin "2"
+      (uuid "317c72f1-5225-531d-a402-5bd5575f0ee0")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R52")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:D")
+    (at 99.06 82.55 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "cee93bd6-8fba-5838-acee-d467434b1153")
+    (property "Reference" "D3"
+      (at 101.6 81.28 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Value" "ES1D"
+      (at 101.6 83.82 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:D_SMA"
+      (at 99.06 82.55 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 99.06 82.55 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Bootstrap diode, ultrafast 200 V"
+      (at 99.06 82.55 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "ES1D"
+      (at 99.06 82.55 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "200 V 1 A"
+      (at 99.06 82.55 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "1512e4c4-7918-553a-9646-0e846f2b3f95")
+    )
+    (pin "2"
+      (uuid "609eff7c-9667-592b-9dad-0702a1ed1291")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "D3")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:C")
+    (at 111.76 82.55 180)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "d8758f59-1fab-54d1-8b30-a9da7ee14575")
+    (property "Reference" "C50"
+      (at 114.3 81.28 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Value" "1µ"
+      (at 114.3 83.82 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:C_0805_2012Metric"
+      (at 111.76 82.55 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 111.76 82.55 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Bootstrap capacitor (Qg/C = 0.3 V)"
+      (at 111.76 82.55 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "X7R"
+      (at 111.76 82.55 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "25 V"
+      (at 111.76 82.55 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "a274a577-77ca-5ab3-91e8-f91885dd7ea9")
+    )
+    (pin "2"
+      (uuid "4ecdf545-c8d3-583e-8a47-28e1b18ebd06")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "C50")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 135.89 88.9 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "95ecad18-b4c3-5b30-8d1f-1adc4d6ec7e5")
+    (property "Reference" "R53"
+      (at 135.255 86.106 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10"
+      (at 136.525 86.106 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 135.89 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 135.89 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate resistor, one per FET (high side)"
+      (at 135.89 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 135.89 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 135.89 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "a487873b-0911-512b-a8ca-44024640c19a")
+    )
+    (pin "2"
+      (uuid "ae7290c3-e581-564a-a0ae-ca2ccc2e4bec")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R53")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Transistor_FET:Q_NMOS_GDS")
+    (at 152.4 88.9 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "49750145-9493-5fa3-95e6-cf6156356e71")
+    (property "Reference" "Q20"
+      (at 149.86 83.82 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Value" "IPB065N15N3"
+      (at 149.86 86.36 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+        (hide yes)
+      )
+    )
+    (property "Footprint" "Drone_Power:TO-263-2"
+      (at 152.4 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 152.4 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "N-MOSFET 150 V 6.5 mΩ, 4 in parallel per switch"
+      (at 152.4 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "Infineon IPB065N15N3 G"
+      (at 152.4 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "150 V 130 A"
+      (at 152.4 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "6a77ff11-96f7-5aec-aac0-f84777f88b92")
+    )
+    (pin "2"
+      (uuid "a02dae51-bdb7-5024-b944-959c84110ea4")
+    )
+    (pin "3"
+      (uuid "ae6a9ced-51c1-5b8f-85d8-123151dfec17")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "Q20")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 142.24 92.71 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "3013f622-1b20-5386-99f4-2f8edeecbf21")
+    (property "Reference" "R57"
+      (at 144.78 91.44 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10k"
+      (at 144.78 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 142.24 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 142.24 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate-source pull-down, one per FET (keeps the FETs off while the driver is unpowered)"
+      (at 142.24 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 142.24 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 142.24 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "4cec3650-e181-5da5-ba33-9308f4314336")
+    )
+    (pin "2"
+      (uuid "2443e27f-8042-594f-9407-e094b82f0aff")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R57")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 135.89 114.3 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "36ae6787-ee7c-53b6-a573-ab7fae421654")
+    (property "Reference" "R61"
+      (at 135.255 111.506 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10"
+      (at 136.525 111.506 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 135.89 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 135.89 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate resistor, one per FET (low side)"
+      (at 135.89 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 135.89 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 135.89 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "9417c550-3d2d-5182-82b4-fbb444f9df73")
+    )
+    (pin "2"
+      (uuid "4945ec3a-0531-5205-af12-cd2efd1525b4")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R61")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Transistor_FET:Q_NMOS_GDS")
+    (at 152.4 114.3 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "1e04b461-d704-558b-88ba-5546b587bc6f")
+    (property "Reference" "Q24"
+      (at 149.86 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Value" "IPB065N15N3"
+      (at 149.86 111.76 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+        (hide yes)
+      )
+    )
+    (property "Footprint" "Drone_Power:TO-263-2"
+      (at 152.4 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 152.4 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "N-MOSFET 150 V 6.5 mΩ, 4 in parallel per switch"
+      (at 152.4 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "Infineon IPB065N15N3 G"
+      (at 152.4 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "150 V 130 A"
+      (at 152.4 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "e51d04fb-1425-5eaa-8967-f7c9fd6fc6ba")
+    )
+    (pin "2"
+      (uuid "9ff4f716-b91f-5734-acde-dc015f100d1c")
+    )
+    (pin "3"
+      (uuid "14b278e7-ca9c-5e19-bfb7-0c5af20cf37d")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "Q24")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 142.24 118.11 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "3d174f49-c7d4-5893-8287-25df5cec66ac")
+    (property "Reference" "R65"
+      (at 144.78 116.84 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10k"
+      (at 144.78 119.38 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 142.24 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 142.24 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate-source pull-down, one per FET (keeps the FETs off while the driver is unpowered)"
+      (at 142.24 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 142.24 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 142.24 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "32c609bc-0773-5ab0-85d1-0999d788fee9")
+    )
+    (pin "2"
+      (uuid "27a69ca4-d627-5930-a46e-b38a72647558")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R65")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 171.45 88.9 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "b06f243d-0bc1-56e6-a469-7b3a94680b73")
+    (property "Reference" "R54"
+      (at 170.815 86.106 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10"
+      (at 172.085 86.106 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 171.45 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 171.45 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate resistor, one per FET (high side)"
+      (at 171.45 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 171.45 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 171.45 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "e5601387-5982-5d92-b0b3-529fc51c8a39")
+    )
+    (pin "2"
+      (uuid "5ef2706f-1dea-56b0-8e29-47284f8f2ea7")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R54")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Transistor_FET:Q_NMOS_GDS")
+    (at 187.96 88.9 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "107557f5-880c-5487-86aa-cccf83d7b083")
+    (property "Reference" "Q21"
+      (at 185.42 83.82 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Value" "IPB065N15N3"
+      (at 185.42 86.36 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+        (hide yes)
+      )
+    )
+    (property "Footprint" "Drone_Power:TO-263-2"
+      (at 187.96 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 187.96 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "N-MOSFET 150 V 6.5 mΩ, 4 in parallel per switch"
+      (at 187.96 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "Infineon IPB065N15N3 G"
+      (at 187.96 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "150 V 130 A"
+      (at 187.96 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "9a52a48a-5a3e-5a1e-9373-0d1c37cbcfb8")
+    )
+    (pin "2"
+      (uuid "e629890f-039e-51a1-8510-19b72b2fb27d")
+    )
+    (pin "3"
+      (uuid "0a6c6008-7ea9-5b3c-b24d-0556bbdb3089")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "Q21")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 177.8 92.71 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "d13e9cbb-feb0-5731-9db0-e516505f768c")
+    (property "Reference" "R58"
+      (at 180.34 91.44 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10k"
+      (at 180.34 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 177.8 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 177.8 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate-source pull-down, one per FET (keeps the FETs off while the driver is unpowered)"
+      (at 177.8 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 177.8 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 177.8 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "0b24708e-0ae5-5c1c-9721-89822b47b4fc")
+    )
+    (pin "2"
+      (uuid "862be6fb-019a-5378-b234-ac7fbcb0f372")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R58")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 171.45 114.3 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "4128bc94-e2c8-503b-af35-475d374f295c")
+    (property "Reference" "R62"
+      (at 170.815 111.506 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10"
+      (at 172.085 111.506 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 171.45 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 171.45 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate resistor, one per FET (low side)"
+      (at 171.45 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 171.45 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 171.45 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "c2f67502-1b57-592f-bd5b-da5885c54c60")
+    )
+    (pin "2"
+      (uuid "da95298d-ad2b-595c-ac61-11489a0f96f3")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R62")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Transistor_FET:Q_NMOS_GDS")
+    (at 187.96 114.3 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "bd3141a6-0429-5fc6-8d2e-2d4d04906062")
+    (property "Reference" "Q25"
+      (at 185.42 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Value" "IPB065N15N3"
+      (at 185.42 111.76 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+        (hide yes)
+      )
+    )
+    (property "Footprint" "Drone_Power:TO-263-2"
+      (at 187.96 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 187.96 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "N-MOSFET 150 V 6.5 mΩ, 4 in parallel per switch"
+      (at 187.96 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "Infineon IPB065N15N3 G"
+      (at 187.96 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "150 V 130 A"
+      (at 187.96 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "f9efb09a-60ed-5fca-9a83-b0d93bc0f523")
+    )
+    (pin "2"
+      (uuid "954a4f5f-af70-5edc-b305-9b2317197733")
+    )
+    (pin "3"
+      (uuid "c2d4b754-123a-5928-9c10-ff64f9ccd2b2")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "Q25")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 177.8 118.11 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "09f44b27-f4ce-5f16-acd6-8eeca782b0e9")
+    (property "Reference" "R66"
+      (at 180.34 116.84 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10k"
+      (at 180.34 119.38 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 177.8 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 177.8 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate-source pull-down, one per FET (keeps the FETs off while the driver is unpowered)"
+      (at 177.8 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 177.8 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 177.8 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "2443c9fb-5f0a-544f-87bf-ddf2e50381e3")
+    )
+    (pin "2"
+      (uuid "19ecabe1-02e1-5a44-9380-8245f968f839")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R66")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 207.01 88.9 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "28021393-99a1-52da-9b15-bdaff77fdeaa")
+    (property "Reference" "R55"
+      (at 206.375 86.106 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10"
+      (at 207.645 86.106 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 207.01 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 207.01 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate resistor, one per FET (high side)"
+      (at 207.01 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 207.01 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 207.01 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "b35ede4e-64b6-5cad-bfc3-d111949bcae1")
+    )
+    (pin "2"
+      (uuid "c95ef811-a027-5622-b42c-7ec8f5de4030")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R55")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Transistor_FET:Q_NMOS_GDS")
+    (at 223.52 88.9 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "1725b72e-bcfb-5553-9eb7-9b433a74987b")
+    (property "Reference" "Q22"
+      (at 220.98 83.82 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Value" "IPB065N15N3"
+      (at 220.98 86.36 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+        (hide yes)
+      )
+    )
+    (property "Footprint" "Drone_Power:TO-263-2"
+      (at 223.52 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 223.52 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "N-MOSFET 150 V 6.5 mΩ, 4 in parallel per switch"
+      (at 223.52 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "Infineon IPB065N15N3 G"
+      (at 223.52 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "150 V 130 A"
+      (at 223.52 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "4ada4f4c-eb48-5851-874b-a0f4a7c08507")
+    )
+    (pin "2"
+      (uuid "ceca4a5d-d5f5-5fba-82b5-246f49eea84e")
+    )
+    (pin "3"
+      (uuid "d7227447-3602-5816-be28-084ccb8a32e7")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "Q22")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 213.36 92.71 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "bd526d65-6ea9-5218-941b-f0e29956dac7")
+    (property "Reference" "R59"
+      (at 215.9 91.44 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10k"
+      (at 215.9 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 213.36 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 213.36 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate-source pull-down, one per FET (keeps the FETs off while the driver is unpowered)"
+      (at 213.36 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 213.36 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 213.36 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "21202b61-e1a3-5ff7-8820-d70a1ecd7839")
+    )
+    (pin "2"
+      (uuid "85884bc8-dcb9-5436-9bf4-2164f484b264")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R59")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 207.01 114.3 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "4a5f807a-62eb-5e59-ba34-6d00e52a869e")
+    (property "Reference" "R63"
+      (at 206.375 111.506 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10"
+      (at 207.645 111.506 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 207.01 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 207.01 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate resistor, one per FET (low side)"
+      (at 207.01 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 207.01 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 207.01 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "d8b91cf4-81a0-5916-b478-c2aff21b3af3")
+    )
+    (pin "2"
+      (uuid "766fa8a3-219c-5739-b5a2-256c25658928")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R63")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Transistor_FET:Q_NMOS_GDS")
+    (at 223.52 114.3 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "248cedb7-e58d-5c81-9056-a4c0c5f8bdf5")
+    (property "Reference" "Q26"
+      (at 220.98 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Value" "IPB065N15N3"
+      (at 220.98 111.76 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+        (hide yes)
+      )
+    )
+    (property "Footprint" "Drone_Power:TO-263-2"
+      (at 223.52 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 223.52 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "N-MOSFET 150 V 6.5 mΩ, 4 in parallel per switch"
+      (at 223.52 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "Infineon IPB065N15N3 G"
+      (at 223.52 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "150 V 130 A"
+      (at 223.52 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "c9771ef7-5018-52d6-ad25-8b93bd4fcdf5")
+    )
+    (pin "2"
+      (uuid "d477eb80-425c-568b-acf3-44106a642789")
+    )
+    (pin "3"
+      (uuid "9c1ce583-a02d-51e0-9510-eeba18620d08")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "Q26")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 213.36 118.11 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "1de83ffd-1231-550f-ab4a-053e5d31b674")
+    (property "Reference" "R67"
+      (at 215.9 116.84 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10k"
+      (at 215.9 119.38 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 213.36 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 213.36 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate-source pull-down, one per FET (keeps the FETs off while the driver is unpowered)"
+      (at 213.36 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 213.36 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 213.36 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "8547e752-f432-592e-802b-41845f28c274")
+    )
+    (pin "2"
+      (uuid "26addf29-a729-50c2-aea4-805d46b937e8")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R67")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 242.57 88.9 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "8c1aecb5-950a-55bf-bfa7-30238afae830")
+    (property "Reference" "R56"
+      (at 241.935 86.106 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10"
+      (at 243.205 86.106 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 242.57 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 242.57 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate resistor, one per FET (high side)"
+      (at 242.57 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 242.57 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 242.57 88.9 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "ff77c13c-8340-59c1-bde9-e930a7ab228d")
+    )
+    (pin "2"
+      (uuid "8fda234e-b886-55cc-9a0c-e81f587b39ee")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R56")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Transistor_FET:Q_NMOS_GDS")
+    (at 259.08 88.9 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "ef31fde4-0096-5ece-8184-fc279156ca22")
+    (property "Reference" "Q23"
+      (at 256.54 83.82 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Value" "IPB065N15N3"
+      (at 256.54 86.36 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+        (hide yes)
+      )
+    )
+    (property "Footprint" "Drone_Power:TO-263-2"
+      (at 259.08 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 259.08 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "N-MOSFET 150 V 6.5 mΩ, 4 in parallel per switch"
+      (at 259.08 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "Infineon IPB065N15N3 G"
+      (at 259.08 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "150 V 130 A"
+      (at 259.08 88.9 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "47ad42f6-2e43-5ef5-9fb5-93c4f1cce365")
+    )
+    (pin "2"
+      (uuid "dbd9f070-dfcb-53c5-adfd-5df6c4d203ca")
+    )
+    (pin "3"
+      (uuid "092fc8de-2449-53de-ae17-c3667dd5fd48")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "Q23")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 248.92 92.71 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "47231cd9-5454-5edb-b7ec-7afa84c610f6")
+    (property "Reference" "R60"
+      (at 251.46 91.44 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10k"
+      (at 251.46 93.98 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 248.92 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 248.92 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate-source pull-down, one per FET (keeps the FETs off while the driver is unpowered)"
+      (at 248.92 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 248.92 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 248.92 92.71 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "b15a8fed-3a11-54b8-b62c-1b667ebee4af")
+    )
+    (pin "2"
+      (uuid "eaedb265-9cc3-57f1-b150-60919d94b11e")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R60")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 242.57 114.3 90)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "7f322e21-c9d7-531a-9196-4c6960080db7")
+    (property "Reference" "R64"
+      (at 241.935 111.506 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10"
+      (at 243.205 111.506 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 242.57 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 242.57 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate resistor, one per FET (low side)"
+      (at 242.57 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 242.57 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 242.57 114.3 90)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "715b9596-d3fa-5238-b421-2b1bc9a4dbf7")
+    )
+    (pin "2"
+      (uuid "769d22d3-998f-5878-9869-50e9715b4df3")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R64")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Transistor_FET:Q_NMOS_GDS")
+    (at 259.08 114.3 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "ed5c45ba-86eb-5870-849e-b543062b429a")
+    (property "Reference" "Q27"
+      (at 256.54 109.22 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+      )
+    )
+    (property "Value" "IPB065N15N3"
+      (at 256.54 111.76 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify right)
+        (hide yes)
+      )
+    )
+    (property "Footprint" "Drone_Power:TO-263-2"
+      (at 259.08 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 259.08 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "N-MOSFET 150 V 6.5 mΩ, 4 in parallel per switch"
+      (at 259.08 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "Infineon IPB065N15N3 G"
+      (at 259.08 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" "150 V 130 A"
+      (at 259.08 114.3 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "f0f95777-b414-5ea2-8110-e5e70ee2bf07")
+    )
+    (pin "2"
+      (uuid "b508ceb9-6a6a-5f29-954f-b53311f530ec")
+    )
+    (pin "3"
+      (uuid "70fe6370-587f-51ae-8730-64ad95800af8")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "Q27")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Device:R")
+    (at 248.92 118.11 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "a46860e2-fed8-5133-9d96-13ea98fcc5fa")
+    (property "Reference" "R68"
+      (at 251.46 116.84 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "10k"
+      (at 251.46 119.38 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:R_0603_1608Metric"
+      (at 248.92 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 248.92 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Gate-source pull-down, one per FET (keeps the FETs off while the driver is unpowered)"
+      (at 248.92 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "1 %"
+      (at 248.92 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 248.92 118.11 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "c1bb3a00-146a-5d8a-b749-69c0e7db1a5a")
+    )
+    (pin "2"
+      (uuid "89d73b1a-77bd-5db2-a391-bffba1250ee3")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "R68")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "Connector_Generic:Conn_01x01")
+    (at 292.1 101.6 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "4460983d-a332-5de7-ab28-aeba3bfef08d")
+    (property "Reference" "J4"
+      (at 295.91 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Value" "8 AWG lead pad"
+      (at 295.91 104.14 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (justify left)
+      )
+    )
+    (property "Footprint" "Drone_Power:SolderWire-8AWG_1x01_D4.2mm_OD7mm"
+      (at 292.1 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 292.1 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" "Motor phase C"
+      (at 292.1 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "MPN/Spec" "8 AWG lead pad (8 mm bullet on the lead)"
+      (at 292.1 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Rating" ""
+      (at 292.1 101.6 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "2019a2bc-d61d-5018-8aea-afe4b3766a9d")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "J4")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:+12V")
+    (at 55.88 76.2 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "f6a9ecd8-6934-5b59-af03-811d358e4ef3")
+    (property "Reference" "#PWR099"
+      (at 55.88 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "+12V"
+      (at 55.88 72.39 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 55.88 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 55.88 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 55.88 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "0d1683a6-6ada-542a-a6a0-44cd01aceb29")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "#PWR099")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 45.72 83.82 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "7750311e-1f50-5244-8033-17e8eed7a109")
+    (property "Reference" "#PWR100"
+      (at 45.72 83.82 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 45.72 87.63 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 45.72 83.82 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 45.72 83.82 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 45.72 83.82 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "f27465d2-2cde-5eee-a332-b8133a152b99")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "#PWR100")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 55.88 121.92 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "e7302189-ba69-5d33-8ff2-93e82592cb37")
+    (property "Reference" "#PWR101"
+      (at 55.88 121.92 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 55.88 125.73 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 55.88 121.92 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 55.88 121.92 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 55.88 121.92 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "cb97dfcb-df74-5f14-9b0c-e54fb6ced186")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "#PWR101")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 60.96 124.46 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "6c2e285b-47ed-5836-82c9-5960964c6a91")
+    (property "Reference" "#PWR102"
+      (at 60.96 124.46 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 60.96 128.27 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 60.96 124.46 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 60.96 124.46 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 60.96 124.46 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "c07f5353-dd2a-5563-b421-437b275eba36")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "#PWR102")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:+12V")
+    (at 99.06 78.74 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "41a38396-d98f-56bd-a4a2-1f1e8636b0b0")
+    (property "Reference" "#PWR103"
+      (at 99.06 78.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "+12V"
+      (at 99.06 74.93 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 99.06 78.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 99.06 78.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 99.06 78.74 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "efe7b8bf-11e8-59bf-bf4d-8c6d40ba5692")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "#PWR103")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 93.98 116.84 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "aa839d7b-3ac3-51c8-9350-b05ba29b94ee")
+    (property "Reference" "#PWR104"
+      (at 93.98 116.84 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 93.98 120.65 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 93.98 116.84 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 93.98 116.84 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 93.98 116.84 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "fe1128be-0e43-56d5-b8a7-f5cbc1ffb555")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "#PWR104")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:VBUS")
+    (at 274.32 76.2 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "1b50488b-46b8-5594-8d59-8a122d81ac3b")
+    (property "Reference" "#PWR105"
+      (at 274.32 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "VBUS"
+      (at 274.32 72.39 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+      )
+    )
+    (property "Footprint" ""
+      (at 274.32 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 274.32 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 274.32 76.2 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "fbb50f86-ba62-5abd-945e-10a48272f963")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "#PWR105")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (symbol
+    (lib_id "power:GND")
+    (at 261.62 127 0)
+    (unit 1)
+    (exclude_from_sim no)
+    (in_bom yes)
+    (on_board yes)
+    (dnp no)
+    (uuid "3649cc8d-b5c1-5e4a-b25a-ba3f410d4591")
+    (property "Reference" "#PWR106"
+      (at 261.62 127 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Value" "GND"
+      (at 261.62 130.81 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Footprint" ""
+      (at 261.62 127 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Datasheet" ""
+      (at 261.62 127 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (property "Description" ""
+      (at 261.62 127 0)
+      (effects
+        (font
+          (size 1.27 1.27)
+        )
+        (hide yes)
+      )
+    )
+    (pin "1"
+      (uuid "ca424a4f-56b1-523d-8dd8-9dd63a07883d")
+    )
+    (instances
+      (project "ESC_Board"
+        (path "/a0b049e5-5136-5aca-8b7c-408839897643/e9ca6084-f028-5bc2-b207-19e347fdab1d"
+          (reference "#PWR106")
+          (unit 1)
+        )
+      )
+    )
+  )
+  (wire
+    (pts
+      (xy 63.5 86.36)
+      (xy 55.88 86.36)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "e4ae328a-ac19-5b80-96d0-f3f8bae35d97")
+  )
+  (wire
+    (pts
+      (xy 63.5 91.44)
+      (xy 55.88 91.44)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "69de5216-12ef-5b1a-abe1-fdfcce6128cd")
+  )
+  (wire
+    (pts
+      (xy 55.88 91.44)
+      (xy 55.88 86.36)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "7b98f91f-62b4-50a1-8c2d-50eaf2cb9f35")
+  )
+  (wire
+    (pts
+      (xy 55.88 86.36)
+      (xy 55.88 76.2)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "49b639c6-cc8e-5568-b7c9-f542b4e5cb96")
+  )
+  (wire
+    (pts
+      (xy 55.88 76.2)
+      (xy 45.72 76.2)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "49b1f223-8355-57b5-87b1-dd434ae36423")
+  )
+  (wire
+    (pts
+      (xy 63.5 96.52)
+      (xy 43.18 96.52)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "5883104d-2775-56da-a4f9-f3b2a4fb3b72")
+  )
+  (wire
+    (pts
+      (xy 63.5 101.6)
+      (xy 43.18 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "2934913c-9940-5da1-b7c4-819b58795fcc")
+  )
+  (wire
+    (pts
+      (xy 63.5 106.68)
+      (xy 43.18 106.68)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "d345527f-1be1-5bef-8ded-06d95054a8ec")
+  )
+  (wire
+    (pts
+      (xy 63.5 111.76)
+      (xy 55.88 111.76)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "1d9906b4-d844-5ce4-b73c-24ed1d8767ff")
+  )
+  (wire
+    (pts
+      (xy 55.88 119.38)
+      (xy 55.88 121.92)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "5b2bc542-4cdf-5447-9790-90155d404714")
+  )
+  (wire
+    (pts
+      (xy 63.5 116.84)
+      (xy 60.96 116.84)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "ee8aa849-1a76-5505-8c08-0c1da3bcea55")
+  )
+  (wire
+    (pts
+      (xy 60.96 116.84)
+      (xy 60.96 124.46)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "24738116-3a07-5035-bbf6-236c2fa3dd7f")
+  )
+  (wire
+    (pts
+      (xy 88.9 86.36)
+      (xy 99.06 86.36)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "7c393c6c-3668-5c61-b3e8-080415794dd2")
+  )
+  (wire
+    (pts
+      (xy 99.06 86.36)
+      (xy 111.76 86.36)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "4b8e1c88-3c02-504b-842f-c1d225a86eb0")
+  )
+  (wire
+    (pts
+      (xy 88.9 91.44)
+      (xy 93.98 91.44)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "1615321d-fafd-59b7-b18f-143d499aeade")
+  )
+  (wire
+    (pts
+      (xy 88.9 96.52)
+      (xy 93.98 96.52)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "cadfa3bb-f62a-5beb-abe8-fe3badf2361b")
+  )
+  (wire
+    (pts
+      (xy 88.9 106.68)
+      (xy 93.98 106.68)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "46856b7c-9cfa-59f6-b12f-6356bd5f6c08")
+  )
+  (wire
+    (pts
+      (xy 88.9 111.76)
+      (xy 93.98 111.76)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "e19d4166-8c48-59cc-8b53-65e05b6ca287")
+  )
+  (wire
+    (pts
+      (xy 93.98 111.76)
+      (xy 93.98 116.84)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "020b5165-bb8b-5dea-a0d1-2594cbaba216")
+  )
+  (wire
+    (pts
+      (xy 139.7 88.9)
+      (xy 142.24 88.9)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "98951250-6846-589c-9ed9-6c1797401335")
+  )
+  (wire
+    (pts
+      (xy 142.24 88.9)
+      (xy 147.32 88.9)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "eafcbb8f-2bc0-5f9b-a0c6-bb9d9d0e46f3")
+  )
+  (wire
+    (pts
+      (xy 142.24 96.52)
+      (xy 142.24 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "baa947ec-7c07-56e0-b403-7da5f88778ad")
+  )
+  (wire
+    (pts
+      (xy 154.94 83.82)
+      (xy 154.94 76.2)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "f42254d4-fa1f-5794-9743-59b6e5ddc4ef")
+  )
+  (wire
+    (pts
+      (xy 154.94 93.98)
+      (xy 154.94 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "f0b0c240-e1f2-579a-a888-062a5d676a3e")
+  )
+  (wire
+    (pts
+      (xy 139.7 114.3)
+      (xy 142.24 114.3)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "62eb9e31-ab8b-5a4f-8e9d-f6c0c2501f65")
+  )
+  (wire
+    (pts
+      (xy 142.24 114.3)
+      (xy 147.32 114.3)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "a23c738a-d353-5448-ac18-0f9c4ec25a7c")
+  )
+  (wire
+    (pts
+      (xy 142.24 121.92)
+      (xy 142.24 127)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "3ed1a4c7-dbda-5cc6-83aa-19cb8a952423")
+  )
+  (wire
+    (pts
+      (xy 154.94 109.22)
+      (xy 154.94 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "a098580c-bcc1-570d-bf40-c6e55b769da6")
+  )
+  (wire
+    (pts
+      (xy 154.94 119.38)
+      (xy 154.94 127)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "d93596fb-215c-5c56-8a25-76ee17daf781")
+  )
+  (wire
+    (pts
+      (xy 175.26 88.9)
+      (xy 177.8 88.9)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "bf170108-b439-549d-b896-0226715f61d2")
+  )
+  (wire
+    (pts
+      (xy 177.8 88.9)
+      (xy 182.88 88.9)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "6252e312-b3d1-5835-92a7-bb9b9a1e71e2")
+  )
+  (wire
+    (pts
+      (xy 177.8 96.52)
+      (xy 177.8 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "96fcad57-8084-5b26-90c0-af5d4e3c1514")
+  )
+  (wire
+    (pts
+      (xy 190.5 83.82)
+      (xy 190.5 76.2)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "658d29ab-29d7-5b36-9948-cc9934f916b4")
+  )
+  (wire
+    (pts
+      (xy 190.5 93.98)
+      (xy 190.5 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "656a96f2-6be7-56c8-8652-cfd67ac75ba7")
+  )
+  (wire
+    (pts
+      (xy 175.26 114.3)
+      (xy 177.8 114.3)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "1ca5778a-4327-5cf4-91ea-14a74100317c")
+  )
+  (wire
+    (pts
+      (xy 177.8 114.3)
+      (xy 182.88 114.3)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "31a72b40-d965-5f99-93ae-26344c44d812")
+  )
+  (wire
+    (pts
+      (xy 177.8 121.92)
+      (xy 177.8 127)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "d25cc7ff-43d1-5aa9-a25d-3688ad45981f")
+  )
+  (wire
+    (pts
+      (xy 190.5 109.22)
+      (xy 190.5 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "fed5d0f8-e0dd-511e-8e9c-c0c0611b1de6")
+  )
+  (wire
+    (pts
+      (xy 190.5 119.38)
+      (xy 190.5 127)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "361f485b-3953-5ffa-af42-0ca2f4c70097")
+  )
+  (wire
+    (pts
+      (xy 210.82 88.9)
+      (xy 213.36 88.9)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "8731be74-aafd-5773-a856-4981e5287721")
+  )
+  (wire
+    (pts
+      (xy 213.36 88.9)
+      (xy 218.44 88.9)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "d464b591-e03a-5e80-9ca8-1135d1332ad5")
+  )
+  (wire
+    (pts
+      (xy 213.36 96.52)
+      (xy 213.36 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "3e19de06-264d-5a54-8a46-2205597a62b0")
+  )
+  (wire
+    (pts
+      (xy 226.06 83.82)
+      (xy 226.06 76.2)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "a92f2738-ae9c-5b0e-b633-a6f86b9b443e")
+  )
+  (wire
+    (pts
+      (xy 226.06 93.98)
+      (xy 226.06 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "3cd8d40c-3ab3-54a2-8af0-02469dd3a8fc")
+  )
+  (wire
+    (pts
+      (xy 210.82 114.3)
+      (xy 213.36 114.3)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "09b24eac-33cc-50d0-9c0a-9b3790ed6ab6")
+  )
+  (wire
+    (pts
+      (xy 213.36 114.3)
+      (xy 218.44 114.3)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "020241e3-574c-5242-a652-1c7b7c167018")
+  )
+  (wire
+    (pts
+      (xy 213.36 121.92)
+      (xy 213.36 127)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "0ce1311b-e605-52db-80f9-d9eb6236fae6")
+  )
+  (wire
+    (pts
+      (xy 226.06 109.22)
+      (xy 226.06 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "31a73fef-2f49-5560-a1a5-582393e33d47")
+  )
+  (wire
+    (pts
+      (xy 226.06 119.38)
+      (xy 226.06 127)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "7aff045f-0f28-549d-92b6-03e429896db3")
+  )
+  (wire
+    (pts
+      (xy 246.38 88.9)
+      (xy 248.92 88.9)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "6fce1bff-4899-5589-8fd9-b91a08f85641")
+  )
+  (wire
+    (pts
+      (xy 248.92 88.9)
+      (xy 254 88.9)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "72d9dd47-05ff-5dc2-bc6d-755276248836")
+  )
+  (wire
+    (pts
+      (xy 248.92 96.52)
+      (xy 248.92 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "497ca9e9-1cd0-590f-9b27-c3623760598d")
+  )
+  (wire
+    (pts
+      (xy 261.62 83.82)
+      (xy 261.62 76.2)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "122387a0-43ff-5793-a677-0a3d1820b6c3")
+  )
+  (wire
+    (pts
+      (xy 261.62 93.98)
+      (xy 261.62 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "dbbb686b-1fd4-57e4-895b-9fd7eecb794d")
+  )
+  (wire
+    (pts
+      (xy 246.38 114.3)
+      (xy 248.92 114.3)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "d835d017-12e5-55db-9e98-b7713e6cd358")
+  )
+  (wire
+    (pts
+      (xy 248.92 114.3)
+      (xy 254 114.3)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "00bc982d-325b-5cf7-8746-28ac6503b54b")
+  )
+  (wire
+    (pts
+      (xy 248.92 121.92)
+      (xy 248.92 127)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "cf2e3035-8d4d-5932-afff-521b22081984")
+  )
+  (wire
+    (pts
+      (xy 261.62 109.22)
+      (xy 261.62 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "97337334-b8d6-5254-ad0f-ab2ce97d9f2b")
+  )
+  (wire
+    (pts
+      (xy 261.62 119.38)
+      (xy 261.62 127)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "9d2a4796-ae61-5894-8d1c-1b8c447e3a01")
+  )
+  (wire
+    (pts
+      (xy 154.94 76.2)
+      (xy 190.5 76.2)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "9e9263ed-ad21-59cf-9fda-c85d539eb017")
+  )
+  (wire
+    (pts
+      (xy 190.5 76.2)
+      (xy 226.06 76.2)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "bfcb0121-e4f4-5432-996d-648e507938d3")
+  )
+  (wire
+    (pts
+      (xy 226.06 76.2)
+      (xy 261.62 76.2)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "524a053d-a899-5296-8bb5-669eb9bac0f2")
+  )
+  (wire
+    (pts
+      (xy 261.62 76.2)
+      (xy 274.32 76.2)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "71bfba8e-9316-566b-92df-c32880c29a35")
+  )
+  (wire
+    (pts
+      (xy 142.24 127)
+      (xy 154.94 127)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "d1b6b53e-7939-546e-981b-aade7f6ce7f7")
+  )
+  (wire
+    (pts
+      (xy 154.94 127)
+      (xy 177.8 127)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "ded18494-7492-59fb-b745-6d0a71cf0dbf")
+  )
+  (wire
+    (pts
+      (xy 177.8 127)
+      (xy 190.5 127)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "a7a45786-fcd4-5f4f-94a0-6c2bac908871")
+  )
+  (wire
+    (pts
+      (xy 190.5 127)
+      (xy 213.36 127)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "7cfbb358-dbed-596c-b53b-967762d007cc")
+  )
+  (wire
+    (pts
+      (xy 213.36 127)
+      (xy 226.06 127)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "74cc4ef6-fa42-5258-853a-192f947c202d")
+  )
+  (wire
+    (pts
+      (xy 226.06 127)
+      (xy 248.92 127)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "bb7228aa-9a36-55a7-a4c1-3703c865d325")
+  )
+  (wire
+    (pts
+      (xy 248.92 127)
+      (xy 261.62 127)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "81c294fe-273c-5b0b-8cc3-b47e49bd843c")
+  )
+  (wire
+    (pts
+      (xy 142.24 101.6)
+      (xy 154.94 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "a7a9aad6-24ce-50e3-bf74-c669340f1748")
+  )
+  (wire
+    (pts
+      (xy 154.94 101.6)
+      (xy 177.8 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "665e2056-e37f-5f77-be43-7001fe8043f7")
+  )
+  (wire
+    (pts
+      (xy 177.8 101.6)
+      (xy 190.5 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "1f8313be-e42c-5402-84e6-8c9bbe6b8788")
+  )
+  (wire
+    (pts
+      (xy 190.5 101.6)
+      (xy 213.36 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "506b68f4-690f-5591-87e7-6ef03a0af7a3")
+  )
+  (wire
+    (pts
+      (xy 213.36 101.6)
+      (xy 226.06 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "22d13eeb-dc31-5025-866f-8361b0d84a9c")
+  )
+  (wire
+    (pts
+      (xy 226.06 101.6)
+      (xy 248.92 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "3c9a64c4-0175-584c-8b69-a8c1ff12a2db")
+  )
+  (wire
+    (pts
+      (xy 248.92 101.6)
+      (xy 261.62 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "ecb66f30-c17a-5e68-87ce-1cda40eafbca")
+  )
+  (wire
+    (pts
+      (xy 261.62 101.6)
+      (xy 274.32 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "8bdbab10-9ddf-5543-92bd-2f4a945d58fa")
+  )
+  (wire
+    (pts
+      (xy 274.32 101.6)
+      (xy 274.32 93.98)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "294e62df-aa8c-5a94-9713-57bb4313a729")
+  )
+  (wire
+    (pts
+      (xy 274.32 101.6)
+      (xy 287.02 101.6)
+    )
+    (stroke
+      (width 0)
+      (type default)
+    )
+    (uuid "64bd0326-a6b0-58b0-a487-5ed9ac303a7e")
+  )
+  (junction
+    (at 55.88 76.2)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "43d68e3f-2f62-5808-9bad-dd45d3632a9b")
+  )
+  (junction
+    (at 55.88 86.36)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "77eeb9c0-7649-5a3f-8d98-2d3aae4e4bef")
+  )
+  (junction
+    (at 99.06 86.36)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "858ddca2-70de-5518-9fac-420dd7376168")
+  )
+  (junction
+    (at 142.24 88.9)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "d002d926-e495-53b3-8b9e-84a3cd992062")
+  )
+  (junction
+    (at 142.24 114.3)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "c88942ae-4662-527e-acd4-36cf3e24c09e")
+  )
+  (junction
+    (at 154.94 101.6)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "9fffca88-25cd-5d88-9ff7-006de7a63ee6")
+  )
+  (junction
+    (at 154.94 127)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "d3fa27ac-1c18-53cd-a0fe-ac6501299d0f")
+  )
+  (junction
+    (at 177.8 88.9)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "fc1cb9db-dc89-5e5e-bba2-4c1d67452407")
+  )
+  (junction
+    (at 177.8 101.6)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "599283f3-a72f-545f-9af5-07f6584329d7")
+  )
+  (junction
+    (at 177.8 114.3)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "6b5fce21-f1e7-518d-927d-2db1fd15ea09")
+  )
+  (junction
+    (at 177.8 127)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "f9cf7b7d-b99f-50f8-be36-f990ca6f60d5")
+  )
+  (junction
+    (at 190.5 76.2)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "cc3df7fa-987b-5ab6-959b-56a278947b47")
+  )
+  (junction
+    (at 190.5 101.6)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "8ece8611-57ba-5afa-90da-85f43faa28a2")
+  )
+  (junction
+    (at 190.5 127)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "e80c54c0-7141-55fe-aa64-0f763d6ac1fb")
+  )
+  (junction
+    (at 213.36 88.9)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "1aa1f548-2281-57e5-bc50-762cce1b4bcb")
+  )
+  (junction
+    (at 213.36 101.6)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "df688693-0138-5b56-9adf-a01ac3aa8536")
+  )
+  (junction
+    (at 213.36 114.3)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "544a5e06-6d70-5464-9a84-b5f3399faf3c")
+  )
+  (junction
+    (at 213.36 127)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "eb375168-2b05-5e26-b2b6-ff2c19a62783")
+  )
+  (junction
+    (at 226.06 76.2)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "361c26e9-c522-53f6-8121-54fdb29097a2")
+  )
+  (junction
+    (at 226.06 101.6)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "c5a04ba5-6ca5-5da5-8908-a1659664129f")
+  )
+  (junction
+    (at 226.06 127)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "edc4523b-ea80-5fba-b94e-c74715c8a0f1")
+  )
+  (junction
+    (at 248.92 88.9)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "b14518ca-4fb7-5b4c-baa3-ec31d9988f17")
+  )
+  (junction
+    (at 248.92 101.6)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "9435c866-dc31-54c1-8614-19a3496c814e")
+  )
+  (junction
+    (at 248.92 114.3)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "479fc41f-70a3-59c5-be2e-c00ee12d61ca")
+  )
+  (junction
+    (at 248.92 127)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "fcab61cb-12d6-50f1-a80a-c97650109c40")
+  )
+  (junction
+    (at 261.62 76.2)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "41375f9f-e3c2-559b-8bd0-fb4aba3e6b0b")
+  )
+  (junction
+    (at 261.62 101.6)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "6af82dde-6358-53f0-860e-ef499bafba55")
+  )
+  (junction
+    (at 261.62 127)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "1411beb8-be12-5f16-b5f2-4f7060e04efc")
+  )
+  (junction
+    (at 274.32 101.6)
+    (diameter 0)
+    (color 0 0 0 0)
+    (uuid "e3f35a76-9763-5392-b1ab-bcf1f1b13633")
+  )
+  (no_connect
+    (at 88.9 101.6)
+    (uuid "e5d2991b-8913-5b86-9f28-f0303b61d281")
+  )
+  (global_label "PWM_C"
+    (shape bidirectional)
+    (at 43.18 96.52 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "a1421460-14b4-5f7b-86db-5c261ab39dfd")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 43.18 96.52 0)
+      (effects
+        (font
+          (size 1 1)
+        )
+        (justify right)
+        (hide yes)
+      )
+    )
+  )
+  (global_label "DRV_EN"
+    (shape bidirectional)
+    (at 43.18 101.6 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "352706ae-9a5a-58b7-801b-fe6df90ac95d")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 43.18 101.6 0)
+      (effects
+        (font
+          (size 1 1)
+        )
+        (justify right)
+        (hide yes)
+      )
+    )
+  )
+  (global_label "FAULT_N"
+    (shape bidirectional)
+    (at 43.18 106.68 180)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right)
+    )
+    (uuid "55f970ea-ed96-587b-a34f-a94b9ffab621")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 43.18 106.68 0)
+      (effects
+        (font
+          (size 1 1)
+        )
+        (justify right)
+        (hide yes)
+      )
+    )
+  )
+  (label "BST_C"
+    (at 90.17 86.36 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "88e03d90-fc3b-53c2-a59c-d3bbf18dbf25")
+  )
+  (global_label "PH_C"
+    (shape bidirectional)
+    (at 111.76 78.74 90)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "69e373d7-2773-5a2d-8fe5-e3bee19e7d55")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 111.76 78.74 0)
+      (effects
+        (font
+          (size 1 1)
+        )
+        (justify left)
+        (hide yes)
+      )
+    )
+  )
+  (label "TG_C"
+    (at 93.98 91.44 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "4e54cff9-dab8-50e7-9571-4ecbad6f7503")
+  )
+  (global_label "PH_C"
+    (shape bidirectional)
+    (at 93.98 96.52 0)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "81757a4c-a545-5468-882d-17b08b291a73")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 93.98 96.52 0)
+      (effects
+        (font
+          (size 1 1)
+        )
+        (justify left)
+        (hide yes)
+      )
+    )
+  )
+  (label "BG_C"
+    (at 93.98 106.68 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "6406d830-d75f-584f-9ee0-2c627632898e")
+  )
+  (label "TG_C"
+    (at 132.08 88.9 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "6d24f07f-1c2e-5437-a922-2601de50e97d")
+  )
+  (label "BG_C"
+    (at 132.08 114.3 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "0c74b998-225d-592d-8bb2-ccdfa318c550")
+  )
+  (label "TG_C"
+    (at 167.64 88.9 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "bc654c43-885f-5560-a0ec-703647f94910")
+  )
+  (label "BG_C"
+    (at 167.64 114.3 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "3be67bd6-cf95-549a-81ea-dd5aaeee2c4a")
+  )
+  (label "TG_C"
+    (at 203.2 88.9 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "123cddbb-c9fc-57e5-aff4-ec0ab1e481fc")
+  )
+  (label "BG_C"
+    (at 203.2 114.3 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "10eaeb22-98c5-521c-873b-fed41ed1528a")
+  )
+  (label "TG_C"
+    (at 238.76 88.9 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "6dcd5302-7f2a-5ad8-91dd-203749ef97e2")
+  )
+  (label "BG_C"
+    (at 238.76 114.3 180)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify right bottom)
+    )
+    (uuid "6625aacc-4440-5117-a5d8-2a51364ab41b")
+  )
+  (global_label "PH_C"
+    (shape bidirectional)
+    (at 274.32 93.98 90)
+    (fields_autoplaced yes)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left)
+    )
+    (uuid "7455afa2-d3cd-5cd6-b145-957d0e6508de")
+    (property "Intersheetrefs" "${INTERSHEET_REFS}"
+      (at 274.32 93.98 0)
+      (effects
+        (font
+          (size 1 1)
+        )
+        (justify left)
+        (hide yes)
+      )
+    )
+  )
+  (label "DT_C"
+    (at 57.15 111.76 0)
+    (effects
+      (font
+        (size 1.27 1.27)
+      )
+      (justify left bottom)
+    )
+    (uuid "747fe3cc-7d0e-5ecf-b15e-051dd459c0c6")
+  )
+  (text "6  LEG C  (U6 LTC7063 + 2 x 4 IPB065N15N3)"
+    (exclude_from_sim no)
+    (at 20.32 20.32 0)
+    (effects
+      (font
+        (size 3 3)
+        (bold yes)
+      )
+      (justify left)
+    )
+    (uuid "8ce7271a-8a6f-55f7-af25-1865bfd4cafc")
+  )
+  (text "Four FETs in parallel per switch, each with its own 10 Ω gate resistor (no gate-loop ringing between them) and 10 kΩ"
+    (exclude_from_sim no)
+    (at 20.32 26.67 0)
+    (effects
+      (font
+        (size 1.6 1.6)
+      )
+      (justify left)
+    )
+    (uuid "61f16b48-0187-5c64-994d-36333f8ba499")
+  )
+  (text "pull-down (keeps them off while the driver is unpowered). Dead time from the DT resistor: 150 kΩ ≈ 140 ns."
+    (exclude_from_sim no)
+    (at 20.32 29.97 0)
+    (effects
+      (font
+        (size 1.6 1.6)
+      )
+      (justify left)
+    )
+    (uuid "f3fe645e-4775-54d0-a737-5d96a69b5b63")
+  )
+  (text "J4: motor phase C, 8 AWG lead pad"
+    (exclude_from_sim no)
+    (at 269.24 111.76 0)
+    (effects
+      (font
+        (size 1.4 1.4)
+      )
+      (justify left)
+    )
+    (uuid "f35355af-a8ca-5360-819b-624dc22849f9")
+  )
+  (text "Q20-Q27: IPB065N15N3 (150 V, 6.5 mΩ, D2PAK). High side: drains on VBUS, sources on PH. Low side: drains on PH, sources on GND."
+    (exclude_from_sim no)
+    (at 132.08 144.78 0)
+    (effects
+      (font
+        (size 1.4 1.4)
+      )
+      (justify left)
+    )
+    (uuid "2ae72041-4e50-5c7d-b133-94058dfd7ad9")
+  )
+  (text "Layout: the 2.2 µF ceramics across each leg's VBUS-GND, gate resistors at the gates, driver next to its leg."
+    (exclude_from_sim no)
+    (at 132.08 148.59 0)
+    (effects
+      (font
+        (size 1.4 1.4)
+      )
+      (justify left)
+    )
+    (uuid "5316b6e4-469e-5c53-994b-2e7d20dd2b4a")
+  )
+  (embedded_fonts no)
+)

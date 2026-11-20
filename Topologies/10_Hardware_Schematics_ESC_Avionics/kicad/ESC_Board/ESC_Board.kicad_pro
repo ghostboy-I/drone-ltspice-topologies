@@ -281,8 +281,40 @@
   },
   "sheets": [
     [
-      "bf98d85b-ce3a-54c5-b021-d8ee38c323e8",
+      "a0b049e5-5136-5aca-8b7c-408839897643",
       "Root"
+    ],
+    [
+      "2cbe5da8-cbd0-5b11-9b48-e945f915c43c",
+      "Power_Input"
+    ],
+    [
+      "e079b177-1f29-5955-9f6f-82e1e08cfcff",
+      "Aux_12V"
+    ],
+    [
+      "ea6ef932-b652-5c64-a47c-51828e35d0ac",
+      "LDOs"
+    ],
+    [
+      "b23848d1-51d0-5294-a990-8a35c87f48be",
+      "Leg_A"
+    ],
+    [
+      "47a92adb-a59d-5220-8970-04c040e3d593",
+      "Leg_B"
+    ],
+    [
+      "e9ca6084-f028-5bc2-b207-19e347fdab1d",
+      "Leg_C"
+    ],
+    [
+      "5e1ddec4-09f4-5be2-bb23-cb7d03aff36e",
+      "Current_Sense"
+    ],
+    [
+      "0d67e6a7-8198-59dc-9653-1120a8d90a0a",
+      "MCU"
     ]
   ],
   "text_variables": {}
