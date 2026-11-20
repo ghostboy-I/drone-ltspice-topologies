@@ -720,7 +720,136 @@ if os.path.exists(os.path.join(R, "wing_shell_model.json")):
         "in-plane shear, the error would have stayed hidden, as it had in the fuselage model.",
     ])
 
-doc.h("12. Takeaways")
+# ------------------------------------------------------------------------------------------------------------------
+TR = J("transition.json") if os.path.exists(os.path.join(R, "transition.json")) else None
+if TR:
+    dz, cu, rig = TR["design"], TR["current"], TR["tail_rig"]
+    hc, hcc = dz["hand_checks"], cu["hand_checks"]
+    BL = dz["blade_loads"]; pa = S["prop_airplane"]
+    mi, mic = dz["mission"], cu["mission"]
+    bra, brp, brh = dz["best_range_airplane"], dz["best_range_any"], dz["best_range_heli"]
+    pt = lambda r_, V_, d_, m_=None: min([o for o in r_["points"] if o["ok"] and o["V"] == V_ and round(o["delta"]) == d_ and (m_ is None or o["mode"] == m_)],
+                                          key=lambda o: o["P_batt"])
+    p_air, p_par = pt(dz, 25.0, 0), pt(dz, 25.0, 70)
+    okset = {(o["V"], round(o["delta"])) for o in dz["points"] if o["ok"]}
+    V_alls = [V_ for V_ in TR["assumptions"]["V"] if all((V_, d_) in okset for d_ in TR["assumptions"]["deltas"])]
+    Vb = [o["V"] for o in dz["best"] if o["mode"] == "B"]
+    doc.pagebreak()
+    doc.h("12. Flying it on the designed props: conversion corridor and transition")
+    doc.p("Proof of concept: how well do the 54 x 18 props from Props/01, designed for hover, carry this airframe from hover through "
+          "conversion to wing-borne cruise and back? src/transition.py trims the vehicle in the pitch plane at every airspeed V "
+          f"(0-{max(TR['assumptions']['V']):.0f} m/s) and nacelle angle delta (90 = hover, 0 = airplane, 5 deg steps), for the 280 lb sizing mass "
+          f"({dz['mass_kg']:.0f} kg) and the current mass estimate ({cu['mass_kg']:.0f} kg). Every rotor is the Props program's own blade-element "
+          "model of the final blade (bemt.edgewise: azimuth-resolved, Drees inflow, tip loss, kappa 1.15), run at the angle its disk "
+          "actually sees the air. That one model covers hover, edgewise flight and the axial airplane mode.")
+    doc.eq(r"\sum F_x = m\,a,\qquad \sum F_z = W,\qquad \sum M_{cg}=0,\qquad \gamma=\delta+\theta,\qquad \alpha_s = 90^\circ-\gamma",
+           note="alpha_s: the disk tilt the BEMT sees (0 hover, 90 airplane)")
+    doc.p("Unknowns at each point: front rpm, pitch theta and either the tail rpm (mode A, elevator neutral) or the elevator "
+          "(mode B, tail rotor parked fore-aft).")
+    doc.p("Each rotor gives thrust T along its shaft and an in-plane force H. The front pair acts at the hub on its 0.35 m arm, so the "
+          "CG moves forward with delta as the two heads swing. The other pieces:")
+    doc.bullets([
+        "Wing: CL = a_w (theta + i_w - alpha_L0) up to CL_max,3D, blended to a flat plate (CL = CD90/2 sin 2a, CD = CD90 sin^2 a) over "
+        "8 deg past stall; CD from the free-transition XFOIL polar plus CL^2/(pi e AR); cm0 about the wing-body aerodynamic centre.",
+        "H-tail: CL_t = a_t (theta + i_t - eps + tau delta_e), eps = (d eps/d alpha) CL/a_w, tau 0.5, |delta_e| <= 25 deg, |CL_t| <= 1. "
+        f"The tail incidence is rigged so the elevator is neutral in airplane-mode cruise at {rig['V']:.0f} m/s and 127 kg: i_t = "
+        f"{rig['i_t_deg']:.1f} deg (the wing's {w['incidence_deg']:.1f} deg incidence and its downwash leave a 0 deg tail at a large negative "
+        "angle; untrimmed, the elevator needed +23 deg).",
+        "Download (sizing, sec. 4) fades as the wake is blown aft: f(V) = f_0 sin^2(delta) v_i^2/(v_i^2 + V^2) on the wing, f_0 v_i^2/(v_i^2 + V^2) on the boom.",
+        "Rest of the vehicle: the sizing drag build-up less the wing (CDA %.3f m^2)." % (dr["CDA_total_m2"] - dr["wing_profile_m2"] - dr["induced_m2"]),
+        f"Limits: rpm <= {dz['rpm_max']:.0f} (motor KV x sagged pack, loaded), theta in [{TR['assumptions']['theta_lim_deg'][0]:.0f}, "
+        f"+{TR['assumptions']['theta_lim_deg'][1]:.0f}] deg (ASSUMED cabin/payload limits), the tail limits above, the wing below stall once it could "
+        f"carry 10 % of W (above {dz['V_wing10']:.1f} m/s; below that a stalled wing is only a drag item).",
+    ])
+    doc.p("Several roots exist (one is a deep-stall branch with the elevator hard over), so each point starts from the neighbouring "
+          "speed's solution, falls back to four fixed seeds, and keeps the cheapest feasible root. Mode A sweeps up from hover, mode B "
+          "down from cruise.")
+    # hand checks
+    H1, H2, H3 = hc["H1_hover"], hc["H2_cruise"], hc["H3_statics"]
+    rows = [
+        ["H1 hover T_f / T_t [N]", f"{H1['T_f_hand']:.1f} / {H1['T_t_hand']:.1f}", f"{H1['T_f_trim']:.1f} / {H1['T_t_trim']:.1f}",
+         f"{abs(100*(H1['T_f_trim']/H1['T_f_hand']-1)):.1f} %", "forces + moments, 2 x 2"],
+        ["H1 hover P front [W]", f"ideal {H1['P_ideal_w']:.0f}", f"{H1['P_f_bemt_w']:.0f}", f"FoM {H1['FoM']:.3f}", "P_id = T^1.5/sqrt(2 rho A)"],
+        ["H2 cruise 25 m/s P [W]", f"{H2['sizing_P_shaft_w']:.0f}", f"{H2['P_shaft_trim_w']:.0f}",
+         f"{100*(H2['P_shaft_trim_w']/H2['sizing_P_shaft_w']-1):+.1f} %", f"sizing; CL {H2['sizing_CL']:.3f} vs {H2['CL']:.3f}"],
+        ["H2 axial BEMT, same T [W]", f"{H2['P_axial_bemt_same_T_w']:.0f}", f"{H2['P_shaft_trim_w']:.0f}",
+         f"{100*(H2['P_shaft_trim_w']/H2['P_axial_bemt_same_T_w']-1):+.1f} %", f"{H2['thrust_per_rotor_trim_n']:.1f} N per rotor"],
+        [f"H3 sum F, {H3['V']:.0f} m/s, d {H3['delta']:.0f}", "0", f"{max(abs(H3['sum_Fx_N']), abs(H3['sum_Fz_N'])):.0e} N", "-", "parts re-summed"],
+    ]
+    for r_ in hc["H4_energy"]["rows"]:
+        if (r_["V"], r_["delta"], r_["mode"]) in ((10.0, 90.0, "A"), (25.0, 90.0, "A"), (25.0, 45.0, "B"), (25.0, 0.0, "B")):
+            rows.append([f"H4 P, {r_['V']:.0f} m/s, d {r_['delta']:.0f} [W]", f"{r_['P_hand_w']:.0f}", f"{r_['P_bemt_w']:.0f}",
+                         f"{100*(r_['P_hand_w']/r_['P_bemt_w']-1):+.1f} %", f"{r_['F_prop_V_w']:.0f} + {r_['P_induced_w']:.0f} + {r_['P_profile_w']:.0f}"])
+    doc.table(["Check (127 kg)", "Hand", "Model", "Diff", "Note (H4: F V + ind. + prof.)"], rows, widths=[0.3, 0.16, 0.14, 0.12, 0.28])
+    doc.eq(r"P = (T\cos\gamma - H\sin\gamma)\,V + \kappa\,T\,v_i + P_{0,h}\left(\frac{\Omega}{\Omega_h}\right)^3(1+4.65\,\mu^2),\qquad v_i=\frac{T}{2\rho A\sqrt{(V\cos\alpha_s)^2+(V\sin\alpha_s+v_i)^2}}", size=11,
+           note=f"H4: work + Glauert induced + profile; P_0,h = {hc['H4_energy']['P0_hover_w']:.0f} W from hover")
+    doc.p("H4 is the check that matters for an edgewise rotor. It is tempting to bound the power below by T (V sin alpha_s + v_i). "
+          "That ignores the in-plane force: a lifting rotor in edgewise flight works like a wing, and the free stream pays part of the "
+          "work through H. The energy budget with the actual propulsive force closes to a few per cent at every point, hover to airplane mode.")
+    doc.img(img("fig_corridor.png"), width=6.6)
+    doc.p(f"Conversion corridor. Green squares trim inside every limit; the marks say which limit blocks the others. At {dz['mass_kg']:.0f} kg airplane mode "
+          f"(delta 0) holds from {dz['airplane_V_min']:.0f} to {dz['airplane_V_max']:.0f} m/s: wing stall below, front rpm above (the fixed-pitch "
+          f"prop's zero-thrust J). With the nacelles up the craft flies to {dz['heli_V_max']:.0f} m/s before the nose-down pitch limit blocks it. "
+          f"Between them the corridor is wide: from {min(V_alls):.0f} to {max(V_alls):.0f} m/s every angle trims, so the nacelles can go down anywhere in that band. At "
+          f"{cu['mass_kg']:.0f} kg airplane mode shrinks to {cu['airplane_V_min']:.0f}-{cu['airplane_V_max']:.0f} m/s: the wing stalls just below the "
+          "speed where the props run out of rpm. The solid line is the nacelle schedule used for transition (the minimum-power angle, "
+          "made monotonic); the dotted line is the minimum-power angle itself.")
+    doc.img(img("fig_power_speed.png"), width=6.6)
+    doc.p("Prop effectiveness, three numbers:")
+    doc.bullets([
+        f"Hover: FoM {H1['FoM']:.3f} per front rotor at {H1['T_f_trim']:.0f} N (Props reported 0.836 at the 415 N design thrust; the "
+        f"download and the tail's larger share move the front rotors off that point). Hover costs {dz['heli_mode'][0]['P_batt']/1e3:.1f} kW at the battery.",
+        f"Airplane mode: eta = {H2['eta_prop']:.2f} at 25 m/s against the ideal (actuator-disk) {H2['eta_ideal']:.2f}. The big disk is lightly "
+        f"loaded, so almost none of that gap is momentum loss. The 18 in pitch prop runs at J {S['cruise']['J']:.2f}, close to its zero-thrust "
+        f"J {pa['J_zero_thrust']:.2f}: the outer blade sits at negative angle of attack (largest section alpha {BL['airplane']['alpha_max_deg']:.1f} deg) "
+        f"and profile drag eats the power. Each prop makes {H2['thrust_per_rotor_trim_n']:.0f} N from {H2['P_shaft_trim_w']/2:.0f} W.",
+        f"Edgewise lift: the same disks tilted to 70 deg at 25 m/s make {p_par['T_f']:.0f} N each for {p_par['P_f']:.0f} W, while still pulling "
+        f"(eta {p_par['eta_prop']:.2f} on their forward component). A big, lightly loaded rotor in edgewise flight is an efficient lifting surface.",
+    ])
+    doc.p(f"Hence the main finding. At the design mass the cheapest way to fly {min(Vb):.0f}-{max(Vb):.0f} m/s is not airplane mode but partial "
+          f"conversion: nacelles at ~{brp['delta']:.0f} deg, tail rotor parked, the wing carrying {100*brp['wing_lift_frac']:.0f} % of the weight. "
+          f"At 25 m/s that needs {p_par['P_batt']/1e3:.2f} kW at the battery against {p_air['P_batt']/1e3:.2f} kW in airplane mode. "
+          f"Best range: {brp['wh_per_km']:.1f} Wh/km at {brp['V']:.0f} m/s against {bra['wh_per_km']:.1f} Wh/km in airplane mode "
+          f"({bra['V']:.0f} m/s) and {brh['wh_per_km']:.1f} Wh/km nacelles up ({brh['V']:.0f} m/s). The wing is not the reason: in airplane mode it "
+          f"cruises at CL {p_air['CL']:.2f}, near its best-L/D CL ({dr['CL_LDmax']:.2f}), and at CL {p_par['CL']:.2f} in partial conversion it loses little. "
+          f"The props are. In airplane mode each turns {p_air['P_f']:.0f} W into {p_air['T_f']:.0f} N near its zero-thrust J. Tilted to 70 deg they "
+          f"turn slower ({p_par['rpm_f']:.0f} against {p_air['rpm_f']:.0f} rpm) with the blades at a working angle of attack, take the lift the wing "
+          f"gives up and still supply the propulsive force. At the current mass the same holds: {cu['best_range_any']['wh_per_km']:.0f} Wh/km against "
+          f"{cu['best_range_airplane']['wh_per_km']:.0f} Wh/km.")
+    doc.img(img("fig_transition.png"), width=6.6)
+    po, pi_ = dz["paths"]["airplane"]
+    doc.p("Transition. The same trim with m a in the x equation, along the schedule, at the fastest of 1, 0.5 and 0.25 m/s^2 that "
+          f"trims at every speed (dt = dV/a). Out: {po['a']:+.2f} m/s^2, {po['time_s']:.0f} s, {po['energy_wh']:.0f} Wh, {po['distance_km']*1e3:.0f} m. "
+          f"Back: {pi_['a']:+.2f} m/s^2 ({pi_['time_s']:.0f} s, {pi_['energy_wh']:.0f} Wh); a faster deceleration fails to trim at mid "
+          "speeds, where it needs more rearward force than the nose-up pitch limit and the tilted rotors give. At the end of the out path the nacelles finish at "
+          f"{dz['convert_at_cruise']['from_delta']:.0f} deg; every angle down to 0 trims at {dz['convert_at_cruise']['V']:.0f} m/s, so they tilt the rest of "
+          "the way at constant speed.")
+    rows = []
+    for lab, k in (("Full conversion", "airplane"), ("Partial conversion", "partial"), ("Nacelles up", "nacelles_up")):
+        for mm, rr in ((dz, mi), (cu, mic)):
+            if k not in rr: continue
+            m_ = rr[k]
+            rows.append([lab if mm is dz else "", f"{mm['mass_kg']:.0f}", f"{m_['V_cruise']:.0f}", f"{m_['wh_per_km']:.1f}",
+                         f"{m_['accel_a']:+.2f} / {m_['decel_a']:+.2f}", f"{m_['accel_wh'] + m_['decel_wh']:.0f}", f"{m_['total_wh']:.0f}" + ("" if m_["complete"] else " *")])
+    doc.table(["Strategy", "kg", "V [m/s]", "Wh/km", "a out / back", "trans. Wh", "total Wh"], rows, widths=[0.24, 0.08, 0.1, 0.1, 0.18, 0.14, 0.16])
+    doc.p(f"Mission: 60 s hover in all (take-off and landing, {mi['hover_wh']:.0f} Wh at 127 kg), accelerate, a {mi['cruise_km']:.0f} km leg in all, decelerate. "
+          "* Nacelles up cannot accelerate at even 0.25 m/s^2 over the last few m/s before its cruise speed (pitch limit), so its row is optimistic. "
+          "The tilt pays for itself on every leg; partial conversion pays most.")
+    pB = BL["partial"]
+    doc.p("What this model leaves out, and where it could bite:")
+    doc.bullets([
+        f"Blade loads. A fixed-pitch prop in edgewise flight has no cyclic pitch or flapping hinge to even out the lift between "
+        f"the advancing and retreating sides. At the partial-conversion cruise point one blade's root flap moment swings +-{pB['M_1P']:.0f} N m (1P) about "
+        f"{pB['M_mean']:.0f} N m, against {BL['hover']['M_mean']:.0f} N m steady in hover, and each hub carries {pB['M_roll']:.0f} N m of roll moment "
+        f"(the counter-rotating pair cancels it on the airframe, not in the nacelle or the blade root). Nacelles up it is +-{BL['nacelles_up']['M_1P']:.0f} N m. "
+        f"The blade and hub need a fatigue check at these cycles ({pB['rpm']*60:.1e} per hour) before partial conversion is a cruise mode.",
+        f"Hub moments are not in the trim (pitch hub moment {pB['M_pitch']:.0f} N m per rotor in partial conversion, {BL['nacelles_up']['M_pitch']:.0f} N m nacelles up).",
+        "No rotor wake on the wing beyond the hover download, no wing in the slipstream, no whirl flutter, no dynamics or control laws: "
+        "quasi-steady trim points only.",
+        "Pitch limits [-10, +15] deg are ASSUMED; they set the nacelles-up speed limit and the deceleration rate.",
+    ])
+
+doc.h("13. Takeaways")
 doc.bullets([
     f"A true V-22 scale-down can't fly wing-borne on fixed-pitch 54 in props: its wing needs {S['v22_scaled']['speed_for_CL1_ms']:.0f} m/s and "
     f"the props stop pulling at {S['prop_airplane']['v_zero_thrust_at_rpm_max']:.0f} m/s. The Osprey look survives with a longer wing.",
@@ -746,6 +875,10 @@ doc.bullets([
     f"{J('wing_shell_model.json')['cases']['LC1 hover pull-up n=2']['cuts'][0]['EI_flap']/J('wing_shell_model.json')['beam_box_EI_flap']:.2f} x stiffer than the beam's. "
     "Its Bredt check exposed a strain-axis error in the CalculiX post-processing. Corrected, the fuselage failed at the spar frames "
     "in the one-wheel landing, and frame caps plus web posts fixed it (+1.4 kg).",
+    *([f"Flown on the Props/01 blade model (sec. 12), the conversion corridor is wide at 127 kg ({dz['airplane_V_min']:.0f}-{dz['airplane_V_max']:.0f} m/s in airplane mode) and nearly "
+       f"closed at {cu['mass_kg']:.0f} kg ({cu['airplane_V_min']:.0f}-{cu['airplane_V_max']:.0f} m/s). The hover props are poor airplane props (eta {hc['H2_cruise']['eta_prop']:.2f}, "
+       f"near their zero-thrust J) but good edgewise lifters: partial conversion (nacelles ~{brp['delta']:.0f} deg) cruises at {brp['wh_per_km']:.0f} Wh/km against "
+       f"{bra['wh_per_km']:.0f} in airplane mode, pending a fatigue check of the fixed-pitch blades' 1P loads."] if TR else []),
     "OpenFOAM 13's viscous wall term over-predicts wall shear by ~48 % (a laminar channel shows it). Airfoil CFD checks lift "
     "and stall; section drag comes from XFOIL.",
     f"Modal rule: nominal operating-point bands (user, 2026-11-18). Open decisions: the tail-boom download ({100*S['download_tail']['frac']:.0f} % of the tail rotor), the real mass against the 280 lb sizing weight, "

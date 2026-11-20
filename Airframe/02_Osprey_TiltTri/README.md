@@ -31,6 +31,9 @@ python3 src/fuselage_shell.py         # CalculiX shell model of the fuselage wit
 python3 src/fittings.py               # again: the lug design load takes the FE split if it is larger
 python3 src/wing_shell.py             # CalculiX shell model of the wing box + ribs on the four lugs (~2 min, 2.2 GB RAM)
 python3 src/fittings.py               # once more: the lug design load takes the wing FE split if it is larger
+python3 src/transition.py             # trim grid over speed x nacelle angle on the Props blade model, 127 + 183 kg (~2 h, nice 19, 2 cores)
+python3 src/transition.py --post      # paths, missions and hand checks only, from the saved grid (30-60 min)
+python3 src/transition_figs.py        # corridor, power vs speed, transition time history
 python3 make_design_doc.py
 ```
 
@@ -57,6 +60,8 @@ python3 src/cfd_airfoil2d.py post                         # CFD vs XFOIL -> resu
 | `src/fuselage_shell.py` | Fuselage shell FEM (CalculiX): keel, floor, frames (+ skin if `fuselage.skin: bonded`), fittings if `fuselage.fittings`; loads cut from the beam model; hand checks F1-F3, H1-H3 |
 | `src/wing_shell.py` | Wing shell FEM (CalculiX): box skins, spar webs and ribs on the true section contour at the wing incidence, tapered caps, four pinned lugs, beam-model free-body loads; hand checks W1-W6 (equilibrium, lug split, beam theory, Bredt, tip deflection, panel buckling between ribs). `--build` writes `fea/wing/wing_static.inp` for running ccx elsewhere, `--post` reads the results back |
 | `src/fittings.py` | Wing carry-through (four bolted lugs, heavy spar frames by a closed-ring unit-load solution with arch thrust) boom socket (two collars, two bulkheads) and main-gear saddles + diaphragm (lever-rule split, core crush, bolts, Bredt torsion) sized by hand |
+| `src/transition.py` | Pitch-plane trim of the whole vehicle on the Props/01 blade model (bemt.edgewise for every rotor at its own disk angle): conversion corridor, minimum-power nacelle schedule, quasi-steady accelerating/decelerating transition, three mission strategies; hand checks H1-H4 (hover statics, cruise vs sizing and axial BEMT, statics closure, rotor energy budget) -> `results/transition.json` |
+| `src/transition_figs.py` | `fig_corridor.png`, `fig_power_speed.png`, `fig_transition.png` |
 | `src/cfd_airfoil2d.py` | 2-D RANS airfoil cases: orthogonal Hermite C-grid, Spalart-Allmaras, polar plot against XFOIL. Lift only: OpenFOAM 13's wall shear is +48 % (channel test), so section drag comes from XFOIL |
 | `geometry/` | `airframe_hover.stl`, `airframe_airplane.stl`, `rotor_disks_hover.stl`, `wing_section.dat` |
 | `geometry/airfoils/` | UIUC coordinate files (m-selig.ae.illinois.edu/ads): NASA LS(1)-0417, LS(1)-0417MOD, NLF(1)-0416 (+ Selig-order copies) |
@@ -83,7 +88,16 @@ python3 src/cfd_airfoil2d.py post                         # CFD vs XFOIL -> resu
 
 - Tail-boom + aft-cone download, 8.6 % of the tail rotor's thrust: an airfoil-section boom is the fix.
 - Real vehicle mass (~185 kg) against the 280 lb (127 kg) sizing weight: the wing stalls at ~25 m/s at the real mass.
-- Whirl flutter, prop normal force in airplane mode, transition corridor: not modelled yet.
+- Whirl flutter and the prop normal force in airplane mode: not modelled yet.
+- **Transition / forward flight on the designed props (2026-11-20, src/transition.py, design doc sec. 12):** at 127 kg
+  airplane mode trims 21-29 m/s (wing stall below, prop rpm above), nacelles up to 26 m/s, and every angle trims from
+  21 to 26 m/s. The 54 x 18 hover props are poor airplane props (eta 0.71 vs ideal 0.96 at 25 m/s: J 0.49 near the
+  zero-thrust J 0.56) but good edgewise lifters, so **partial conversion** (nacelles ~70 deg, tail rotor parked, wing
+  62 % of the lift) is the cheapest cruise: 52.7 Wh/km against 77.8 in airplane mode. At the 183 kg estimate airplane
+  mode shrinks to 25-27 m/s. Transition out 24 s / 90 Wh at 1 m/s^2; back only at 0.5 m/s^2 (pitch limit). Tail
+  incidence rigged to 10.3 deg (elevator neutral at 25 m/s). Open before partial conversion is a cruise mode: blade/hub
+  fatigue at the edgewise 1P loads (+-36 N m on 33 N m mean, 41 N m hub roll moment), rotor wake on the wing, the
+  ASSUMED pitch limits [-10, +15] deg.
 - **Strain-axis correction and resize (2026-11-20):** CalculiX 2.21 writes composite-shell strains in element-local
   axes; read correctly, LC4 failed at the spar frames' web feet. Fixed with 30 mm caps on the spar frames (T sections),
   vertical web posts at those frames and +3 +-45 keel-web doublers (also over the socket bay and the nose gear), +1.4 kg.
