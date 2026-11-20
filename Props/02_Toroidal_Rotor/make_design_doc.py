@@ -339,7 +339,9 @@ if BSM:
               f"({ms['volume_scaled_kg']:.2f}-{ms['area_scaled_kg']:.2f} kg) was optimistic. The thin-leg candidate cannot pass at all.")
 else:
     tk.append(f"Its blade set brackets {ms['volume_scaled_kg']:.2f} to {ms['area_scaled_kg']:.2f} kg against {ms['reference_kg']:.2f} kg.")
-tk.append("The decision matrix (section 12) ranks the toroid 7th of 9, about 3.5 kg heavier than the 2-blade tri; the 2-blade hexacopter ranks first at the "
+_DM = J("decision_matrix.json")
+_tr = (1 + [r_["key"] for r_ in _DM["rows"]].index("tri_toroid"), len(_DM["rows"])) if _DM else (7, 10)
+tk.append(f"The decision matrix (section 12) ranks the toroid {_tr[0]}th of {_tr[1]}, about 3.5 kg heavier than the 2-blade tri; the 2-blade hexacopter ranks first at the "
           "15 m/s design point. The refined-nose CFD (item 55 of the 54x18 log) is the remaining check on the absolute torque.")
 doc.bullets(tk)
 
@@ -348,7 +350,7 @@ if DM:
     doc.h("12. Decision matrix, weight first")
     doc.p(f"Basis: {DM['basis']}. The mass criterion (50 %) is the change in propulsion + arms + fairing + mission pack against the "
           "tricopter with 2-blade 54 in rotors, read from the projects that computed it (Props/01 design-exploration entries 21, 44, 48, 49, "
-          "the diameter study, Airframe 01/02, and this project's CFD), on two bases: plain blade-element (entry 48) and the 2-blade CFD's "
+          "the diameter study, Airframe 01/02/03, and this project's CFD), on two bases: plain blade-element (entry 48) and the 2-blade CFD's "
           "torque and power factors (entry 44). The coarse-nose CFD reads torque high, so the truth should lie between them. The other "
           "criteria are 0-10 judgements with a reason each (matrix_inputs.yaml); mass is scored linearly between the lightest and heaviest option.")
     rows = []
@@ -357,7 +359,7 @@ if DM:
         sc = r_["scores"]
         short = {"hex_2blade": "Hex, 2-blade", "hex_3blade": "Hex, 3-blade", "tri_60in": "Tri, 2-blade 60 in", "y6_2blade": "Y6, 2-blade",
                  "tri_2blade": "Tri, 2-blade (current)", "tri_3blade": "Tri, 3-blade", "tri_toroid": "Tri, toroid as built",
-                 "tri_toroid_opt1": "Tri, toroid cand. 1", "tilt_tri": "Tilt-tri (Osprey)"}[r_["key"]]
+                 "tri_toroid_opt1": "Tri, toroid cand. 1", "tilt_tri": "Tilt-tri (Osprey)", "tilt_hex": "Tilt-hex (Osprey)"}[r_["key"]]
         mk = {"both": "", "bemt_only": " *", "mixed": " **", "range": " r"}.get(r_.get("basis"), "")
         rows.append([str(i), short, f"{fm(r_['mass_delta_bemt'])} / {fm(r_['mass_delta_cfd'])}{mk}",
                      f"{sc['mass']:.1f}", str(sc["tw15"]), str(sc["noise"]), str(sc["evidence"]), str(sc["risk"]), f"{r_['total']:.2f}"])
@@ -385,13 +387,16 @@ if DM:
         f"({fm(DM['rows'][0]['mass_delta_bemt'])} to {fm(DM['rows'][0]['mass_delta_cfd'])} kg), the quietest, and like the Y6 it survives a motor out.",
         "If cruise speed is free (best range, ~21-25 m/s), the tri is lighter than the hex by "
         + (f"{next(r_ for r_ in DMF['rows'] if r_['key'] == 'hex_2blade')['mass_delta_mid']:.1f} kg" if DMF else "a few kg")
-        + "; the hex still ranks first up to a ~60 % mass weight, and above that the 60 in tricopter overtakes it ("
+        + f"; the hex still ranks first up to a {max(float(k) for k, v in sensf.items() if v[0] == 'hex_2blade') * 100:.0f} % mass weight, and above that the 60 in tricopter overtakes it ("
         + (" > ".join(lab[k] for k in sensf.get("0.7", [])[:2]) if sensf else "") + ").",
-        "The toroidal rotor ranks 7th of 9 in both scenarios and at every mass weight: about 3.5 kg heavier than the 2-blade tri, "
+        f"The toroidal rotor ranks {min(min(v.index('tri_toroid') for v in d_.values()) for d_ in (sens, sensf)) + 1}th-{max(max(v.index('tri_toroid') for v in d_.values()) for d_ in (sens, sensf)) + 1}th of {len(DM['rows'])} in both scenarios and at every mass weight: about 3.5 kg heavier than the 2-blade tri, "
         "and further from T/W 1.5 on the U15XL. Its one possible advantage, lower noise, is an estimate here, not a computation.",
         "The requirements move the mass far more than any rotor choice: the battery chemistry (13 kg on the tri), the cruise speed "
         "(7 kg), whether the CFD torque is real (5-8 kg) and sizing the motors for T/W 1.5 instead of 2.0 (~2 kg). None of the options "
         f"comes near the 55 lb ({DM['drone_budget_kg']:.1f} kg) drone limit: propulsion, arms and pack alone are 43-52 kg.",
+        "The two tilt-rotor rows (Airframe 02 tri, Airframe 03 hex) take their cruise energy from each frame's BEMT trim at its best "
+        "range; both come out ~8 kg heavier than the tri: the wing-borne cruise saves ~18 kg of pack but the wing, tilt hardware and "
+        "fuselage cost ~25 kg.",
     ])
 
 out = os.path.join(here, "02_Toroidal_Rotor_Design.pdf")

@@ -66,3 +66,9 @@ options:
     noise: {score: 3, why: "hover as the tri"}
     evidence: {score: 3, why: "concept sizing + FEM screen; mass does not close"}
     risk: {score: 2, why: "conversion, whirl flutter and transition not modelled; no motor-out"}
+  tilt_hex:
+    label: "Osprey-style tilt-hex (Airframe 03)"
+    tw15: {score: 3, why: "hex rotor T/W 2.00 at 127 kg but 1.39 at the ~183 kg model mass (MN1123, rpm-limited); the 54x18 alternative on the tilting rotors stops at 1.45"}
+    noise: {score: 8, why: "hover as the hex; pylon-mounted disks ahead of the wing add some interaction"}
+    evidence: {score: 4, why: "sizing + beam FEM screen + six-rotor BEMT trim (Airframe 03); no shell FEM; mass does not close"}
+    risk: {score: 3, why: "six rotors (motor-out in hover) but four tilt mechanisms; whirl flutter open (airplane modes at the 1P band edge), hex blade cannot fly airplane mode"}

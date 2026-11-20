@@ -32,7 +32,7 @@ Run the two one after the other, not side by side.
 
 ## Decision matrix (weight first)
 
-`DECISION_MATRIX.md` (built by `python3 src/matrix.py` from the result files it names; scores and weights in `matrix_inputs.yaml`). At the 15 m/s design point the **Hexacopter, 2-blade 54 in** ranks first (8.90/10); the toroid ranks 7 of 9 (4.81), about 3.5 kg heavier than the 2-blade tricopter once its legs are sized for the same flex test. Battery chemistry, cruise speed and the T/W sizing move the mass far more than the rotor type.
+`DECISION_MATRIX.md` (built by `python3 src/matrix.py` from the result files it names; scores and weights in `matrix_inputs.yaml`). At the 15 m/s design point the **Hexacopter, 2-blade 54 in** ranks first (8.90/10); the toroid ranks 7 of 10 (4.01), about 3.5 kg heavier than the 2-blade tricopter once its legs are sized for the same flex test. Battery chemistry, cruise speed and the T/W sizing move the mass far more than the rotor type.
 
 ## Run the CFD
 

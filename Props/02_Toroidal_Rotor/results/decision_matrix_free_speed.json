@@ -17,13 +17,13 @@
    "basis": "both",
    "mass_source": "entries 48 / 44 (hex - tri payload)",
    "scores": {
-    "mass": 8.169681235832734,
+    "mass": 7.710176179287105,
     "tw15": 8,
     "noise": 9,
     "evidence": 6,
     "risk": 8
    },
-   "total": 7.984840617916367,
+   "total": 7.755088089643553,
    "why": {
     "tw15": "motors sized for T/W 2 with the CFD torque factor (entry 44: MN1320 fits with a 12 % reserve); speed headroom not CFD-checked",
     "noise": "50.3 dBA (entry 48), 48.0 dBA with CFD factors (entry 44): ~10 dB below the tri",
@@ -42,13 +42,13 @@
    "basis": "bemt_only",
    "mass_source": "entry 49: Y6 -0.43 + 2.22 vs the tri's +2.76 catalogue gain",
    "scores": {
-    "mass": 8.957815423117813,
+    "mass": 8.696172974651132,
     "tw15": 7,
     "noise": 6,
     "evidence": 4,
     "risk": 7
    },
-   "total": 7.578907711558907,
+   "total": 7.4480864873255666,
    "why": {
     "tw15": "MN1320 fits at a 16 % reserve for T/W 2 (entry 49); blade-element only",
     "noise": "not computed; six smaller-loaded rotors like the hex, plus coaxial interaction",
@@ -88,13 +88,13 @@
    "basis": "both",
    "mass_source": "reference (entry 48 tri V13828 24xx: 37.65 kg; entry 44 tri U15XL: 45.42 kg)",
    "scores": {
-    "mass": 9.454790352840034,
+    "mass": 9.317914419176402,
     "tw15": 4,
     "noise": 3,
     "evidence": 8,
     "risk": 5
    },
-   "total": 7.127395176420017,
+   "total": 7.058957209588201,
    "why": {
     "tw15": "CFD (U15XL KV38, 84 V): T/W 1.32 as built; ~1.47-1.54 re-pitched if the coarse-nose torque bias is 17-25 % (marginal)",
     "noise": "60.4 dBA hover (entry 48, V13828 at tip-Mach cap 0.80); 57.5 dBA on the U15XL with CFD factors (entry 44)",
@@ -105,29 +105,6 @@
    "sum_cfd": 45.41543704838723
   },
   {
-   "key": "hex_3blade",
-   "label": "Hexacopter, 3-blade 54 in",
-   "mass_delta_bemt": 8.217615656946972,
-   "mass_delta_cfd": 5.314507191841937,
-   "mass_delta_mid": 6.766061424394454,
-   "basis": "mixed",
-   "mass_source": "entry 21 (hex 3-blade change, BEMT) on top of the hex row",
-   "scores": {
-    "mass": 5.988230661206346,
-    "tw15": 8,
-    "noise": 9,
-    "evidence": 4,
-    "risk": 8
-   },
-   "total": 6.694115330603173,
-   "why": {
-    "tw15": "as the 2-blade hex",
-    "noise": "as the hex, slightly lower tones",
-    "evidence": "blade-element (entry 21)",
-    "risk": "survives a motor out"
-   }
-  },
-  {
    "key": "tri_3blade",
    "label": "Tricopter, 3-blade 54 in",
    "mass_delta_bemt": 2.224985186438791,
@@ -136,18 +113,41 @@
    "basis": "bemt_only",
    "mass_source": "entry 21: 3-blade payload change on the tri",
    "scores": {
-    "mass": 8.314829675867452,
+    "mass": 7.891764415193121,
     "tw15": 5,
     "noise": 4,
     "evidence": 4,
     "risk": 5
    },
-   "total": 6.457414837933726,
+   "total": 6.24588220759656,
    "why": {
     "tw15": "same motor family as the 2-blade tri; blade-element only",
     "noise": "lower tonal loading noise with 3 blades; broadband similar",
     "evidence": "blade-element (entry 21); mass driven by the per-blade 50 N / 1.2 mm flex test",
     "risk": "no motor-out; heavier hub; 89 % less hub roll ripple (ride quality)"
+   }
+  },
+  {
+   "key": "hex_3blade",
+   "label": "Hexacopter, 3-blade 54 in",
+   "mass_delta_bemt": 8.217615656946972,
+   "mass_delta_cfd": 5.314507191841937,
+   "mass_delta_mid": 6.766061424394454,
+   "basis": "mixed",
+   "mass_source": "entry 21 (hex 3-blade change, BEMT) on top of the hex row",
+   "scores": {
+    "mass": 4.981068229743705,
+    "tw15": 8,
+    "noise": 9,
+    "evidence": 4,
+    "risk": 8
+   },
+   "total": 6.190534114871852,
+   "why": {
+    "tw15": "as the 2-blade hex",
+    "noise": "as the hex, slightly lower tones",
+    "evidence": "blade-element (entry 21)",
+    "risk": "survives a motor out"
    }
   },
   {
@@ -159,13 +159,13 @@
    "basis": "range",
    "mass_source": "this project's CFD pair + Props/01 spar model; low: cruise power as the 2-blade, high: cruise +7.8 % like hover",
    "scores": {
-    "mass": 7.676867107377509,
+    "mass": 7.093640113213363,
     "tw15": 2,
     "noise": 4,
     "evidence": 8,
     "risk": 2
    },
-   "total": 5.638433553688754,
+   "total": 5.346820056606681,
    "why": {
     "tw15": "CFD: T/W 1.23 (torque-limited); ~1.40-1.46 re-pitched even if the torque bias is 17-25 %",
     "noise": "estimate only: no free tip vortex (-0 to -2.4 dBA, entry 31 range) and 4 legs (lower tones); doubled trailing-edge length offsets part",
@@ -181,6 +181,29 @@
     "escs": 0.1417655999867734,
     "pack_hover": 0.3278501519008474,
     "pack_cruise_if_penalised": 1.4467972265709925
+   }
+  },
+  {
+   "key": "tilt_hex",
+   "label": "Osprey-style tilt-hex (Airframe 03)",
+   "mass_delta_bemt": 14.537195591814454,
+   "mass_delta_cfd": 14.537195591814454,
+   "mass_delta_mid": 14.537195591814454,
+   "basis": "bemt_only",
+   "mass_source": "Airframe 03 frame 28.1 + tilt 4.8 kg vs Airframe 01 frame 8.0 kg, six MN1123 rotor sets vs three U15XL +0.8 kg (the airframe already carries arms, pylons and tilt); pack 2462 Wh (BEMT trim 65.5 Wh/km at 21 m/s, nacelles 70 deg) vs the tri's 5854 Wh; sized at 127 kg, real ~183 kg",
+   "scores": {
+    "mass": 0.0,
+    "tw15": 3,
+    "noise": 8,
+    "evidence": 4,
+    "risk": 3
+   },
+   "total": 2.1,
+   "why": {
+    "tw15": "hex rotor T/W 2.00 at 127 kg but 1.39 at the ~183 kg model mass (MN1123, rpm-limited); the 54x18 alternative on the tilting rotors stops at 1.45",
+    "noise": "hover as the hex; pylon-mounted disks ahead of the wing add some interaction",
+    "evidence": "sizing + beam FEM screen + six-rotor BEMT trim (Airframe 03); no shell FEM; mass does not close",
+    "risk": "six rotors (motor-out in hover) but four tilt mechanisms; whirl flutter open (airplane modes at the 1P band edge), hex blade cannot fly airplane mode"
    }
   },
   {
@@ -209,19 +232,19 @@
   {
    "key": "tilt_tri",
    "label": "Osprey-style tilt-tricopter (Airframe 02)",
-   "mass_delta_bemt": 18.45394222879797,
-   "mass_delta_cfd": 18.45394222879797,
-   "mass_delta_mid": 18.45394222879797,
+   "mass_delta_bemt": 14.480986566741397,
+   "mass_delta_cfd": 14.480986566741397,
+   "mass_delta_mid": 14.480986566741397,
    "basis": "bemt_only",
-   "mass_source": "Airframe 02 frame 32.9 + tilt 2.9 kg vs Airframe 01 frame 8.0 kg; pack 3020 Wh (75.7 Wh/km cruise) vs the tri's 5854 Wh; sized at 127 kg, real ~185 kg",
+   "mass_source": "Airframe 02 frame 30.6 + tilt 2.9 kg vs Airframe 01 frame 8.0 kg; pack 2488 Wh (BEMT trim 52.7 Wh/km at 24 m/s, nacelles 70 deg) vs the tri's 5854 Wh; sized at 127 kg, real ~183 kg",
    "scores": {
-    "mass": 0.0,
+    "mass": 0.03602833035492765,
     "tw15": 1,
     "noise": 3,
     "evidence": 3,
     "risk": 2
    },
-   "total": 1.0,
+   "total": 1.018014165177464,
    "why": {
     "tw15": "same rotors and motors as the tri; sized at 127 kg but the real vehicle is ~185 kg (wing stalls at 25 m/s)",
     "noise": "hover as the tri",
@@ -239,6 +262,7 @@
    "tri_2blade",
    "tri_3blade",
    "tri_toroid",
+   "tilt_hex",
    "tri_toroid_opt1",
    "tilt_tri"
   ],
@@ -246,10 +270,11 @@
    "hex_2blade",
    "y6_2blade",
    "tri_60in",
-   "hex_3blade",
    "tri_2blade",
+   "hex_3blade",
    "tri_3blade",
    "tri_toroid",
+   "tilt_hex",
    "tri_toroid_opt1",
    "tilt_tri"
   ],
@@ -258,31 +283,34 @@
    "y6_2blade",
    "tri_60in",
    "tri_2blade",
-   "hex_3blade",
    "tri_3blade",
+   "hex_3blade",
    "tri_toroid",
+   "tilt_hex",
    "tri_toroid_opt1",
    "tilt_tri"
   ],
   "0.6": [
-   "hex_2blade",
    "tri_60in",
+   "hex_2blade",
    "y6_2blade",
    "tri_2blade",
    "tri_3blade",
    "hex_3blade",
    "tri_toroid",
+   "tilt_hex",
    "tri_toroid_opt1",
    "tilt_tri"
   ],
   "0.7": [
    "tri_60in",
+   "tri_2blade",
    "y6_2blade",
    "hex_2blade",
-   "tri_2blade",
    "tri_3blade",
    "tri_toroid",
    "hex_3blade",
+   "tilt_hex",
    "tri_toroid_opt1",
    "tilt_tri"
   ]
@@ -321,7 +349,7 @@
  ],
  "mass_range": [
   -1.0641449419606772,
-  18.45394222879797
+  14.537195591814454
  ],
  "drone_budget_kg": 24.947580350000003,
  "scenario": "free"

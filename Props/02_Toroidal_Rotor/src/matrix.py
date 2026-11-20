@@ -4,7 +4,7 @@
 
 MASS is the 50 % criterion: the change in (propulsion + arms + fairing hardware) + (mission pack at 303 Wh/kg) against the
 tricopter with 2-blade 54 in rotors, for the 10 nmi mission at 15 m/s on a hot day. It is READ from the result files of
-the projects that computed it (Props/01 design-exploration entries, the diameter study, Airframe 01/02, this project's
+the projects that computed it (Props/01 design-exploration entries, the diameter study, Airframe 01/02/03, this project's
 CFD), in two bases where both exist:
     BEMT   entry 48: plain blade-element, catalogue motors with a 10 % torque reserve (tri on V13828, hex on MN1123)
     CFD    entry 44: the same chain with the 2-blade CFD's equal-thrust factors (rpm x1.156, torque x1.229, power x1.421)
@@ -77,12 +77,22 @@ def build(scen="15 m/s"):
                    "escs": esc, "pack_hover": pack_h, "pack_cruise_if_penalised": pack_c}}, basis="range")
     row("tri_toroid_opt1", None, None, "infeasible: legs fail the 50 N / 1.2 mm flex test even with frame action (%.1f mm)" %
         bsm["toroid_opt1"]["fixed-guided equivalent (6.25 N)"]["leg_deflection_mm"])
-    # tilt-tricopter: heavier airframe, much cheaper cruise (wing-borne at 25 m/s)
-    e_tilt = range_m / 1000 * s2["cruise"]["wh_per_km"] + tri15["hover_w"] * hover_s / 3600
-    pack_tilt = e_tilt / (1 - reserve)
-    d_tilt = (a2["mass_airframe_kg"] + a2["vehicle_mass"]["tilt hardware"] - a1["mass_airframe_kg"]) + (pack_tilt - e48["pack_tri"]) / eb
-    row("tilt_tri", d_tilt, d_tilt, "Airframe 02 frame %.1f + tilt %.1f kg vs Airframe 01 frame %.1f kg; pack %.0f Wh (%.1f Wh/km cruise) vs the tri's %.0f Wh; sized at 127 kg, real ~185 kg" %
-        (a2["mass_airframe_kg"], a2["vehicle_mass"]["tilt hardware"], a1["mass_airframe_kg"], pack_tilt, s2["cruise"]["wh_per_km"], e48["pack_tri"]), basis="bemt_only")
+    # tilt rotors (Airframe 02 tri, 03 hex): heavier airframe, much cheaper cruise. Cruise energy from each frame's six- or
+    # three-rotor BEMT trim (results/transition.json, 127 kg, best range over speed and nacelle angle, battery power): the hex
+    # blade cannot fly airplane mode, so the sizing's airplane-cruise number does not exist for Airframe 03. The hex's rotor
+    # hardware is the rotor-set difference from the airframes' own mass build-ups, not entry 48's hw (which includes multirotor arms).
+    AF = lambda n, f: J(REPO, "Airframe", n, "results", f)
+    a3 = AF("03_Osprey_TiltHex", "final.json")
+    t2, t3 = AF("02_Osprey_TiltTri", "transition.json")["design"], AF("03_Osprey_TiltHex", "transition.json")["design"]
+    hex15 = next(q for q in pts if q["key"] == "hex 24xx" and q["V"] == 15.0)
+    for key, a, t, mc, hw, lab in (("tilt_tri", a2, t2, tri15, 0.0, "Airframe 02"), ("tilt_hex", a3, t3, hex15, a3["vehicle_mass"]["propulsion (6 rotors)"] - a2["vehicle_mass"]["propulsion (3 rotors)"], "Airframe 03")):
+        br = t["best_range_any"]
+        pack = (range_m / 1000 * br["wh_per_km"] + mc["hover_w"] * hover_s / 3600) / (1 - reserve)
+        d = (a["mass_airframe_kg"] + a["vehicle_mass"]["tilt hardware"] - a1["mass_airframe_kg"]) + hw + (pack - e48["pack_tri"]) / eb
+        row(key, d, d, "%s frame %.1f + tilt %.1f kg vs Airframe 01 frame %.1f kg%s; pack %.0f Wh (BEMT trim %.1f Wh/km at %.0f m/s, nacelles %.0f deg) vs the tri's %.0f Wh; sized at 127 kg, real ~%.0f kg" %
+            (lab, a["mass_airframe_kg"], a["vehicle_mass"]["tilt hardware"], a1["mass_airframe_kg"],
+             (", six MN1123 rotor sets vs three U15XL %+.1f kg (the airframe already carries arms, pylons and tilt)" % hw) if hw else "", pack, br["wh_per_km"], br["V"], br["delta"], e48["pack_tri"], sum(a["vehicle_mass"].values())),
+            basis="bemt_only")
     # scores
     w = inp["weights"]; mid = {k: (0.5 * (r_["d_bemt"] + r_["d_cfd"]) if r_["d_bemt"] is not None else None) for k, r_ in rows.items()}
     feas = [v for v in mid.values() if v is not None]; dmin, dmax = min(feas), max(feas)
